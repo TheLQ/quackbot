@@ -5,6 +5,8 @@
  * @author 
  * @version 1.00 2010/2/17
  */
+ 
+package Quackbot;
 
 import java.lang.reflect.*;
 import java.util.*;

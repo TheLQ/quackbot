@@ -12,8 +12,8 @@
 	</settings>
 	<ant_events/>
 	<run_items>
-		<item run="Quackbot"/>
-		<item run="GUI"/>
+		<item run="Quackbot.QBMain"/>
+		<item run="Quackbot.Sandbox"/>
 	</run_items>
 	<runtimes>
 		<runtime>
@@ -22,7 +22,7 @@
 			<applet_ref>&lt;Default&gt;</applet_ref>
 			<debugger_ref>&lt;Default&gt;</debugger_ref>
 			<param/>
-			<run>GUI</run>
+			<run>Quackbot.QBMain</run>
 			<verify>true</verify>
 		</runtime>
 	</runtimes>
@@ -34,17 +34,42 @@
 			<folderitem>
 				<path>src</path>
 			</folderitem>
+			<folderitem>
+				<path>src\Quackbot</path>
+			</folderitem>
+			<folderitem>
+				<path>src\Quackbot\Annotations</path>
+			</folderitem>
+			<folderitem>
+				<path>src\Quackbot\CMDs</path>
+			</folderitem>
 			<fileitem>
-				<path>src\GUI.java</path>
-				<folder>src</folder>
+				<path>src\Quackbot\QBMain.java</path>
+				<folder>src\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Quackbot.java</path>
-				<folder>src</folder>
+				<path>src\Quackbot\Quackbot.java</path>
+				<folder>src\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Sandbox.java</path>
-				<folder>src</folder>
+				<path>src\Quackbot\Sandbox.java</path>
+				<folder>src\Quackbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>src\Quackbot\Annotations\HelpDoc.java</path>
+				<folder>src\Quackbot\Annotations</folder>
+			</fileitem>
+			<fileitem>
+				<path>src\Quackbot\Annotations\ReqArg.java</path>
+				<folder>src\Quackbot\Annotations</folder>
+			</fileitem>
+			<fileitem>
+				<path>src\Quackbot\CMDs\AdminOnly.java</path>
+				<folder>src\Quackbot\CMDs</folder>
+			</fileitem>
+			<fileitem>
+				<path>src\Quackbot\CMDs\GeneralUser.java</path>
+				<folder>src\Quackbot\CMDs</folder>
 			</fileitem>
 		</include>
 	</files>

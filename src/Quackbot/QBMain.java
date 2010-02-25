@@ -6,6 +6,8 @@
  * @version 1.00 2010/2/16
  */
 
+package Quackbot;
+
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.text.*;
@@ -13,16 +15,29 @@ import java.io.*;
 import java.awt.event.*;
 import java.text.*;
 import java.util.*;
+import java.io.*;
 
-public class GUI extends JFrame implements ActionListener {
+import org.apache.commons.jci.*;
+import org.apache.commons.jci.compilers.*;
+import org.apache.commons.jci.readers.*;
+import org.apache.commons.jci.stores.*;
+
+import Quackbot.*;
+import Quackbot.CMDs.*;
+
+public class QBMain extends JFrame implements ActionListener {
 	
 	JTextPane errorLog;
 	JScrollPane errorScroll;
 	StyledDocument errorDoc;
 	PrintStream oldOut,oldErr;
-	Quackbot qb = new Quackbot();
 	
-    public GUI() {
+	//Static class refrences
+	public static Quackbot qb = new Quackbot();
+	public static AdminOnly AdminOnly = new AdminOnly(qb);
+	public static GeneralUser GeneralUser = new GeneralUser(qb);
+	
+    public QBMain() {
     	/***Pre init, setup error log**/
     	errorLog = new JTextPane();
 		errorLog.setEditable(false);
@@ -32,6 +47,7 @@ public class GUI extends JFrame implements ActionListener {
 		//Globs.setSize(errorScroll,125,0);
 		errorScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		errorScroll.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
     	
       	oldOut = System.out;
       	oldErr = System.err;
@@ -41,7 +57,6 @@ public class GUI extends JFrame implements ActionListener {
      	setTitle("Quackbot GUI Control Panel");
        	setMinimumSize(new Dimension(1000,700));
        	
-       	
        	JPanel contentPane = new JPanel();
        	contentPane.setLayout(new BorderLayout());
        	contentPane.add(errorScroll,BorderLayout.CENTER);
@@ -49,15 +64,19 @@ public class GUI extends JFrame implements ActionListener {
        	JPanel bottom = new JPanel();
        	JButton cancel = new JButton("Stop");
        	cancel.addActionListener(this);
-       	bottom.add(cancel,BorderLayout.SOUTH);
+       	bottom.add(cancel);
        	JButton start = new JButton("Start");
        	start.addActionListener(this);
-       	bottom.add(start,BorderLayout.SOUTH);
+       	bottom.add(start);
+       	JButton reload = new JButton("Reload");
+       	reload.addActionListener(this);
+       	bottom.add(reload);
        	
        	contentPane.add(bottom,BorderLayout.SOUTH);
        	
        	add(contentPane); //add to JFrame
 		setVisible(true); //make JFrame visible
+		
 		
 		botThread thread = new botThread();
     	thread.execute();
@@ -72,6 +91,10 @@ public class GUI extends JFrame implements ActionListener {
     	}
     	else if(cmd.equals("Start")) {
     		botThread thread = new botThread();
+    		thread.execute();
+    	}
+    	else if(cmd.equals("Reload")) {
+    		botRecomp thread = new botRecomp();
     		thread.execute();
     	}
     }
@@ -92,6 +115,34 @@ public class GUI extends JFrame implements ActionListener {
 			return null;
         }
     }
+    
+    /*****Simple thread to run the bot in to prevent it from locking the gui***/
+    class botRecomp extends SwingWorker<Void, String> {      
+    	@Override
+        public Void doInBackground() {
+        	try {
+    			System.out.println("RELOADING ALL CLASSES");
+    			JavaCompiler compiler = new JavaCompilerFactory().createCompiler("javac");
+    			System.out.println("hehehe");
+				CompilationResult result = compiler.compile(new String[]{"AdminOnly.java"}, new FileResourceReader(new File("CMDs")),new FileResourceStore(new File("CMDs")));
+				System.out.println("hehehe");
+				System.out.println( result.getErrors().length + " errors");
+				System.out.println("hehehe");
+				System.out.println( result.getWarnings().length + " warnings");
+				System.out.println("hehehe");
+				ReloadingClassLoader classloader = new ReloadingClassLoader(this.getClass().getClassLoader());
+				System.out.println("hehehe");
+				AdminOnly = (AdminOnly)classloader.loadClass("AdminOnly").newInstance();
+				System.out.println("hehehe");
+			}
+			catch(Exception ex) {
+				ex.printStackTrace();
+			}
+			return null;
+        }
+    }
+   	
+
     
     /***Output Wrapper, Redirects all ouput to log at bottom***/
     class FilteredStream extends FilterOutputStream {
@@ -185,7 +236,7 @@ public class GUI extends JFrame implements ActionListener {
     public static void main(String[] args) {
     	javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new GUI();
+                new QBMain();
             }
         });
     }
