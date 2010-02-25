@@ -185,18 +185,30 @@ public class Quackbot extends PircBot {
     /***********************************************************************************
      * BEGIN COMMAND METHODS
      **********************************************************************************/
-    @HelpDoc("Returns time")
-    public void time() {
-    	String time = new java.util.Date().toString();
-        sendMessage(channel, sender + ": The time is now " + time);
+
+	/**************************************ADMIN METHODS*******************************/
+    @AdminOnly
+    @HelpDoc("Locks the bot globaly. Syntax: ?lockBot <true:false>")
+    public void lockBot(String Smode) {
+    	Boolean mode = Boolean.parseBoolean(Smode);
+    	botLocked = mode;
+    	sendMessage(channel,"Bot has been "+((mode) ? "locked" : "unlocked")+" globaly");
     }
-    
-    @HelpDoc("Sends back what you tell it. Mainly a test function")
-    public void echome(String sendme) {
-    	sendMessage(channel, sender + ": "+sendme);
-    }
-    
-    @ReqArg
+
+	@AdminOnly
+	@HelpDoc("Locks the bot in channel. Syntax: ?lockChannel <true:false>")
+	public void lockChannel(String Smode) {
+		Boolean mode = Boolean.parseBoolean(Smode);
+		if(mode==true) {
+			chanLockList.put(channel,"");
+			sendMessage(channel,"Bot has been locked for this channel");
+		}
+		else
+			chanLockList.remove(channel);
+	}
+	
+	/***********************************USER CALLABLE METHODS********************************/
+	@ReqArg
     @HelpDoc("Empty: Displays all commands | With command: Displays help for command. Syntax: ?help <OPTIONAL:command>")
     public void help(String method) {
     	if(method.isEmpty()) {
@@ -218,26 +230,11 @@ public class Quackbot extends PircBot {
 	    	if(!methodExists(method)) return;
 	    	sendMessage(channel, sender + ": "+methodList.get(method).getAnnotation(HelpDoc.class).value());
     	}
-    	
     }
     
-    @AdminOnly
-    @HelpDoc("Locks the bot globaly. Syntax: ?help <OPTIONAL:command>")
-    public void lockBot(String Smode) {
-    	Boolean mode = Boolean.parseBoolean(Smode);
-    	botLocked = mode;
-    	sendMessage(channel,"Bot has been "+((mode) ? "locked" : "unlocked")+" globaly");
+    @HelpDoc("Returns current time. Syntax: ?time")
+    public void time() {
+    	String time = new java.util.Date().toString();
+        sendMessage(channel, sender + ": The time is now " + time);
     }
-
-	@AdminOnly
-	@HelpDoc("Locks the bot in channel")
-	public void lockChannel(String Smode) {
-		Boolean mode = Boolean.parseBoolean(Smode);
-		if(mode==true) {
-			chanLockList.put(channel,"");
-			sendMessage(channel,"Bot has been locked for this channel");
-		}
-		else
-			chanLockList.remove(channel);
-	}
 }
