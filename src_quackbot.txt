@@ -1,4 +1,3 @@
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot\\src\\GUI.java"
-"C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot\\src\\HelpDoc.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot\\src\\Quackbot.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot\\src\\Sandbox.java"

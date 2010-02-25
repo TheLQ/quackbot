@@ -207,6 +207,24 @@ public class Quackbot extends PircBot {
 			chanLockList.remove(channel);
 	}
 	
+	@AdminOnly
+	@HelpDoc("Joins a channel on current server")
+	public void joinChan(String channel) {
+		joinChannel(channel);
+		System.out.println("Joined new channel "+channel);
+		sendMessage(channel,sender+": Joined channel "+channel);
+	}
+	
+	@AdminOnly
+	@HelpDoc("Parts a channel on current server")
+	public void partChan(String channel){
+		partChannel(channel);
+		System.out.println("Parted channel "+channel);
+		sendMessage(channel,sender+": Parted channel "+channel);
+	}
+	
+	
+	
 	/***********************************USER CALLABLE METHODS********************************/
 	@ReqArg
     @HelpDoc("Empty: Displays all commands | With command: Displays help for command. Syntax: ?help <OPTIONAL:command>")
