@@ -38,7 +38,7 @@ public class GUI extends JFrame implements ActionListener {
 		System.setOut(new PrintStream(new FilteredStream(new ByteArrayOutputStream(),false)));
 		System.setErr(new PrintStream(new FilteredStream(new ByteArrayOutputStream(),true)));
     	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //Will exit when close button is pressed
-     	setTitle("Quackbot Panel");
+     	setTitle("Quackbot GUI Control Panel");
        	setMinimumSize(new Dimension(1000,700));
        	
        	
@@ -58,13 +58,17 @@ public class GUI extends JFrame implements ActionListener {
        	
        	add(contentPane); //add to JFrame
 		setVisible(true); //make JFrame visible
+		
+		botThread thread = new botThread();
+    	thread.execute();
     }
     
     public void actionPerformed(ActionEvent e) {
     	String cmd = e.getActionCommand();
     	
     	if(cmd.equals("Stop")) {
-    		qb.quitServer("Forced die by server");
+    		qb.quitServer("Killed by control panel");
+    		System.exit(0);
     	}
     	else if(cmd.equals("Start")) {
     		botThread thread = new botThread();
@@ -89,8 +93,6 @@ public class GUI extends JFrame implements ActionListener {
         }
     }
     
-    
-    
     /***Output Wrapper, Redirects all ouput to log at bottom***/
     class FilteredStream extends FilterOutputStream {
     	AttributeSet className, text;
@@ -112,7 +114,10 @@ public class GUI extends JFrame implements ActionListener {
           	StyleConstants.setForeground(style, Color.red); 	
           		
           	style = errorLog.addStyle("BotTalk", null); 
-          	StyleConstants.setForeground(style, Color.GREEN); 	
+          	StyleConstants.setForeground(style, Color.GREEN); 
+          		
+          	style = errorLog.addStyle("BotSend", null); 
+          	StyleConstants.setForeground(style, Color.ORANGE); 	
        	}
 
         public void write(byte b[], int off, int len) throws IOException {
@@ -131,12 +136,8 @@ public class GUI extends JFrame implements ActionListener {
 	        	//Capture real class from error message
 	        	if(callingClass.equals("java.lang.Throwable"))
 	        		callingClass = elem[12].getClassName();
-	        		
-	        	Style style = null;
-	        	if(error) style = errorDoc.getStyle("Error");
-	        	else if(callingClass.equals("Quackbot")) style = errorDoc.getStyle("BotTalk");
-	        	else style = errorDoc.getStyle("Time");
-	            
+	        	
+	            //Break apart string
 	            String[] endString = new String[2];
 	            DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa");
 				formatter.setLenient(false);
@@ -149,6 +150,13 @@ public class GUI extends JFrame implements ActionListener {
 	            	endString[0] = formatter.format(new Date());
 	            	endString[1] = aString;
 	            }
+	            
+	           	//Set style
+	        	Style style = null;
+	        	if(error) style = errorDoc.getStyle("Error");
+	        	else if(callingClass.equals("Quackbot")) style = errorDoc.getStyle("BotTalk");
+	        	else if(endString[1].substring(0,3).equals(">>>")) style = errorDoc.getStyle("BotSend");
+	        	else style = errorDoc.getStyle("Time");
 	            
 	            if(errorDoc.getLength()!=0)
 	        		errorDoc.insertString(errorDoc.getLength(),"\n",errorDoc.getStyle("Normal"));
@@ -177,13 +185,7 @@ public class GUI extends JFrame implements ActionListener {
     public static void main(String[] args) {
     	javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	System.out.println("Starting!");
-                try {
-                	new GUI();
-                }
-                catch(Exception e) {
-                	e.printStackTrace();
-                }
+                new GUI();
             }
         });
     }

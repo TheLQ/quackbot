@@ -2,7 +2,7 @@
 
 <workspace_user>
 	<active_project>
-		<label>GamersClub</label>
+		<label>Quackbot</label>
 	</active_project>
 	<projects>
 		<project>
@@ -37,36 +37,45 @@
 			<label>Quackbot</label>
 			<showfiles>false</showfiles>
 			<folderitem>
-				<path>classes</path>
-			</folderitem>
-			<folderitem>
 				<path>src</path>
 			</folderitem>
 		</project>
 	</projects>
 	<open_files>
 		<docitem>
-			<path>src\Quackbot.java</path>
-			<source>true</source>
+			<path>..\..\..\..\Program Files\Xinox Software\JCreatorV4\start.zip</path>
+			<source>false</source>
 			<index>0</index>
 			<active>false</active>
 		</docitem>
 		<docitem>
-			<path>src\GUI.java</path>
+			<path>src\Quackbot.java</path>
 			<source>true</source>
 			<index>1</index>
 			<active>true</active>
 		</docitem>
 		<docitem>
-			<path>..\GamersClub\src\GamersClub.java</path>
+			<path>src\GUI.java</path>
 			<source>true</source>
 			<index>2</index>
 			<active>false</active>
 		</docitem>
 		<docitem>
-			<path>..\GamersClub\src\AddGame.java</path>
+			<path>..\GamersClub\src\CopyGame.java</path>
 			<source>true</source>
 			<index>3</index>
+			<active>false</active>
+		</docitem>
+		<docitem>
+			<path>..\GamersClub\src\GamersClub.java</path>
+			<source>true</source>
+			<index>4</index>
+			<active>false</active>
+		</docitem>
+		<docitem>
+			<path>src\Sandbox.java</path>
+			<source>true</source>
+			<index>5</index>
 			<active>false</active>
 		</docitem>
 	</open_files>
