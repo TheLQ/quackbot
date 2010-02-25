@@ -7,11 +7,13 @@
 		<output_path>classes\</output_path>
 		<source_path>src\</source_path>
 		<jdkprofile_ref>JDK version 1.7.0</jdkprofile_ref>
-		<compiler_ref/>
+		<compiler_ref>&lt;Default&gt;</compiler_ref>
 		<ant_ref/>
 	</settings>
 	<ant_events/>
-	<run_items/>
+	<run_items>
+		<item run="Quackbot"/>
+	</run_items>
 	<runtimes>
 		<runtime>
 			<label>&lt;Default&gt;</label>
@@ -19,16 +21,22 @@
 			<applet_ref/>
 			<debugger_ref/>
 			<param/>
-			<run/>
+			<run>Quackbot</run>
 			<verify>true</verify>
 		</runtime>
 	</runtimes>
-	<libraries/>
+	<libraries>
+		<library_ref>IRC-Jars</library_ref>
+	</libraries>
 	<files>
 		<include>
 			<folderitem>
 				<path>src</path>
 			</folderitem>
+			<fileitem>
+				<path>src\GUI.java</path>
+				<folder>src</folder>
+			</fileitem>
 			<fileitem>
 				<path>src\Quackbot.java</path>
 				<folder>src</folder>
