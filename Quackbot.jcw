@@ -11,7 +11,7 @@
 	</users>
 	<projects>
 		<project>
-			<path>..\GamersClub\GamersClub.jcp</path>
+			<path>..\..\GamersClub\GamersClub.jcp</path>
 		</project>
 		<project>
 			<path>Quackbot.jcp</path>

@@ -43,6 +43,19 @@
 			<folderitem>
 				<path>src\Quackbot\CMDs</path>
 			</folderitem>
+			<folderitem>
+				<path>jars</path>
+			</folderitem>
+			<folderitem>
+				<path>pircbot</path>
+			</folderitem>
+			<fileitem>
+				<path>TODO.txt</path>
+			</fileitem>
+			<fileitem>
+				<path>src\Commit.bat</path>
+				<folder>src</folder>
+			</fileitem>
 			<fileitem>
 				<path>src\Quackbot\QBMain.java</path>
 				<folder>src\Quackbot</folder>
@@ -70,6 +83,74 @@
 			<fileitem>
 				<path>src\Quackbot\CMDs\GeneralUser.java</path>
 				<folder>src\Quackbot\CMDs</folder>
+			</fileitem>
+			<fileitem>
+				<path>jars\commons-jci-core-1.0.jar</path>
+				<folder>jars</folder>
+			</fileitem>
+			<fileitem>
+				<path>jars\commons-jci-fam-1.0.jar</path>
+				<folder>jars</folder>
+			</fileitem>
+			<fileitem>
+				<path>jars\commons-jci-javac-1.0.jar</path>
+				<folder>jars</folder>
+			</fileitem>
+			<fileitem>
+				<path>jars\pircbot.jar</path>
+				<folder>jars</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\Colors.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\DccChat.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\DccFileTransfer.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\DccManager.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\IdentServer.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\InputThread.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\IrcException.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\NickAlreadyInUseException.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\OutputThread.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\PircBot.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\Queue.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\ReplyConstants.java</path>
+				<folder>pircbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>pircbot\User.java</path>
+				<folder>pircbot</folder>
 			</fileitem>
 		</include>
 	</files>
