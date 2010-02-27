@@ -27,5 +27,3 @@ Dynamic CMD package
 Online site (low priority)
 -Current stats - Joined servers/channels, running time
 -Log all messages, be filterable
-
-empty

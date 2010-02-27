@@ -44,6 +44,18 @@
 				<path>src\Quackbot\CMDs</path>
 			</folderitem>
 			<folderitem>
+				<path>src\org</path>
+			</folderitem>
+			<folderitem>
+				<path>src\org\Quackbot</path>
+			</folderitem>
+			<folderitem>
+				<path>src\org\Quackbot\Annotations</path>
+			</folderitem>
+			<folderitem>
+				<path>src\org\Quackbot\CMDs</path>
+			</folderitem>
+			<folderitem>
 				<path>jars</path>
 			</folderitem>
 			<folderitem>
@@ -57,32 +69,36 @@
 				<folder>src</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Quackbot\QBMain.java</path>
-				<folder>src\Quackbot</folder>
+				<path>src\org\Quackbot\Bot.java</path>
+				<folder>src\org\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Quackbot\Quackbot.java</path>
-				<folder>src\Quackbot</folder>
+				<path>src\org\Quackbot\QBMain.java</path>
+				<folder>src\org\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Quackbot\Sandbox.java</path>
-				<folder>src\Quackbot</folder>
+				<path>src\org\Quackbot\Sandbox.java</path>
+				<folder>src\org\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Quackbot\Annotations\HelpDoc.java</path>
-				<folder>src\Quackbot\Annotations</folder>
+				<path>src\org\Quackbot\Annotations\HelpDoc.java</path>
+				<folder>src\org\Quackbot\Annotations</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Quackbot\Annotations\ReqArg.java</path>
-				<folder>src\Quackbot\Annotations</folder>
+				<path>src\org\Quackbot\Annotations\ReqArg.java</path>
+				<folder>src\org\Quackbot\Annotations</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Quackbot\CMDs\AdminOnly.java</path>
-				<folder>src\Quackbot\CMDs</folder>
+				<path>src\org\Quackbot\CMDs\AdminOnly.java</path>
+				<folder>src\org\Quackbot\CMDs</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Quackbot\CMDs\GeneralUser.java</path>
-				<folder>src\Quackbot\CMDs</folder>
+				<path>src\org\Quackbot\CMDs\CMDSuper.java</path>
+				<folder>src\org\Quackbot\CMDs</folder>
+			</fileitem>
+			<fileitem>
+				<path>src\org\Quackbot\CMDs\GeneralUser.java</path>
+				<folder>src\org\Quackbot\CMDs</folder>
 			</fileitem>
 			<fileitem>
 				<path>jars\commons-jci-core-1.0.jar</path>
