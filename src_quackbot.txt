@@ -3,6 +3,7 @@
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\Bot.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\Controller.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\GUI.java"
+"C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\loadCMDs.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\Annotations\\AdminOnly.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\Annotations\\HelpDoc.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\Annotations\\ReqArg.java"

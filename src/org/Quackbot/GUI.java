@@ -37,7 +37,7 @@ public class GUI extends JFrame implements ActionListener {
 	StyledDocument errorDoc;
 	PrintStream oldOut,oldErr;
 	
-	//public Controller ctrl = null;
+	public Controller ctrl = null;
 	
     public GUI() {
     	/***Pre init, setup error log**/
@@ -86,17 +86,13 @@ public class GUI extends JFrame implements ActionListener {
     	String cmd = e.getActionCommand();
     	
     	if(cmd.equals("Stop")) {
-    		ctrl.qb.quitServer("Killed by control panel");
-    		System.exit(0);
+    		ctrl.stopAll();
     	}
     	else if(cmd.equals("Start")) {
-    		//ctrl.botThread thread = new ctrl.botThread();
-    		//thread.execute();
+    		ctrl = new Controller();
     	}
     	else if(cmd.equals("Reload")) {
-    		//ctrl.botCMDLoad loader = new ctrl.botCMDLoad();
-			//loader.recomp = true;
-			//loader.execute();
+    		new loadCMDs(ctrl).execute();
     	}
     }
 	
@@ -192,7 +188,7 @@ public class GUI extends JFrame implements ActionListener {
     public static void main(String[] args) {
     	javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new QBMain();
+                new GUI();
             }
         });
     }

@@ -49,103 +49,7 @@
 				<path>src\org\Quackbot\Annotations</path>
 			</folderitem>
 			<folderitem>
-				<path>src\org\Quackbot\Annotations\.svn</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\Annotations\.svn\prop-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\Annotations\.svn\props</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\Annotations\.svn\text-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\Annotations\.svn\tmp</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\Annotations\.svn\tmp\prop-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\Annotations\.svn\tmp\props</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\Annotations\.svn\tmp\text-base</path>
-			</folderitem>
-			<folderitem>
 				<path>src\org\Quackbot\CMDs</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs\.svn</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs\.svn\prop-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs\.svn\props</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs\.svn\text-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs\.svn\tmp</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs\.svn\tmp\prop-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs\.svn\tmp\props</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs\.svn\tmp\text-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\.svn</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\.svn\prop-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\.svn\props</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\.svn\text-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\.svn\tmp</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\.svn\tmp\prop-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\.svn\tmp\props</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\.svn\tmp\text-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\.svn</path>
-			</folderitem>
-			<folderitem>
-				<path>src\.svn\prop-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\.svn\props</path>
-			</folderitem>
-			<folderitem>
-				<path>src\.svn\text-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\.svn\tmp</path>
-			</folderitem>
-			<folderitem>
-				<path>src\.svn\tmp\prop-base</path>
-			</folderitem>
-			<folderitem>
-				<path>src\.svn\tmp\props</path>
-			</folderitem>
-			<folderitem>
-				<path>src\.svn\tmp\text-base</path>
 			</folderitem>
 			<folderitem>
 				<path>jars</path>
@@ -157,51 +61,69 @@
 	</projects>
 	<open_files>
 		<docitem>
-			<path>src\org\Quackbot\QBMain.java</path>
+			<path>src\org\Quackbot\GUI.java</path>
 			<source>true</source>
 			<index>0</index>
 			<active>true</active>
 		</docitem>
 		<docitem>
-			<path>src\org\Quackbot\CMDs\Admin.java</path>
+			<path>src\org\Quackbot\Controller.java</path>
 			<source>true</source>
 			<index>1</index>
 			<active>false</active>
 		</docitem>
 		<docitem>
-			<path>src\org\Quackbot\CMDs\GeneralUser.java</path>
+			<path>src\org\Quackbot\Bot.java</path>
 			<source>true</source>
 			<index>2</index>
 			<active>false</active>
 		</docitem>
 		<docitem>
-			<path>src\org\Quackbot\Bot.java</path>
+			<path>src\org\Quackbot\CMDs\Admin.java</path>
 			<source>true</source>
 			<index>3</index>
 			<active>false</active>
 		</docitem>
 		<docitem>
-			<path>src\org\Quackbot\CMDs\CMDSuper.java</path>
+			<path>src\org\Quackbot\CMDs\GeneralUser.java</path>
 			<source>true</source>
 			<index>4</index>
 			<active>false</active>
 		</docitem>
 		<docitem>
-			<path>src\org\Quackbot\Annotations\HelpDoc.java</path>
+			<path>src\org\Quackbot\CMDs\CMDSuper.java</path>
 			<source>true</source>
 			<index>5</index>
 			<active>false</active>
 		</docitem>
 		<docitem>
-			<path>src\org\Quackbot\Annotations\ReqArg.java</path>
+			<path>src\org\Quackbot\Annotations\HelpDoc.java</path>
 			<source>true</source>
 			<index>6</index>
 			<active>false</active>
 		</docitem>
 		<docitem>
-			<path>src\org\Quackbot\Annotations\AdminOnly.java</path>
+			<path>src\org\Quackbot\Annotations\ReqArg.java</path>
 			<source>true</source>
 			<index>7</index>
+			<active>false</active>
+		</docitem>
+		<docitem>
+			<path>src\org\Quackbot\Annotations\AdminOnly.java</path>
+			<source>true</source>
+			<index>8</index>
+			<active>false</active>
+		</docitem>
+		<docitem>
+			<path>src\SandBox2.java</path>
+			<source>true</source>
+			<index>9</index>
+			<active>false</active>
+		</docitem>
+		<docitem>
+			<path>src\Sandbox.java</path>
+			<source>true</source>
+			<index>10</index>
 			<active>false</active>
 		</docitem>
 	</open_files>
@@ -210,7 +132,7 @@
 			<path>src\org\Quackbot\Bot.java</path>
 			<class>org.Quackbot</class>
 			<session/>
-			<line>166</line>
+			<line>167</line>
 			<enable>true</enable>
 		</breakpoint>
 	</breakpoints>

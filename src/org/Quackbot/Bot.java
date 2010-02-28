@@ -116,7 +116,7 @@ public class Bot extends PircBot {
     	}
     	
     	//Does this method require args?
-        if(reqMethod.getAnnotation(ReqArg.class) != null) {
+        if(reqMethod.getAnnotation(ReqArg.class) != null && argArray.length == 0) {
         	System.out.println("Method does require args, passing length 1 array");
         	argArray = new String[1];
         }
