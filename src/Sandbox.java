@@ -1,14 +1,13 @@
 /**
  * @(#)Sandbox.java
  *
+ * Test Class
  *
- * @author 
- * @version 1.00 2010/2/17
+ * @author  Lord.Quackstar
  */
  
 import java.lang.reflect.*;
 import java.util.*;
-
 
 public class Sandbox {
 	TreeMap<String,Method> methodList;

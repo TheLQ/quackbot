@@ -2,9 +2,9 @@
  * @(#)HelpDoc.java
  *
  * HelpDoc annotation interface
+ *  -Used for CMD help
  *
- * @author 
- * @version 1.00 2010/2/21
+ * @author  Lord.Quackstar
  */
  
 package org.Quackbot.Annotations;

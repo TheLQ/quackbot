@@ -1,10 +1,10 @@
 /**
  * @(#)AdminOnly.java
  *
- * HelpDoc annotation interface
+ * AdminOnly annotation interface
+ *  -Used to make CMDs only usable by admins
  *
- * @author 
- * @version 1.00 2010/2/21
+ * @author  Lord.Quackstar
  */
 
 package org.Quackbot.Annotations;

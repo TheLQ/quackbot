@@ -1,9 +1,9 @@
 /**
  * @(#)SandBox2.java
  *
+ * Test Class
  *
- * @author 
- * @version 1.00 2010/2/27
+ * @author  Lord.Quackstar
  */
 
 

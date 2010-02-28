@@ -2,9 +2,10 @@
  * @(#)ReqArg.java
  *
  * Require Arguments annotation interface
+ *  -Method MUST have an argument
+ *  -Used in methods that operate with or without args
  *
- * @author 
- * @version 1.00 2010/2/21
+ * @author  Lord.Quackstar
  */
  
 package org.Quackbot.Annotations;

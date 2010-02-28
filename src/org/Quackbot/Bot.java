@@ -1,10 +1,10 @@
 /**
  * @(#)Bot.java
  *
- * Bot that actually communicates with server
+ * Bot instance that communicates with 1 server
+ *  -Initiates all commands
  *
  * @author Lord.Quackstar
- * @version 1.00 2010/2/16
  */
  
 package org.Quackbot;
@@ -18,6 +18,7 @@ import java.lang.annotation.*;
 
 import org.Quackbot.Annotations.*;
 import org.Quackbot.CMDs.*;
+import org.Quackbot.*;
 
 public class Bot extends PircBot {
     
@@ -29,10 +30,10 @@ public class Bot extends PircBot {
     
 	public TreeMap<String,String> adminList;
     public TreeMap<String,String> chanLockList;
-    public QBMain mainInst = null;
+    public Controller mainInst = null;
     
     //Init bot by setting all information
-    public Bot(QBMain mainInstance) {
+    public Bot(Controller mainInstance) {
     	mainInst = mainInstance;
         setName("Quackbot");
         setAutoNickChange(true);
@@ -136,7 +137,7 @@ public class Bot extends PircBot {
         	String reqClassName = reqMethod.getDeclaringClass().getName().split("\\.")[3];
         	CMDSuper reqClass = mainInst.cmds.get(reqClassName);
         	System.out.println("Trying to get class: "+reqClassName);
-        	reqClass.update(channel,sender,login,hostname,rawmsg,command);
+        	reqClass.update(channel,sender,login,hostname,rawmsg,command,this);
 	        reqMethod.invoke(reqClass,(Object[])argArray);
         }
         catch(Exception e) {
