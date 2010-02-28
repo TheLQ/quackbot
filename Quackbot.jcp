@@ -14,6 +14,7 @@
 	<run_items>
 		<item run="Quackbot.QBMain"/>
 		<item run="Quackbot.Sandbox"/>
+		<item run="org.Quackbot.QBMain"/>
 	</run_items>
 	<runtimes>
 		<runtime>
@@ -22,7 +23,7 @@
 			<applet_ref>&lt;Default&gt;</applet_ref>
 			<debugger_ref>&lt;Default&gt;</debugger_ref>
 			<param/>
-			<run>Quackbot.QBMain</run>
+			<run>org.Quackbot.QBMain</run>
 			<verify>true</verify>
 		</runtime>
 	</runtimes>
@@ -33,15 +34,6 @@
 		<include>
 			<folderitem>
 				<path>src</path>
-			</folderitem>
-			<folderitem>
-				<path>src\Quackbot</path>
-			</folderitem>
-			<folderitem>
-				<path>src\Quackbot\Annotations</path>
-			</folderitem>
-			<folderitem>
-				<path>src\Quackbot\CMDs</path>
 			</folderitem>
 			<folderitem>
 				<path>src\org</path>
@@ -81,6 +73,14 @@
 				<folder>src\org\Quackbot</folder>
 			</fileitem>
 			<fileitem>
+				<path>src\org\Quackbot\SandBox2.java</path>
+				<folder>src\org\Quackbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>src\org\Quackbot\Annotations\AdminOnly.java</path>
+				<folder>src\org\Quackbot\Annotations</folder>
+			</fileitem>
+			<fileitem>
 				<path>src\org\Quackbot\Annotations\HelpDoc.java</path>
 				<folder>src\org\Quackbot\Annotations</folder>
 			</fileitem>
@@ -89,7 +89,7 @@
 				<folder>src\org\Quackbot\Annotations</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\org\Quackbot\CMDs\AdminOnly.java</path>
+				<path>src\org\Quackbot\CMDs\Admin.java</path>
 				<folder>src\org\Quackbot\CMDs</folder>
 			</fileitem>
 			<fileitem>
