@@ -12,8 +12,6 @@
 	</settings>
 	<ant_events/>
 	<run_items>
-		<item run="Quackbot.QBMain"/>
-		<item run="Quackbot.Sandbox"/>
 		<item run="org.Quackbot.QBMain"/>
 		<item run="org.Quackbot.GUI"/>
 	</run_items>
@@ -79,6 +77,10 @@
 			</fileitem>
 			<fileitem>
 				<path>src\org\Quackbot\GUI.java</path>
+				<folder>src\org\Quackbot</folder>
+			</fileitem>
+			<fileitem>
+				<path>src\org\Quackbot\loadCMDs.java</path>
 				<folder>src\org\Quackbot</folder>
 			</fileitem>
 			<fileitem>
