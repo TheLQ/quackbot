@@ -24,7 +24,7 @@ public class Bot extends PircBot {
     
     public boolean botLocked = false;
 
-    final String PREFIX = "?";
+    final HashSet<String> PREFIXES = new HashSet<String>();
     
     String channel, sender;
     
@@ -51,21 +51,53 @@ public class Bot extends PircBot {
 	    
 	    //Init channel block list
 	    chanLockList = new TreeMap<String,String>(String.CASE_INSENSITIVE_ORDER);
+	    
+	    //Init prefixes
+	    PREFIXES.add("?");
+	    PREFIXES.add(getNick()+":");
+	    PREFIXES.add(getNick());
     }
     
-	//Activated when someone types a message
+	//Activated when someone types a message on a channel
 	@Override
 	public void onMessage(String channel, String sender, String login, String hostname, String message) {
 		//Make class aware of a few parameters
 		this.channel = channel;
 		this.sender = sender;
 		
-    	//Is there a prefix?
-    	if(!message.substring(0,PREFIX.length()).equals(PREFIX))
-    		return;
-    	message = message.substring(PREFIX.length(),message.length()).toLowerCase();    	
+    	//Look for a prefix
+    	Iterator preItr = PREFIXES.iterator();
+    	Boolean contPre = false;
+    	while(preItr.hasNext()) {
+    		String curPre = preItr.next().toString();
+    		if(curPre.length() < message.length() && message.substring(0,curPre.length()).equals(curPre)) {
+    			contPre = true;
+    			message = message.substring(curPre.length(),message.length()).trim().toLowerCase();  
+    			break;
+    		}
+    	}
     	
+    	//Is there a prefix?
+    	if(!contPre)
+    		return;
+    	  	
     	//Bot activated, start command process
+    	runCommand(channel, sender, login, hostname, message);
+    }
+    
+    //Activated when someone PM's the bot
+    @Override
+    public void onPrivateMessage(String sender, String login, String hostname, String message) {
+    	//Make the class aware of a few parameters
+    	this.channel = sender;
+		this.sender = sender;
+		
+		//Because this is a PM, just start going
+		runCommand(sender, sender, login, hostname, message);
+    }
+    
+    //runCommand wrapper, outputs (properly) to console and catches errors
+    private void activateCmd(String channel, String sender, String login, String hostname, String message) {
     	System.out.println("-----------BOT ACTIVATED FROM "+message+"-----------");
     	try {
     		runCommand(channel, sender, login, hostname, message);

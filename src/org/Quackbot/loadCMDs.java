@@ -30,9 +30,6 @@ import org.Quackbot.CMDs.CMDSuper;
 public class loadCMDs extends SwingWorker<Void, String> { 	
 	Controller ctrl = null;
 	
-	public TreeMap<String,CMDSuper> cmds;
-	public TreeMap<String,Method> methodList;
-	
 	public loadCMDs(Controller ctrl) {
 		this.ctrl = ctrl;
  	}
@@ -40,6 +37,8 @@ public class loadCMDs extends SwingWorker<Void, String> {
  	@Override
     public Void doInBackground() {
 	 	try {
+	 		ctrl.methodList.clear();
+	 		ctrl.cmds.clear();
 	 		File cmddir = new File("./org/Quackbot/CMDs");
 			    ReloadingClassLoader classloader = new ReloadingClassLoader(ctrl.getClass().getClassLoader());
 		        if (!cmddir.exists()) {

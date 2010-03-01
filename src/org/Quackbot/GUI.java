@@ -159,6 +159,7 @@ public class GUI extends JFrame implements ActionListener {
 	        	if(error) style = errorDoc.getStyle("Error");
 	        	else if(callingClass.equals("Bot")) style = errorDoc.getStyle("BotTalk");
 	        	else if(endString[1].substring(0,3).equals(">>>")) style = errorDoc.getStyle("BotSend");
+	        	else if(endString[1].substring(0,3).equals("###")) style = errorDoc.getStyle("Error");
 	        	else style = errorDoc.getStyle("Time");
 	            
 	            if(errorDoc.getLength()!=0)
