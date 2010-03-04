@@ -7,14 +7,11 @@
  */
 
 
-public class SandBox2 {
-	String msg;
-    public void typeMsg() {
-    	System.out.println("Heheheh "+msg);
+public class SandBox2 implements SandBoxInter{
+    public void SandBox2() {
+    	System.out.println("He1");
     }
-    
-    public void setMsg(String msg) {
-    	this.msg = msg;
+    public void Sayit() {
+    	System.out.println("He1");
     }
-    
 }

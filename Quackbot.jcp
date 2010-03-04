@@ -49,9 +49,6 @@
 			<folderitem>
 				<path>jars</path>
 			</folderitem>
-			<folderitem>
-				<path>pircbot</path>
-			</folderitem>
 			<fileitem>
 				<path>TODO.txt</path>
 			</fileitem>
@@ -65,6 +62,10 @@
 			</fileitem>
 			<fileitem>
 				<path>src\SandBox2.java</path>
+				<folder>src</folder>
+			</fileitem>
+			<fileitem>
+				<path>src\SandBoxInter.java</path>
 				<folder>src</folder>
 			</fileitem>
 			<fileitem>
@@ -123,59 +124,13 @@
 				<path>jars\pircbot.jar</path>
 				<folder>jars</folder>
 			</fileitem>
-			<fileitem>
-				<path>pircbot\Colors.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\DccChat.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\DccFileTransfer.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\DccManager.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\IdentServer.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\InputThread.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\IrcException.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\NickAlreadyInUseException.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\OutputThread.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\PircBot.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\Queue.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\ReplyConstants.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>pircbot\User.java</path>
-				<folder>pircbot</folder>
-			</fileitem>
 		</include>
+		<exclude>
+			<folderitem>
+				<path>pircbot</path>
+				<dir/>
+			</folderitem>
+		</exclude>
 	</files>
 	<tasks/>
 </project>

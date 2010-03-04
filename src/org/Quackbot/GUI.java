@@ -87,8 +87,14 @@ public class GUI extends JFrame implements ActionListener {
     	
     	if(cmd.equals("Stop")) {
     		ctrl.stopAll();
+    		ctrl = null;
     	}
     	else if(cmd.equals("Start")) {
+    		if(ctrl != null) {
+    			int num = JOptionPane.showConfirmDialog(this, "Controller is not null! /n Are you sure you want to create another instance?", "Warning!", JOptionPane.YES_NO_OPTION);
+    			if(num == JOptionPane.NO_OPTION )
+    				return;
+    		}
     		ctrl = new Controller();
     	}
     	else if(cmd.equals("Reload")) {

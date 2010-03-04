@@ -17,8 +17,8 @@ import java.lang.reflect.*;
 import java.lang.annotation.*;
 
 import org.Quackbot.Annotations.*;
-import org.Quackbot.CMDs.*;
 import org.Quackbot.*;
+import org.Quackbot.CMDs.CMDSuper;
 
 public class Bot extends PircBot {
     
@@ -82,7 +82,7 @@ public class Bot extends PircBot {
     		return;
     	  	
     	//Bot activated, start command process
-    	runCommand(channel, sender, login, hostname, message);
+    	activateCmd(channel, sender, login, hostname, message);
     }
     
     //Activated when someone PM's the bot
@@ -93,7 +93,7 @@ public class Bot extends PircBot {
 		this.sender = sender;
 		
 		//Because this is a PM, just start going
-		runCommand(sender, sender, login, hostname, message);
+		activateCmd(sender, sender, login, hostname, message);
     }
     
     //runCommand wrapper, outputs (properly) to console and catches errors

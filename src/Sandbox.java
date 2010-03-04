@@ -8,45 +8,72 @@
  
 import java.lang.reflect.*;
 import java.util.*;
+import java.net.*;
+import javax.swing.*;
+import java.io.*;
 
 public class Sandbox {
-	TreeMap<String,Method> methodList;
-	TreeMap<String,Object> cmds;
 	
     public Sandbox() {
-    	SandBox2 sb2 = new SandBox2();
-	    Method[] allMethods = sb2.getClass().getDeclaredMethods();
-	    //Filter out private methods and constructor
-	    methodList = new TreeMap<String,Method>(String.CASE_INSENSITIVE_ORDER);
-	    cmds = new TreeMap<String,Object>(String.CASE_INSENSITIVE_ORDER);
-	    cmds.put("SandBox2",sb2);
-	    for(Method method : allMethods) {
-	    	int modifier = method.getModifiers();
-	    	String name = method.getName().toLowerCase();
-	    	if(modifier != Modifier.PRIVATE && modifier != Modifier.PROTECTED && !name.equals("onMessage")) {
-	    		methodList.put(name,method);
-	    		System.out.println("Name: "+name);
+    	try {
+    		SandBox2 sb2 = new SandBox2();
+    		File file = new File("SandBox2.class");
+    		if(!file.exists())
+    			System.out.println("Does not exist!");
+    			
+			ClassLoader parentClassLoader = this.getClass().getClassLoader();
+			while(JOptionPane.showConfirmDialog(null, "Recompile?") == JOptionPane.YES_OPTION) {
+				SandBoxInter classInst = (SandBoxInter)new ClassReloader(parentClassLoader,file).loadClass("SandBox2").newInstance();
 	    	}
-	    }
-	    
-	    String command = "typeMsg";
-	    try {
-	    	//Does this method exist?
-	    	if(!methodList.containsKey(command.toLowerCase())) {
-	    		System.out.println("Command "+command+" dosen't exist");
-	    		return;
-	    	}
-	    	Method reqMethod = methodList.get(command.toLowerCase());
-	    	Object sb21 = (Object)cmds.get("SandBox2");
-	    	//Class<?> sb2_class = sb21.getClass().getField("");
-	    	
-	    	reqMethod.invoke(sb21);
-	    }
-	    catch(Exception e) {
-	    	e.printStackTrace();
-	    }
-	    
+    	}
+    	catch(Exception e) {
+    		e.printStackTrace();
+    	}
     }
+    
+    /****Custom class loader to allow class reloading***/
+	public class ClassReloader extends ClassLoader{
+		File file = null;
+		public ClassReloader(ClassLoader parent,File file) {
+			super(parent);
+			this.file = file;
+		}
+	
+		public Class loadClass(String name) throws ClassNotFoundException {
+			if(!name.equals("SandBox2")) {
+				return super.loadClass(name) ;
+			}
+			
+			System.out.println("Name: "+name);
+			try {
+				String url = "file:"+file.toString();
+				URL myUrl = file.toURI().toURL();
+				URLConnection connection = myUrl.openConnection();
+				InputStream input = connection.getInputStream();
+				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+				int data = input.read();
+	
+				while(data != -1){
+					buffer.write(data);
+					data = input.read();
+				}
+	
+				input.close();
+	
+				byte[] classData = buffer.toByteArray();
+	
+				return defineClass(name,classData, 0, classData.length);
+	
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace(); 
+			}
+	
+			return null;
+		}
+	
+	}
     
     public static void main(String[] args) {
     	new Sandbox();

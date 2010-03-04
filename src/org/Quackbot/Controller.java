@@ -20,6 +20,7 @@ import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 import java.lang.reflect.*;
+import java.net.*;
 
 import org.Quackbot.*;
 import org.Quackbot.CMDs.CMDSuper;
@@ -34,6 +35,7 @@ public class Controller {
 	public TreeMap<String,CMDSuper> cmds;
 	public TreeMap<String,Method> methodList;
 	public HashSet<Bot> bots = new HashSet<Bot>();
+	public HashSet<URLClassLoader> classLoaders = new HashSet<URLClassLoader>();
 	
     public Controller() {
     	//Lets now get all CMD classes and put into array
