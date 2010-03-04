@@ -34,26 +34,19 @@ public class loadCMDs extends SwingWorker<Void, String> {
 		
 	@Override
 	public Void doInBackground() {
-	try {
-		ctrl.methodList.clear();
-		ctrl.cmds.clear();
-		System.out.println("methodList length: "+ctrl.methodList.size()+" | cmds length: "+ctrl.cmds.size());
-		File cmddir = new File("../CMDs");
-		if(!cmddir.exists()) {
-			System.out.println("CMD directory not found!");
-			cancel(true);
-		}
-		
-		//Using JS engine
-		
-        // create JavaScript engine
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
-        // evaluate JavaScript code from given file - specified by first argument
-        engine.eval(new FileReader(file));
-    }
-}
-
-
+		try {
+			ctrl.methodList.clear();
+			ctrl.cmds.clear();
+			System.out.println("methodList length: "+ctrl.methodList.size()+" | cmds length: "+ctrl.cmds.size());
+			File cmddir = new File("../CMDs");
+			if(!cmddir.exists()) {
+				System.out.println("CMD directory not found!");
+				cancel(true);
+			}
+			
+			//Load all CMDs file contents into cmd array
+	        
+	
 		}
 		catch(Exception e) {
 			e.printStackTrace();
