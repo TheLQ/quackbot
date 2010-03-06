@@ -21,11 +21,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.lang.reflect.*;
 
-import org.apache.commons.jci.*;
-import org.apache.commons.jci.compilers.*;
-import org.apache.commons.jci.readers.*;
-import org.apache.commons.jci.stores.*;
-
 import org.Quackbot.*;
 import org.Quackbot.Annotations.*;
 import org.Quackbot.CMDs.CMDSuper;
@@ -98,7 +93,7 @@ public class GUI extends JFrame implements ActionListener {
     		ctrl = new Controller();
     	}
     	else if(cmd.equals("Reload")) {
-    		new loadCMDs(ctrl).execute();
+    		new loadCMDs(ctrl).start();
     	}
     }
 	

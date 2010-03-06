@@ -15,6 +15,7 @@ import java.util.*;
 import java.lang.*;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
+import javax.script.*;
 
 import org.Quackbot.Annotations.*;
 import org.Quackbot.*;
@@ -110,7 +111,7 @@ public class Bot extends PircBot {
     }
     
     //Command handling takes place here purley for nice output for console. If returned, end tag still shown
-    private void runCommand(String channel, String sender, String login, String hostname, String rawmsg) {
+    private void runCommand(String channel, String sender, String login, String hostname, String rawmsg) throws Exception {
     	
     	//Is bot locked?
     	if(botLocked == true && !isAdmin()) {
@@ -139,24 +140,23 @@ public class Bot extends PircBot {
     	
     	//Does this method exist?
     	if(!methodExists(command)) return;
-    	Method reqMethod = mainInst.methodList.get(command);
+    	TreeMap<String,Object> cmdinfo = mainInst.cmds.get(command);
     	
     	//Is this an admin function? If so, is the person an admin?
-    	if(reqMethod.getDeclaringClass().getName().equals("AdminOnly") && !isAdmin()) {
+    	if(Boolean.parseBoolean(cmdinfo.get("admin").toString())==true && !isAdmin()) {
     		sendMessage(channel, sender+": Admin only command");
     		return;
     	}
     	
     	//Does this method require args?
-        if(reqMethod.getAnnotation(ReqArg.class) != null && argArray.length == 0) {
+        if(Boolean.parseBoolean(cmdinfo.get("ReqArg").toString()) == true && argArray.length == 0) {
         	System.out.println("Method does require args, passing length 1 array");
         	argArray = new String[1];
         }
     	
     	//Does the required number of args exist?
-    	Class[] parameterTypes = reqMethod.getParameterTypes();
         int user_args = argArray.length;
-        int method_args = parameterTypes.length;
+        int method_args = Integer.parseInt(cmdinfo.get("param").toString());
         System.out.println("User Args: "+user_args+" | Req Args: "+method_args);
         if(user_args != method_args) {
         	sendMessage(channel, sender+": Wrong number of parameters specified. Given: "+user_args+", Required: "+method_args);
@@ -166,11 +166,25 @@ public class Bot extends PircBot {
         //All requirements are met, excecute method
         System.out.println("All tests passed, running method");
         try {
-        	String reqClassName = reqMethod.getDeclaringClass().getName().split("\\.")[3];
-        	CMDSuper reqClass = mainInst.cmds.get(reqClassName);
-        	System.out.println("Trying to get class: "+reqClassName);
-        	reqClass.update(channel,sender,login,hostname,rawmsg,command,this);
-	        reqMethod.invoke(reqClass,(Object[])argArray);
+    		ScriptContext newContext = (ScriptContext)cmdinfo.get("context");
+     		Bindings engineScope = (Bindings)cmdinfo.get("scope");;
+        	engineScope.put("channel",channel);
+        	engineScope.put("sender",sender);
+        	engineScope.put("login",login);
+        	engineScope.put("hostname",hostname);
+        	engineScope.put("rawmsg",rawmsg);
+        	engineScope.put("qb",this);
+        	
+        	//build command string
+        	StringBuilder jsCmd = new StringBuilder();
+        	jsCmd.append("invoke( ");
+        	for(String arg : argArray) {
+        		jsCmd.append(" '"+arg+"',");
+        	}
+        	jsCmd.deleteCharAt(jsCmd.length()-1);
+        	jsCmd.append(");");
+        	System.out.println("JS cmd: "+jsCmd.toString());
+	        mainInst.jsEngine.eval(jsCmd.toString(),newContext);
         }
         catch(Exception e) {
         	Throwable cause = e.getCause();
@@ -181,7 +195,7 @@ public class Bot extends PircBot {
     }
     
     public boolean methodExists(String method) {
-    	if(!mainInst.methodList.containsKey(method)) {
+    	if(!mainInst.cmds.containsKey(method)) {
     		sendMessage(channel, sender+": Command "+method+" dosen't exist");
     		return false;
     	}

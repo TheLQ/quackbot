@@ -21,33 +21,26 @@ import java.io.*;
 import java.nio.file.*;
 import java.lang.reflect.*;
 import java.net.*;
+import javax.script.*;
 
 import org.Quackbot.*;
 import org.Quackbot.CMDs.CMDSuper;
 
-import org.apache.commons.jci.*;
-import org.apache.commons.jci.compilers.*;
-import org.apache.commons.jci.readers.*;
-import org.apache.commons.jci.stores.*;
-
 public class Controller {
 	
-	public TreeMap<String,CMDSuper> cmds;
-	public TreeMap<String,Method> methodList;
+	public Map<String,TreeMap<String,Object>> cmds;
 	public HashSet<Bot> bots = new HashSet<Bot>();
-	public HashSet<URLClassLoader> classLoaders = new HashSet<URLClassLoader>();
+	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	
     public Controller() {
     	//Lets now get all CMD classes and put into array
-		cmds = new TreeMap<String,CMDSuper>();
-		methodList = new TreeMap<String,Method>(String.CASE_INSENSITIVE_ORDER);
-
+		cmds = Collections.synchronizedMap(new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER)));
+		
 		//Load current CMD classes
-		loadCMDs loader = new loadCMDs(this);
-		loader.execute();
+		new loadCMDs(this).start();
 		
 		//Join some servers
-		new botThread("irc.freenode.net",new String[]{"##newyearcountdown"}).execute();
+		new botThread("irc.freenode.net",new String[]{"##newyearcountdown"}).start();
     }
     
     //Makes all bots quit servers
@@ -61,7 +54,7 @@ public class Controller {
     }
     
     /*****Simple thread to run the bot in to prevent it from locking the gui***/
-    class botThread extends SwingWorker<Void, String> {
+    class botThread extends Thread {
     	String server = null;
     	String[] channels = null;
     	
@@ -71,7 +64,7 @@ public class Controller {
     	}
     	      
     	@Override
-        public Void doInBackground() {
+        public void run() {
         	try {
     			System.out.println("Initiating connection");
     			Bot qb = new Bot(Controller.this);
@@ -84,7 +77,6 @@ public class Controller {
 			catch(Exception ex) {
 				ex.printStackTrace();
 			}
-			return null;
         }
     }
 }
