@@ -28,13 +28,13 @@ import org.Quackbot.CMDs.CMDSuper;
 
 public class Controller {
 	
-	public Map<String,TreeMap<String,Object>> cmds;
+	public TreeMap<String,TreeMap<String,Object>> cmds;
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	
     public Controller() {
     	//Lets now get all CMD classes and put into array
-		cmds = Collections.synchronizedMap(new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER)));
+		cmds = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
 		
 		//Load current CMD classes
 		new loadCMDs(this).start();
@@ -51,6 +51,15 @@ public class Controller {
 		    curBot.quitServer("Killed by control panel");
 		    bots.remove(curBot);
 		}
+    }
+    
+    //Send a message to every channel on every server the bot is connected to
+    public void sendGlobalMessage(String msg) {
+    	Iterator botItr = bots.iterator();
+	   	while(botItr.hasNext()) {
+			Bot curBot = (Bot)botItr.next();
+			curBot.sendAllMessage(msg);
+	   	}
     }
     
     /*****Simple thread to run the bot in to prevent it from locking the gui***/

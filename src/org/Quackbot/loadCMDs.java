@@ -21,12 +21,17 @@ import java.nio.file.*;
 import java.lang.reflect.*;
 import java.net.*;
 import javax.script.*;
-import java.security.MessageDigest;
+
+import org.apache.commons.lang.StringUtils;
 
 import org.Quackbot.CMDs.CMDSuper;
 
 public class loadCMDs extends Thread {	
 	Controller ctrl = null;
+	TreeSet<String> newCMDs = new TreeSet<String>();
+	TreeSet<String> updatedCMDs = new TreeSet<String>();
+	TreeSet<String> deletedCMDs = new TreeSet<String>();
+	TreeMap<String,TreeMap<String,Object>> cmdBack;
 	
 	public loadCMDs(Controller ctrl) {
 		this.ctrl = ctrl;
@@ -34,6 +39,7 @@ public class loadCMDs extends Thread {
 		
 	@Override
 	public void run() {
+		cmdBack = (TreeMap<String,TreeMap<String,Object>>)ctrl.cmds.clone();
 		try {
 			ctrl.cmds.clear();
 			File cmddir = new File("../CMDs");
@@ -44,9 +50,31 @@ public class loadCMDs extends Thread {
 			
 			//Call recursive file method
 			traverse(cmddir);
+			
+			System.out.println("cmdBack len: "+cmdBack.size()+" | cmds len: "+ctrl.cmds.size());
+			
+			//Get deleted CMDs
+			Iterator cmdItr = cmdBack.keySet().iterator();
+			while(cmdItr.hasNext()) {
+				String curCmd = (String)cmdItr.next();
+				if(!ctrl.cmds.containsKey(curCmd) && !newCMDs.contains(curCmd))
+					deletedCMDs.add(curCmd);
+			}
+			
+			String newStr = (newCMDs.size() == 0) ? "" : "New: "+StringUtils.join(newCMDs.toArray(),", ");
+			String updateStr = (updatedCMDs.size() == 0) ? "" : "Updated: "+StringUtils.join(updatedCMDs.toArray(),", ");
+			String delStr = (deletedCMDs.size() == 0) ? "" : "Deleted: "+StringUtils.join(deletedCMDs.toArray(),", ");
+			
+			//Notify everyone of new change
+			if((newStr+updateStr+delStr).equals("")) {
+				System.out.println("Reload changed nothing!");
+				return;
+			}
+			ctrl.sendGlobalMessage("Bot commands reloaded! "+newStr+" "+updateStr+" "+delStr);
 		}
 		catch(Exception e) {
-			System.out.println("Error");
+			System.err.println("Error in reload, reverting to cmd backup");
+			ctrl.cmds = cmdBack;
 			e.printStackTrace();
 		}
 		return;
@@ -64,8 +92,9 @@ public class loadCMDs extends Thread {
 		else if((file.getAbsolutePath().indexOf(".svn") != -1))
 			return;
 		
+		//Basic setup
 		ScriptEngine jsEngine = ctrl.jsEngine;
-		MessageDigest digest = MessageDigest.getInstance("MD5");
+		String name = StringUtils.split(file.getName(),".")[0];
 		
 		//Read File Line By Line
 		System.out.println("Current file: "+file.getName());
@@ -77,11 +106,19 @@ public class loadCMDs extends Thread {
     	input.close();
     	String contents = fileContents.toString();
     	
-    	//Get CMD file hash
-    	digest.reset();
-    	digest.update(contents.getBytes());
-    	String hash = new String(digest.digest());
-    		
+    	//Method update list: Is this an existing method?
+    	if(cmdBack.get(name) != null && cmdBack.get(name).get("src").equals(contents)){
+    		//Do nothing
+    	}
+    	else if(cmdBack.get(name) != null) {
+    		System.out.println("CMD "+name+" is being updated!");
+    		updatedCMDs.add(name);
+    	}
+    	else {
+    		System.out.println("CMD "+name+" is new!");
+    		newCMDs.add(name);
+    	}
+    	
     	//Make new context
     	ScriptContext newContext = new SimpleScriptContext();
      	Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
@@ -96,7 +133,6 @@ public class loadCMDs extends Thread {
 		cmdinfo.put("param",(int)Double.parseDouble(engineScope.get("param").toString()));
 		cmdinfo.put("context",newContext);
 		cmdinfo.put("scope",engineScope);
-		String name = file.getName().split("\\.")[0];
     	ctrl.cmds.put(name,cmdinfo);
     	System.out.println("New CMD: "+name);
 	}

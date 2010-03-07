@@ -194,7 +194,7 @@ public class Bot extends PircBot {
         }
     }
     
-    public boolean methodExists(String method) {
+    private boolean methodExists(String method) {
     	if(!mainInst.cmds.containsKey(method)) {
     		sendMessage(channel, sender+": Command "+method+" dosen't exist");
     		return false;
@@ -210,5 +210,11 @@ public class Bot extends PircBot {
     	}
     	else
     		return false;
+    }
+    
+    public void sendAllMessage(String msg) {
+    	String[] channels = getChannels();
+    	for(String channel : channels)
+    		sendMessage(channel,msg);
     }
 }
