@@ -21,6 +21,8 @@ import java.io.*;
 import java.nio.file.*;
 import java.lang.reflect.*;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.Quackbot.*;
 
 public class GUI extends JFrame implements ActionListener {
@@ -28,7 +30,7 @@ public class GUI extends JFrame implements ActionListener {
 	JTextPane errorLog;
 	JScrollPane errorScroll;
 	StyledDocument errorDoc;
-	PrintStream oldOut,oldErr;
+	PrintStream oldOut,oldErr,newOut,newErr;
 	
 	public Controller ctrl = null;
 	
@@ -46,8 +48,10 @@ public class GUI extends JFrame implements ActionListener {
     	
       	oldOut = System.out;
       	oldErr = System.err;
-		System.setOut(new PrintStream(new FilteredStream(new ByteArrayOutputStream(),false)));
-		System.setErr(new PrintStream(new FilteredStream(new ByteArrayOutputStream(),true)));
+      	newOut = new PrintStream(new FilteredStream(new ByteArrayOutputStream(),false));
+      	newErr = new PrintStream(new FilteredStream(new ByteArrayOutputStream(),true));
+		System.setOut(newOut);
+		System.setErr(newErr);
     	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //Will exit when close button is pressed
      	setTitle("Quackbot GUI Control Panel");
        	setMinimumSize(new Dimension(1000,700));
@@ -72,7 +76,7 @@ public class GUI extends JFrame implements ActionListener {
        	add(contentPane); //add to JFrame
 		setVisible(true); //make JFrame visible
 		
-		ctrl = new Controller();
+		ctrl = new Controller(this);
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -88,7 +92,7 @@ public class GUI extends JFrame implements ActionListener {
     			if(num == JOptionPane.NO_OPTION )
     				return;
     		}
-    		ctrl = new Controller();
+    		ctrl = new Controller(this);
     	}
     	else if(cmd.equals("Reload")) {
     		ctrl.threadPool.execute(new loadCMDs(ctrl));
@@ -105,21 +109,18 @@ public class GUI extends JFrame implements ActionListener {
             this.error = error;
             
           	Style style = errorLog.addStyle("Class", null); 
-          	StyleConstants.setForeground(style, Color.ORANGE ); 
-          	
-          	style = errorLog.addStyle("Time", null); 
-          	StyleConstants.setForeground(style, Color.BLUE ); 
+          	StyleConstants.setForeground(style, Color.blue ); 
           	        	
           	style = errorLog.addStyle("Normal", null); 
           	
           	style = errorLog.addStyle("Error", null); 
           	StyleConstants.setForeground(style, Color.red); 	
           		
-          	style = errorLog.addStyle("BotTalk", null); 
-          	StyleConstants.setForeground(style, Color.GREEN); 
-          		
           	style = errorLog.addStyle("BotSend", null); 
           	StyleConstants.setForeground(style, Color.ORANGE); 	
+          	
+          	style = errorLog.addStyle("Server", null); 
+          	StyleConstants.setBold(style, true); 	
        	}
 
         public void write(byte b[], int off, int len) throws IOException {
@@ -133,39 +134,46 @@ public class GUI extends JFrame implements ActionListener {
 	        	
 	        	//get calling class name
 	        	StackTraceElement[] elem = Thread.currentThread().getStackTrace();
-	        	String callingClass = elem[10].getClassName();
-	        	
-	        	//Capture real class from error message
-	        	if(callingClass.equals("java.lang.Throwable"))
-	        		callingClass = elem[12].getClassName();
+	        	String callingClass = null;
+	        	if (elem.length < 23)
+	        		callingClass = elem[10].getClassName();
+	        	else if(elem[19].getClassName().equals("sun.reflect.NativeMethodAccessorImpl"))
+	        		callingClass = elem[39].getClassName();
+	        	else if(elem[22].getClassName().equals("java.util.concurrent.ThreadPoolExecutor"))
+	        		callingClass = elem[21].getClassName();
+	        	else if(elem[19].getClassName().equals("java.lang.Throwable"))
+	        		callingClass = elem[22].getClassName();
+	        	else 
+	        		callingClass = elem[19].getClassName();
+	        		
+	        	String[] splitClass = StringUtils.split(callingClass,".");
+	        	callingClass = splitClass[splitClass.length-1];
 	        	
 	            //Break apart string
-	            String[] endString = new String[2];
-	            DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa");
-				formatter.setLenient(false);
-	            try {
-	            	String[] sString = aString.split(" ",2);
-					endString[0] = formatter.format(new Date(Long.parseLong(sString[0])));
-					endString[1] = sString[1];
+	            String[] endString = new String[4];
+	            String[] sString = aString.split(" ",2);
+	            if(aString.indexOf(".") == -1) {
+	            	sString[1] = sString[0]+" "+sString[1];
+	            	sString[0] = "None";
 	            }
-	            catch(NumberFormatException e) {
-	            	endString[0] = formatter.format(new Date());
-	            	endString[1] = aString;
-	            }
+	            endString[0] = "["+(new SimpleDateFormat("hh:mm:ss aa").format(new Date()))+"] ";
+	            endString[1] = "<"+sString[0]+"> ";
+	            endString[2] = callingClass+": ";
+	            endString[3] = sString[1];
 	            
 	           	//Set style
 	        	Style style = null;
 	        	if(error) style = errorDoc.getStyle("Error");
-	        	else if(callingClass.equals("Bot")) style = errorDoc.getStyle("BotTalk");
-	        	else if(endString[1].substring(0,3).equals(">>>")) style = errorDoc.getStyle("BotSend");
-	        	else if(endString[1].substring(0,3).equals("###")) style = errorDoc.getStyle("Error");
-	        	else style = errorDoc.getStyle("Time");
+	        	//else if(callingClass.equals("Bot")) style = errorDoc.getStyle("BotTalk");
+	        	else if(endString[3].substring(0,3).equals(">>>")) style = errorDoc.getStyle("BotSend");
+	        	else if(endString[3].substring(0,3).equals("###")) style = errorDoc.getStyle("Error");
+	        	else style = errorDoc.getStyle("Normal");
 	            
-	            if(errorDoc.getLength()!=0)
-	        		errorDoc.insertString(errorDoc.getLength(),"\n",errorDoc.getStyle("Normal"));
-		        errorDoc.insertString(errorDoc.getLength(),endString[0]+": ",style);
-		        errorDoc.insertString(errorDoc.getLength(),callingClass+" - ",errorDoc.getStyle("Class"));
-		        errorDoc.insertString(errorDoc.getLength(),endString[1],errorDoc.getStyle("Normal"));
+	            errorDoc.insertString(errorDoc.getLength(),"\n",errorDoc.getStyle("Normal"));
+	            errorDoc.insertString(errorDoc.getLength(),endString[0],errorDoc.getStyle("Normal"));
+	            errorDoc.insertString(errorDoc.getLength(),endString[1],errorDoc.getStyle("Server"));
+	            errorDoc.insertString(errorDoc.getLength(),endString[2],errorDoc.getStyle("Class"));
+	            errorDoc.insertString(errorDoc.getLength(),endString[3],style);
 
 	        	if(error) 
 	        		oldErr.println(aString); //so runtime errors can be caught

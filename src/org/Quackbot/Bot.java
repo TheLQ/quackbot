@@ -16,6 +16,7 @@ import java.lang.*;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import javax.script.*;
+import java.io.*;
 
 
 import org.apache.commons.lang.StringUtils;
@@ -36,12 +37,20 @@ public class Bot extends PircBot {
     
     //Init bot by setting all information
     public Bot(Controller mainInstance) {
+		System.setOut(new PrintStream(new BotStream(new ByteArrayOutputStream(),false)));
+		System.setErr(new PrintStream(new BotStream(new ByteArrayOutputStream(),true)));
     	mainInst = mainInstance;
         setName("Quackbot");
         setAutoNickChange(true);
         setFinger("Quackbot IRC bot by Lord.Quackstar. Source: http://github.com/LBlakey/Quackbot");
         setMessageDelay(500);
         setVersion("Quackbot 0.5");
+    }
+    
+    //Custom output
+    @Override
+   	public void log(String line) {
+        System.out.println(line);
     }
     
     //Setup bot when fully connected
@@ -174,6 +183,7 @@ public class Bot extends PircBot {
         engineScope.put("hostname",hostname);
         engineScope.put("rawmsg",rawmsg);
         engineScope.put("qb",this);
+        engineScope.put("out",System.out);
         
         //build command string
         String jsCmd = "invoke("+StringUtils.join(argArray, ", ")+");";
@@ -231,6 +241,29 @@ public class Bot extends PircBot {
         		sendMessage(channel, sender+": CMD ERROR: "+e.toString());
         	}
     	}
+    }
+    
+    //Simple output wrapper that makes sure ALL streams are filtered
+    class BotStream extends FilterOutputStream {
+    	boolean error;
+    	
+    	public BotStream(OutputStream aStream,boolean error) {
+            super(aStream);
+    		this.error = error;
+    	}
+    	
+        public void write(byte b[], int off, int len) throws IOException {
+        	String aString = new String(b , off , len).trim();
+	        
+	        //don't print empty strings
+	        if(aString.length()==0)
+	        	return;
+	        
+        	if(error)
+        		mainInst.gui.newErr.println(getServer() + " " + aString);
+        	else
+        		mainInst.gui.newOut.println(getServer() + " " + aString);
+        }
     }
     
 }

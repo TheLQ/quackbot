@@ -65,14 +65,6 @@
 				<folder>src</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\SandBox2.java</path>
-				<folder>src</folder>
-			</fileitem>
-			<fileitem>
-				<path>src\SandBoxInter.java</path>
-				<folder>src</folder>
-			</fileitem>
-			<fileitem>
 				<path>src\org\Quackbot\Bot.java</path>
 				<folder>src\org\Quackbot</folder>
 			</fileitem>

@@ -34,10 +34,14 @@ public class Controller {
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	public ExecutorService threadPool = Executors.newCachedThreadPool();
+	public GUI gui;
 	
-    public Controller() {
+    public Controller(GUI gui) {
     	//Lets now get all CMD classes and put into array
 		cmds = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
+		
+		//Add GUI to instance vars
+		this.gui = gui;
 		
 		//Load current CMD classes
 		threadPool.execute(new loadCMDs(this));
