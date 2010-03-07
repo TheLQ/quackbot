@@ -24,9 +24,7 @@ import javax.script.*;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.Quackbot.CMDs.CMDSuper;
-
-public class loadCMDs extends Thread {	
+public class loadCMDs implements Runnable {	
 	Controller ctrl = null;
 	TreeSet<String> newCMDs = new TreeSet<String>();
 	TreeSet<String> updatedCMDs = new TreeSet<String>();
@@ -36,16 +34,15 @@ public class loadCMDs extends Thread {
 	public loadCMDs(Controller ctrl) {
 		this.ctrl = ctrl;
 	}
-		
-	@Override
+	
 	public void run() {
-		cmdBack = (TreeMap<String,TreeMap<String,Object>>)ctrl.cmds.clone();
+		cmdBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.cmds);
 		try {
 			ctrl.cmds.clear();
 			File cmddir = new File("../CMDs");
 			if(!cmddir.exists()) {
 				System.out.println("CMD directory not found!");
-				interrupt();
+				return;
 			}
 			
 			//Call recursive file method
@@ -97,7 +94,6 @@ public class loadCMDs extends Thread {
 		String name = StringUtils.split(file.getName(),".")[0];
 		
 		//Read File Line By Line
-		System.out.println("Current file: "+file.getName());
      	BufferedReader input =  new BufferedReader(new FileReader(file));
     	StringBuilder fileContents = new StringBuilder();
     	String strLine;
@@ -107,17 +103,12 @@ public class loadCMDs extends Thread {
     	String contents = fileContents.toString();
     	
     	//Method update list: Is this an existing method?
-    	if(cmdBack.get(name) != null && cmdBack.get(name).get("src").equals(contents)){
+    	if(cmdBack.get(name) != null && cmdBack.get(name).get("src").equals(contents)) {}
     		//Do nothing
-    	}
-    	else if(cmdBack.get(name) != null) {
-    		System.out.println("CMD "+name+" is being updated!");
+    	else if(cmdBack.get(name) != null)
     		updatedCMDs.add(name);
-    	}
-    	else {
-    		System.out.println("CMD "+name+" is new!");
+    	else
     		newCMDs.add(name);
-    	}
     	
     	//Make new context
     	ScriptContext newContext = new SimpleScriptContext();

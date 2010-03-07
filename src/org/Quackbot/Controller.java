@@ -2,6 +2,7 @@
  * @(#)Controller.java
  *
  * Main Controller for bot:
+ *  -Holds main thread pool
  *  -Initiates and keeps track of all bots
  *  -Loads (and reload) all CMD classes
  *
@@ -9,7 +10,8 @@
  */
  
 package org.Quackbot;
- 
+
+import java.lang.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.text.*;
@@ -22,25 +24,26 @@ import java.nio.file.*;
 import java.lang.reflect.*;
 import java.net.*;
 import javax.script.*;
+import java.util.concurrent.*;
 
 import org.Quackbot.*;
-import org.Quackbot.CMDs.CMDSuper;
 
 public class Controller {
 	
 	public TreeMap<String,TreeMap<String,Object>> cmds;
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+	public ExecutorService threadPool = Executors.newCachedThreadPool();
 	
     public Controller() {
     	//Lets now get all CMD classes and put into array
 		cmds = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
 		
 		//Load current CMD classes
-		new loadCMDs(this).start();
+		threadPool.execute(new loadCMDs(this));
 		
 		//Join some servers
-		new botThread("irc.freenode.net",new String[]{"##newyearcountdown"}).start();
+		threadPool.execute(new botThread("irc.freenode.net",new String[]{"##newyearcountdown"}));
     }
     
     //Makes all bots quit servers
@@ -63,7 +66,7 @@ public class Controller {
     }
     
     /*****Simple thread to run the bot in to prevent it from locking the gui***/
-    class botThread extends Thread {
+    public class botThread implements Runnable {
     	String server = null;
     	String[] channels = null;
     	
@@ -71,8 +74,7 @@ public class Controller {
     		this.server = server;
     		this.channels = channels;
     	}
-    	      
-    	@Override
+    	
         public void run() {
         	try {
     			System.out.println("Initiating connection");

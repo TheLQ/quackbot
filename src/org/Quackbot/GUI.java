@@ -22,8 +22,6 @@ import java.nio.file.*;
 import java.lang.reflect.*;
 
 import org.Quackbot.*;
-import org.Quackbot.Annotations.*;
-import org.Quackbot.CMDs.CMDSuper;
 
 public class GUI extends JFrame implements ActionListener {
 	
@@ -93,7 +91,7 @@ public class GUI extends JFrame implements ActionListener {
     		ctrl = new Controller();
     	}
     	else if(cmd.equals("Reload")) {
-    		new loadCMDs(ctrl).start();
+    		ctrl.threadPool.execute(new loadCMDs(ctrl));
     	}
     }
 	
@@ -166,7 +164,7 @@ public class GUI extends JFrame implements ActionListener {
 	            if(errorDoc.getLength()!=0)
 	        		errorDoc.insertString(errorDoc.getLength(),"\n",errorDoc.getStyle("Normal"));
 		        errorDoc.insertString(errorDoc.getLength(),endString[0]+": ",style);
-		        //errorDoc.insertString(errorDoc.getLength(),callingClass+" - ",errorDoc.getStyle("Class"));
+		        errorDoc.insertString(errorDoc.getLength(),callingClass+" - ",errorDoc.getStyle("Class"));
 		        errorDoc.insertString(errorDoc.getLength(),endString[1],errorDoc.getStyle("Normal"));
 
 	        	if(error) 

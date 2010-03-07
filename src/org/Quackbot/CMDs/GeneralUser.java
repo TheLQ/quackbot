@@ -18,13 +18,17 @@ public class GeneralUser extends CMDSuper {
 
 	@ReqArg
     @HelpDoc("Empty: Displays all commands | With command: Displays help for command. Syntax: ?help <OPTIONAL:command>")
-    public void help(String method) {
+    public void help(String method) {/*
     	if(method==null) {
     		//User wants command list
     		StringBuilder cmdList = new StringBuilder();
-    		Iterator itr = qb.mainInst.methodList.entrySet().iterator();
+    		Iterator itr = qb.mainInst.cmds.entrySet().iterator();
     		while(itr.hasNext()) {
-    			Map.Entry<String,Method> currentEntry = (Map.Entry<String,Method>)itr.next();
+    			Map.Entry<String,String> currentEntry = (Map.Entry<String,String>)itr.next();
+    			
+    			//Make new jsEngine to get variables
+    			//jsEngine
+    			
     			if(!(currentEntry.getValue().getDeclaringClass().getName().equals("Quackbot.CMDs.AdminOnly"))) {
     				cmdList.append(currentEntry.getKey());
     				cmdList.append(", ");
@@ -40,7 +44,7 @@ public class GeneralUser extends CMDSuper {
     	else {
 	    	if(!qb.methodExists(method)) return;
 	    	qb.sendMessage(channel, sender + ": "+qb.mainInst.methodList.get(method).getAnnotation(HelpDoc.class).value());
-    	}
+    	}*/
     }
     
     @HelpDoc("Returns current time. Syntax: ?time")

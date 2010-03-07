@@ -17,9 +17,10 @@ import java.lang.reflect.*;
 import java.lang.annotation.*;
 import javax.script.*;
 
-import org.Quackbot.Annotations.*;
+
+import org.apache.commons.lang.StringUtils;
+
 import org.Quackbot.*;
-import org.Quackbot.CMDs.CMDSuper;
 
 public class Bot extends PircBot {
     
@@ -165,35 +166,24 @@ public class Bot extends PircBot {
         
         //All requirements are met, excecute method
         System.out.println("All tests passed, running method");
-        try {
-    		ScriptContext newContext = (ScriptContext)cmdinfo.get("context");
-     		Bindings engineScope = (Bindings)cmdinfo.get("scope");;
-        	engineScope.put("channel",channel);
-        	engineScope.put("sender",sender);
-        	engineScope.put("login",login);
-        	engineScope.put("hostname",hostname);
-        	engineScope.put("rawmsg",rawmsg);
-        	engineScope.put("qb",this);
-        	
-        	//build command string
-        	StringBuilder jsCmd = new StringBuilder();
-        	jsCmd.append("invoke( ");
-        	for(String arg : argArray) {
-        		jsCmd.append(" '"+arg+"',");
-        	}
-        	jsCmd.deleteCharAt(jsCmd.length()-1);
-        	jsCmd.append(");");
-        	System.out.println("JS cmd: "+jsCmd.toString());
-	        mainInst.jsEngine.eval(jsCmd.toString(),newContext);
-        }
-        catch(Exception e) {
-        	Throwable cause = e.getCause();
-        	//cause.printStackTrace();
-        	e.printStackTrace();
-        	sendMessage(channel, sender+": CMD ERROR: "+e.toString());
-        }
+        ScriptContext newContext = (ScriptContext)cmdinfo.get("context");
+     	Bindings engineScope = (Bindings)cmdinfo.get("scope");;
+        engineScope.put("channel",channel);
+        engineScope.put("sender",sender);
+        engineScope.put("login",login);
+        engineScope.put("hostname",hostname);
+        engineScope.put("rawmsg",rawmsg);
+        engineScope.put("qb",this);
+        
+        //build command string
+        String jsCmd = "invoke("+StringUtils.join(argArray, ", ")+");";
+        System.out.println("JS cmd: "+jsCmd);
+        
+        //Run command in thread pool
+        mainInst.threadPool.execute(new threadCmdRun(jsCmd,newContext));
     }
     
+    //Check cmd array for method name
     private boolean methodExists(String method) {
     	if(!mainInst.cmds.containsKey(method)) {
     		sendMessage(channel, sender+": Command "+method+" dosen't exist");
@@ -203,6 +193,7 @@ public class Bot extends PircBot {
     		return true;
     }
     
+    //Is the person an admin?
     public boolean isAdmin() {
     	if(adminList.containsKey(sender)) {
     		System.out.println("Calling user is admin!");
@@ -212,9 +203,34 @@ public class Bot extends PircBot {
     		return false;
     }
     
+    //Send message to ALL channels
     public void sendAllMessage(String msg) {
     	String[] channels = getChannels();
     	for(String channel : channels)
     		sendMessage(channel,msg);
     }
+    
+    //Simple Runnable to run command in seperate thread
+    class threadCmdRun implements Runnable {
+    	String jsCmd;
+    	ScriptContext context;
+    	
+    	public threadCmdRun(String jsCmd, ScriptContext context) {
+    		this.jsCmd = jsCmd;
+    		this.context = context;
+    	}
+    	
+    	public void run() {
+    		try {
+	        	mainInst.jsEngine.eval(jsCmd,context);
+    		}
+    	    catch(Exception e) {
+        		Throwable cause = e.getCause();
+        		//cause.printStackTrace();
+        		e.printStackTrace();
+        		sendMessage(channel, sender+": CMD ERROR: "+e.toString());
+        	}
+    	}
+    }
+    
 }

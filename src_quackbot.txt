@@ -1,6 +1,4 @@
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\Sandbox.java"
-"C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\SandBox2.java"
-"C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\SandBoxInter.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\Bot.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\Controller.java"
 "C:\\Documents and Settings\\Lord.Quackstar\\Desktop\\Quackbot-clone\\quackbot\\src\\org\\Quackbot\\GUI.java"
