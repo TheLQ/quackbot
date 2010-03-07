@@ -82,7 +82,7 @@
 			<path>src\org\Quackbot\Bot.java</path>
 			<source>true</source>
 			<index>3</index>
-			<active>true</active>
+			<active>false</active>
 		</docitem>
 		<docitem>
 			<path>src\org\Quackbot\CMDs\Admin.java</path>
@@ -118,7 +118,7 @@
 			<path>src\org\Quackbot\Annotations\AdminOnly.java</path>
 			<source>true</source>
 			<index>9</index>
-			<active>false</active>
+			<active>true</active>
 		</docitem>
 		<docitem>
 			<path>pircbot\PircBot.java</path>

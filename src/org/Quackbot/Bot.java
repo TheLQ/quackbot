@@ -186,15 +186,22 @@ public class Bot extends PircBot {
         engineScope.put("out",System.out);
         
         //build command string
-        String jsCmd = "invoke("+StringUtils.join(argArray, ", ")+");";
-        System.out.println("JS cmd: "+jsCmd);
+		StringBuilder jsCmd = new StringBuilder();
+		jsCmd.append("invoke( ");
+		for(String arg : argArray) {
+			jsCmd.append(" '"+arg+"',");
+		}
+		jsCmd.deleteCharAt(jsCmd.length()-1);
+		jsCmd.append(");");
+		
+        System.out.println("JS cmd: "+jsCmd.toString());
         
         //Run command in thread pool
-        mainInst.threadPool.execute(new threadCmdRun(jsCmd,newContext));
+        mainInst.threadPool.execute(new threadCmdRun(jsCmd.toString(),newContext));
     }
     
     //Check cmd array for method name
-    private boolean methodExists(String method) {
+    public boolean methodExists(String method) {
     	if(!mainInst.cmds.containsKey(method)) {
     		sendMessage(channel, sender+": Command "+method+" dosen't exist");
     		return false;
