@@ -42,12 +42,6 @@
 				<path>src\org\Quackbot</path>
 			</folderitem>
 			<folderitem>
-				<path>src\org\Quackbot\Annotations</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot\CMDs</path>
-			</folderitem>
-			<folderitem>
 				<path>jars</path>
 			</folderitem>
 			<folderitem>
@@ -81,36 +75,12 @@
 				<folder>src\org\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\org\Quackbot\Annotations\AdminOnly.java</path>
-				<folder>src\org\Quackbot\Annotations</folder>
-			</fileitem>
-			<fileitem>
-				<path>src\org\Quackbot\Annotations\HelpDoc.java</path>
-				<folder>src\org\Quackbot\Annotations</folder>
-			</fileitem>
-			<fileitem>
-				<path>src\org\Quackbot\Annotations\ReqArg.java</path>
-				<folder>src\org\Quackbot\Annotations</folder>
-			</fileitem>
-			<fileitem>
-				<path>src\org\Quackbot\CMDs\Admin.java</path>
-				<folder>src\org\Quackbot\CMDs</folder>
-			</fileitem>
-			<fileitem>
-				<path>src\org\Quackbot\CMDs\CMDSuper.java</path>
-				<folder>src\org\Quackbot\CMDs</folder>
-			</fileitem>
-			<fileitem>
-				<path>src\org\Quackbot\CMDs\GeneralUser.java</path>
-				<folder>src\org\Quackbot\CMDs</folder>
+				<path>jars\commons-lang-2.5.jar</path>
+				<folder>jars</folder>
 			</fileitem>
 			<fileitem>
 				<path>jars\pircbot.jar</path>
 				<folder>jars</folder>
-			</fileitem>
-			<fileitem>
-				<path>CMDs\testMe.js</path>
-				<folder>CMDs</folder>
 			</fileitem>
 		</include>
 		<exclude>

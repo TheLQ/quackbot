@@ -1,1 +1,0 @@
-TortoiseProc.exe /command:commit /path:"C:\Documents and Settings\Lord.Quackstar\Desktop\Quackbot-clone\quackbot\"
