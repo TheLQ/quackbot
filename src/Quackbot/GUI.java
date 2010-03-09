@@ -155,16 +155,18 @@ public class GUI extends JFrame implements ActionListener {
 	        	//get calling class name
 	        	StackTraceElement[] elem = Thread.currentThread().getStackTrace();
 	        	String callingClass = null;
-	        	if (elem.length < 23)
+	        	if(elem[10].getClassName().equals("Quackbot.Bot$BotStream"))
+	        		callingClass = elem[22].getClassName();
+	        	else if(elem.length <= 22)
 	        		callingClass = elem[10].getClassName();
 	        	else if(elem[19].getClassName().equals("sun.reflect.NativeMethodAccessorImpl"))
 	        		callingClass = elem[39].getClassName();
-	        	else if(elem[22].getClassName().equals("java.util.concurrent.ThreadPoolExecutor"))
-	        		callingClass = elem[21].getClassName();
 	        	else if(elem[19].getClassName().equals("java.lang.Throwable"))
-	        		callingClass = elem[22].getClassName();
+	        		callingClass = elem[23].getClassName();
+				else if(elem[20].getClassName().equals("java.lang.Throwable"))
+	        		callingClass = elem[21].getClassName();
 	        	else 
-	        		callingClass = elem[19].getClassName();
+	        		callingClass = elem[20].getClassName();
 	        		
 	        	String[] splitClass = StringUtils.split(callingClass,".");
 	        	callingClass = splitClass[splitClass.length-1];

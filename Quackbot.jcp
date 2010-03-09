@@ -12,9 +12,8 @@
 	</settings>
 	<ant_events/>
 	<run_items>
-		<item run="org.Quackbot.QBMain"/>
-		<item run="org.Quackbot.GUI"/>
 		<item run="Sandbox"/>
+		<item run="Quackbot.GUI"/>
 	</run_items>
 	<runtimes>
 		<runtime>
@@ -23,7 +22,7 @@
 			<applet_ref>&lt;Default&gt;</applet_ref>
 			<debugger_ref>&lt;Default&gt;</debugger_ref>
 			<param/>
-			<run>org.Quackbot.GUI</run>
+			<run>Quackbot.GUI</run>
 			<verify>true</verify>
 		</runtime>
 	</runtimes>
@@ -36,10 +35,7 @@
 				<path>src</path>
 			</folderitem>
 			<folderitem>
-				<path>src\org</path>
-			</folderitem>
-			<folderitem>
-				<path>src\org\Quackbot</path>
+				<path>src\Quackbot</path>
 			</folderitem>
 			<folderitem>
 				<path>jars</path>
@@ -51,28 +47,20 @@
 				<path>TODO.txt</path>
 			</fileitem>
 			<fileitem>
-				<path>src\Commit.bat</path>
-				<folder>src</folder>
+				<path>src\Quackbot\Bot.java</path>
+				<folder>src\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\Sandbox.java</path>
-				<folder>src</folder>
+				<path>src\Quackbot\Controller.java</path>
+				<folder>src\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\org\Quackbot\Bot.java</path>
-				<folder>src\org\Quackbot</folder>
+				<path>src\Quackbot\GUI.java</path>
+				<folder>src\Quackbot</folder>
 			</fileitem>
 			<fileitem>
-				<path>src\org\Quackbot\Controller.java</path>
-				<folder>src\org\Quackbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>src\org\Quackbot\GUI.java</path>
-				<folder>src\org\Quackbot</folder>
-			</fileitem>
-			<fileitem>
-				<path>src\org\Quackbot\loadCMDs.java</path>
-				<folder>src\org\Quackbot</folder>
+				<path>src\Quackbot\loadCMDs.java</path>
+				<folder>src\Quackbot</folder>
 			</fileitem>
 			<fileitem>
 				<path>jars\commons-lang-2.5.jar</path>
@@ -86,6 +74,10 @@
 		<exclude>
 			<folderitem>
 				<path>pircbot</path>
+				<dir/>
+			</folderitem>
+			<folderitem>
+				<path>Quackbot</path>
 				<dir/>
 			</folderitem>
 		</exclude>
