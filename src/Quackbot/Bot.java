@@ -1,10 +1,7 @@
 /**
  * @(#)Bot.java
  *
- * Bot instance that communicates with 1 server
- *  -Initiates all commands
- *
- * @author Lord.Quackstar
+ * This file is part of Quackbot
  */
  
 package Quackbot;
@@ -24,6 +21,15 @@ import javax.script.ScriptContext;
 
 import org.jibble.pircbot.PircBot;
 
+/**
+ * Bot instance that communicates with 1 server
+ *  -Initiates all commands
+ *
+ * Used by: Controller, spawned commands
+ *
+ * @version 3.0
+ * @author Lord.Quackstar
+ */
 public class Bot extends PircBot {
 
 	public boolean botLocked = false;
@@ -35,7 +41,10 @@ public class Bot extends PircBot {
 	public TreeMap<String,String> chanLockList;
 	public Controller mainInst = null;
 
-	//Init bot by setting all information
+	/**
+	 * Init bot by setting all information
+	 * @param mainInstance   The controller instance used to spawn this bot
+	 */
 	public Bot(Controller mainInstance) {
 		mainInst = mainInstance;
 		setName("Quackbot");
@@ -45,18 +54,26 @@ public class Bot extends PircBot {
 		setVersion("Quackbot 0.5");
 	}
 
-	//Custom output
+	/**
+	 * Bot out stream wrapper, prefixes with server
+	 * @param line   Line to be outputed
+	 */
 	@Override
 	public void log(String line) {
 		System.out.println(getServer()+" "+line);
 	}
 
-	//Custom error output
+	/**
+	 * Bot error stream wrapper, prefixes with server
+	 * @param line   Line to be outputted
+	 */
 	public void logErr(String line) {
 		System.err.println(getServer()+" "+line);
 	}
 
-	//Setup bot when fully connected
+	/**
+	 * Setup bot when fully connected
+	 */
 	@Override
 	public void onConnect() {
 		//Add admins
@@ -72,7 +89,14 @@ public class Bot extends PircBot {
 		PREFIXES.add(getNick());
 	}
 
-	//Activated when someone types a message on a channel
+	/**
+	 * Activated when someone types a message on a channel
+	 * @param channel   The channel to which the message was sent.
+	 * @param sender    The nick of the person who sent the message.
+	 * @param login     The login of the person who sent the message.
+	 * @param hostname  The hostname of the person who sent the message.
+	 * @param message   The actual message sent to the channel.
+	 */
 	@Override
 	public void onMessage(String channel, String sender, String login, String hostname, String message) {
 		//Make class aware of a few parameters
@@ -99,7 +123,13 @@ public class Bot extends PircBot {
 		activateCmd(channel, sender, login, hostname, message);
 	}
 
-	//Activated when someone PM's the bot
+	/**
+	 * PircBot method, activated when someone PM's the bot
+	 * @param sender   The nick of the person who sent the private message.
+	 * @param login    The login of the person who sent the private message.
+	 * @param hostname The hostname of the person who sent the private message.
+	 * @param message  The actual message.
+	 */
 	@Override
 	public void onPrivateMessage(String sender, String login, String hostname, String message) {
 		//Make the class aware of a few parameters
@@ -110,7 +140,15 @@ public class Bot extends PircBot {
 		activateCmd(sender, sender, login, hostname, message);
 	}
 
-	//runCommand wrapper, outputs (properly) to console and catches errors
+	//
+	/**
+	 * runCommand wrapper, outputs begginin and end to console and catches errors
+	 * @param channel     The channel to which the message was sent.
+	 * @param sender      The nick of the person who sent the message.
+	 * @param login       The login of the person who sent the message.
+	 * @param hostname    The hostname of the person who sent the message.
+	 * @param message      The actual message sent to the channel.
+	 */
 	private void activateCmd(String channel, String sender, String login, String hostname, String message) {
 		log("-----------BOT ACTIVATED FROM "+message+"-----------");
 		try {
@@ -123,9 +161,16 @@ public class Bot extends PircBot {
 		log("-----------END BOT ACTIVATED FROM "+message+"-----------");
 	}
 
-	//Command handling takes place here purley for nice output for console. If returned, end tag still shown
+	/**
+	 * Command handling takes place here purley for nice output for console. If returned, end tag still shown
+	 * @param channel     The channel to which the message was sent.
+	 * @param sender      The nick of the person who sent the message.
+	 * @param login       The login of the person who sent the message.
+	 * @param hostname    The hostname of the person who sent the message.
+	 * @param rawmsg      The actual message sent to the channel.
+	 * @throws Exception  If error is encountered while setting up command
+	 */
 	private void runCommand(String channel, String sender, String login, String hostname, String rawmsg) throws Exception {
-
 		//Is bot locked?
 		if(botLocked == true && !isAdmin()) {
 			log("Command ignored due to global lock in effect");
@@ -203,7 +248,11 @@ public class Bot extends PircBot {
 		mainInst.threadPool.execute(new threadCmdRun(jsCmd.toString(),newContext));
 	}
 
-	//Check cmd array for method name
+	/**
+	 * Check cmd array for method name
+	 * @param method
+	 * @return True if command exists, false otherwise
+	 */
 	public boolean methodExists(String method) {
 		if(!mainInst.cmds.containsKey(method)) {
 			sendMessage(channel, sender+": Command "+method+" dosen't exist");
@@ -213,7 +262,10 @@ public class Bot extends PircBot {
 			return true;
 	}
 
-	//Is the person an admin?
+	/**
+	 * Check to see if person is an admin
+	 * @return True if person is an admin, false otherwise
+	 */
 	public boolean isAdmin() {
 		if(adminList.containsKey(sender)) {
 			log("Calling user is admin!");
@@ -223,23 +275,36 @@ public class Bot extends PircBot {
 			return false;
 	}
 
-	//Send message to ALL channels
+	/**
+	 * Send message to ALL joined channels
+	 * @param msg   Message to send
+	 */
 	public void sendAllMessage(String msg) {
 		String[] channels = getChannels();
 		for(String channel : channels)
 			sendMessage(channel,msg);
 	}
 
-	//Simple Runnable to run command in seperate thread
+	/**
+	 * Simple Runnable to run command in seperate thread
+	 */
 	class threadCmdRun implements Runnable {
 		String jsCmd;
 		ScriptContext context;
 
+		/**
+		 * Setup runnable
+		 * @param jsCmd
+		 * @param context
+		 */
 		public threadCmdRun(String jsCmd, ScriptContext context) {
 			this.jsCmd = jsCmd;
 			this.context = context;
 		}
 
+		/**
+		 * Run in background
+		 */
 		public void run() {
 			try {
 				mainInst.jsEngine.eval(jsCmd,context);
@@ -253,7 +318,9 @@ public class Bot extends PircBot {
 		}
 	}
 
-	//Simple output wrapper that makes sure ALL streams are filtered
+	/**
+	 * Bot error stream wrapper. Passed to stackTrace dumps so errors can be prefixed
+	 */
 	class BotErrorStream extends FilterOutputStream {
 		public BotErrorStream(ByteArrayOutputStream stream) {
 			super(stream);

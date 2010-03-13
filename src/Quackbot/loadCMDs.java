@@ -1,10 +1,7 @@
 /**
  * @(#)loadCMDs.java
  *
- * Load (or reload) all CMD classes
- *  -Dump into controller instance
- *
- * @author Lord.Quackstar
+ * This file is part of Quackbot
  */
 
 package Quackbot;
@@ -26,17 +23,29 @@ import javax.script.SimpleScriptContext;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ *  Load (or reload) all CMD classes
+ *  -Dump into controller instance
+ * @author Lord.Quackstar
+ */
 public class loadCMDs implements Runnable {	
 	Controller ctrl = null;
 	TreeSet<String> newCMDs = new TreeSet<String>();
 	TreeSet<String> updatedCMDs = new TreeSet<String>();
 	TreeSet<String> deletedCMDs = new TreeSet<String>();
 	TreeMap<String,TreeMap<String,Object>> cmdBack;
-	
+
+	/**
+	 * Make known Controller instance
+	 * @param ctrl  Controller instance
+	 */
 	public loadCMDs(Controller ctrl) {
 		this.ctrl = ctrl;
 	}
-	
+
+	/**
+	 * Initate recursive scan in seperate thread. Reports to bots any updates
+	 */
 	public void run() {
 		cmdBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.cmds);
 		try {
@@ -78,7 +87,12 @@ public class loadCMDs implements Runnable {
 		}
 		return;
 	}
-	
+
+	/**
+	 * Recursive method that transverses CMD directory. All .svn directories are ignored
+	 * @param file        Directory to scan
+	 * @throws Exception  Errors that might be a result from File issues, parsing issues, or misc.
+	 */
 	public void traverse( File file ) throws Exception {
 		if (file.isDirectory()) {
 			final File[] childs = file.listFiles();
@@ -96,37 +110,37 @@ public class loadCMDs implements Runnable {
 		String name = StringUtils.split(file.getName(),".")[0];
 		
 		//Read File Line By Line
-     	BufferedReader input =  new BufferedReader(new FileReader(file));
-    	StringBuilder fileContents = new StringBuilder();
-    	String strLine;
-    	while ((strLine = input.readLine()) != null)
-    		fileContents.append(strLine+System.getProperty("line.separator"));  			
-    	input.close();
-    	String contents = fileContents.toString();
-    	
-    	//Method update list: Is this an existing method?
-    	if(cmdBack.get(name) != null && cmdBack.get(name).get("src").equals(contents)) {}
-    		//Do nothing
-    	else if(cmdBack.get(name) != null)
-    		updatedCMDs.add(name);
-    	else
-    		newCMDs.add(name);
-    	
-    	//Make new context
-    	ScriptContext newContext = new SimpleScriptContext();
-     	Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
-     	jsEngine.eval(contents,newContext);
-    	
-    	//Make a treemap containing very detailed info and dump into main map
-    	TreeMap<String,Object> cmdinfo = new TreeMap<String,Object>(String.CASE_INSENSITIVE_ORDER);
-    	cmdinfo.put("src",fileContents.toString());
-    	cmdinfo.put("help",(String)engineScope.get("help"));
+		BufferedReader input =  new BufferedReader(new FileReader(file));
+		StringBuilder fileContents = new StringBuilder();
+		String strLine;
+		while ((strLine = input.readLine()) != null)
+		    fileContents.append(strLine+System.getProperty("line.separator"));
+		input.close();
+		String contents = fileContents.toString();
+		
+		//Method update list: Is this an existing method?
+		if(cmdBack.get(name) != null && cmdBack.get(name).get("src").equals(contents)) {}
+		    //Do nothing
+		else if(cmdBack.get(name) != null)
+		    updatedCMDs.add(name);
+		else
+		    newCMDs.add(name);
+
+		//Make new context
+		ScriptContext newContext = new SimpleScriptContext();
+		Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
+		jsEngine.eval(contents,newContext);
+
+		//Make a treemap containing very detailed info and dump into main map
+		TreeMap<String,Object> cmdinfo = new TreeMap<String,Object>(String.CASE_INSENSITIVE_ORDER);
+		cmdinfo.put("src",fileContents.toString());
+		cmdinfo.put("help",(String)engineScope.get("help"));
 		cmdinfo.put("admin",((engineScope.get("admin") == null) ? false : true));
 		cmdinfo.put("ReqArg",((engineScope.get("ReqArg") == null) ? false : true));
 		cmdinfo.put("param",(int)Double.parseDouble(engineScope.get("param").toString()));
 		cmdinfo.put("context",newContext);
 		cmdinfo.put("scope",engineScope);
-    	ctrl.cmds.put(name,cmdinfo);
-    	System.out.println("New CMD: "+name);
+		ctrl.cmds.put(name,cmdinfo);
+		System.out.println("New CMD: "+name);
 	}
 }

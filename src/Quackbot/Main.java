@@ -1,11 +1,7 @@
 /**
- * @(#)GUI.java
+ * @(#)Main.java
  *
- * Provides a GUI for bot
- *  -Output is pretified
- *  -Can initate stop, start, and reload from here
- *
- * @author Lord.Quackstar
+ * This file is part of Quackbot
  */
 
 package Quackbot;
@@ -44,6 +40,12 @@ import javax.swing.text.StyledDocument;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * Provides a GUI for bot
+ *  -Output is formated and displayed
+ *  -Can initate stop, start, and reload from here
+ * @author Lord.Quackstar
+ */
 public class Main extends JFrame implements ActionListener {
 	
 	JTextPane errorLog;
@@ -52,7 +54,10 @@ public class Main extends JFrame implements ActionListener {
 	PrintStream oldOut,oldErr,newOut,newErr;
 	
 	public Controller ctrl = null;
-	
+
+	/**
+	 * Setup and display GUI, redirect output streams, start Controller
+	 */
 	public Main() {
 		/***Pre init, setup error log**/
 		errorLog = new JTextPane();
@@ -96,6 +101,10 @@ public class Main extends JFrame implements ActionListener {
 		ctrl = new Controller(this);
 	}
 
+	/**
+	 * Button action listener, controls for Controller
+	 * @param e  Event
+	 */
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
 
@@ -116,11 +125,18 @@ public class Main extends JFrame implements ActionListener {
 		}
 	}
 	
-	/***Output Wrapper, Redirects all ouput to log at bottom***/
+	/**
+	 * Output Wrapper, Redirects all ouput to log at bottom
+	 */
 	class FilteredStream extends FilterOutputStream {
 		AttributeSet className, text;
 		boolean error;
 
+		/**
+		 * Setup class: Call super() and set basic styles
+		 * @param aStream
+		 * @param error
+		 */
 		public FilteredStream(OutputStream aStream,boolean error) {
 			super(aStream);
 			this.error = error;
@@ -157,9 +173,6 @@ public class Main extends JFrame implements ActionListener {
 					callingClass = elem[12].getClassName();
 				else
 					callingClass = elem[10].getClassName();
-
-				for(StackTraceElement element : elem)
-					oldOut.println("---"+element.getClassName());
 
 				String[] splitClass = StringUtils.split(callingClass,".");
 				callingClass = splitClass[splitClass.length-1];
@@ -208,6 +221,10 @@ public class Main extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * Main method, starts Main
+	 * @param args  Passed parameters. This is ignored
+	 */
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
