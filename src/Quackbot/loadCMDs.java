@@ -41,9 +41,9 @@ public class loadCMDs implements Runnable {
 		cmdBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.cmds);
 		try {
 			ctrl.cmds.clear();
-			File cmddir = new File("../CMDs");
+			File cmddir = new File("CMDs");
 			if(!cmddir.exists()) {
-				System.out.println("CMD directory not found!");
+				System.out.println("CMD directory not found! CD: "+new File(".").getAbsolutePath());
 				return;
 			}
 			

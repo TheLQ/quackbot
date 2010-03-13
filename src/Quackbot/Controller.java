@@ -27,64 +27,69 @@ public class Controller {
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	public ExecutorService threadPool = Executors.newCachedThreadPool();
-	public GUI gui;
+	public Main gui;
 	
-    public Controller(GUI gui) {
-    	//Lets now get all CMD classes and put into array
+	public Controller(Main gui) {
+		//Lets now get all CMD classes and put into array
 		cmds = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
 		
 		//Add GUI to instance vars
 		this.gui = gui;
 		
 		//Load current CMD classes
-		threadPool.execute(new loadCMDs(this));
+		reloadCMDs();
 		
 		//Join some servers
 		threadPool.execute(new botThread("irc.freenode.net",new String[]{"##newyearcountdown"}));
-    }
-    
-    //Makes all bots quit servers
-    public void stopAll() {
-    	Iterator botItr = bots.iterator();
+	}
+
+	//Makes all bots quit servers
+	public void stopAll() {
+		Iterator botItr = bots.iterator();
 	   	while(botItr.hasNext()) {
 			Bot curBot = (Bot)botItr.next();
-		    curBot.quitServer("Killed by control panel");
-		    bots.remove(curBot);
+			curBot.quitServer("Killed by control panel");
+			bots.remove(curBot);
 		}
-    }
-    
-    //Send a message to every channel on every server the bot is connected to
-    public void sendGlobalMessage(String msg) {
-    	Iterator botItr = bots.iterator();
+	}
+
+	//Send a message to every channel on every server the bot is connected to
+	public void sendGlobalMessage(String msg) {
+		Iterator botItr = bots.iterator();
 	   	while(botItr.hasNext()) {
 			Bot curBot = (Bot)botItr.next();
 			curBot.sendAllMessage(msg);
 	   	}
-    }
-    
-    /*****Simple thread to run the bot in to prevent it from locking the gui***/
-    public class botThread implements Runnable {
-    	String server = null;
-    	String[] channels = null;
-    	
-    	public botThread(String server, String[] channels) {
-    		this.server = server;
-    		this.channels = channels;
-    	}
-    	
-        public void run() {
-        	try {
-    			System.out.println("Initiating connection");
-    			Bot qb = new Bot(Controller.this);
-		        qb.setVerbose(true);
-		        qb.connect(server);
-		        for(String channel : channels) 
-		        	qb.joinChannel(channel);
-		        bots.add(qb);
+	}
+
+	//Reload classes
+	public void reloadCMDs() {
+	    threadPool.execute(new loadCMDs(this));
+	}
+
+	/*****Simple thread to run the bot in to prevent it from locking the gui***/
+	public class botThread implements Runnable {
+		String server = null;
+		String[] channels = null;
+
+		public botThread(String server, String[] channels) {
+			this.server = server;
+			this.channels = channels;
+		}
+
+		public void run() {
+			try {
+				System.out.println("Initiating connection");
+				Bot qb = new Bot(Controller.this);
+				qb.setVerbose(true);
+				qb.connect(server);
+				for(String channel : channels)
+					qb.joinChannel(channel);
+				bots.add(qb);
 			}
 			catch(Exception ex) {
 				ex.printStackTrace();
 			}
-        }
-    }
+		}
+	}
 }

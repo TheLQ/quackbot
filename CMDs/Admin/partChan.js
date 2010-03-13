@@ -7,13 +7,13 @@ function invoke(newChan) {
 	if(newChan=="null") {
 		//Part current channel
 		qb.partChannel(channel);
-		out.println("Parted channel "+channel);
+		qb.log("Parted channel "+channel);
 		qb.sendMessage(channel,sender+": Parted channel "+channel);
 	}
 	else {
 		//Part given channel
 		qb.partChannel(newChan);
-		out.println("Parted channel "+newChan);
+		qb.log("Parted channel "+newChan);
 		qb.sendMessage(channel,sender+": Parted channel "+newChan);
 	}
 }

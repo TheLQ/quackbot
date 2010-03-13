@@ -4,6 +4,6 @@ var admin = true;
 
 function invoke(newChan) {
 	qb.joinChannel(newChan);
-	out.println("Joined new channel "+newChan);
+	qb.log("Joined new channel "+newChan);
 	qb.sendMessage(channel,sender+": Joined channel "+newChan);
 }
