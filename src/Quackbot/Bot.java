@@ -1,6 +1,6 @@
 /**
  * @(#)Bot.java
- *
+ * 
  * Bot instance that communicates with 1 server
  *  -Initiates all commands
  *
