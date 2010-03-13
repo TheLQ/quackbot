@@ -1,0 +1,15 @@
+Online site (low priority)
+-Current stats - Joined servers/channels, running time
+-Log all messages, be filterable
+
+Logging
+-Replace all calls to System.out with log()
+-Create PrintStream for printStackTrace() that simply calls log()
+
+Rename CMDs to JS
+-Place CMDs in folder called CMDs
+
+Constant methods
+-Create folder in JS called constants
+-Create a new thread ofor each method
+--If not possible then have looping thread
