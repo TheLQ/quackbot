@@ -89,14 +89,56 @@ public class Bot extends PircBot {
 		PREFIXES.add(getNick());
 	}
 
+	/*********************LISTENERS FOLLOW************************/
+
+	@Override
+	public void onJoin(String channel, String sender, String login, String hostname) {
+	    runListener("onJoin",channel,sender,login,hostname);
+	}
+
+	@Override
+	public void onPart(String channel, String sender, String login, String hostname) {
+	    runListener("onPart",channel,sender,login,hostname);
+	}
+
+	@Override
+	public void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
+	    runListener("onQuit",null,sourceNick,sourceLogin,sourceHostname);
+	}
+
 	/**
-	 * Activated when someone types a message on a channel
-	 * @param channel   The channel to which the message was sent.
-	 * @param sender    The nick of the person who sent the message.
-	 * @param login     The login of the person who sent the message.
-	 * @param hostname  The hostname of the person who sent the message.
-	 * @param message   The actual message sent to the channel.
+	 * Excecutes listener
+	 * @param command   The name of the command
+	 * @param channel   The channel which somebody joined.
+	 * @param sender    The nick of the user who joined the channel.
+	 * @param login     The login of the user who joined the channel.
+	 * @param hostname  The hostname of the user who joined the channel.
 	 */
+	private void runListener(String command, String channel, String sender, String login, String hostname) {
+		log("Attempting to run listener "+command);
+		if(!mainInst.listeners.containsKey(command)) {
+		    logErr("Listiner does not exist!!");
+		    return;
+		}
+		TreeMap<String,Object> cmdinfo = mainInst.listeners.get(command);
+
+		//Make it aware of a few parameters
+		ScriptContext newContext = (ScriptContext)cmdinfo.get("context");
+	 	Bindings engineScope = (Bindings)cmdinfo.get("scope");;
+		engineScope.put("channel",channel);
+		engineScope.put("sender",sender);
+		engineScope.put("login",login);
+		engineScope.put("hostname",hostname);
+		engineScope.put("qb",this);
+
+		//Run command in thread pool
+		String jsCmd = "invoke();";
+		log("JS cmd: "+jsCmd);
+		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd,newContext));
+	}
+
+	/***************USER SUBMITTED COMMANDS FOLLOW*********************/
+
 	@Override
 	public void onMessage(String channel, String sender, String login, String hostname, String message) {
 		//Make class aware of a few parameters
@@ -123,13 +165,6 @@ public class Bot extends PircBot {
 		activateCmd(channel, sender, login, hostname, message);
 	}
 
-	/**
-	 * PircBot method, activated when someone PM's the bot
-	 * @param sender   The nick of the person who sent the private message.
-	 * @param login    The login of the person who sent the private message.
-	 * @param hostname The hostname of the person who sent the private message.
-	 * @param message  The actual message.
-	 */
 	@Override
 	public void onPrivateMessage(String sender, String login, String hostname, String message) {
 		//Make the class aware of a few parameters
@@ -231,7 +266,6 @@ public class Bot extends PircBot {
 		engineScope.put("hostname",hostname);
 		engineScope.put("rawmsg",rawmsg);
 		engineScope.put("qb",this);
-		engineScope.put("out",System.out);
 
 		//build command string
 		StringBuilder jsCmd = new StringBuilder();

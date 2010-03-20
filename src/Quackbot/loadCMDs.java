@@ -33,7 +33,8 @@ public class loadCMDs implements Runnable {
 	TreeSet<String> updatedCMDs = new TreeSet<String>();
 	TreeSet<String> deletedCMDs = new TreeSet<String>();
 	TreeMap<String,TreeMap<String,Object>> cmdBack;
-	String name = "";
+	TreeMap<String,TreeMap<String,Object>> listenerBack;
+	String curFile = "";
 
 	/**
 	 * Make known Controller instance
@@ -48,8 +49,10 @@ public class loadCMDs implements Runnable {
 	 */
 	public void run() {
 		cmdBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.cmds);
+		listenerBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.listeners);
 		try {
 			ctrl.cmds.clear();
+			ctrl.listeners.clear();
 			ctrl.threadPool_js.shutdownNow();
 			ctrl.threadPool_js = Executors.newCachedThreadPool();
 			File cmddir = new File("js");
@@ -84,7 +87,7 @@ public class loadCMDs implements Runnable {
 		}
 		catch(Exception e) {
 			System.err.println("Error in reload, reverting to cmd backup");
-			System.err.println("Last file: "+this.name);
+			System.err.println("Last file: "+this.curFile);
 			ctrl.cmds = cmdBack;
 			e.printStackTrace();
 		}
@@ -112,7 +115,7 @@ public class loadCMDs implements Runnable {
 		ScriptEngine jsEngine = ctrl.jsEngine;
 		String name = StringUtils.split(file.getName(),".")[0];
 
-		this.name = name;
+		this.curFile = name;
 		
 		//Read File Line By Line
 		BufferedReader input =  new BufferedReader(new FileReader(file));
@@ -124,12 +127,22 @@ public class loadCMDs implements Runnable {
 		String contents = fileContents.toString();
 		
 		//Method update list: Is this an existing method?
-		if(cmdBack.get(name) != null && cmdBack.get(name).get("src").equals(contents)) {}
-		    //Do nothing
-		else if(cmdBack.get(name) != null)
-		    updatedCMDs.add(name);
-		else
-		    newCMDs.add(name);
+		if(isListener(file)) {
+		    if(listenerBack.get(name) != null && listenerBack.get(name).get("src").equals(contents)) {}
+			//Do nothing
+		    else if(listenerBack.get(name) != null)
+			updatedCMDs.add(name);
+		    else
+			newCMDs.add(name);
+		}
+		else {
+		    if(cmdBack.get(name) != null && cmdBack.get(name).get("src").equals(contents)) {}
+			//Do nothing
+		    else if(cmdBack.get(name) != null)
+			updatedCMDs.add(name);
+		    else
+			newCMDs.add(name);
+		 }
 
 		//Make new context
 		ScriptContext newContext = new SimpleScriptContext();
@@ -146,7 +159,22 @@ public class loadCMDs implements Runnable {
 		cmdinfo.put("param",(int)Double.parseDouble(engineScope.get("param").toString()));
 		cmdinfo.put("context",newContext);
 		cmdinfo.put("scope",engineScope);
-		ctrl.cmds.put(name,cmdinfo);
+		if(isListener(file))
+		    ctrl.listeners.put(name,cmdinfo);
+		else
+		    ctrl.cmds.put(name,cmdinfo);
 		System.out.println("New CMD: "+name);
+	}
+
+	/**
+	 * Detects if file is a listener by checking if its in the listener directory
+	 * @param file  The file to check
+	 * @return      True if it is, false otherwise
+	 */
+	private boolean isListener(File file) {
+		if(file.toString().indexOf("listeners") != -1)
+		    return true;
+		else
+		    return false;
 	}
 }

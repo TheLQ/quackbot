@@ -15,8 +15,6 @@ ctrl.threadPool_js.execute(new java.lang.Runnable() {
 	while(1) {
 	    try{
 		Thread.sleep(5000);
-		if(Thread.interrupted())
-		    return;
 		println("Checking");
 		var netPkgs = new JavaImporter(java.io,java.net);
 		with (netPkgs) {
@@ -44,7 +42,12 @@ ctrl.threadPool_js.execute(new java.lang.Runnable() {
 		}
 	    }
 	    catch(err) {
-		println("ERROR "+err)
+		println("ERROR "+err);
+		if(err.toString().search("InterruptedException") != -1) {
+		    println("VLC thread interrupted");
+		    return;
+		}
+
 	    }
 	}
     }

@@ -29,6 +29,7 @@ import javax.script.ScriptEngineManager;
 public class Controller {
 	
 	public TreeMap<String,TreeMap<String,Object>> cmds = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
+	public TreeMap<String,TreeMap<String,Object>> listeners = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	public ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -47,7 +48,7 @@ public class Controller {
 		reloadCMDs();
 		
 		//Join some servers
-		threadPool.execute(new botThread("irc.freenode.net",new String[]{"##newyearcountdown"}));
+		threadPool.execute(new botThread("irc.freenode.net",new String[]{"#quackbot"}));
 	}
 
 	/**
