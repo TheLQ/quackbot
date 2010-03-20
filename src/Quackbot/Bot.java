@@ -245,7 +245,7 @@ public class Bot extends PircBot {
 		log("JS cmd: "+jsCmd.toString());
 
 		//Run command in thread pool
-		mainInst.threadPool.execute(new threadCmdRun(jsCmd.toString(),newContext));
+		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd.toString(),newContext));
 	}
 
 	/**

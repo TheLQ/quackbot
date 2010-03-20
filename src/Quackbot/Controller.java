@@ -32,6 +32,7 @@ public class Controller {
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	public ExecutorService threadPool = Executors.newCachedThreadPool();
+	public ExecutorService threadPool_js = Executors.newCachedThreadPool();
 	public Main gui;
 
 	/**
@@ -53,12 +54,15 @@ public class Controller {
 	 * Makes all bots quit servers
 	 */
 	public void stopAll() {
+		threadPool_js.shutdownNow();
+		threadPool_js = null;
 		Iterator botItr = bots.iterator();
 	   	while(botItr.hasNext()) {
 			Bot curBot = (Bot)botItr.next();
 			curBot.quitServer("Killed by control panel");
 			bots.remove(curBot);
 		}
+		threadPool.shutdownNow();
 	}
 
 	/**

@@ -9,12 +9,11 @@ package Quackbot;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.Reader;
 
 import java.util.Iterator;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.Executors;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -34,6 +33,7 @@ public class loadCMDs implements Runnable {
 	TreeSet<String> updatedCMDs = new TreeSet<String>();
 	TreeSet<String> deletedCMDs = new TreeSet<String>();
 	TreeMap<String,TreeMap<String,Object>> cmdBack;
+	String name = "";
 
 	/**
 	 * Make known Controller instance
@@ -50,7 +50,9 @@ public class loadCMDs implements Runnable {
 		cmdBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.cmds);
 		try {
 			ctrl.cmds.clear();
-			File cmddir = new File("CMDs");
+			ctrl.threadPool_js.shutdownNow();
+			ctrl.threadPool_js = Executors.newCachedThreadPool();
+			File cmddir = new File("js");
 			if(!cmddir.exists()) {
 				System.out.println("CMD directory not found! CD: "+new File(".").getAbsolutePath());
 				return;
@@ -82,6 +84,7 @@ public class loadCMDs implements Runnable {
 		}
 		catch(Exception e) {
 			System.err.println("Error in reload, reverting to cmd backup");
+			System.err.println("Last file: "+this.name);
 			ctrl.cmds = cmdBack;
 			e.printStackTrace();
 		}
@@ -108,6 +111,8 @@ public class loadCMDs implements Runnable {
 		//Basic setup
 		ScriptEngine jsEngine = ctrl.jsEngine;
 		String name = StringUtils.split(file.getName(),".")[0];
+
+		this.name = name;
 		
 		//Read File Line By Line
 		BufferedReader input =  new BufferedReader(new FileReader(file));
@@ -129,6 +134,7 @@ public class loadCMDs implements Runnable {
 		//Make new context
 		ScriptContext newContext = new SimpleScriptContext();
 		Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
+		engineScope.put("ctrl", ctrl);
 		jsEngine.eval(contents,newContext);
 
 		//Make a treemap containing very detailed info and dump into main map

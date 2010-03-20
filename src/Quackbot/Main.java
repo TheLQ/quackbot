@@ -163,7 +163,7 @@ public class Main extends JFrame implements ActionListener {
 				String aString = new String(b , off , len).trim();
 
 				//don't print empty strings
-				if(aString.length()==0)
+				if(aString.length() <= 2)
 					return;
 
 				//get calling class name
@@ -178,16 +178,23 @@ public class Main extends JFrame implements ActionListener {
 				callingClass = splitClass[splitClass.length-1];
 
 				//Break apart string
-				String[] endString = new String[4];
+				String server = "";
+				String message = "";
 				String[] sString = aString.split(" ",2);
-				if(aString.indexOf(".") == -1) {
-					sString[1] = sString[0]+" "+sString[1];
-					sString[0] = "None";
+				if(aString.indexOf(".") == -1 || error) {
+					server = "None";
+					message = aString;
 				}
+				else {
+				    server = sString[0];
+				    message = sString[1];
+				}
+
+				String[] endString = new String[4];
 				endString[0] = "["+(new SimpleDateFormat("hh:mm:ss aa").format(new Date()))+"] ";
-				endString[1] = "<"+sString[0]+"> ";
+				endString[1] = "<"+server+"> ";
 				endString[2] = callingClass+": ";
-				endString[3] = sString[1];
+				endString[3] = message;
 
 				//Set style
 				Style style = null;
