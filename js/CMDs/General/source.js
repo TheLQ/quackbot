@@ -4,4 +4,3 @@ var param = 0;
 function invoke() {
     qb.sendMessage(channel,"Source code is located at http://quackbot.googlecode.com");
 }
-
