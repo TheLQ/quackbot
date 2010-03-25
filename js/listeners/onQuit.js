@@ -7,6 +7,6 @@ var param = 0; //Prevent NPE error with loadCMDs
 function invoke() {
     if(sender != qb.getNick()) {
 	//Yes this is blind, but there is no way to tell what channel the user was on
-	qb.sendMessage("#quackbot","User "+sender+" has quit");
+	qb.sendMessage("#lyokofreak-viewing-party","User "+sender+" has quit");
     }
 }

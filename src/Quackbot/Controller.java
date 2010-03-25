@@ -49,6 +49,7 @@ public class Controller {
 		
 		//Join some servers
 		threadPool.execute(new botThread("irc.freenode.net",new String[]{"#quackbot"}));
+		threadPool.execute(new botThread("chat01.ustream.tv",new String[]{"#lyokofreak-viewing-party"}));
 	}
 
 	/**

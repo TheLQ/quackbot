@@ -32,8 +32,7 @@ ctrl.threadPool_js.execute(new java.lang.Runnable() {
 			println("Done visiting url");
 			var current =  allLine;
 			if(current != previous) {
-			    ctrl.sendGlobalMessage("Current Song: "+current);
-			    println("sentmsg");
+			    ctrl.sendGlobalMessage(current);
 			}
 			else {
 			    println("Nothing to do");
