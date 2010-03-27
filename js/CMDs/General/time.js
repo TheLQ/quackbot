@@ -5,6 +5,6 @@ var param = 0;
 
 function invoke() {
     	time = new java.util.Date().toString();
-    	msg = sender + ": The imse is now " + time;
+    	msg = sender + ": The time is now " + time;
         qb.sendMessage(channel, msg);
 }

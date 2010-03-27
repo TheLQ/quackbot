@@ -12,7 +12,7 @@ function invoke() {
 		msg_suffix = " (please change nick with /nick yournickhere)"
 	}
 	qb.sendMessage(channel,"User "+sender+" has joined "+channel+msg_suffix);
-		var netPkgs = new JavaImporter(java.io,java.net);
+	/*	var netPkgs = new JavaImporter(java.io,java.net);
 		with (netPkgs) {
 			var url = "http://localhost:8082/current.html";
 			println("Visiting url: "+url);
@@ -27,6 +27,6 @@ function invoke() {
 
 			println("Done visiting url");
 			    qb.sendMessage(channel,sender+": "+allLine);
-		}
+		}*/
     }
 }
