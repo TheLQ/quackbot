@@ -34,6 +34,7 @@ public class loadCMDs implements Runnable {
 	TreeSet<String> deletedCMDs = new TreeSet<String>();
 	TreeMap<String,TreeMap<String,Object>> cmdBack;
 	TreeMap<String,TreeMap<String,Object>> listenerBack;
+	TreeMap<String,TreeMap<String,Object>> servicesBack;
 	String curFile = "";
 
 	/**
@@ -50,6 +51,7 @@ public class loadCMDs implements Runnable {
 	public void run() {
 		cmdBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.cmds);
 		listenerBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.listeners);
+		servicesBack = new TreeMap<String,TreeMap<String,Object>>(ctrl.services);
 		try {
 			ctrl.cmds.clear();
 			ctrl.listeners.clear();
@@ -108,7 +110,7 @@ public class loadCMDs implements Runnable {
 		}
 		
 		//Is this in the .svn directory?
-		else if((file.getAbsolutePath().indexOf(".svn") != -1))
+		else if(file.getAbsolutePath().indexOf(".svn") != -1 || file.getName().equals("JS_Template.js"))
 			return;
 		
 		//Basic setup
@@ -128,21 +130,14 @@ public class loadCMDs implements Runnable {
 		
 		//Method update list: Is this an existing method?
 		if(isListener(file)) {
-		    if(listenerBack.get(name) != null && listenerBack.get(name).get("src").equals(contents)) {}
-			//Do nothing
-		    else if(listenerBack.get(name) != null)
-			updatedCMDs.add(name);
-		    else
-			newCMDs.add(name);
+		    updateChanges(listenerBack, name, contents);
+		}
+		else if(isService(file)) {
+		    updateChanges(servicesBack, name, contents);
 		}
 		else {
-		    if(cmdBack.get(name) != null && cmdBack.get(name).get("src").equals(contents)) {}
-			//Do nothing
-		    else if(cmdBack.get(name) != null)
-			updatedCMDs.add(name);
-		    else
-			newCMDs.add(name);
-		 }
+		    updateChanges(cmdBack, name, contents);
+		}
 
 		//Make new context
 		ScriptContext newContext = new SimpleScriptContext();
@@ -157,12 +152,22 @@ public class loadCMDs implements Runnable {
 		cmdinfo.put("admin",((engineScope.get("admin") == null) ? false : true));
 		cmdinfo.put("ReqArg",((engineScope.get("ReqArg") == null) ? false : true));
 		cmdinfo.put("param",(int)Double.parseDouble(engineScope.get("param").toString()));
+		cmdinfo.put("ignore",((engineScope.get("ignore") == null) ? false : true));
+		cmdinfo.put("service",((engineScope.get("service") == null) ? false : true));
 		cmdinfo.put("context",newContext);
 		cmdinfo.put("scope",engineScope);
-		if(isListener(file))
+		if(isListener(file)) {
 		    ctrl.listeners.put(name,cmdinfo);
-		else
+		    System.out.println("Adding to listeners");
+		}
+		else if(isService(file)) {
+		    ctrl.services.put(name,cmdinfo);
+		    System.out.println("Adding to services");
+		}
+		else {
 		    ctrl.cmds.put(name,cmdinfo);
+		    System.out.println("Adding to normal cmds");
+		}
 		System.out.println("New CMD: "+name);
 	}
 
@@ -176,5 +181,32 @@ public class loadCMDs implements Runnable {
 		    return true;
 		else
 		    return false;
+	}
+	
+	/**
+	 * Is this a service?
+	 * @param file  The file to check
+	 * @return      True if it is, false otherwise
+	 */
+	private boolean isService(File file) {
+		if(file.toString().indexOf("services") != -1)
+		    return true;
+		else
+		    return false;
+	}
+
+	/**
+	 * Finds updated and new JS and adds to appropiate Set
+	 * @param searched  TreeMap containing JS to search
+	 * @param name      Filename of file
+	 * @param contents  Contents of file
+	 */
+	private void updateChanges(TreeMap searched, String name, String contents) {
+	    if(searched.get(name) != null && ((TreeMap)searched.get(name)).get("src").equals(contents)) {}
+		//Do nothing
+	    else if(searched.get(name) != null)
+		updatedCMDs.add(name);
+	    else
+		newCMDs.add(name);
 	}
 }

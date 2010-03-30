@@ -4,14 +4,14 @@
 
 importClass(java.lang.Thread);
 
-var service = "true";
-var previous = "";
-var param = 0; //Prevent error with
+var service = true;
+var param = 0; //Prevent error with cmd loading
 
 //Start checking loop in another thread
 ctrl.threadPool_js.execute(new java.lang.Runnable() {
     run: function() {
         println("Initalizing vlc update");
+	var previous = "";
 	while(1) {
 	    try{
 		Thread.sleep(5000);

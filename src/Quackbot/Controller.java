@@ -30,6 +30,7 @@ public class Controller {
 	
 	public TreeMap<String,TreeMap<String,Object>> cmds = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
 	public TreeMap<String,TreeMap<String,Object>> listeners = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
+	public TreeMap<String,TreeMap<String,Object>> services = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	public ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -49,22 +50,24 @@ public class Controller {
 		
 		//Join some servers
 		threadPool.execute(new botThread("irc.freenode.net",new String[]{"#quackbot"}));
-		threadPool.execute(new botThread("chat01.ustream.tv",new String[]{"#lyokofreak-viewing-party"}));
+		//threadPool.execute(new botThread("chat01.ustream.tv",new String[]{"#lyokofreak-viewing-party"}));
 	}
 
 	/**
 	 * Makes all bots quit servers
 	 */
 	public void stopAll() {
-		threadPool_js.shutdownNow();
-		threadPool_js = null;
 		Iterator botItr = bots.iterator();
 	   	while(botItr.hasNext()) {
 			Bot curBot = (Bot)botItr.next();
 			curBot.quitServer("Killed by control panel");
+			curBot.dispose();
 			bots.remove(curBot);
 		}
+		threadPool_js.shutdownNow();
+		threadPool_js = null;
 		threadPool.shutdownNow();
+		threadPool = null;
 	}
 
 	/**

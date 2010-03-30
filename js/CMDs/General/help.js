@@ -21,8 +21,8 @@ function invoke(command) {
     	qb.sendMessage(channel, sender + ": Possible commands: "+StringUtils.join(cmdList.toArray(),", "));
     }
     else {
-	   	if(!qb.methodExists(command)) 
-			return;
-	   	qb.sendMessage(channel, sender + ": "+qb.mainInst.cmds.get(command).get("help"));
+	if(!qb.methodExists(command))
+	    return;
+	qb.sendMessage(channel, sender + ": "+qb.mainInst.cmds.get(command).get("help"));
     }
 }
