@@ -8,21 +8,21 @@ importClass(Packages.java.util.TreeMap);
 
 function invoke(command) {
 	if(command=="null") {
-    	//User wants command list
-    	cmdList = new TreeSet();
-    	itr = qb.mainInst.cmds.entrySet().iterator();
-    	while(itr.hasNext()) {
+		//User wants command list
+		cmdList = new TreeSet();
+		itr = qb.mainInst.cmds.entrySet().iterator();
+		while(itr.hasNext()) {
 			currentEntry = itr.next();
 			if(currentEntry.getValue().get("admin") == false && currentEntry.getValue().get("ignore")==false)
 				cmdList.add(currentEntry.getKey());
-    	}
+		}
     	
-    	//Send to user
-    	qb.sendMessage(channel, sender + ": Possible commands: "+StringUtils.join(cmdList.toArray(),", "));
-    }
-    else {
-	if(!qb.methodExists(command))
-	    return;
-	qb.sendMessage(channel, sender + ": "+qb.mainInst.cmds.get(command).get("help"));
-    }
+		//Send to user
+		qb.sendMessage(channel, sender + ": Possible commands: "+StringUtils.join(cmdList.toArray(),", "));
+	}
+	else {
+		if(!qb.methodExists(command))
+			return;
+		qb.sendMessage(channel, sender + ": "+qb.mainInst.cmds.get(command).get("help"));
+	}
 }

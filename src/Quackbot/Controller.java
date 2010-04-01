@@ -3,7 +3,6 @@
  *
  * This file is part of Quackbot
  */
- 
 package Quackbot;
 
 import java.util.HashSet;
@@ -27,10 +26,10 @@ import javax.script.ScriptEngineManager;
  * @author Lord.Quackstar
  */
 public class Controller {
-	
-	public TreeMap<String,TreeMap<String,Object>> cmds = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
-	public TreeMap<String,TreeMap<String,Object>> listeners = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
-	public TreeMap<String,TreeMap<String,Object>> services = new TreeMap<String,TreeMap<String,Object>>((String.CASE_INSENSITIVE_ORDER));
+
+	public TreeMap<String, TreeMap<String, Object>> cmds = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
+	public TreeMap<String, TreeMap<String, Object>> listeners = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
+	public TreeMap<String, TreeMap<String, Object>> services = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	public ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -41,15 +40,15 @@ public class Controller {
 	 * Start of bot working. Loads CMDs and starts Bots
 	 * @param gui   Current GUI
 	 */
-	public Controller(Main gui) {		
+	public Controller(Main gui) {
 		//Add GUI to instance vars
 		this.gui = gui;
-		
+
 		//Load current CMD classes
 		reloadCMDs();
-		
+
 		//Join some servers
-		threadPool.execute(new botThread("irc.freenode.net",new String[]{"#quackbot"}));
+		threadPool.execute(new botThread("irc.freenode.net", new String[]{"#quackbot"}));
 		//threadPool.execute(new botThread("chat01.ustream.tv",new String[]{"#lyokofreak-viewing-party"}));
 	}
 
@@ -58,8 +57,8 @@ public class Controller {
 	 */
 	public void stopAll() {
 		Iterator botItr = bots.iterator();
-	   	while(botItr.hasNext()) {
-			Bot curBot = (Bot)botItr.next();
+		while (botItr.hasNext()) {
+			Bot curBot = (Bot) botItr.next();
 			curBot.quitServer("Killed by control panel");
 			curBot.dispose();
 			bots.remove(curBot);
@@ -76,23 +75,24 @@ public class Controller {
 	 */
 	public void sendGlobalMessage(String msg) {
 		Iterator botItr = bots.iterator();
-	   	while(botItr.hasNext()) {
-			Bot curBot = (Bot)botItr.next();
+		while (botItr.hasNext()) {
+			Bot curBot = (Bot) botItr.next();
 			curBot.sendAllMessage(msg);
-	   	}
+		}
 	}
 
 	/**
 	 * Reload all CMDs
 	 */
 	public void reloadCMDs() {
-	    threadPool.execute(new loadCMDs(this));
+		threadPool.execute(new loadCMDs(this));
 	}
 
 	/**
 	 * Simple thread to run the bot in to prevent it from locking the gui
 	 */
 	public class botThread implements Runnable {
+
 		String server = null;
 		String[] channels = null;
 
@@ -115,11 +115,11 @@ public class Controller {
 				Bot qb = new Bot(Controller.this);
 				qb.setVerbose(true);
 				qb.connect(server);
-				for(String channel : channels)
+				for (String channel : channels) {
 					qb.joinChannel(channel);
+				}
 				bots.add(qb);
-			}
-			catch(Exception ex) {
+			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		}

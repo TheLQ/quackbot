@@ -5,7 +5,7 @@
 var param = 0; //Prevent NPE error with loadCMDs
 
 function invoke() {
-    if(channel=="#lyokofreak-viewing-party" && sender != qb.getNick()) {
-	qb.sendMessage(channel,"User "+sender+" has parted "+channel);
-    }
+	if(channel=="#lyokofreak-viewing-party" && sender != qb.getNick()) {
+		qb.sendMessage(channel,"User "+sender+" has parted "+channel);
+	}
 }
