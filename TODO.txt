@@ -6,11 +6,6 @@ Investigate logJ4
 
 Add cmdTalk
 
-Add Lyokofreak commands
--OP user
--autoset modes
--mute user
-
 Add basic manual countdown (args in minuites)
 
 Add Triggered countdown

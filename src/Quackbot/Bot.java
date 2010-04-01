@@ -15,11 +15,16 @@ import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeMap;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 
 import org.jibble.pircbot.PircBot;
+import org.jibble.pircbot.User;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Bot instance that communicates with 1 server
@@ -224,7 +229,7 @@ public class Bot extends PircBot {
 		if(rawmsg.indexOf(" ") > -1) {
 			String[] msgArray = rawmsg.split(" ",2);
 			command = msgArray[0].trim();
-			argArray = msgArray[1].split(",");
+			argArray = msgArray[1].split(" ");
 		}
 		else {
 			command = rawmsg.trim();
@@ -267,19 +272,33 @@ public class Bot extends PircBot {
 		engineScope.put("rawmsg",rawmsg);
 		engineScope.put("qb",this);
 
-		//build command string
-		StringBuilder jsCmd = new StringBuilder();
-		jsCmd.append("invoke( ");
-		for(String arg : argArray) {
-			jsCmd.append(" '"+arg+"',");
-		}
-		jsCmd.deleteCharAt(jsCmd.length()-1);
-		jsCmd.append(");");
-		
-		log("JS cmd: "+jsCmd.toString());
+               //build command string
+                StringBuilder jsCmd = new StringBuilder();
+                jsCmd.append("invoke( ");
+                for(String arg : argArray) {
+                        jsCmd.append(" '"+arg+"',");
+                }
+                jsCmd.deleteCharAt(jsCmd.length()-1);
+                jsCmd.append(");");
 
-		//Run command in thread pool
-		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd.toString(),newContext));
+                log("JS cmd: "+jsCmd.toString());
+
+                //Run command in thread pool
+                mainInst.threadPool_js.execute(new threadCmdRun(jsCmd.toString(),newContext));
+	}
+	
+	/**
+	 * Utility method to get a specific user from channel
+	 * @param channel  Channel to search in
+	 * @param reqUser  User to search for
+	 * @return         User object of user, null if not found
+	 */
+	public User getUser(String channel, String reqUser) {
+	    User[] listUsers = getUsers(channel);
+	    for(User curUser : listUsers)
+		if(curUser.getNick().equalsIgnoreCase(reqUser))
+		    return curUser;
+	    return null;
 	}
 
 	/**

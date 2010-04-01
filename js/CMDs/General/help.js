@@ -13,7 +13,7 @@ function invoke(command) {
     	itr = qb.mainInst.cmds.entrySet().iterator();
     	while(itr.hasNext()) {
 			currentEntry = itr.next();
-			if(currentEntry.getValue().get("admin") == false)
+			if(currentEntry.getValue().get("admin") == false && currentEntry.getValue().get("ignore")==false)
 				cmdList.add(currentEntry.getKey());
     	}
     	

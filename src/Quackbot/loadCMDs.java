@@ -153,22 +153,22 @@ public class loadCMDs implements Runnable {
 		cmdinfo.put("ReqArg",((engineScope.get("ReqArg") == null) ? false : true));
 		cmdinfo.put("param",(int)Double.parseDouble(engineScope.get("param").toString()));
 		cmdinfo.put("ignore",((engineScope.get("ignore") == null) ? false : true));
-		cmdinfo.put("service",((engineScope.get("service") == null) ? false : true));
 		cmdinfo.put("context",newContext);
 		cmdinfo.put("scope",engineScope);
+		String suffix = "";
 		if(isListener(file)) {
 		    ctrl.listeners.put(name,cmdinfo);
-		    System.out.println("Adding to listeners");
+		    suffix = "listeners";
 		}
 		else if(isService(file)) {
 		    ctrl.services.put(name,cmdinfo);
-		    System.out.println("Adding to services");
+		    suffix = "services";
 		}
 		else {
 		    ctrl.cmds.put(name,cmdinfo);
-		    System.out.println("Adding to normal cmds");
+		    suffix = "cmd";
 		}
-		System.out.println("New CMD: "+name);
+		System.out.println("New CMD: "+name+" | Type: "+suffix);
 	}
 
 	/**

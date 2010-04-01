@@ -10,7 +10,8 @@ var param = 0; //Prevent error with cmd loading
 //Start checking loop in another thread
 ctrl.threadPool_js.execute(new java.lang.Runnable() {
     run: function() {
-        println("Initalizing vlc update");
+        return; //temporarily disable service
+	println("Initalizing vlc update");
 	var previous = "";
 	while(1) {
 	    try{
