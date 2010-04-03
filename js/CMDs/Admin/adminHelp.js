@@ -1,4 +1,4 @@
-var help = "Shows either all commands or help for a specific command. Syntax: ?help <OPTIONAL:command>";
+var help = "Shows either all admin commands or help for a specific admin command. Syntax: ?adminHelp <OPTIONAL:command>";
 var param = 1;
 var ReqArg = true;
 
@@ -13,20 +13,16 @@ function invoke(command) {
 		itr = qb.mainInst.cmds.entrySet().iterator();
 		while(itr.hasNext()) {
 			currentEntry = itr.next();
-			if(currentEntry.getValue().get("admin") == false && currentEntry.getValue().get("ignore")==false)
+			if(currentEntry.getValue().get("admin") == true && currentEntry.getValue().get("ignore")==false)
 				cmdList.add(currentEntry.getKey());
 		}
-    	
+
 		//Send to user
-		qb.sendMessage(channel, sender + ": Possible commands: "+StringUtils.join(cmdList.toArray(),", "));
+		qb.sendMessage(channel, sender + ": Possible admin only commands: "+StringUtils.join(cmdList.toArray(),", "));
 	}
 	else {
 		if(!qb.methodExists(command))
 			return;
-		var cmdInfo = qb.mainInst.cmds.get(command);
-		if(cmdInfo.get("admin")==true)
-			qb.sendMessage(channel, sender + ": Admin only");
-		else
-			qb.sendMessage(channel, sender + ": "+cmdInfo.get("help"));
+		qb.sendMessage(channel, sender + ": "+qb.mainInst.cmds.get(command).get("help"));
 	}
 }

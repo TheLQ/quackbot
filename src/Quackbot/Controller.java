@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
@@ -47,6 +48,7 @@ public class Controller {
 	public TreeMap<String, TreeMap<String, Object>> cmds = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
 	public TreeMap<String, TreeMap<String, Object>> listeners = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
 	public TreeMap<String, TreeMap<String, Object>> services = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
+	public TreeSet<String> utils = new TreeSet<String>();
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	public ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -65,7 +67,7 @@ public class Controller {
 		this.gui = gui;
 
 		//Load current CMD classes
-		//reloadCMDs();
+		reloadCMDs();
 
 		//Connect to JackRabbit DB and join servers
 		try {
@@ -84,7 +86,7 @@ public class Controller {
 			JRocm = new ObjectContentManagerImpl(JRSession, mapper);
 
 			//recursiveShow(JRSession.getRootNode());
-
+			
 			// Retrieve server info and join them
 			NodeIterator node = JRRoot.getNode("servers").getNodes();
 			while(node.hasNext()) {

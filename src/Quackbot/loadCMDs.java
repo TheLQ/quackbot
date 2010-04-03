@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileReader;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Executors;
@@ -35,6 +36,7 @@ public class loadCMDs implements Runnable {
 	TreeMap<String, TreeMap<String, Object>> cmdBack;
 	TreeMap<String, TreeMap<String, Object>> listenerBack;
 	TreeMap<String, TreeMap<String, Object>> servicesBack;
+	public TreeSet<String> utilsBack;
 	String curFile = "";
 
 	/**
@@ -52,9 +54,12 @@ public class loadCMDs implements Runnable {
 		cmdBack = new TreeMap<String, TreeMap<String, Object>>(ctrl.cmds);
 		listenerBack = new TreeMap<String, TreeMap<String, Object>>(ctrl.listeners);
 		servicesBack = new TreeMap<String, TreeMap<String, Object>>(ctrl.services);
+		utilsBack = new TreeSet<String>(ctrl.utils);
 		try {
 			ctrl.cmds.clear();
 			ctrl.listeners.clear();
+			ctrl.services.clear();
+			ctrl.utils.clear();
 			ctrl.threadPool_js.shutdownNow();
 			ctrl.threadPool_js = Executors.newCachedThreadPool();
 			File cmddir = new File("js");
@@ -87,6 +92,15 @@ public class loadCMDs implements Runnable {
 				return;
 			}
 			ctrl.sendGlobalMessage("Bot commands reloaded! " + newStr + " " + updateStr + " " + delStr);
+
+			//Start services
+			Iterator servItr = ctrl.services.entrySet().iterator();
+			while(servItr.hasNext()) {
+				TreeMap<String,Object> servVal = ((Map.Entry<String,TreeMap<String,Object>>)servItr.next()).getValue();
+				System.out.println("Excecuting service");
+				ctrl.threadPool_js.execute(new threadCmdRun("invoke();",(ScriptContext)servVal.get("context"),ctrl));
+			}
+
 		} catch (Exception e) {
 			System.err.println("Error in reload, reverting to cmd backup");
 			System.err.println("Last file: " + this.curFile);
@@ -129,69 +143,57 @@ public class loadCMDs implements Runnable {
 		input.close();
 		String contents = fileContents.toString();
 
-		//Method update list: Is this an existing method?
-		if (isListener(file)) {
-			updateChanges(listenerBack, name, contents);
-		} else if (isService(file)) {
-			updateChanges(servicesBack, name, contents);
-		} else {
-			updateChanges(cmdBack, name, contents);
-		}
-
 		//Make new context
 		ScriptContext newContext = new SimpleScriptContext();
 		Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
 		engineScope.put("ctrl", ctrl);
 		jsEngine.eval(contents, newContext);
 
+		//JS info
+		boolean isAdmin = ((engineScope.get("admin") == null) ? false : true);
+		boolean isService = ((engineScope.get("service") == null) ? false : true);
+		boolean isListener = ((engineScope.get("listener") == null) ? false : true);
+		boolean isIgnore = ((engineScope.get("ignore") == null) ? false : true);
+		boolean isUtil = ((engineScope.get("util") == null) ? false : true);
+
+		//Method update list: Is this an existing method?
+		if (isListener) {
+			updateChanges(listenerBack, name, contents);
+		} else if (isService) {
+			updateChanges(servicesBack, name, contents);
+		} else if (isUtil) {
+			//Customized search due to theis being a TreeSet
+			if (!utilsBack.contains(fileContents.toString()))
+				updatedCMDs.add(name);
+		} else {
+			updateChanges(cmdBack, name, contents);
+		}
 		//Make a treemap containing very detailed info and dump into main map
 		TreeMap<String, Object> cmdinfo = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
 		cmdinfo.put("src", fileContents.toString());
 		cmdinfo.put("help", (String) engineScope.get("help"));
-		cmdinfo.put("admin", ((engineScope.get("admin") == null) ? false : true));
+		cmdinfo.put("admin", isAdmin);
 		cmdinfo.put("ReqArg", ((engineScope.get("ReqArg") == null) ? false : true));
-		cmdinfo.put("param", (int) Double.parseDouble(engineScope.get("param").toString()));
-		cmdinfo.put("ignore", ((engineScope.get("ignore") == null) ? false : true));
+		if(!isListener && !isService && !isUtil)
+			cmdinfo.put("param", (int)Double.parseDouble(engineScope.get("param").toString()));
+		cmdinfo.put("ignore", isIgnore);
 		cmdinfo.put("context", newContext);
 		cmdinfo.put("scope", engineScope);
 		String suffix = "";
-		if (isListener(file)) {
+		if (isListener) {
 			ctrl.listeners.put(name, cmdinfo);
-			suffix = "listeners";
-		} else if (isService(file)) {
+			suffix = "listener";
+		} else if (isService) {
 			ctrl.services.put(name, cmdinfo);
-			suffix = "services";
+			suffix = "service";
+		} else if (isUtil) {
+			ctrl.utils.add(fileContents.toString());
+			suffix = "util";
 		} else {
 			ctrl.cmds.put(name, cmdinfo);
 			suffix = "cmd";
 		}
 		System.out.println("New CMD: " + name + " | Type: " + suffix);
-	}
-
-	/**
-	 * Detects if file is a listener by checking if its in the listener directory
-	 * @param file  The file to check
-	 * @return      True if it is, false otherwise
-	 */
-	private boolean isListener(File file) {
-		if (file.toString().indexOf("listeners") != -1) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Is this a service?
-	 * @param file  The file to check
-	 * @return      True if it is, false otherwise
-	 */
-	private boolean isService(File file) {
-		if (file.toString().indexOf("services") != -1) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	/**

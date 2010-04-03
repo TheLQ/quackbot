@@ -1,5 +1,6 @@
 var help = "Mutes user for specified number of minuites. Syntax: ?mute <username> <time in minuites>";
 var param = 2;
+var admin = true;
 
 function invoke(user,timeMin) {
 	var timeMs = timeMin*60000;

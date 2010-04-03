@@ -17,3 +17,5 @@ Back with NoSQL db (JackRabbit)
 -Holds cmdTalk contents
 -Holds log (low priority)
 -Holds current admins
+
+Convert logger to row based

@@ -149,7 +149,7 @@ public class Bot extends PircBot {
 		//Run command in thread pool
 		String jsCmd = "invoke();";
 		log("JS cmd: " + jsCmd);
-		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd, newContext));
+		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd, newContext, this, channel, sender));
 	}
 
 	/***************USER SUBMITTED COMMANDS FOLLOW*********************/
@@ -294,7 +294,7 @@ public class Bot extends PircBot {
 		log("JS cmd: " + jsCmd.toString());
 
 		//Run command in thread pool
-		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd.toString(), newContext));
+		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd.toString(), newContext, this, channel, sender));
 	}
 
 	/**
@@ -348,39 +348,6 @@ public class Bot extends PircBot {
 		String[] channels = getChannels();
 		for (String curChan : channels) {
 			sendMessage(curChan, msg);
-		}
-	}
-
-	/**
-	 * Simple Runnable to run command in seperate thread
-	 */
-	class threadCmdRun implements Runnable {
-
-		String jsCmd;
-		ScriptContext context;
-
-		/**
-		 * Setup runnable
-		 * @param jsCmd
-		 * @param context
-		 */
-		public threadCmdRun(String jsCmd, ScriptContext context) {
-			this.jsCmd = jsCmd;
-			this.context = context;
-		}
-
-		/**
-		 * Run in background
-		 */
-		public void run() {
-			try {
-				mainInst.jsEngine.eval(jsCmd, context);
-			} catch (Exception e) {
-				Throwable cause = e.getCause();
-				//cause.printStackTrace(errorStream);
-				e.printStackTrace(errorStream);
-				sendMessage(channel, sender + ": CMD ERROR: " + e.toString());
-			}
 		}
 	}
 

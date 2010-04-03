@@ -2,7 +2,7 @@
  * For the lyokofreak stream, tells users who can't see it that a new person has quit
  */
 
-var param = 0; //Prevent NPE error with loadCMDs
+var listener = true;
 
 function invoke() {
 	if(sender != qb.getNick()) {
