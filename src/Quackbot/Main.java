@@ -190,7 +190,7 @@ public class Main extends JFrame implements ActionListener {
 				String server = "";
 				String message = "";
 				String[] sString = aString.split(" ", 2);
-				if (sString[0].indexOf(".") == -1 || error || sString.length >= 1) {
+				if (sString[0].indexOf(".") == -1 || error) {
 					server = "None";
 					message = aString;
 				} else {

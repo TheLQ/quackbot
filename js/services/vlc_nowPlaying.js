@@ -29,8 +29,8 @@ function invoke() {
 			println("ERROR "+err);
 			if(err.toString().search("InterruptedException") != -1) {
 				println("VLC thread interrupted");
-				return;
 			}
+			return;
 		}
 	}
 }

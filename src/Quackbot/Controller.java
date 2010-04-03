@@ -153,6 +153,10 @@ public class Controller {
 	 * Reload all CMDs
 	 */
 	public void reloadCMDs() {
+		threadPool_js.shutdownNow();
+		threadPool_js = Executors.newCachedThreadPool();
+		threadPool.shutdownNow();
+		threadPool = Executors.newCachedThreadPool();
 		threadPool.execute(new loadCMDs(this));
 	}
 
