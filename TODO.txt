@@ -13,8 +13,7 @@ Add Triggered countdown
 -timeremaining displays time remaining from ID. If no id given caculates it to closest avalible countdown
 -killcountdown kills countdown
 
-Back with NoSQL db (mongodb)
--Holds connected channels and servers
+Back with NoSQL db (JackRabbit)
 -Holds cmdTalk contents
 -Holds log (low priority)
 -Holds current admins

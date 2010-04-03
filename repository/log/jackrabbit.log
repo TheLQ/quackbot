@@ -1,0 +1,759 @@
+02.04.2010 23:36:56 *INFO * /: org.apache.jackrabbit.servlet.jackrabbit.JackrabbitRepositoryServlet-11245030: Creating default repository configuration: ..\repository\repository.xml
+02.04.2010 23:36:56 *WARN * RepositoryLock: Existing lock file E:\programming\quackbot\trunk\repository\.lock detected. Repository was not shut down properly.
+02.04.2010 23:36:56 *INFO * RepositoryImpl: Starting repository...
+02.04.2010 23:36:56 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\repository
+02.04.2010 23:36:57 *INFO * NodeTypeRegistry: no custom node type definitions found
+02.04.2010 23:36:57 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\version
+02.04.2010 23:37:00 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+02.04.2010 23:37:00 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+02.04.2010 23:37:02 *INFO * RepositoryImpl: initializing workspace 'default'...
+02.04.2010 23:37:02 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\default
+02.04.2010 23:37:03 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+02.04.2010 23:37:03 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+02.04.2010 23:37:04 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\repository\index
+02.04.2010 23:37:04 *INFO * SearchIndex: Index initialized: ..\repository/repository/index Version: 3
+02.04.2010 23:37:04 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\default\index
+02.04.2010 23:37:04 *INFO * SearchIndex: Index initialized: ..\repository\workspaces\default/index Version: 3
+02.04.2010 23:37:04 *INFO * RepositoryImpl: workspace 'default' initialized
+02.04.2010 23:37:04 *INFO * RepositoryImpl: Repository started
+02.04.2010 23:37:04 *INFO * RepositoryAccessServlet: RepositoryAccessServlet initialized.
+02.04.2010 23:37:04 *INFO * SimpleWebdavServlet: resource-path-prefix = '/repository'
+02.04.2010 23:37:04 *INFO * SimpleWebdavServlet: WWW-Authenticate header = 'Basic realm="Jackrabbit Webdav Server"'
+02.04.2010 23:37:06 *WARN * /: RMI: Failed to bind repository to RMI: //localhost/jackrabbit.repository
+java.rmi.ConnectException: Connection refused to host: localhost; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:340)
+	at sun.rmi.registry.RegistryImpl_Stub.rebind(Unknown Source)
+	at java.rmi.Naming.rebind(Naming.java:177)
+	at org.apache.jackrabbit.servlet.remote.RMIRemoteBindingServlet.init(RMIRemoteBindingServlet.java:78)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:241)
+	at org.mortbay.jetty.servlet.ServletHolder.initServlet(ServletHolder.java:431)
+	at org.mortbay.jetty.servlet.ServletHolder.doStart(ServletHolder.java:263)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.servlet.ServletHandler.initialize(ServletHandler.java:643)
+	at org.mortbay.jetty.servlet.Context.startContext(Context.java:140)
+	at org.mortbay.jetty.webapp.WebAppContext.startContext(WebAppContext.java:1234)
+	at org.mortbay.jetty.handler.ContextHandler.doStart(ContextHandler.java:517)
+	at org.mortbay.jetty.webapp.WebAppContext.doStart(WebAppContext.java:460)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStart(RequestLogHandler.java:115)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.Server.doStart(Server.java:222)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.apache.jackrabbit.standalone.Main.run(Main.java:131)
+	at org.apache.jackrabbit.standalone.Main.main(Main.java:54)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.TwoStacksPlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:316)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:177)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:164)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:154)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:354)
+	at java.net.Socket.connect(Socket.java:574)
+	at java.net.Socket.connect(Socket.java:524)
+	at java.net.Socket.<init>(Socket.java:421)
+	at java.net.Socket.<init>(Socket.java:204)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:146)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
+	... 24 more
+02.04.2010 23:40:26 *INFO * RepositoryImpl: initializing workspace 'security'...
+02.04.2010 23:40:26 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\security
+02.04.2010 23:40:27 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+02.04.2010 23:40:27 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+02.04.2010 23:40:28 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\security\index
+02.04.2010 23:40:28 *INFO * SearchIndex: Index initialized: ..\repository\workspaces\security/index Version: 3
+02.04.2010 23:40:28 *INFO * RepositoryImpl: workspace 'security' initialized
+02.04.2010 23:40:28 *INFO * SimpleSecurityManager: init: using Repository LoginModule configuration for Jackrabbit
+02.04.2010 23:40:28 *INFO * RepositoryImpl: SecurityManager = class org.apache.jackrabbit.core.security.simple.SimpleSecurityManager
+02.04.2010 23:40:41 *INFO * JCRWebdavServer: login: User '' logged in.
+02.04.2010 23:40:41 *INFO * JCRWebdavServer: Removed reference org.apache.jackrabbit.webdav.WebdavRequestImpl@1ca7841 to session org.apache.jackrabbit.server.jcr.JCRWebdavServer$DavSessionImpl@c9161b
+02.04.2010 23:40:41 *INFO * JCRWebdavServer: No more references present on webdav session -> clean up.
+02.04.2010 23:40:41 *INFO * JCRWebdavServer: Login: User '' logged out
+02.04.2010 23:40:50 *INFO * JCRWebdavServer: login: User '' logged in.
+02.04.2010 23:40:50 *INFO * JCRWebdavServer: Removed reference org.apache.jackrabbit.webdav.WebdavRequestImpl@1489ea3 to session org.apache.jackrabbit.server.jcr.JCRWebdavServer$DavSessionImpl@13a356
+02.04.2010 23:40:50 *INFO * JCRWebdavServer: No more references present on webdav session -> clean up.
+02.04.2010 23:40:50 *INFO * JCRWebdavServer: Login: User '' logged out
+02.04.2010 23:40:52 *INFO * JCRWebdavServer: login: User '' logged in.
+02.04.2010 23:40:52 *INFO * JCRWebdavServer: Removed reference org.apache.jackrabbit.webdav.WebdavRequestImpl@226649 to session org.apache.jackrabbit.server.jcr.JCRWebdavServer$DavSessionImpl@1c7eb33
+02.04.2010 23:40:52 *INFO * JCRWebdavServer: No more references present on webdav session -> clean up.
+02.04.2010 23:40:52 *INFO * JCRWebdavServer: Login: User '' logged out
+02.04.2010 23:40:59 *INFO * JCRWebdavServer: login: User '' logged in.
+02.04.2010 23:40:59 *INFO * JCRWebdavServer: Removed reference org.apache.jackrabbit.webdav.WebdavRequestImpl@1539d49 to session org.apache.jackrabbit.server.jcr.JCRWebdavServer$DavSessionImpl@6742d0
+02.04.2010 23:40:59 *INFO * JCRWebdavServer: No more references present on webdav session -> clean up.
+02.04.2010 23:40:59 *INFO * JCRWebdavServer: Login: User '' logged out
+02.04.2010 23:41:09 *WARN * /: RMI: Failed to unbind repository from RMI: //localhost/jackrabbit.repository
+java.rmi.ConnectException: Connection refused to host: localhost; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:340)
+	at sun.rmi.registry.RegistryImpl_Stub.unbind(Unknown Source)
+	at java.rmi.Naming.unbind(Naming.java:152)
+	at org.apache.jackrabbit.servlet.remote.RMIRemoteBindingServlet.destroy(RMIRemoteBindingServlet.java:91)
+	at org.mortbay.jetty.servlet.ServletHolder.destroyInstance(ServletHolder.java:318)
+	at org.mortbay.jetty.servlet.ServletHolder.doStop(ServletHolder.java:289)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.servlet.ServletHandler.doStop(ServletHandler.java:171)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.servlet.SessionHandler.doStop(SessionHandler.java:124)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.handler.ContextHandler.doStop(ContextHandler.java:591)
+	at org.mortbay.jetty.webapp.WebAppContext.doStop(WebAppContext.java:498)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStop(RequestLogHandler.java:126)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.Server.doStop(Server.java:281)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.apache.jackrabbit.standalone.Main$1.run(Main.java:212)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.TwoStacksPlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:316)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:177)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:164)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:154)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:354)
+	at java.net.Socket.connect(Socket.java:574)
+	at java.net.Socket.connect(Socket.java:524)
+	at java.net.Socket.<init>(Socket.java:421)
+	at java.net.Socket.<init>(Socket.java:204)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:146)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
+	... 27 more
+02.04.2010 23:41:09 *INFO * RepositoryImpl: Shutting down repository...
+02.04.2010 23:41:09 *INFO * IndexMerger: IndexMerger terminated
+02.04.2010 23:41:09 *INFO * SearchIndex: Index closed: ..\repository/repository/index
+02.04.2010 23:41:09 *INFO * RepositoryImpl: shutting down workspace 'default'...
+02.04.2010 23:41:09 *INFO * ObservationDispatcher: Notification of EventListeners stopped.
+02.04.2010 23:41:09 *INFO * IndexMerger: IndexMerger terminated
+02.04.2010 23:41:09 *INFO * SearchIndex: Index closed: ..\repository\workspaces\default/index
+02.04.2010 23:41:09 *INFO * DerbyPersistenceManager: Database '..\repository\workspaces\default/db' shutdown.
+02.04.2010 23:41:09 *INFO * RepositoryImpl: workspace 'default' has been shutdown
+02.04.2010 23:41:09 *INFO * RepositoryImpl: shutting down workspace 'security'...
+02.04.2010 23:41:09 *INFO * ObservationDispatcher: Notification of EventListeners stopped.
+02.04.2010 23:41:09 *INFO * IndexMerger: IndexMerger terminated
+02.04.2010 23:41:10 *INFO * SearchIndex: Index closed: ..\repository\workspaces\security/index
+02.04.2010 23:41:10 *INFO * DerbyPersistenceManager: Database '..\repository\workspaces\security/db' shutdown.
+02.04.2010 23:41:10 *INFO * RepositoryImpl: workspace 'security' has been shutdown
+02.04.2010 23:41:10 *INFO * DerbyPersistenceManager: Database '..\repository/version/db' shutdown.
+02.04.2010 23:41:10 *INFO * RepositoryImpl: Repository has been shutdown
+03.04.2010 00:23:44 *WARN * RepositoryLock: Existing lock file E:\programming\quackbot\trunk\repository\.lock detected. Repository was not shut down properly.
+03.04.2010 00:23:45 *WARN * /: unavailable
+javax.jcr.RepositoryException: The repository home E:\programming\quackbot\trunk\repository appears to be in use since the file named .lock is locked by another process.
+	at org.apache.jackrabbit.core.util.RepositoryLock.tryLock(RepositoryLock.java:149)
+	at org.apache.jackrabbit.core.util.RepositoryLock.acquire(RepositoryLock.java:121)
+	at org.apache.jackrabbit.core.RepositoryImpl.<init>(RepositoryImpl.java:253)
+	at org.apache.jackrabbit.core.RepositoryImpl.create(RepositoryImpl.java:621)
+	at org.apache.jackrabbit.servlet.jackrabbit.JackrabbitRepositoryServlet.init(JackrabbitRepositoryServlet.java:104)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:241)
+	at org.mortbay.jetty.servlet.ServletHolder.initServlet(ServletHolder.java:431)
+	at org.mortbay.jetty.servlet.ServletHolder.doStart(ServletHolder.java:263)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.servlet.ServletHandler.initialize(ServletHandler.java:643)
+	at org.mortbay.jetty.servlet.Context.startContext(Context.java:140)
+	at org.mortbay.jetty.webapp.WebAppContext.startContext(WebAppContext.java:1234)
+	at org.mortbay.jetty.handler.ContextHandler.doStart(ContextHandler.java:517)
+	at org.mortbay.jetty.webapp.WebAppContext.doStart(WebAppContext.java:460)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStart(RequestLogHandler.java:115)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.Server.doStart(Server.java:222)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.apache.jackrabbit.standalone.Main.run(Main.java:131)
+	at org.apache.jackrabbit.standalone.Main.main(Main.java:54)
+03.04.2010 00:23:45 *INFO * RepositoryAccessServlet: RepositoryAccessServlet initialized.
+03.04.2010 00:23:45 *INFO * SimpleWebdavServlet: resource-path-prefix = '/repository'
+03.04.2010 00:23:45 *INFO * SimpleWebdavServlet: WWW-Authenticate header = 'Basic realm="Jackrabbit Webdav Server"'
+03.04.2010 00:23:54 *WARN * /: RMI: Failed to bind repository to RMI: //localhost/jackrabbit.repository
+java.rmi.ConnectException: Connection refused to host: localhost; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:340)
+	at sun.rmi.registry.RegistryImpl_Stub.rebind(Unknown Source)
+	at java.rmi.Naming.rebind(Naming.java:177)
+	at org.apache.jackrabbit.servlet.remote.RMIRemoteBindingServlet.init(RMIRemoteBindingServlet.java:78)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:241)
+	at org.mortbay.jetty.servlet.ServletHolder.initServlet(ServletHolder.java:431)
+	at org.mortbay.jetty.servlet.ServletHolder.doStart(ServletHolder.java:263)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.servlet.ServletHandler.initialize(ServletHandler.java:643)
+	at org.mortbay.jetty.servlet.Context.startContext(Context.java:140)
+	at org.mortbay.jetty.webapp.WebAppContext.startContext(WebAppContext.java:1234)
+	at org.mortbay.jetty.handler.ContextHandler.doStart(ContextHandler.java:517)
+	at org.mortbay.jetty.webapp.WebAppContext.doStart(WebAppContext.java:460)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStart(RequestLogHandler.java:115)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.Server.doStart(Server.java:222)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.apache.jackrabbit.standalone.Main.run(Main.java:131)
+	at org.apache.jackrabbit.standalone.Main.main(Main.java:54)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.TwoStacksPlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:316)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:177)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:164)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:154)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:354)
+	at java.net.Socket.connect(Socket.java:574)
+	at java.net.Socket.connect(Socket.java:524)
+	at java.net.Socket.<init>(Socket.java:421)
+	at java.net.Socket.<init>(Socket.java:204)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:146)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
+	... 24 more
+03.04.2010 00:24:11 *ERROR* RepositoryAccessServlet: The content repository is not available. Please check RepositoryAccessServlet configuration in web.xml.
+javax.servlet.ServletException: Repository access configuration is not valid.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getConfig(RepositoryAccessServlet.java:163)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepositoryByJNDI(RepositoryAccessServlet.java:195)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:295)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:186)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:879)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:741)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:213)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:24:11 *ERROR* RepositoryAccessServlet: The content repository is not available. Please check RepositoryAccessServlet configuration in web.xml.
+javax.servlet.ServletException: Repository access configuration is not valid.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getConfig(RepositoryAccessServlet.java:163)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepositoryByJNDI(RepositoryAccessServlet.java:195)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:295)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:208)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:879)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:741)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:213)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:24:22 *ERROR* RepositoryAccessServlet: The content repository is not available. Please check RepositoryAccessServlet configuration in web.xml.
+javax.servlet.ServletException: Repository access configuration is not valid.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getConfig(RepositoryAccessServlet.java:163)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepositoryByJNDI(RepositoryAccessServlet.java:195)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:295)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:186)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:879)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:741)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:213)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:24:22 *ERROR* RepositoryAccessServlet: The content repository is not available. Please check RepositoryAccessServlet configuration in web.xml.
+javax.servlet.ServletException: Repository access configuration is not valid.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getConfig(RepositoryAccessServlet.java:163)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepositoryByJNDI(RepositoryAccessServlet.java:195)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:295)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:208)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:879)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:741)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:213)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:24:23 *ERROR* RepositoryAccessServlet: The content repository is not available. Please check RepositoryAccessServlet configuration in web.xml.
+javax.servlet.ServletException: Repository access configuration is not valid.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getConfig(RepositoryAccessServlet.java:163)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepositoryByJNDI(RepositoryAccessServlet.java:195)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:295)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:186)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:864)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:533)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:207)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:24:23 *ERROR* RepositoryAccessServlet: The content repository is not available. Please check RepositoryAccessServlet configuration in web.xml.
+javax.servlet.ServletException: Repository access configuration is not valid.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getConfig(RepositoryAccessServlet.java:163)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepositoryByJNDI(RepositoryAccessServlet.java:195)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:295)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:208)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:864)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:533)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:207)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:24:34 *ERROR* RepositoryAccessServlet: The content repository is not available. Please check RepositoryAccessServlet configuration in web.xml.
+javax.servlet.ServletException: Repository access configuration is not valid.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getConfig(RepositoryAccessServlet.java:163)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepositoryByJNDI(RepositoryAccessServlet.java:195)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:295)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jsp.welcome_jsp._jspService(org.apache.jsp.welcome_jsp:53)
+	at org.apache.jasper.runtime.HttpJspBase.service(HttpJspBase.java:109)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:389)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:486)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:380)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.servlet.Dispatcher.forward(Dispatcher.java:334)
+	at org.mortbay.jetty.servlet.Dispatcher.forward(Dispatcher.java:126)
+	at org.apache.jasper.runtime.PageContextImpl.forward(PageContextImpl.java:783)
+	at org.apache.jsp.index_jsp._jspService(org.apache.jsp.index_jsp:52)
+	at org.apache.jasper.runtime.HttpJspBase.service(HttpJspBase.java:109)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:389)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:486)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:380)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.servlet.Dispatcher.forward(Dispatcher.java:334)
+	at org.mortbay.jetty.servlet.Dispatcher.forward(Dispatcher.java:126)
+	at org.mortbay.jetty.servlet.DefaultServlet.doGet(DefaultServlet.java:465)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:864)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:533)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:207)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:26:24 *WARN * /: RMI: Failed to unbind repository from RMI: //localhost/jackrabbit.repository
+java.rmi.ConnectException: Connection refused to host: localhost; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:340)
+	at sun.rmi.registry.RegistryImpl_Stub.unbind(Unknown Source)
+	at java.rmi.Naming.unbind(Naming.java:152)
+	at org.apache.jackrabbit.servlet.remote.RMIRemoteBindingServlet.destroy(RMIRemoteBindingServlet.java:91)
+	at org.mortbay.jetty.servlet.ServletHolder.destroyInstance(ServletHolder.java:318)
+	at org.mortbay.jetty.servlet.ServletHolder.doStop(ServletHolder.java:289)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.servlet.ServletHandler.doStop(ServletHandler.java:171)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.servlet.SessionHandler.doStop(SessionHandler.java:124)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.handler.ContextHandler.doStop(ContextHandler.java:591)
+	at org.mortbay.jetty.webapp.WebAppContext.doStop(WebAppContext.java:498)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStop(RequestLogHandler.java:126)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.Server.doStop(Server.java:281)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.apache.jackrabbit.standalone.Main$1.run(Main.java:212)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.TwoStacksPlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:316)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:177)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:164)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:154)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:354)
+	at java.net.Socket.connect(Socket.java:574)
+	at java.net.Socket.connect(Socket.java:524)
+	at java.net.Socket.<init>(Socket.java:421)
+	at java.net.Socket.<init>(Socket.java:204)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:146)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
+	... 27 more
+03.04.2010 00:26:30 *WARN * RepositoryLock: Existing lock file E:\programming\quackbot\trunk\repository\.lock detected. Repository was not shut down properly.
+03.04.2010 00:26:30 *INFO * RepositoryImpl: Starting repository...
+03.04.2010 00:26:31 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\repository
+03.04.2010 00:26:31 *INFO * NodeTypeRegistry: no custom node type definitions found
+03.04.2010 00:26:31 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\version
+03.04.2010 00:26:32 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+03.04.2010 00:26:32 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+03.04.2010 00:26:34 *INFO * RepositoryImpl: initializing workspace 'default'...
+03.04.2010 00:26:34 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\default
+03.04.2010 00:26:34 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+03.04.2010 00:26:34 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+03.04.2010 00:26:35 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\repository\index
+03.04.2010 00:26:35 *INFO * SearchIndex: Index initialized: ..\repository/repository/index Version: 3
+03.04.2010 00:26:35 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\default\index
+03.04.2010 00:26:35 *INFO * SearchIndex: Index initialized: ..\repository\workspaces\default/index Version: 3
+03.04.2010 00:26:35 *INFO * RepositoryImpl: workspace 'default' initialized
+03.04.2010 00:26:35 *INFO * RepositoryImpl: Repository started
+03.04.2010 00:26:35 *INFO * RepositoryAccessServlet: RepositoryAccessServlet initialized.
+03.04.2010 00:26:35 *INFO * SimpleWebdavServlet: resource-path-prefix = '/repository'
+03.04.2010 00:26:35 *INFO * SimpleWebdavServlet: WWW-Authenticate header = 'Basic realm="Jackrabbit Webdav Server"'
+03.04.2010 00:26:36 *WARN * /: RMI: Failed to bind repository to RMI: //localhost/jackrabbit.repository
+java.rmi.ConnectException: Connection refused to host: localhost; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:340)
+	at sun.rmi.registry.RegistryImpl_Stub.rebind(Unknown Source)
+	at java.rmi.Naming.rebind(Naming.java:177)
+	at org.apache.jackrabbit.servlet.remote.RMIRemoteBindingServlet.init(RMIRemoteBindingServlet.java:78)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:241)
+	at org.mortbay.jetty.servlet.ServletHolder.initServlet(ServletHolder.java:431)
+	at org.mortbay.jetty.servlet.ServletHolder.doStart(ServletHolder.java:263)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.servlet.ServletHandler.initialize(ServletHandler.java:643)
+	at org.mortbay.jetty.servlet.Context.startContext(Context.java:140)
+	at org.mortbay.jetty.webapp.WebAppContext.startContext(WebAppContext.java:1234)
+	at org.mortbay.jetty.handler.ContextHandler.doStart(ContextHandler.java:517)
+	at org.mortbay.jetty.webapp.WebAppContext.doStart(WebAppContext.java:460)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStart(RequestLogHandler.java:115)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.Server.doStart(Server.java:222)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.apache.jackrabbit.standalone.Main.run(Main.java:131)
+	at org.apache.jackrabbit.standalone.Main.main(Main.java:54)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.TwoStacksPlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:316)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:177)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:164)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:154)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:354)
+	at java.net.Socket.connect(Socket.java:574)
+	at java.net.Socket.connect(Socket.java:524)
+	at java.net.Socket.<init>(Socket.java:421)
+	at java.net.Socket.<init>(Socket.java:204)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:146)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
+	... 24 more
+03.04.2010 00:26:57 *INFO * RepositoryImpl: initializing workspace 'security'...
+03.04.2010 00:26:57 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\security
+03.04.2010 00:26:57 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+03.04.2010 00:26:57 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+03.04.2010 00:26:57 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\security\index
+03.04.2010 00:26:57 *INFO * SearchIndex: Index initialized: ..\repository\workspaces\security/index Version: 3
+03.04.2010 00:26:57 *INFO * RepositoryImpl: workspace 'security' initialized
+03.04.2010 00:26:58 *INFO * SimpleSecurityManager: init: using Repository LoginModule configuration for Jackrabbit
+03.04.2010 00:26:58 *INFO * RepositoryImpl: SecurityManager = class org.apache.jackrabbit.core.security.simple.SimpleSecurityManager
+03.04.2010 00:27:24 *WARN * /: RMI: Failed to unbind repository from RMI: //localhost/jackrabbit.repository
+java.rmi.ConnectException: Connection refused to host: localhost; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:340)
+	at sun.rmi.registry.RegistryImpl_Stub.unbind(Unknown Source)
+	at java.rmi.Naming.unbind(Naming.java:152)
+	at org.apache.jackrabbit.servlet.remote.RMIRemoteBindingServlet.destroy(RMIRemoteBindingServlet.java:91)
+	at org.mortbay.jetty.servlet.ServletHolder.destroyInstance(ServletHolder.java:318)
+	at org.mortbay.jetty.servlet.ServletHolder.doStop(ServletHolder.java:289)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.servlet.ServletHandler.doStop(ServletHandler.java:171)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.servlet.SessionHandler.doStop(SessionHandler.java:124)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.handler.ContextHandler.doStop(ContextHandler.java:591)
+	at org.mortbay.jetty.webapp.WebAppContext.doStop(WebAppContext.java:498)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStop(RequestLogHandler.java:126)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.Server.doStop(Server.java:281)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.apache.jackrabbit.standalone.Main$1.run(Main.java:212)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.TwoStacksPlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:316)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:177)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:164)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:154)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:354)
+	at java.net.Socket.connect(Socket.java:574)
+	at java.net.Socket.connect(Socket.java:524)
+	at java.net.Socket.<init>(Socket.java:421)
+	at java.net.Socket.<init>(Socket.java:204)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:146)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
+	... 27 more
+03.04.2010 00:27:24 *INFO * RepositoryImpl: Shutting down repository...
+03.04.2010 00:27:24 *INFO * IndexMerger: IndexMerger terminated
+03.04.2010 00:27:24 *INFO * SearchIndex: Index closed: ..\repository/repository/index
+03.04.2010 00:27:24 *INFO * RepositoryImpl: shutting down workspace 'default'...
+03.04.2010 00:27:24 *INFO * ObservationDispatcher: Notification of EventListeners stopped.
+03.04.2010 00:27:24 *INFO * IndexMerger: IndexMerger terminated
+03.04.2010 00:27:24 *INFO * SearchIndex: Index closed: ..\repository\workspaces\default/index
+03.04.2010 00:27:24 *INFO * DerbyPersistenceManager: Database '..\repository\workspaces\default/db' shutdown.
+03.04.2010 00:27:24 *INFO * RepositoryImpl: workspace 'default' has been shutdown
+03.04.2010 00:27:24 *INFO * RepositoryImpl: shutting down workspace 'security'...
+03.04.2010 00:27:24 *INFO * ObservationDispatcher: Notification of EventListeners stopped.
+03.04.2010 00:27:24 *INFO * IndexMerger: IndexMerger terminated
+03.04.2010 00:27:24 *INFO * SearchIndex: Index closed: ..\repository\workspaces\security/index
+03.04.2010 00:27:25 *INFO * DerbyPersistenceManager: Database '..\repository\workspaces\security/db' shutdown.
+03.04.2010 00:27:25 *INFO * RepositoryImpl: workspace 'security' has been shutdown
+03.04.2010 00:27:25 *INFO * DerbyPersistenceManager: Database '..\repository/version/db' shutdown.
+03.04.2010 00:27:25 *INFO * RepositoryImpl: Repository has been shutdown
+03.04.2010 02:18:16 *WARN * RepositoryLock: Existing lock file E:\programming\quackbot\trunk\repository\.lock detected. Repository was not shut down properly.
+03.04.2010 02:18:16 *INFO * RepositoryImpl: Starting repository...
+03.04.2010 02:18:16 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\repository
+03.04.2010 02:18:17 *INFO * NodeTypeRegistry: no custom node type definitions found
+03.04.2010 02:18:17 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\version
+03.04.2010 02:18:18 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+03.04.2010 02:18:18 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+03.04.2010 02:18:20 *INFO * RepositoryImpl: initializing workspace 'default'...
+03.04.2010 02:18:20 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\default
+03.04.2010 02:18:20 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+03.04.2010 02:18:20 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+03.04.2010 02:18:21 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\repository\index
+03.04.2010 02:18:22 *INFO * SearchIndex: Index initialized: ..\repository/repository/index Version: 3
+03.04.2010 02:18:22 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\default\index
+03.04.2010 02:18:22 *INFO * SearchIndex: Index initialized: ..\repository\workspaces\default/index Version: 3
+03.04.2010 02:18:22 *INFO * RepositoryImpl: workspace 'default' initialized
+03.04.2010 02:18:22 *INFO * RepositoryImpl: Repository started
+03.04.2010 02:18:22 *INFO * RepositoryAccessServlet: RepositoryAccessServlet initialized.
+03.04.2010 02:18:22 *INFO * SimpleWebdavServlet: resource-path-prefix = '/repository'
+03.04.2010 02:18:22 *INFO * SimpleWebdavServlet: WWW-Authenticate header = 'Basic realm="Jackrabbit Webdav Server"'
+03.04.2010 02:18:24 *WARN * /: RMI: Failed to bind repository to RMI: //localhost/jackrabbit.repository
+java.rmi.ConnectException: Connection refused to host: localhost; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:340)
+	at sun.rmi.registry.RegistryImpl_Stub.rebind(Unknown Source)
+	at java.rmi.Naming.rebind(Naming.java:177)
+	at org.apache.jackrabbit.servlet.remote.RMIRemoteBindingServlet.init(RMIRemoteBindingServlet.java:78)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:241)
+	at org.mortbay.jetty.servlet.ServletHolder.initServlet(ServletHolder.java:431)
+	at org.mortbay.jetty.servlet.ServletHolder.doStart(ServletHolder.java:263)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.servlet.ServletHandler.initialize(ServletHandler.java:643)
+	at org.mortbay.jetty.servlet.Context.startContext(Context.java:140)
+	at org.mortbay.jetty.webapp.WebAppContext.startContext(WebAppContext.java:1234)
+	at org.mortbay.jetty.handler.ContextHandler.doStart(ContextHandler.java:517)
+	at org.mortbay.jetty.webapp.WebAppContext.doStart(WebAppContext.java:460)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStart(RequestLogHandler.java:115)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:130)
+	at org.mortbay.jetty.Server.doStart(Server.java:222)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:50)
+	at org.apache.jackrabbit.standalone.Main.run(Main.java:131)
+	at org.apache.jackrabbit.standalone.Main.main(Main.java:54)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.TwoStacksPlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:316)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:177)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:164)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:154)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:354)
+	at java.net.Socket.connect(Socket.java:574)
+	at java.net.Socket.connect(Socket.java:524)
+	at java.net.Socket.<init>(Socket.java:421)
+	at java.net.Socket.<init>(Socket.java:204)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:146)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
+	... 24 more
+03.04.2010 02:18:41 *INFO * RepositoryImpl: initializing workspace 'security'...
+03.04.2010 02:18:41 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\security
+03.04.2010 02:18:42 *INFO * ConnectionRecoveryManager: Database: Apache Derby / 10.2.1.6 - (452058)
+03.04.2010 02:18:42 *INFO * ConnectionRecoveryManager: Driver: Apache Derby Embedded JDBC Driver / 10.2.1.6 - (452058)
+03.04.2010 02:18:42 *INFO * LocalFileSystem: LocalFileSystem initialized at path ..\repository\workspaces\security\index
+03.04.2010 02:18:42 *INFO * SearchIndex: Index initialized: ..\repository\workspaces\security/index Version: 3
+03.04.2010 02:18:42 *INFO * RepositoryImpl: workspace 'security' initialized
+03.04.2010 02:18:42 *INFO * SimpleSecurityManager: init: using Repository LoginModule configuration for Jackrabbit
+03.04.2010 02:18:42 *INFO * RepositoryImpl: SecurityManager = class org.apache.jackrabbit.core.security.simple.SimpleSecurityManager
+03.04.2010 02:19:07 *WARN * /: RMI: Failed to unbind repository from RMI: //localhost/jackrabbit.repository
+java.rmi.ConnectException: Connection refused to host: localhost; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:340)
+	at sun.rmi.registry.RegistryImpl_Stub.unbind(Unknown Source)
+	at java.rmi.Naming.unbind(Naming.java:152)
+	at org.apache.jackrabbit.servlet.remote.RMIRemoteBindingServlet.destroy(RMIRemoteBindingServlet.java:91)
+	at org.mortbay.jetty.servlet.ServletHolder.destroyInstance(ServletHolder.java:318)
+	at org.mortbay.jetty.servlet.ServletHolder.doStop(ServletHolder.java:289)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.servlet.ServletHandler.doStop(ServletHandler.java:171)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.servlet.SessionHandler.doStop(SessionHandler.java:124)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.handler.ContextHandler.doStop(ContextHandler.java:591)
+	at org.mortbay.jetty.webapp.WebAppContext.doStop(WebAppContext.java:498)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.handler.RequestLogHandler.doStop(RequestLogHandler.java:126)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.mortbay.jetty.handler.HandlerWrapper.doStop(HandlerWrapper.java:142)
+	at org.mortbay.jetty.Server.doStop(Server.java:281)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:78)
+	at org.apache.jackrabbit.standalone.Main$1.run(Main.java:212)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.TwoStacksPlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:316)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:177)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:164)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:154)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:354)
+	at java.net.Socket.connect(Socket.java:574)
+	at java.net.Socket.connect(Socket.java:524)
+	at java.net.Socket.<init>(Socket.java:421)
+	at java.net.Socket.<init>(Socket.java:204)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:146)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
+	... 27 more
+03.04.2010 02:19:07 *INFO * RepositoryImpl: Shutting down repository...
+03.04.2010 02:19:07 *INFO * IndexMerger: IndexMerger terminated
+03.04.2010 02:19:07 *INFO * SearchIndex: Index closed: ..\repository/repository/index
+03.04.2010 02:19:07 *INFO * RepositoryImpl: shutting down workspace 'default'...
+03.04.2010 02:19:07 *INFO * ObservationDispatcher: Notification of EventListeners stopped.
+03.04.2010 02:19:07 *INFO * IndexMerger: IndexMerger terminated
+03.04.2010 02:19:07 *INFO * SearchIndex: Index closed: ..\repository\workspaces\default/index
+03.04.2010 02:19:08 *INFO * DerbyPersistenceManager: Database '..\repository\workspaces\default/db' shutdown.
+03.04.2010 02:19:08 *INFO * RepositoryImpl: workspace 'default' has been shutdown
+03.04.2010 02:19:08 *INFO * RepositoryImpl: shutting down workspace 'security'...
+03.04.2010 02:19:08 *INFO * ObservationDispatcher: Notification of EventListeners stopped.
+03.04.2010 02:19:08 *INFO * IndexMerger: IndexMerger terminated
+03.04.2010 02:19:08 *INFO * SearchIndex: Index closed: ..\repository\workspaces\security/index
+03.04.2010 02:19:08 *INFO * DerbyPersistenceManager: Database '..\repository\workspaces\security/db' shutdown.
+03.04.2010 02:19:08 *INFO * RepositoryImpl: workspace 'security' has been shutdown
+03.04.2010 02:19:08 *INFO * DerbyPersistenceManager: Database '..\repository/version/db' shutdown.
+03.04.2010 02:19:08 *INFO * RepositoryImpl: Repository has been shutdown

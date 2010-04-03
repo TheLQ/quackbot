@@ -1,0 +1,18 @@
+----------------------------------------------------------------
+2010-04-03 06:21:54.171 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance c013800d-0127-c255-2c1e-0000002739c8
+on database directory E:\programming\quackbot\trunk\repository\version\db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2010-04-03 06:21:55.375 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance e03f4017-0127-c255-2c1e-0000002739c8
+on database directory E:\programming\quackbot\trunk\repository\workspaces\default\db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2010-04-03 06:21:56.234 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance 80840021-0127-c255-2c1e-0000002739c8
+on database directory E:\programming\quackbot\trunk\repository\workspaces\security\db  
+
+Database Class Loader started - derby.database.classpath=''

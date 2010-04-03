@@ -1,0 +1,91 @@
+02.04.2010 23:36:52 *INFO * log: Logging to org.slf4j.impl.Log4jLoggerAdapter(org.mortbay.log) via org.mortbay.log.Slf4jLog
+02.04.2010 23:36:52 *INFO * log: jetty-6.1.x
+02.04.2010 23:37:06 *INFO * log: Opened E:\programming\quackbot\trunk\repository\log\access.log.2010-04-03
+02.04.2010 23:37:06 *INFO * log: Started SocketConnector@0.0.0.0:8080
+03.04.2010 00:23:32 *INFO * log: Logging to org.slf4j.impl.Log4jLoggerAdapter(org.mortbay.log) via org.mortbay.log.Slf4jLog
+03.04.2010 00:23:32 *INFO * log: jetty-6.1.x
+03.04.2010 00:23:54 *INFO * log: Opened E:\programming\quackbot\trunk\repository\log\access.log.2010-04-03
+03.04.2010 00:23:54 *INFO * log: Started SocketConnector@0.0.0.0:8080
+03.04.2010 00:24:11 *ERROR* log: /repository/default
+java.lang.IllegalStateException: The repository is not available.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:309)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:208)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:879)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:741)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:213)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:24:22 *ERROR* log: /repository/default
+java.lang.IllegalStateException: The repository is not available.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:309)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:208)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:879)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:741)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:213)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:24:23 *ERROR* log: /repository/
+java.lang.IllegalStateException: The repository is not available.
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:309)
+	at org.apache.jackrabbit.j2ee.RepositoryAccessServlet.getRepository(RepositoryAccessServlet.java:321)
+	at org.apache.jackrabbit.j2ee.SimpleWebdavServlet.getRepository(SimpleWebdavServlet.java:42)
+	at org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet.getDavSessionProvider(SimpleWebdavServlet.java:317)
+	at org.apache.jackrabbit.webdav.server.AbstractWebdavServlet.service(AbstractWebdavServlet.java:208)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:502)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:363)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:766)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:417)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:324)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:534)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:864)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:533)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:207)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:403)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:522)
+03.04.2010 00:26:28 *INFO * log: Logging to org.slf4j.impl.Log4jLoggerAdapter(org.mortbay.log) via org.mortbay.log.Slf4jLog
+03.04.2010 00:26:28 *INFO * log: jetty-6.1.x
+03.04.2010 00:26:36 *INFO * log: Opened E:\programming\quackbot\trunk\repository\log\access.log.2010-04-03
+03.04.2010 00:26:36 *INFO * log: Started SocketConnector@0.0.0.0:8080
+03.04.2010 02:18:13 *INFO * log: Logging to org.slf4j.impl.Log4jLoggerAdapter(org.mortbay.log) via org.mortbay.log.Slf4jLog
+03.04.2010 02:18:13 *INFO * log: jetty-6.1.x
+03.04.2010 02:18:24 *INFO * log: Opened E:\programming\quackbot\trunk\repository\log\access.log.2010-04-03
+03.04.2010 02:18:24 *INFO * log: Started SocketConnector@0.0.0.0:8080

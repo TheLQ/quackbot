@@ -96,13 +96,22 @@ public class Main extends JFrame implements ActionListener {
 		add(contentPane); //add to JFrame
 		setVisible(true); //make JFrame visible
 
-		ctrl = new Controller(this);
+		//Initialize controller in new thread to prevent GUI lockups
+		new Thread(new Runnable() {
+			public void run() {
+				System.out.println("Initialiing controller");
+				Main.this.ctrl = new Controller(Main.this);
+			}
+		}).start();
+
 	}
 
 	/**
 	 * Button action listener, controls for Controller
 	 * @param e  Event
 	 */
+
+
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
 
@@ -181,7 +190,7 @@ public class Main extends JFrame implements ActionListener {
 				String server = "";
 				String message = "";
 				String[] sString = aString.split(" ", 2);
-				if (aString.indexOf(".") == -1 || error) {
+				if (sString[0].indexOf(".") == -1 || error || sString.length >= 1) {
 					server = "None";
 					message = aString;
 				} else {

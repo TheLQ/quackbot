@@ -5,6 +5,9 @@
  */
 package Quackbot;
 
+import Quackbot.info.Channel;
+import Quackbot.info.Server;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -38,6 +41,7 @@ public class Bot extends PircBot {
 	public TreeMap<String, String> adminList;
 	public TreeMap<String, String> chanLockList;
 	public Controller mainInst = null;
+	public Server curServer;
 
 	/**
 	 * Init bot by setting all information
@@ -85,17 +89,31 @@ public class Bot extends PircBot {
 		PREFIXES.add("?");
 		PREFIXES.add(getNick() + ":");
 		PREFIXES.add(getNick());
+
+		//Get current server database object
+		curServer = (Server)mainInst.JRocm.getObject("/servers/"+getServer());
 	}
 
 	/*********************LISTENERS FOLLOW************************/
 	@Override
 	public void onJoin(String channel, String sender, String login, String hostname) {
 		runListener("onJoin", channel, sender, login, hostname);
+
+		//If this is us, add to server info
+		if(sender.equalsIgnoreCase(getNick())) {
+			curServer.addChannel(new Channel(channel));
+			mainInst.JRocm.update(curServer);
+		}
 	}
 
 	@Override
 	public void onPart(String channel, String sender, String login, String hostname) {
 		runListener("onPart", channel, sender, login, hostname);
+
+		if(sender.equalsIgnoreCase(getNick())) {
+			curServer.removeChannel(channel);
+			mainInst.JRocm.update(curServer);
+		}
 	}
 
 	@Override
