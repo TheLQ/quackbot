@@ -32,6 +32,7 @@ import org.apache.jackrabbit.ocm.manager.ObjectContentManager;
 import org.apache.jackrabbit.ocm.manager.impl.ObjectContentManagerImpl;
 import org.apache.jackrabbit.ocm.mapper.Mapper;
 import org.apache.jackrabbit.ocm.mapper.impl.annotation.AnnotationMapperImpl;
+import org.apache.log4j.Logger;
 
 /**
  * Main Controller for bot:
@@ -57,6 +58,7 @@ public class Controller {
 	public Session JRSession = null;
 	public Node JRRoot = null;
 	public ObjectContentManager JRocm = null;
+	Logger log = Logger.getLogger(Controller.class);
 
 	/**
 	 * Start of bot working. Loads CMDs and starts Bots
@@ -72,9 +74,9 @@ public class Controller {
 		//Connect to JackRabbit DB and join servers
 		try {
 			//Connect to server
-			System.out.println("Starting JackRabbit...");
+			log.info("Starting JackRabbit...");
 			JRSession = new TransientRepository().login(new SimpleCredentials("empty", "really??".toCharArray()));
-			System.out.println("JackRabbit started!");
+			log.info("JackRabbit started!");
 
 			//Setup variables
 			JRRoot = JRSession.getRootNode();
@@ -86,16 +88,16 @@ public class Controller {
 			JRocm = new ObjectContentManagerImpl(JRSession, mapper);
 
 			//recursiveShow(JRSession.getRootNode());
-			
+
 			// Retrieve server info and join them
 			NodeIterator node = JRRoot.getNode("servers").getNodes();
-			while(node.hasNext()) {
+			while (node.hasNext()) {
 				Node curNode = node.nextNode();
-				Server curServer = (Server)JRocm.getObject(curNode.getPath());
-				threadPool.execute(new botThread(curServer.getAddress(),curServer.getChannels()));
+				Server curServer = (Server) JRocm.getObject(curNode.getPath());
+				threadPool.execute(new botThread(curServer.getAddress(), curServer.getChannels()));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.fatal("Error in JackRabbit or IRC connection", e);
 		}
 	}
 
@@ -115,25 +117,27 @@ public class Controller {
 		threadPool.shutdownNow();
 		threadPool = null;
 		JRSession.logout();
+		log.info("Killed all bots, threadPools, and JackRabbit connection");
 	}
 
 	public void addServer(String address, String... channels) {
 		Server newServ = new Server();
-		for(String chan : channels)
+		for (String chan : channels) {
 			newServ.addChannel(new Channel(chan));
-		newServ.setPath("/servers/"+address);
+		}
+		newServ.setPath("/servers/" + address);
 		JRocm.insert(newServ);
 		JRocm.save();
-		threadPool.execute(new botThread(newServ.getAddress(),newServ.getChannels()));
+		threadPool.execute(new botThread(newServ.getAddress(), newServ.getChannels()));
+		log.info("Added server " + newServ.getAddress());
 	}
 
 	public void removeServer(String address) {
 		try {
-			JRRoot.getNode("server/"+address).remove();
+			JRRoot.getNode("server/" + address).remove();
 			JRSession.save();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			log.error("Can't remove server", e);
 		}
 	}
 
@@ -183,20 +187,19 @@ public class Controller {
 		 */
 		public void run() {
 			try {
-				System.out.println("Initiating IRC connection");
-				Bot qb = new Bot(Controller.this);
+				log.info("Initiating IRC connection");
+				Bot qb = new Bot(Controller.this, server, 6665);
 				qb.setVerbose(true);
-				qb.connect(server, 6665);
 				Iterator chanItr = channels.iterator();
-				while(chanItr.hasNext()) {
-					Channel curChan = (Channel)chanItr.next();
-					String channel= curChan.getName();
+				while (chanItr.hasNext()) {
+					Channel curChan = (Channel) chanItr.next();
+					String channel = curChan.getName();
 					qb.joinChannel(channel);
-					System.out.println("Channel: " + channel);
+					log.debug("Channel: " + channel);
 				}
 				bots.add(qb);
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				log.error("Can't make bot connect to server", ex);
 			}
 		}
 	}
@@ -208,27 +211,28 @@ public class Controller {
 	public void recursiveShow(Node node) {
 		try {
 			String nodePath = node.getPath();
-			if(nodePath.indexOf("jcr:") != -1)
+			if (nodePath.indexOf("jcr:") != -1) {
 				return;
-			System.out.println();
+			}
 			if (node.hasNodes()) {
 				NodeIterator nodeItr = node.getNodes();
 				while (nodeItr.hasNext()) {
 					recursiveShow(nodeItr.nextNode());
 				}
 			}
-			if(node.hasProperties()) {
+			if (node.hasProperties()) {
 				PropertyIterator propItr = node.getProperties();
-				while(propItr.hasNext()) {
+				while (propItr.hasNext()) {
 					Property curProp = propItr.nextProperty();
-					if(curProp.getPath().indexOf("jcr:") != -1)
+					if (curProp.getPath().indexOf("jcr:") != -1) {
 						continue;
-					System.out.println(curProp.getPath()+" = "+curProp.getString());
+					}
+					log.debug(curProp.getPath() + " = " + curProp.getString());
 				}
-					
+
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.warn("Error in recursive show", e);
 		}
 	}
 }

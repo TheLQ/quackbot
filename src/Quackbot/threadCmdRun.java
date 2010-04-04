@@ -2,6 +2,7 @@ package Quackbot;
 
 import java.util.Iterator;
 import javax.script.ScriptContext;
+import org.apache.log4j.Logger;
 
 /**
  * Simple Runnable to run command in seperate thread
@@ -16,19 +17,20 @@ class threadCmdRun implements Runnable {
 	Bot bot = null;
 	String channel;
 	String sender;
+	Logger log = Logger.getLogger(threadCmdRun.class);
 
 	/**
 	 * Setup runnable
 	 * @param jsCmd
 	 * @param context
 	 */
-	public threadCmdRun(String jsCmd, ScriptContext context,  Controller mainInst) {
+	public threadCmdRun(String jsCmd, ScriptContext context, Controller mainInst) {
 		this.jsCmd = jsCmd;
 		this.context = context;
 		this.mainInst = mainInst;
 	}
 
-	public threadCmdRun(String jsCmd, ScriptContext context,  Bot bot, String channel, String sender) {
+	public threadCmdRun(String jsCmd, ScriptContext context, Bot bot, String channel, String sender) {
 		this.jsCmd = jsCmd;
 		this.context = context;
 		this.mainInst = bot.mainInst;
@@ -49,14 +51,10 @@ class threadCmdRun implements Runnable {
 			}
 			mainInst.jsEngine.eval(utilSB.append(jsCmd).toString(), context);
 		} catch (Exception e) {
-			Throwable cause = e.getCause();
-			//cause.printStackTrace(errorStream);
-			if(bot != null) {
+			if (bot != null) {
 				bot.sendMessage(channel, sender + ": CMD ERROR: " + e.toString());
-				e.printStackTrace(bot.errorStream);
 			}
-			else
-				e.printStackTrace();
+			log.error("Error in CMD excecution", e);
 		}
 	}
 }

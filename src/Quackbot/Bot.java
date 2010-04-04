@@ -7,11 +7,7 @@ package Quackbot;
 
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import Quackbot.log.BotAppender;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +15,7 @@ import java.util.TreeMap;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
+import org.apache.log4j.Logger;
 
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
@@ -36,24 +33,31 @@ public class Bot extends PircBot {
 
 	public boolean botLocked = false;
 	String channel, sender;
-	PrintStream errorStream = new PrintStream(new BotErrorStream(new ByteArrayOutputStream()));
 	final HashSet<String> PREFIXES = new HashSet<String>();
 	public TreeMap<String, String> adminList;
 	public TreeMap<String, String> chanLockList;
 	public Controller mainInst = null;
 	public Server curServer;
+	public Logger log = Logger.getLogger(Bot.class);
 
 	/**
 	 * Init bot by setting all information
 	 * @param mainInstance   The controller instance used to spawn this bot
 	 */
-	public Bot(Controller mainInstance) {
+	public Bot(Controller mainInstance, String hostname, int port) {
+		log.addAppender(new BotAppender(mainInstance.gui,hostname));
 		mainInst = mainInstance;
 		setName("Quackbot");
 		setAutoNickChange(true);
 		setFinger("Quackbot IRC bot by Lord.Quackstar. Source: http://github.com/LBlakey/Quackbot");
 		setMessageDelay(500);
 		setVersion("Quackbot 0.5");
+		try {
+			connect(hostname, 6665);
+		} catch (Exception e) {
+			log.error("Error in connecting", e);
+		}
+
 	}
 
 	/**
@@ -62,7 +66,7 @@ public class Bot extends PircBot {
 	 */
 	@Override
 	public void log(String line) {
-		System.out.println(getServer() + " " + line);
+		log.info(line);
 	}
 
 	/**
@@ -70,7 +74,7 @@ public class Bot extends PircBot {
 	 * @param line   Line to be outputted
 	 */
 	public void logErr(String line) {
-		System.err.println(getServer() + " " + line);
+		log.error(line);
 	}
 
 	/**
@@ -91,7 +95,7 @@ public class Bot extends PircBot {
 		PREFIXES.add(getNick());
 
 		//Get current server database object
-		curServer = (Server)mainInst.JRocm.getObject("/servers/"+getServer());
+		curServer = (Server) mainInst.JRocm.getObject("/servers/" + getServer());
 	}
 
 	/*********************LISTENERS FOLLOW************************/
@@ -100,7 +104,7 @@ public class Bot extends PircBot {
 		runListener("onJoin", channel, sender, login, hostname);
 
 		//If this is us, add to server info
-		if(sender.equalsIgnoreCase(getNick())) {
+		if (sender.equalsIgnoreCase(getNick())) {
 			curServer.addChannel(new Channel(channel));
 			mainInst.JRocm.update(curServer);
 		}
@@ -110,7 +114,7 @@ public class Bot extends PircBot {
 	public void onPart(String channel, String sender, String login, String hostname) {
 		runListener("onPart", channel, sender, login, hostname);
 
-		if(sender.equalsIgnoreCase(getNick())) {
+		if (sender.equalsIgnoreCase(getNick())) {
 			curServer.removeChannel(channel);
 			mainInst.JRocm.update(curServer);
 		}
@@ -132,7 +136,7 @@ public class Bot extends PircBot {
 	private void runListener(String command, String channel, String sender, String login, String hostname) {
 		log("Attempting to run listener " + command);
 		if (!mainInst.listeners.containsKey(command)) {
-			logErr("Listiner does not exist!!");
+			log.error("Listiner does not exist!!");
 			return;
 		}
 		TreeMap<String, Object> cmdinfo = mainInst.listeners.get(command);
@@ -148,7 +152,7 @@ public class Bot extends PircBot {
 
 		//Run command in thread pool
 		String jsCmd = "invoke();";
-		log("JS cmd: " + jsCmd);
+		log.debug("JS cmd: " + jsCmd);
 		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd, newContext, this, channel, sender));
 	}
 
@@ -205,7 +209,7 @@ public class Bot extends PircBot {
 			runCommand(channel, sender, login, hostname, message);
 		} catch (Exception e) {
 			sendMessage(channel, sender + ": RUN ERROR: " + e.toString());
-			e.printStackTrace(errorStream);
+			log.error("Run Error", e);
 		}
 		log("-----------END BOT ACTIVATED FROM " + message + "-----------");
 	}
@@ -222,13 +226,13 @@ public class Bot extends PircBot {
 	private void runCommand(String channel, String sender, String login, String hostname, String rawmsg) throws Exception {
 		//Is bot locked?
 		if (botLocked == true && !isAdmin()) {
-			log("Command ignored due to global lock in effect");
+			log.info("Command ignored due to global lock in effect");
 			return;
 		}
 
 		//Is channel locked?
 		if (chanLockList.containsKey(channel)) {
-			log("Command ignored due to channel lock in effect");
+			log.info("Command ignored due to channel lock in effect");
 			return;
 		}
 
@@ -258,21 +262,21 @@ public class Bot extends PircBot {
 
 		//Does this method require args?
 		if (Boolean.parseBoolean(cmdinfo.get("ReqArg").toString()) == true && argArray.length == 0) {
-			log("Method does require args, passing length 1 array");
+			log.debug("Method does require args, passing length 1 array");
 			argArray = new String[1];
 		}
 
 		//Does the required number of args exist?
 		int user_args = argArray.length;
 		int method_args = Integer.parseInt(cmdinfo.get("param").toString());
-		log("User Args: " + user_args + " | Req Args: " + method_args);
+		log.debug("User Args: " + user_args + " | Req Args: " + method_args);
 		if (user_args != method_args) {
 			sendMessage(channel, sender + ": Wrong number of parameters specified. Given: " + user_args + ", Required: " + method_args);
 			return;
 		}
 
 		//All requirements are met, excecute method
-		log("All tests passed, running method");
+		log.info("All tests passed, running method");
 		ScriptContext newContext = (ScriptContext) cmdinfo.get("context");
 		Bindings engineScope = (Bindings) cmdinfo.get("scope");
 		engineScope.put("channel", channel);
@@ -291,7 +295,7 @@ public class Bot extends PircBot {
 		jsCmd.deleteCharAt(jsCmd.length() - 1);
 		jsCmd.append(");");
 
-		log("JS cmd: " + jsCmd.toString());
+		log.debug("JS cmd: " + jsCmd.toString());
 
 		//Run command in thread pool
 		mainInst.threadPool_js.execute(new threadCmdRun(jsCmd.toString(), newContext, this, channel, sender));
@@ -333,7 +337,7 @@ public class Bot extends PircBot {
 	 */
 	public boolean isAdmin() {
 		if (adminList.containsKey(sender)) {
-			log("Calling user is admin!");
+			log.info("Calling user is admin!");
 			return true;
 		} else {
 			return false;
@@ -348,28 +352,6 @@ public class Bot extends PircBot {
 		String[] channels = getChannels();
 		for (String curChan : channels) {
 			sendMessage(curChan, msg);
-		}
-	}
-
-	/**
-	 * Bot error stream wrapper. Passed to stackTrace dumps so errors can be prefixed
-	 */
-	class BotErrorStream extends FilterOutputStream {
-
-		public BotErrorStream(ByteArrayOutputStream stream) {
-			super(stream);
-		}
-
-		@Override
-		public void write(byte b[], int off, int len) throws IOException {
-			String aString = new String(b, off, len).trim();
-
-			//don't print empty strings
-			if (aString.length() == 0) {
-				return;
-			}
-
-			logErr(aString.toString());
 		}
 	}
 }
