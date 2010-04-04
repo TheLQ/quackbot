@@ -21,6 +21,7 @@ import javax.script.ScriptEngine;
 import javax.script.SimpleScriptContext;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  *  Load (or reload) all CMD classes
@@ -38,6 +39,7 @@ public class loadCMDs implements Runnable {
 	TreeMap<String, TreeMap<String, Object>> servicesBack;
 	public TreeSet<String> utilsBack;
 	String curFile = "";
+	Logger log = Logger.getLogger(loadCMDs.class);
 
 	/**
 	 * Make known Controller instance
@@ -64,14 +66,14 @@ public class loadCMDs implements Runnable {
 			ctrl.threadPool_js = Executors.newCachedThreadPool();
 			File cmddir = new File("js");
 			if (!cmddir.exists()) {
-				System.out.println("CMD directory not found! CD: " + new File(".").getAbsolutePath());
+				log.fatal("CMD directory not found! CD: " + new File(".").getAbsolutePath());
 				return;
 			}
 
 			//Call recursive file method
 			traverse(cmddir);
 
-			System.out.println("cmdBack len: " + cmdBack.size() + " | cmds len: " + ctrl.cmds.size());
+			log.debug("cmdBack len: " + cmdBack.size() + " | cmds len: " + ctrl.cmds.size());
 
 			//Get deleted CMDs
 			Iterator cmdItr = cmdBack.keySet().iterator();
@@ -88,24 +90,22 @@ public class loadCMDs implements Runnable {
 
 			//Notify everyone of new change
 			if ((newStr + updateStr + delStr).equals("")) {
-				System.out.println("Reload changed nothing!");
+				log.info("Reload changed nothing!");
 				return;
 			}
 			ctrl.sendGlobalMessage("Bot commands reloaded! " + newStr + " " + updateStr + " " + delStr);
 
 			//Start services
 			Iterator servItr = ctrl.services.entrySet().iterator();
-			while(servItr.hasNext()) {
-				TreeMap<String,Object> servVal = ((Map.Entry<String,TreeMap<String,Object>>)servItr.next()).getValue();
-				System.out.println("Excecuting service");
-				ctrl.threadPool_js.execute(new threadCmdRun("invoke();",(ScriptContext)servVal.get("context"),ctrl));
+			while (servItr.hasNext()) {
+				TreeMap<String, Object> servVal = ((Map.Entry<String, TreeMap<String, Object>>) servItr.next()).getValue();
+				log.debug("Excecuting service");
+				ctrl.threadPool_js.execute(new threadCmdRun("invoke();", (ScriptContext) servVal.get("context"), ctrl));
 			}
 
 		} catch (Exception e) {
-			System.err.println("Error in reload, reverting to cmd backup");
-			System.err.println("Last file: " + this.curFile);
 			ctrl.cmds = cmdBack;
-			e.printStackTrace();
+			log.error("Error in reload, reverting to cmd backup. Last file: " + this.curFile, e);
 		}
 		return;
 	}
@@ -163,8 +163,9 @@ public class loadCMDs implements Runnable {
 			updateChanges(servicesBack, name, contents);
 		} else if (isUtil) {
 			//Customized search due to theis being a TreeSet
-			if (!utilsBack.contains(fileContents.toString()))
+			if (!utilsBack.contains(fileContents.toString())) {
 				updatedCMDs.add(name);
+			}
 		} else {
 			updateChanges(cmdBack, name, contents);
 		}
@@ -174,8 +175,9 @@ public class loadCMDs implements Runnable {
 		cmdinfo.put("help", (String) engineScope.get("help"));
 		cmdinfo.put("admin", isAdmin);
 		cmdinfo.put("ReqArg", ((engineScope.get("ReqArg") == null) ? false : true));
-		if(!isListener && !isService && !isUtil)
-			cmdinfo.put("param", (int)Double.parseDouble(engineScope.get("param").toString()));
+		if (!isListener && !isService && !isUtil) {
+			cmdinfo.put("param", (int) Double.parseDouble(engineScope.get("param").toString()));
+		}
 		cmdinfo.put("ignore", isIgnore);
 		cmdinfo.put("context", newContext);
 		cmdinfo.put("scope", engineScope);
@@ -193,7 +195,7 @@ public class loadCMDs implements Runnable {
 			ctrl.cmds.put(name, cmdinfo);
 			suffix = "cmd";
 		}
-		System.out.println("New CMD: " + name + " | Type: " + suffix);
+		log.debug("New CMD: " + name + " | Type: " + suffix);
 	}
 
 	/**
