@@ -11,6 +11,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
@@ -63,19 +64,18 @@ public class WriteOutput {
 				return;
 			}
 
+			Style msgStyle = doc.getStyle("Normal");
+			if(event.getLevel().isGreaterOrEqual(Level.WARN))
+			    msgStyle = doc.getStyle("Error");
+
 			doc.insertString(doc.getLength(), "\n", doc.getStyle("Normal"));
 			doc.insertString(doc.getLength(), "[" + dateFormatter.format(event.timeStamp) + "] ", doc.getStyle("Normal")); //time
 			//doc.insertString(doc.getLength(), "["+event.getThreadName()+"] ", doc.getStyle("Thread")); //thread name
 			doc.insertString(doc.getLength(), event.getLevel().toString() + " ", doc.getStyle("Level")); //Logging level
 			doc.insertString(doc.getLength(), event.getLoggerName() + " ", doc.getStyle("Class"));
-
-			if (address != null) {
+			if (address != null)
 				doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
-				String[] splitStr = StringUtils.split((String) event.getMessage(), " - ", 2);
-				doc.insertString(doc.getLength(), splitStr[1], doc.getStyle("Normal"));
-			} else {
-				doc.insertString(doc.getLength(), (String) event.getMessage(), doc.getStyle("Normal"));
-			}
+			doc.insertString(doc.getLength(), formatMsg(event, address), msgStyle);
 
 			pane.repaint();
 			pane.revalidate();
@@ -83,6 +83,13 @@ public class WriteOutput {
 		} catch (Exception e) {
 			e.printStackTrace(); //Don't use log.error because this is how stuff is outputed
 		}
+	}
+
+	public String formatMsg(LoggingEvent event, String address) {
+	    String[] throwArr = event.getThrowableStrRep();
+	    if(throwArr == null)
+		return event.getMessage().toString();
+	    return StringUtils.join(throwArr," \n");
 	}
 }
 

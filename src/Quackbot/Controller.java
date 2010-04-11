@@ -5,10 +5,9 @@
  */
 package Quackbot;
 
-import Quackbot.info.Admin;
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,17 +20,6 @@ import java.util.concurrent.ExecutorService;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import javax.jcr.Session;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.SimpleCredentials;
-import org.apache.jackrabbit.core.TransientRepository;
-import org.apache.jackrabbit.ocm.manager.ObjectContentManager;
-import org.apache.jackrabbit.ocm.manager.impl.ObjectContentManagerImpl;
-import org.apache.jackrabbit.ocm.mapper.Mapper;
-import org.apache.jackrabbit.ocm.mapper.impl.annotation.AnnotationMapperImpl;
 import org.apache.log4j.Logger;
 
 /**
@@ -55,9 +43,6 @@ public class Controller {
 	public ExecutorService threadPool = Executors.newCachedThreadPool();
 	public ExecutorService threadPool_js = Executors.newCachedThreadPool();
 	public Main gui;
-	public Session JRSession = null;
-	public Node JRRoot = null;
-	public ObjectContentManager JRocm = null;
 	Logger log = Logger.getLogger(Controller.class);
 
 	/**
@@ -73,31 +58,11 @@ public class Controller {
 
 		//Connect to JackRabbit DB and join servers
 		try {
-			//Connect to server
-			log.info("Starting JackRabbit...");
-			JRSession = new TransientRepository().login(new SimpleCredentials("empty", "really??".toCharArray()));
-			log.info("JackRabbit started!");
-
-			//Setup variables
-			JRRoot = JRSession.getRootNode();
-			List<Class> classes = new ArrayList<Class>();
-			classes.add(Server.class);
-			classes.add(Channel.class);
-			classes.add(Admin.class);
-			Mapper mapper = new AnnotationMapperImpl(classes);
-			JRocm = new ObjectContentManagerImpl(JRSession, mapper);
-
-			//recursiveShow(JRSession.getRootNode());
-
-			// Retrieve server info and join them
-			NodeIterator node = JRRoot.getNode("servers").getNodes();
-			while (node.hasNext()) {
-				Node curNode = node.nextNode();
-				Server curServer = (Server) JRocm.getObject(curNode.getPath());
-				threadPool.execute(new botThread(curServer.getAddress(), curServer.getChannels()));
-			}
+		    threadPool.execute(new botThread("irc.freenode.net", Arrays.asList(new String[]{"#quackbot"})));
 		} catch (Exception e) {
-			log.fatal("Error in JackRabbit or IRC connection", e);
+		    e.printStackTrace();
+			//log.error("Error in JackRabbit or IRC connection", e);
+		    log.error(e,e);
 		}
 	}
 
@@ -116,7 +81,6 @@ public class Controller {
 		threadPool_js = null;
 		threadPool.shutdownNow();
 		threadPool = null;
-		JRSession.logout();
 		log.info("Killed all bots, threadPools, and JackRabbit connection");
 	}
 
@@ -125,17 +89,14 @@ public class Controller {
 		for (String chan : channels) {
 			newServ.addChannel(new Channel(chan));
 		}
-		newServ.setPath("/servers/" + address);
-		JRocm.insert(newServ);
-		JRocm.save();
-		threadPool.execute(new botThread(newServ.getAddress(), newServ.getChannels()));
+		//TODO: Add to database
+		threadPool.execute(new botThread(newServ.getAddress(), null));
 		log.info("Added server " + newServ.getAddress());
 	}
 
 	public void removeServer(String address) {
 		try {
-			JRRoot.getNode("server/" + address).remove();
-			JRSession.save();
+		    //TODO
 		} catch (Exception e) {
 			log.error("Can't remove server", e);
 		}
@@ -170,14 +131,14 @@ public class Controller {
 	public class botThread implements Runnable {
 
 		String server = null;
-		List<Channel> channels = null;
+		List<String> channels = null;
 
 		/**
 		 * Define some simple variables
 		 * @param server
 		 * @param channels
 		 */
-		public botThread(String server, List<Channel> channels) {
+		public botThread(String server, List<String> channels) {
 			this.server = server;
 			this.channels = channels;
 		}
@@ -201,38 +162,6 @@ public class Controller {
 			} catch (Exception ex) {
 				log.error("Can't make bot connect to server", ex);
 			}
-		}
-	}
-
-	/**
-	 * DEBUG: Displays all paths that exist in database
-	 * @param node
-	 */
-	public void recursiveShow(Node node) {
-		try {
-			String nodePath = node.getPath();
-			if (nodePath.indexOf("jcr:") != -1) {
-				return;
-			}
-			if (node.hasNodes()) {
-				NodeIterator nodeItr = node.getNodes();
-				while (nodeItr.hasNext()) {
-					recursiveShow(nodeItr.nextNode());
-				}
-			}
-			if (node.hasProperties()) {
-				PropertyIterator propItr = node.getProperties();
-				while (propItr.hasNext()) {
-					Property curProp = propItr.nextProperty();
-					if (curProp.getPath().indexOf("jcr:") != -1) {
-						continue;
-					}
-					log.debug(curProp.getPath() + " = " + curProp.getString());
-				}
-
-			}
-		} catch (Exception e) {
-			log.warn("Error in recursive show", e);
 		}
 	}
 }
