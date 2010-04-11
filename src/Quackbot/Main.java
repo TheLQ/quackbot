@@ -13,8 +13,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
-
 import java.util.TimeZone;
 import javax.swing.BorderFactory;
 
@@ -25,10 +23,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
+import org.apache.log4j.ConsoleAppender;
+
 import org.apache.log4j.Level;
-
-
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 
 /**
@@ -57,8 +56,9 @@ public class Main extends JFrame implements ActionListener {
 
 		//Add appenders to root logger
 		Logger rootLog = Logger.getRootLogger();
-		rootLog.setLevel(Level.DEBUG);
+		rootLog.setLevel(Level.TRACE);
 		rootLog.addAppender(new ControlAppender(this));
+		//rootLog.addAppender(new ConsoleAppender(new PatternLayout()));
 		
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 

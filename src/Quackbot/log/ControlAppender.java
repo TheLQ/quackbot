@@ -23,7 +23,7 @@ public class ControlAppender extends AppenderSkeleton {
 
 	public void append(LoggingEvent event) {
 		//First make sure that this is comming from the right class
-		String fullClass = event.getLocationInformation().getClassName();
+		/*String fullClass = event.getLocationInformation().getClassName();
 		boolean found = false;
 		for (String search : BLOCK) {
 			if (fullClass.indexOf(search) != -1) {
@@ -33,20 +33,20 @@ public class ControlAppender extends AppenderSkeleton {
 		}
 		if (found) {
 			return; //Ignore, this only for bots
-		}
+		}*/
 
 		//If this is JackRabbit, ignore debug messages
-		if (fullClass.indexOf("org.apache.jackrabbit") != -1 || fullClass.indexOf("org.apache.commons.beanutils") != -1) {
+		/*if (fullClass.indexOf("org.apache.jackrabbit") != -1 || fullClass.indexOf("org.apache.commons.beanutils") != -1) {
 			if (event.getLevel().equals(Level.DEBUG)) {
 				return;
 			}
-		}
-
+		}*/
+		System.out.println(event.getMessage());
 		out.write(event);
 	}
 
 	public boolean requiresLayout() {
-		return true;
+		return false;
 	}
 
 	public void close() {
