@@ -64,9 +64,14 @@ public class WriteOutput {
 				return;
 			}
 
-			Style msgStyle = doc.getStyle("Normal");
-			if(event.getLevel().isGreaterOrEqual(Level.WARN))
+			Style msgStyle;
+			String message = event.getMessage().toString();
+			if(event.getLevel().isGreaterOrEqual(Level.WARN) || message.substring(0, 3).equals("###"))
 			    msgStyle = doc.getStyle("Error");
+			else if(message.substring(0, 3).equals(">>>"))
+			    msgStyle = doc.getStyle("BotSend");
+			else
+			    msgStyle = doc.getStyle("Normal");
 
 			doc.insertString(doc.getLength(), "\n", doc.getStyle("Normal"));
 			doc.insertString(doc.getLength(), "[" + dateFormatter.format(event.timeStamp) + "] ", doc.getStyle("Normal")); //time

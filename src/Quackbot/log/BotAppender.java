@@ -28,19 +28,6 @@ public class BotAppender extends AppenderSkeleton {
 	}
 
 	public void append(LoggingEvent event) {
-		//First make sure that this is comming from the right class
-		/*String fullClass = event.getLocationInformation().getClassName();
-		boolean found = false;
-		for (String search : APPROVED) {
-			if (fullClass.indexOf(search) != -1) {
-				found = true;
-				break;
-			}
-		}
-		if (found == false) {
-			return; //Ignore, this isn't approved
-		}*/
-		System.out.println(event.getMessage());
 		out.write(event, address);
 	}
 

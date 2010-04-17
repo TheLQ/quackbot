@@ -5,13 +5,13 @@
 var listener = true;
 
 function invoke() {
-	if(channel=="#lyokofreak-viewing-party" && sender != qb.getNick()) {
+	if(msgInfo.channel=="#lyokofreak-viewing-party" && !msgInfo.isBot()) {
 		var prefix = "ustream";
 		var msg_suffix = "";
 		if(sender.substr(0,prefix.length)==prefix) {
 			msg_suffix = " (please change nick with /nick yournickhere)"
 		}
-		qb.sendMessage(channel,"User "+sender+" has joined "+channel+msg_suffix);
+        qb.sendMsg(msgInfo,"Welcome to the LyokoFreak Viewing Party"+msg_suffix);
 	/*	var netPkgs = new JavaImporter(java.io,java.net);
 		with (netPkgs) {
 			var url = "http://localhost:8082/current.html";
