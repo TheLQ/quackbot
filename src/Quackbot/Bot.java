@@ -46,7 +46,7 @@ public class Bot extends PircBot {
     final HashSet<String> PREFIXES = new HashSet<String>();
     public TreeMap<String, String> adminList;
     public TreeMap<String, String> chanLockList;
-    public Controller mainInst = null;
+    public Controller mainInst = InstanceTracker.getCtrlInst();
     public Server serverDB;
     public Logger log = Logger.getLogger(Bot.class);
     public TreeMap<String, CMDSuper> javacmds = new TreeMap<String, CMDSuper>();
@@ -55,10 +55,9 @@ public class Bot extends PircBot {
      * Init bot by setting all information
      * @param mainInstance   The controller instance used to spawn this bot
      */
-    public Bot(Controller mainInstance, Server serverDB) {
-	this.mainInst = mainInstance;
+    public Bot(Server serverDB) {
 	this.serverDB = serverDB;
-	log.addAppender(new BotAppender(mainInstance.gui, serverDB.getAddress()));
+	log.addAppender(new BotAppender(serverDB.getAddress()));
 
 	//Init channel block list
 	chanLockList = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);

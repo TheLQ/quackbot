@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
  */
 public class loadCMDs implements Runnable {
 
-	Controller ctrl = null;
+	Controller ctrl = InstanceTracker.getCtrlInst();
 	TreeSet<String> newCMDs = new TreeSet<String>();
 	TreeSet<String> updatedCMDs = new TreeSet<String>();
 	TreeSet<String> deletedCMDs = new TreeSet<String>();
@@ -40,14 +40,6 @@ public class loadCMDs implements Runnable {
 	public TreeSet<String> utilsBack;
 	String curFile = "";
 	Logger log = Logger.getLogger(loadCMDs.class);
-
-	/**
-	 * Make known Controller instance
-	 * @param ctrl  Controller instance
-	 */
-	public loadCMDs(Controller ctrl) {
-		this.ctrl = ctrl;
-	}
 
 	/**
 	 * Initate recursive scan in seperate thread. Reports to bots any updates
@@ -64,7 +56,7 @@ public class loadCMDs implements Runnable {
 			ctrl.utils.clear();
 			ctrl.threadPool_js.shutdownNow();
 			ctrl.threadPool_js = Executors.newCachedThreadPool();
-			File cmddir = new File("js");
+			File cmddir = new File("plugins");
 			if (!cmddir.exists()) {
 				log.fatal("CMD directory not found! CD: " + new File(".").getAbsolutePath());
 				return;

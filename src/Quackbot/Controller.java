@@ -5,7 +5,6 @@
  */
 package Quackbot;
 
-import Quackbot.info.Channel;
 import Quackbot.info.Server;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +33,6 @@ import org.apache.log4j.Logger;
  * @author Lord.Quackstar
  */
 public class Controller {
-
     public TreeMap<String, TreeMap<String, Object>> cmds = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
     public TreeMap<String, TreeMap<String, Object>> listeners = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
     public TreeMap<String, TreeMap<String, Object>> services = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
@@ -43,7 +41,7 @@ public class Controller {
     public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
     public ExecutorService threadPool = Executors.newCachedThreadPool();
     public ExecutorService threadPool_js = Executors.newCachedThreadPool();
-    public Main gui;
+    public Main gui = InstanceTracker.getMainInst();
     DatabaseManager dbm = null;
     Logger log = Logger.getLogger(Controller.class);
 
@@ -51,14 +49,14 @@ public class Controller {
      * Start of bot working. Loads CMDs and starts Bots
      * @param gui   Current GUI
      */
-    public Controller(Main gui) {
-	//Add GUI to instance vars
-	this.gui = gui;
+    public Controller() {
+	InstanceTracker.setCtrlInst(this);
 
 	//Load current CMD classes
 	reloadCMDs();
 
 	//Connect to database
+	DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
 	dbm = new DatabaseManager("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://localhost/quackbot", null, null, "root", null);
 
 	//Get all servers and pass to botThread generator
@@ -72,7 +70,7 @@ public class Controller {
 	    log.error("Could not connect to server", e);
 	}
     }
-
+    
     /**
      * Makes all bots quit servers
      */
@@ -129,7 +127,7 @@ public class Controller {
 	threadPool_js = Executors.newCachedThreadPool();
 	threadPool.shutdownNow();
 	threadPool = Executors.newCachedThreadPool();
-	threadPool.execute(new loadCMDs(this));
+	threadPool.execute(new loadCMDs());
     }
 
     /**
@@ -154,7 +152,7 @@ public class Controller {
 	public void run() {
 	    try {
 		log.info("Initiating IRC connection");
-		Bot qb = new Bot(Controller.this,server);
+		Bot qb = new Bot(server);
 		qb.setVerbose(true);
 		bots.add(qb);
 	    } catch (Exception ex) {

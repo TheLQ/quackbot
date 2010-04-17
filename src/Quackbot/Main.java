@@ -37,9 +37,7 @@ import org.apache.log4j.PatternLayout;
  * @author Lord.Quackstar
  */
 public class Main extends JFrame implements ActionListener {
-
 	public JTextPane BerrorLog,CerrorLog;
-	public Controller ctrl = null;
 	Logger log = Logger.getLogger(Main.class);
 
 	/**
@@ -47,6 +45,7 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	public Main() {
 		/***Pre init, setup error log**/
+		InstanceTracker.setMainInst(this);
 		BerrorLog = new JTextPane();
 		BerrorLog.setEditable(false);
 		BerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -57,7 +56,7 @@ public class Main extends JFrame implements ActionListener {
 		//Add appenders to root logger
 		Logger rootLog = Logger.getRootLogger();
 		rootLog.setLevel(Level.TRACE);
-		rootLog.addAppender(new ControlAppender(this));
+		rootLog.addAppender(new ControlAppender());
 		
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
@@ -101,12 +100,13 @@ public class Main extends JFrame implements ActionListener {
 		new Thread(new Runnable() {
 			public void run() {
 				log.info("Initialiing controller");
-				Main.this.ctrl = new Controller(Main.this);
+				new Controller();
 			}
 		}).start();
 
 		mainSplit.setDividerLocation(0.50);
 	}
+
 
 	/**
 	 * Button action listener, controls for Controller
@@ -115,20 +115,8 @@ public class Main extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
 
-		if (cmd.equals("Stop")) {
-			ctrl.stopAll();
-			ctrl = null;
-		} else if (cmd.equals("Start")) {
-			if (ctrl != null) {
-				int num = JOptionPane.showConfirmDialog(this, "Controller is not null! /n Are you sure you want to create another instance?", "Warning!", JOptionPane.YES_NO_OPTION);
-				if (num == JOptionPane.NO_OPTION) {
-					return;
-				}
-			}
-			ctrl = new Controller(this);
-		} else if (cmd.equals("Reload")) {
-			ctrl.threadPool.execute(new loadCMDs(ctrl));
-		}
+		if (cmd.equals("Reload"))
+			InstanceTracker.getCtrlInst().threadPool.execute(new loadCMDs());
 	}
 
 	/**
