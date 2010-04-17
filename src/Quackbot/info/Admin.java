@@ -1,51 +1,81 @@
 package Quackbot.info;
 
-import org.apache.jackrabbit.ocm.mapper.impl.annotation.Field;
-import org.apache.jackrabbit.ocm.mapper.impl.annotation.Node;
+import jpersist.Entity;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
  * @author admins
  */
-@Node
-public class Admin {
-	@Field(path = true) private String path;
-	@Field              private String name;
+public class Admin extends Entity {
 
-	public Admin(String name) {
-		this.name = name;
-	}
+	private static final long serialVersionUID = 100L;
+	private int adminId, channelID, serverID;
+	private String user;
 
-	/**
-	 * Empty constructor
-	 */
 	public Admin() {}
 
-	/**
-	 * @return the path
-	 */
-	public String getPath() {
-		return path;
+	public Admin(String name) {
+	    this.user = name;
 	}
 
-	/**
-	 * @param path the path to set
-	 */
-	public void setPath(String path) {
-		this.path = path;
-	}
+    /**
+     * @return the serverID
+     */
+    public int getServerID() {
+	return serverID;
+    }
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * @param serverID the serverID to set
+     */
+    public void setServerID(int serverID) {
+	this.serverID = serverID;
+    }
 
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * @return the channelID
+     */
+    public Integer getChannelID() {
+	return channelID;
+    }
+
+    /**
+     * @param channelID the channelID to set
+     */
+    public void setChannelID(Integer channelID) {
+	this.channelID = channelID;
+    }
+
+    /**
+     * @return the user
+     */
+    public String getUser() {
+	return user;
+    }
+
+    /**
+     * @param user the user to set
+     */
+    public void setUser(String user) {
+	this.user = user;
+    }
+
+    /**
+     * @return the adminId
+     */
+    public int getAdminId() {
+	return adminId;
+    }
+
+    /**
+     * @param adminId the adminId to set
+     */
+    public void setAdminId(int adminId) {
+	this.adminId = adminId;
+    }
+
+    public String toString() {
+	return StringUtils.join(new Object[]{adminId,channelID,serverID,user},", ");
+    }
 }

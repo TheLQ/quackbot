@@ -5,6 +5,7 @@ package Quackbot.info;
  * @author lordquackstar
  */
 public class UserMessage {
+	private static final long serialVersionUID = 100L;
 	public String channel;
 	public String sender;
 	public String login;
@@ -23,6 +24,10 @@ public class UserMessage {
 
 
 	public UserMessage() {}
+
+	public boolean isBot(String username) {
+	    return sender.equalsIgnoreCase(username);
+	}
 
 	/**
 	 * @return the channel

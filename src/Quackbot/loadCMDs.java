@@ -96,9 +96,9 @@ public class loadCMDs implements Runnable {
 			ctrl.sendGlobalMessage("Bot commands reloaded! " + newStr + " " + updateStr + " " + delStr);
 
 			//Start services
-			Iterator servItr = ctrl.services.entrySet().iterator();
+			Iterator<Map.Entry<String, TreeMap<String, Object>>> servItr = ctrl.services.entrySet().iterator();
 			while (servItr.hasNext()) {
-				TreeMap<String, Object> servVal = ((Map.Entry<String, TreeMap<String, Object>>) servItr.next()).getValue();
+				TreeMap<String, Object> servVal = new TreeMap<String, Object>(servItr.next().getValue());
 				log.debug("Excecuting service");
 				ctrl.threadPool_js.execute(new threadCmdRun("invoke();", (ScriptContext) servVal.get("context"), ctrl));
 			}

@@ -58,7 +58,6 @@ public class Main extends JFrame implements ActionListener {
 		Logger rootLog = Logger.getRootLogger();
 		rootLog.setLevel(Level.TRACE);
 		rootLog.addAppender(new ControlAppender(this));
-		//rootLog.addAppender(new ConsoleAppender(new PatternLayout()));
 		
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
@@ -138,7 +137,6 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-
 			public void run() {
 				new Main();
 			}

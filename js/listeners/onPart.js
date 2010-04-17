@@ -5,7 +5,7 @@
 var listener = true;
 
 function invoke() {
-	if(channel=="#lyokofreak-viewing-party" && sender != qb.getNick()) {
-		qb.sendMessage(channel,"User "+sender+" has parted "+channel);
+	if(msgInfo.channel=="#lyokofreak-viewing-party" && !msgInfo.isBot()) {
+		qb.sendMsg(new BotMessage("#lyokofreak-viewing-party","User "+msgInfo.sender+" has parted"));
 	}
 }
