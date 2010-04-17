@@ -4,10 +4,8 @@
  */
 package Quackbot.log;
 
-import Quackbot.Main;
-import org.apache.commons.lang.StringUtils;
+import Quackbot.InstanceTracker;
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
@@ -17,13 +15,11 @@ import org.apache.log4j.spi.LoggingEvent;
 public class BotAppender extends AppenderSkeleton {
 
 	String[] APPROVED = new String[]{"Bot", "org.jibble"};
-	Main mainInst;
 	WriteOutput out;
 	String address;
 
-	public BotAppender(Main mainInst,String address) {
-		this.mainInst = mainInst;
-		this.out = new WriteOutput(mainInst.BerrorLog);
+	public BotAppender(String address) {
+		this.out = new WriteOutput(InstanceTracker.getMainInst().BerrorLog);
 		this.address = address;
 	}
 

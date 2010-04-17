@@ -1,6 +1,6 @@
 package Quackbot.log;
 
-import Quackbot.Main;
+import Quackbot.InstanceTracker;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -11,18 +11,15 @@ import org.apache.log4j.spi.LoggingEvent;
 public class ControlAppender extends AppenderSkeleton {
 
 	String[] BLOCK = new String[]{"Bot", "org.jibble"};
-	Main mainInst;
 	WriteOutput out;
 
-	public ControlAppender(Main mainInst) {
-		this.mainInst = mainInst;
-		out = new WriteOutput(mainInst.CerrorLog);
+	public ControlAppender() {
+		out = new WriteOutput(InstanceTracker.getMainInst().CerrorLog);
 	}
 
 	public void append(LoggingEvent event) {
 		//First make sure that this is comming from the right class
 		String fullClass = event.getLocationInformation().getClassName();
-		boolean found = false;
 		for (String search : BLOCK)
 			if (fullClass.indexOf(search) != -1)
 				return;
