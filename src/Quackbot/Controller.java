@@ -5,11 +5,15 @@
  */
 package Quackbot;
 
+import Quackbot.info.JSCmdInfo;
 import Quackbot.info.Server;
+import Quackbot.plugins.java.JavaTest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -33,10 +37,12 @@ import org.apache.log4j.Logger;
  * @author Lord.Quackstar
  */
 public class Controller {
-    public TreeMap<String, TreeMap<String, Object>> cmds = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
-    public TreeMap<String, TreeMap<String, Object>> listeners = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
-    public TreeMap<String, TreeMap<String, Object>> services = new TreeMap<String, TreeMap<String, Object>>((String.CASE_INSENSITIVE_ORDER));
-    public TreeSet<String> utils = new TreeSet<String>();
+    public TreeMap<String,JSCmdInfo> JSCmds = new TreeMap<String,JSCmdInfo>();
+    public TreeSet<String> JSutils = new TreeSet<String>();
+    public final List<String> javaPlugins = Arrays.asList(
+	    JavaTest.class.getName()
+	    );
+
     public HashSet<Bot> bots = new HashSet<Bot>();
     public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
     public ExecutorService threadPool = Executors.newCachedThreadPool();
