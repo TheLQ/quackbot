@@ -16,6 +16,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.AppenderSkeleton;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggingEvent;
@@ -38,12 +39,17 @@ public class WriteOutput {
 	 * Date formatter, used to get same date format
 	 */
 	SimpleDateFormat dateFormatter;
+	/**
+	 * Appender that is using this
+	 */
+	AppenderSkeleton appender;
 
 	/**
 	 * Simple constructor to init
 	 * @param appendTo JTextPane to append to
 	 */
-	public WriteOutput(JTextPane appendTo) {
+	public WriteOutput(JTextPane appendTo,AppenderSkeleton appender) {
+		this.appender = appender;
 		this.pane = appendTo;
 		this.doc = appendTo.getStyledDocument();
 		this.dateFormatter = new SimpleDateFormat("MM/dd/yyy hh:mm:ss a");
@@ -112,7 +118,7 @@ public class WriteOutput {
 		String[] throwArr = event.getThrowableStrRep();
 		if (throwArr == null)
 			return event.getMessage().toString();
-		return StringUtils.join(throwArr, " \n");
+		return event.getMessage().toString()+"\n"+StringUtils.join(throwArr, " \n");
 	}
 }
 

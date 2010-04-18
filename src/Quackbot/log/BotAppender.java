@@ -31,7 +31,7 @@ public class BotAppender extends AppenderSkeleton {
 	 * @param address Address of server
 	 */
 	public BotAppender(String address) {
-		this.out = new WriteOutput(InstanceTracker.getMainInst().BerrorLog);
+		this.out = new WriteOutput(InstanceTracker.getMainInst().BerrorLog,this);
 		this.address = address;
 	}
 

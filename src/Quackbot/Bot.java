@@ -176,7 +176,8 @@ public class Bot extends PircBot {
 	 */
 	@Override
 	public void onJoin(String channel, String sender, String login, String hostname) {
-		runListener("onJoin", new UserMessage(channel, sender, login, hostname, null));
+
+		runListener("onJoin", new UserMessage(channel, sender, login, hostname, null,"onJoin"));
 
 		//If this is us, add to server info
 		if (sender.equalsIgnoreCase(getNick())) {
@@ -195,7 +196,7 @@ public class Bot extends PircBot {
 	 */
 	@Override
 	public void onPart(String channel, String sender, String login, String hostname) {
-		runListener("onPart", new UserMessage(channel, sender, login, hostname, null));
+		runListener("onPart", new UserMessage(channel, sender, login, hostname, null,"onPart"));
 
 		if (sender.equalsIgnoreCase(getNick())) {
 			//curServer.removeChannel(channel);
@@ -218,7 +219,7 @@ public class Bot extends PircBot {
 	 */
 	@Override
 	public void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
-		runListener("onQuit", new UserMessage(null, sourceNick, sourceLogin, sourceHostname, reason));
+		runListener("onQuit", new UserMessage(null, sourceNick, sourceLogin, sourceHostname, reason,"onQuit"));
 	}
 
 	/**

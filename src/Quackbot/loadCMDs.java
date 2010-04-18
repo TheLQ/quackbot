@@ -82,8 +82,18 @@ public class loadCMDs implements Runnable {
 				return;
 			}
 
-			//Call recursive file method
+			//Call recursive file method, will parse and load all cmds
 			traverse(cmddir);
+
+			//Get one big combined string of util stuff
+			StringBuilder utilSB = new StringBuilder();
+			for(String curUtil : JSUtils)
+				utilSB.append(curUtil);
+
+			//Add Utils to ALL commands
+			Set<Map.Entry<String,JSCmdInfo>> cmdSet = ctrl.JSplugins.entrySet();
+			for(Map.Entry<String,JSCmdInfo> curCmd : cmdSet)
+				new ScriptEngineManager().getEngineByName("JavaScript").eval(utilSB.toString(), curCmd.getValue().getContext());
 
 			log.debug("cmdBack len: " + cmdBack.size() + " | cmds len: " + ctrl.JSplugins.size());
 

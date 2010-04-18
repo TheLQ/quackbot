@@ -2,20 +2,7 @@ Online site (low priority)
 -Current stats - Joined servers/channels, running time
 -Log all messages, be filterable
 
-Investigate logJ4
-
-Add cmdTalk
-
-Add basic manual countdown (args in minuites)
-
 Add Triggered countdown
 -Addcountdown uses current spawned thread and adds id to cmdTalk
 -timeremaining displays time remaining from ID. If no id given caculates it to closest avalible countdown
 -killcountdown kills countdown
-
-Back with NoSQL db (JackRabbit)
--Holds cmdTalk contents
--Holds log (low priority)
--Holds current admins
-
-Convert logger to row based

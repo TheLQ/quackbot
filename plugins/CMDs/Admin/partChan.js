@@ -8,12 +8,12 @@ function invoke(newChan) {
 		//Part current channel
 		qb.partChannel(channel);
 		qb.log("Parted channel "+channel);
-		qb.sendMessage(channel,sender+": Parted channel "+channel);
+		qb.sendMsg(new BotMessage(msgInfo,"Parted channel "+channel));
 	}
 	else {
 		//Part given channel
 		qb.partChannel(newChan);
 		qb.log("Parted channel "+newChan);
-		qb.sendMessage(channel,sender+": Parted channel "+newChan);
+		qb.sendMsg(new BotMessage(msgInfo,"Parted channel "+newChan));
 	}
 }

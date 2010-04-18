@@ -4,6 +4,6 @@ var admin = true;
 
 importPackage(Packages.Quackbot);
 
-function invoke(newChan) {
+function invoke() {
 	qb.mainInst.reloadCMDs();
 }

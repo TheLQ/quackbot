@@ -4,5 +4,5 @@ var admin = true;
 
 function invoke() {
 	qb.chanLockList.put(channel,"");
-	qb.sendMessage(channel,"Bot has been locked for this channel");
+	qb.sendMsg(new BotMessage(msgInfo,"Bot has been locked for this channel"));
 }

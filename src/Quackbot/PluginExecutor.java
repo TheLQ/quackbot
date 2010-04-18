@@ -84,7 +84,7 @@ public class PluginExecutor implements Runnable {
 	 * This simply finds what the command is and sends it to the appropiate parser
 	 */
 	public void run() {
-		log.warn("Running Plugin Excecutor for " + command);
+		log.info("Running Plugin Excecutor for " + command);
 		try {
 			String javaResult = findCI(ctrl.javaPlugins, "Quackbot.plugins.java." + command);
 			if (ctrl.JSplugins.keySet().contains(command))
@@ -136,7 +136,7 @@ public class PluginExecutor implements Runnable {
 			throw new NumArgException(user_args, method_args);
 
 		//All requirements are met, excecute method
-		log.info("All tests passed, running method");
+		log.info("All tests passed, running method "+command);
 		ScriptContext newContext = (ScriptContext) cmdInfo.getContext();
 		Bindings engineScope = (Bindings) cmdInfo.getScope();
 		if (qb != null) {
