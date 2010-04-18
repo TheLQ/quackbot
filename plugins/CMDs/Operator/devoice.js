@@ -7,9 +7,9 @@ function invoke(reqUser) {
 	Thread.sleep(500); //sleep for 500 ms
 	var userObj = qb.getUser(channel,reqUser);
 	if(userObj === null)
-		qb.sendMessage(channel,reqUser+" does not exist");
+		qb.sendMsg(new BotMessage(msgInfo,reqUser+" does not exist"));
 	else if(userObj.hasVoice()==false)
-		qb.sendMessage(channel,reqUser+" is no longer voiced");
+		qb.sendMsg(new BotMessage(msgInfo,reqUser+" is no longer voiced"));
 	else
-		qb.sendMessage(channel,"Failed to devoice "+reqUser+" (bot not an op?)");
+		qb.sendMsg(new BotMessage(msgInfo,"Failed to devoice "+reqUser+" (bot not an op?)"));
 }

@@ -6,12 +6,12 @@ function invoke(user,timeMin) {
 	var timeMs = timeMin*60000;
 	var hostmask = "user!*@*"
 	qb.ban(channel,hostmask);
-	qb.sendMessage(channel,user+": You have been muted for "+timeMin);
+	qb.sendMsg(new BotMessage(msgInfo,user+": You have been muted for "+timeMin));
 	try {
 		log("Sleeping");
 		Thread.sleep(timeMs);
 		qb.unBan(channel,hostmask);
-		qb.sendMessage(channel,user+" has been unmuted");
+		qb.sendMsg(new BotMessage(msgInfo,user+" has been unmuted"));
 	}
 	catch(err) {
 		println("ERROR "+err);

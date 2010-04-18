@@ -18,10 +18,10 @@ function webTalk(url) {
 				allLine = allLine+line;
 			rd.close();
 
-			println("Done visiting url");
+			log.debug("Done visiting url");
 			return  allLine;
 		} catch (err) {
-			println("ERROR "+err);
+			log.error("ERROR "+err);
 			if(err.toString().search("Connection refused: connect") != -1) {
 				return null;
 			}

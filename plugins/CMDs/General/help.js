@@ -18,15 +18,15 @@ function invoke(command) {
 		}
     	
 		//Send to user
-		qb.sendMessage(channel, sender + ": Possible commands: "+StringUtils.join(cmdList.toArray(),", "));
+		qb.sendMsg(new BotMessage(msgInfo,"Possible commands: "+StringUtils.join(cmdList.toArray(),", ")));
 	}
 	else {
 		if(!qb.methodExists(command))
 			return;
 		var cmdInfo = qb.mainInst.cmds.get(command);
 		if(cmdInfo.get("admin")==true)
-			qb.sendMessage(channel, sender + ": Admin only");
+			qb.sendMsg(new BotMessage(msgInfo,"Admin only"));
 		else
-			qb.sendMessage(channel, sender + ": "+cmdInfo.get("help"));
+			qb.sendMsg(new BotMessage(msgInfo,cmdInfo.get("help")));
 	}
 }

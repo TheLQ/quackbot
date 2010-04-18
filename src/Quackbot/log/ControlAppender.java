@@ -24,7 +24,7 @@ public class ControlAppender extends AppenderSkeleton {
 	 * Inits appender
 	 */
 	public ControlAppender() {
-		out = new WriteOutput(InstanceTracker.getMainInst().CerrorLog);
+		out = new WriteOutput(InstanceTracker.getMainInst().CerrorLog,this);
 	}
 
 	public void append(LoggingEvent event) {

@@ -4,5 +4,5 @@ var admin = true;
 
 function invoke() {
 	qb.setMode(channel,"-mnGUf");
-	qb.sendMessage(channel,"Removed all modes except t");
+	qb.sendMessage(new BotMessage(channel,"Removed all modes except t"));
 }

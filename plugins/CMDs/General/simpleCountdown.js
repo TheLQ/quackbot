@@ -13,7 +13,7 @@ function invoke(seconds) {
 	try{
 		recalculate();
 		while(msRemain > 60000) {
-			qb.sendMessage(channel,timeRemaining(futureMs)+" remaining! (min countdows)");
+			qb.sendMsg(new BotMessage(msgInfo,timeRemaining(futureMs)+" remaining! (min countdows)"));
 			if(closestMin < 900)
 				continue;
 			qb.log("sleeping for "+closestMin+" | msremain: "+msRemain)
@@ -22,28 +22,28 @@ function invoke(seconds) {
 		}
 
 		//Now at 1 min
-		qb.sendMessage(channel,"1 minuite remaining! (hard coded)");
+		qb.sendMsg(new BotMessage(msgInfo,"1 minuite remaining! (hard coded)"));
 
 		//Wait for 30 sec
 		Thread.sleep(30000)
-		qb.sendMessage(channel,"30 seconds remaining! (hard coded)");
+		qb.sendMsg(new BotMessage(msgInfo,"30 seconds remaining! (hard coded)"));
 
 		//Wait for 20 sec
 		Thread.sleep(20000)
-		qb.sendMessage(channel,"20 seconds remaining! (hard coded)");
+		qb.sendMsg(new BotMessage(msgInfo,"20 seconds remaining! (hard coded)"));
 
 		//Wait for 10 sec
 		Thread.sleep(30000)
-		qb.sendMessage(channel,"10 seconds remaining! (hard coded)");
+		qb.sendMsg(new BotMessage(msgInfo,"10 seconds remaining! (hard coded)"));
 
 		//Wait for 5 sec
 		Thread.sleep(5000)
 		for(var i=5;i>0;i--) {
-			qb.sendMessage(channel,i+" seconds remaining! (hard coded)");
+			qb.sendMsg(new BotMessage(msgInfo,i+" seconds remaining! (hard coded)"));
 			Thread.sleep(1000);
 		}
 
-		qb.sendMessage(channel,"Whoo, end!!");
+		qb.sendMsg(new BotMessage(msgInfo,"Whoo, end!!"));
 	}
 	catch(err) {
 		println("ERROR "+err);

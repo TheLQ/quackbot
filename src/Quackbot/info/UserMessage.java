@@ -37,7 +37,7 @@ public class UserMessage {
 	private String hostname;
 	private String rawmsg;
 	private String command;
-	private String[] args;
+	private String[] args = new String[0];
 
 	/**
 	 * Empty constructor
@@ -59,6 +59,24 @@ public class UserMessage {
 		this.login = login;
 		this.hostname = hostname;
 		this.rawmsg = message;
+	}
+
+	/**
+	 * Bot listeners will call this
+	 * @param channel  Channel message was sent on
+	 * @param sender   User name
+	 * @param login    User login
+	 * @param hostname User hostname
+	 * @param message  Message user sent
+	 * @param command  Command to run
+	 */
+	public UserMessage(String channel, String sender, String login, String hostname, String message, String command) {
+		this.channel = channel;
+		this.sender = sender;
+		this.login = login;
+		this.hostname = hostname;
+		this.rawmsg = message;
+		this.command = command;
 	}
 
 	/**

@@ -4,5 +4,5 @@ var admin = true;
 
 function invoke() {
 	qb.botLocked = true;
-	qb.sendMessage(channel,"Bot has been locked globaly");
+	qb.sendMsg(new BotMessage(msgInfo,"Bot has been locked globaly"));
 }
