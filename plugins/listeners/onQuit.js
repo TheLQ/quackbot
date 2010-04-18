@@ -7,6 +7,6 @@ var listener = true;
 function invoke() {
 	if(sender != qb.getNick()) {
 		//Yes this is blind, but there is no way to tell what channel the user was on
-        qb.sendMsg(new BotMessage("#lyokofreak-viewing-party","User "+msgInfo.sender+" has quit"));
+		qb.sendMsg(new BotMessage("#lyokofreak-viewing-party","User "+msgInfo.sender+" has quit"));
 	}
 }

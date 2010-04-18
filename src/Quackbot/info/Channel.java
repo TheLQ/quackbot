@@ -1,88 +1,141 @@
+/**
+ * @(#)Channel.java
+ *
+ * This file is part of Quackbot
+ */
 package Quackbot.info;
 
 import jpersist.Entity;
 import org.apache.commons.lang.StringUtils;
 
 /**
+ * Bean that holds all Channel info
  *
- * @author admins
+ * This is usually configured by JPersist
+ * @author Lord.Quackstar
  */
 public class Channel extends Entity {
-	private static final long serialVersionUID = 100L;
+
+	/**
+	 * Sterilized ID
+	 */
+	private static long serialVersionUID = 100L;
+
+	/**
+	 * @return the serialVersionUID
+	 */
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	/**
+	 * @param aSerialVersionUID the serialVersionUID to set
+	 */
+	public static void setSerialVersionUID(long aSerialVersionUID) {
+		serialVersionUID = aSerialVersionUID;
+	}
+	/**
+	 * Value mapped to column in DB or manually provided
+	 */
 	private int serverID, channelID;
+	/**
+	 * Value mapped to column in DB or manually provided
+	 */
 	private String channel, password = null;
 
-	public Channel() {}
+	/**
+	 * Empty Constructor
+	 */
+	public Channel() {
+	}
 
+	/**
+	 * From server Id
+	 * @param serverID
+	 */
 	public Channel(int serverID) {
-	    this.serverID = serverID;
+		this.serverID = serverID;
 	}
 
+	/**
+	 * Create from string
+	 * @param channel
+	 */
 	public Channel(String channel) {
-	    this.channel = channel;
+		this.channel = channel;
 	}
 
+	/**
+	 * Create from string and password
+	 * @param channel
+	 * @param password
+	 */
 	public Channel(String channel, String password) {
-	    this.channel = channel;
-	    this.password = password;
+		this.channel = channel;
+		this.password = password;
 	}
-    /**
-     * @return the channel
-     */
-    public String getChannel() {
-	return channel;
-    }
 
-    /**
-     * @param channel the channel to set
-     */
-    public void setChannel(String channel) {
-	this.channel = channel;
-    }
+	/**
+	 * Convert to String
+	 * @return String representation of Channel
+	 */
+	public String toString() {
+		return StringUtils.join(new Object[]{getChannel(), getChannelID(), getPassword(), getServerID()}, ", ");
+	}
 
-    /**
-     * @return the password
-     */
-    public String getPassword() {
-	return password;
-    }
+	/**
+	 * @return the serverID
+	 */
+	public int getServerID() {
+		return serverID;
+	}
 
-    /**
-     * @param password the password to set
-     */
-    public void setPassword(String password) {
-	this.password = password;
-    }
+	/**
+	 * @param serverID the serverID to set
+	 */
+	public void setServerID(int serverID) {
+		this.serverID = serverID;
+	}
 
-    /**
-     * @return the serverID
-     */
-    public int getServerID() {
-	return serverID;
-    }
+	/**
+	 * @return the channelID
+	 */
+	public int getChannelID() {
+		return channelID;
+	}
 
-    /**
-     * @param serverID the serverID to set
-     */
-    public void setServerID(int serverID) {
-	this.serverID = serverID;
-    }
+	/**
+	 * @param channelID the channelID to set
+	 */
+	public void setChannelID(int channelID) {
+		this.channelID = channelID;
+	}
 
-    /**
-     * @return the channelID
-     */
-    public int getChannelID() {
-	return channelID;
-    }
+	/**
+	 * @return the channel
+	 */
+	public String getChannel() {
+		return channel;
+	}
 
-    /**
-     * @param channelID the channelID to set
-     */
-    public void setChannelID(int channelID) {
-	this.channelID = channelID;
-    }
+	/**
+	 * @param channel the channel to set
+	 */
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
 
-    public String toString() {
-	return StringUtils.join(new Object[]{channel,channelID,password,serverID},", ");
-    }
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return password;
+	}
+
+	/**
+	 * @param password the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
 }

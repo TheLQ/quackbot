@@ -7,7 +7,9 @@ package Quackbot;
 
 import Quackbot.info.JSCmdInfo;
 import Quackbot.info.Server;
+
 import Quackbot.plugins.java.JavaTest;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+
 import jpersist.DatabaseManager;
 
 import org.apache.log4j.Logger;
@@ -34,136 +37,164 @@ import org.apache.log4j.Logger;
  *
  * USED BY: Everything. Initated only by Main
  *
+ * There should only be <b>1</b> instance of this. It can be refrenced by {@link Quackbot.InstanceTracker#getCtrlInst() InstanceTracker.getCtrlInst}
+ *
  * @author Lord.Quackstar
  */
 public class Controller {
-    public TreeMap<String,JSCmdInfo> JSCmds = new TreeMap<String,JSCmdInfo>();
-    public TreeSet<String> JSutils = new TreeSet<String>();
-    public final List<String> javaPlugins = Arrays.asList(
-	    JavaTest.class.getName()
-	    );
-
-    public HashSet<Bot> bots = new HashSet<Bot>();
-    public ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
-    public ExecutorService threadPool = Executors.newCachedThreadPool();
-    public ExecutorService threadPool_js = Executors.newCachedThreadPool();
-    public Main gui = InstanceTracker.getMainInst();
-    DatabaseManager dbm = null;
-    Logger log = Logger.getLogger(Controller.class);
-
-    /**
-     * Start of bot working. Loads CMDs and starts Bots
-     * @param gui   Current GUI
-     */
-    public Controller() {
-	InstanceTracker.setCtrlInst(this);
-
-	//Load current CMD classes
-	reloadCMDs();
-
-	//Connect to database
-	DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
-	dbm = new DatabaseManager("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://localhost/quackbot", null, null, "root", null);
-
-	//Get all servers and pass to botThread generator
-	try {
-	    Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class);
-	    for (Server curServer : c) {
-		dbm.loadAssociations(curServer);
-		threadPool.execute(new botThread(curServer));
-	    }
-	} catch (Exception e) {
-	    log.error("Could not connect to server", e);
-	}
-    }
-    
-    /**
-     * Makes all bots quit servers
-     */
-    public void stopAll() {
-	Iterator botItr = bots.iterator();
-	while (botItr.hasNext()) {
-	    Bot curBot = (Bot) botItr.next();
-	    curBot.quitServer("Killed by control panel");
-	    curBot.dispose();
-	    bots.remove(curBot);
-	}
-	threadPool_js.shutdownNow();
-	threadPool_js = null;
-	threadPool.shutdownNow();
-	threadPool = null;
-	log.info("Killed all bots, threadPools, and JackRabbit connection");
-    }
-
-    public void addServer(String address, String... channels) {
-	//TODO
-    }
-
-    public void removeServer(String address) {
-	try {
-	    //TODO
-	} catch (Exception e) {
-	    log.error("Can't remove server", e);
-
-
-	}
-    }
-
-    /**
-     * Send a message to every channel on every server the bot is connected to
-     * @param msg   Message to send
-     */
-    public void sendGlobalMessage(String msg) {
-	Iterator botItr = bots.iterator();
-
-
-	while (botItr.hasNext()) {
-	    Bot curBot = (Bot) botItr.next();
-	    curBot.sendAllMessage(msg);
-
-
-	}
-    }
-
-    /**
-     * Reload all CMDs
-     */
-    public void reloadCMDs() {
-	threadPool_js.shutdownNow();
-	threadPool_js = Executors.newCachedThreadPool();
-	threadPool.shutdownNow();
-	threadPool = Executors.newCachedThreadPool();
-	threadPool.execute(new loadCMDs());
-    }
-
-    /**
-     * Simple thread to run the bot in to prevent it from locking the gui
-     */
-    public class botThread implements Runnable {
-
-	Server server = null;
 
 	/**
-	 * Define some simple variables
-	 * @param server
-	 * @param channels
+	 * TreeMap of all JS plugins
 	 */
-	public botThread(Server server) {
-	    this.server = server;
+	public TreeMap<String, JSCmdInfo> JSplugins = new TreeMap<String, JSCmdInfo>();
+	/**
+	 * List of Fully Qualified Class names of all Java Plugins
+	 */
+	public final List<String> javaPlugins = Arrays.asList(
+		JavaTest.class.getName());
+	/**
+	 * Set of all Bot instances
+	 */
+	public HashSet<Bot> bots = new HashSet<Bot>();
+	/**
+	 * Thread pool for all non <i>bot generated</i> commands
+	 */
+	public ExecutorService threadPool = Executors.newCachedThreadPool();
+	/**
+	 * Thread pool for all <i>bot generated</i> commands
+	 */
+	public ExecutorService threadPool_js = Executors.newCachedThreadPool();
+	/**
+	 * Current {@link Main} instance
+	 */
+	public Main gui = InstanceTracker.getMainInst();
+	/**
+	 * DatabaseManager instance of JPersist database
+	 */
+	public DatabaseManager dbm = null;
+	/**
+	 * Log4j Logger
+	 */
+	private Logger log = Logger.getLogger(Controller.class);
+
+	/**
+	 * Start of bot working.
+	 * -Loads CMDs
+	 * -Connects to database
+	 * -starts Bots from database info
+	 */
+	public Controller() {
+		InstanceTracker.setCtrlInst(this);
+
+		//Load current CMD classes
+		reloadPlugins();
+
+		//Connect to database
+		DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
+		dbm = new DatabaseManager("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://localhost/quackbot", null, null, "root", null);
+
+		//Get all servers and pass to botThread generator
+		try {
+			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class);
+			for (Server curServer : c) {
+				dbm.loadAssociations(curServer);
+				threadPool.execute(new botThread(curServer));
+			}
+		} catch (Exception e) {
+			log.error("Could not connect to server", e);
+		}
 	}
 
 	/**
-	 * Initiates bot, joins it to some channels
+	 * Makes all bots quit servers
 	 */
-	public void run() {
-	    try {
-		log.info("Initiating IRC connection");
-		Bot qb = new Bot(server);
-		qb.setVerbose(true);
-		bots.add(qb);
-	    } catch (Exception ex) {
-		log.error("Can't make bot connect to server", ex);
-	    }
+	public void stopAll() {
+		Iterator botItr = bots.iterator();
+		while (botItr.hasNext()) {
+			Bot curBot = (Bot) botItr.next();
+			curBot.quitServer("Killed by control panel");
+			curBot.dispose();
+			bots.remove(curBot);
+		}
+		threadPool_js.shutdownNow();
+		threadPool_js = null;
+		threadPool.shutdownNow();
+		threadPool = null;
+		log.info("Killed all bots, threadPools, and JackRabbit connection");
 	}
-    }
+
+	/**
+	 * Creates a new server, adds to database, and joins
+	 * @param address  Address of server
+	 * @param port     Port number to be used (if null, the 6667 is used)
+	 * @param channels Vararg of channels to join
+	 */
+	public void addServer(String address, int port, String... channels) {
+		//TODO
+	}
+
+	/**
+	 * Deletes a server by address name, removing from database. Will disconnect if nessesary
+	 * @param address  The address of the server to be deleted
+	 */
+	public void removeServer(String address) {
+		try {
+			//TODO
+		} catch (Exception e) {
+			log.error("Can't remove server", e);
+		}
+	}
+
+	/**
+	 * Send a message to every channel on every server the bot is connected to
+	 * @param msg   Message to send
+	 */
+	public void sendGlobalMessage(String msg) {
+		for (Bot curBot : bots)
+			curBot.sendAllMessage(msg);
+	}
+
+	/**
+	 * Reload all plugins
+	 *
+	 * Note: This does shutdown all the thread pools (Bot instances are unaffected).
+	 *	Take this into account if you have services running in the background
+	 */
+	public void reloadPlugins() {
+		threadPool_js.shutdownNow();
+		threadPool_js = Executors.newCachedThreadPool();
+		threadPool.shutdownNow();
+		threadPool = Executors.newCachedThreadPool();
+		threadPool.execute(new loadCMDs());
+	}
+
+	/**
+	 * Simple thread to run the bot in to prevent it from locking the gui
+	 */
+	public class botThread implements Runnable {
+
+		Server server = null;
+
+		/**
+		 * Define some simple variables
+		 * @param server
+		 */
+		public botThread(Server server) {
+			this.server = server;
+		}
+
+		/**
+		 * Initiates bot, joins it to some channels
+		 */
+		public void run() {
+			try {
+				log.info("Initiating IRC connection");
+				Bot qb = new Bot(server);
+				qb.setVerbose(true);
+				bots.add(qb);
+			} catch (Exception ex) {
+				log.error("Can't make bot connect to server", ex);
+			}
+		}
+	}
 }

@@ -6,6 +6,7 @@
 package Quackbot;
 
 import Quackbot.info.JSCmdInfo;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -20,6 +21,7 @@ import java.util.concurrent.Executors;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import javax.script.SimpleScriptContext;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,24 +34,46 @@ import org.apache.log4j.Logger;
  */
 public class loadCMDs implements Runnable {
 
+	/**
+	 * Current Controller Instance
+	 */
 	Controller ctrl = InstanceTracker.getCtrlInst();
-	TreeSet<String> newCMDs = new TreeSet<String>();
-	TreeSet<String> updatedCMDs = new TreeSet<String>();
-	TreeSet<String> deletedCMDs = new TreeSet<String>();
-	TreeMap<String,JSCmdInfo> cmdBack;
-	public TreeSet<String> JSutilsBack;
-	String curFile = "";
-	Logger log = Logger.getLogger(loadCMDs.class);
+	/**
+	 * List of new CMDs
+	 */
+	private TreeSet<String> newCMDs = new TreeSet<String>();
+	/**
+	 * List of updated CMDs
+	 */
+	private TreeSet<String> updatedCMDs = new TreeSet<String>();
+	/**
+	 * List of deleted CMDs
+	 */
+	private TreeSet<String> deletedCMDs = new TreeSet<String>();
+	/**
+	 * Controller CMDs backup, used for recovery in case of error
+	 */
+	private TreeMap<String, JSCmdInfo> cmdBack;
+	/**
+	 * List of all JS utils
+	 */
+	public TreeSet<String> JSUtils = new TreeSet<String>();
+	/**
+	 * Current file being parsed, used for reporting of errors
+	 */
+	private String curFile = "";
+	/**
+	 * Log4j logger
+	 */
+	private Logger log = Logger.getLogger(loadCMDs.class);
 
 	/**
 	 * Initate recursive scan in seperate thread. Reports to bots any updates
 	 */
 	public void run() {
-		cmdBack = new TreeMap<String,JSCmdInfo>(ctrl.JSCmds);
-		JSutilsBack = new TreeSet<String>(ctrl.JSutils);
+		cmdBack = new TreeMap<String, JSCmdInfo>(ctrl.JSplugins);
 		try {
-			ctrl.JSCmds.clear();
-			ctrl.JSutils.clear();
+			ctrl.JSplugins.clear();
 			ctrl.threadPool_js.shutdownNow();
 			ctrl.threadPool_js = Executors.newCachedThreadPool();
 			File cmddir = new File("plugins");
@@ -61,15 +85,14 @@ public class loadCMDs implements Runnable {
 			//Call recursive file method
 			traverse(cmddir);
 
-			log.debug("cmdBack len: " + cmdBack.size() + " | cmds len: " + ctrl.JSCmds.size());
+			log.debug("cmdBack len: " + cmdBack.size() + " | cmds len: " + ctrl.JSplugins.size());
 
 			//Get deleted CMDs
 			Iterator cmdItr = cmdBack.keySet().iterator();
 			while (cmdItr.hasNext()) {
 				String curCmd = (String) cmdItr.next();
-				if (!ctrl.JSCmds.containsKey(curCmd) && !newCMDs.contains(curCmd)) {
+				if (!ctrl.JSplugins.containsKey(curCmd) && !newCMDs.contains(curCmd))
 					deletedCMDs.add(curCmd);
-				}
 			}
 
 			String newStr = (newCMDs.size() == 0) ? "" : "New: " + StringUtils.join(newCMDs.toArray(), ", ");
@@ -84,16 +107,16 @@ public class loadCMDs implements Runnable {
 			ctrl.sendGlobalMessage("Bot commands reloaded! " + newStr + " " + updateStr + " " + delStr);
 
 			//Start services
-			Set<Map.Entry<String,JSCmdInfo>> servItr = ctrl.JSCmds.entrySet();
-			for(Map.Entry<String,JSCmdInfo> curServ : servItr) {
+			Set<Map.Entry<String, JSCmdInfo>> servItr = ctrl.JSplugins.entrySet();
+			for (Map.Entry<String, JSCmdInfo> curServ : servItr) {
 				JSCmdInfo cmdInfo = curServ.getValue();
-				if(!cmdInfo.isService())
+				if (!cmdInfo.isService())
 					continue;
 				log.debug("Excecuting service");
-				ctrl.threadPool_js.execute(new PluginExecutor(cmdInfo.getName(),new String[0]));
+				ctrl.threadPool_js.execute(new PluginExecutor(cmdInfo.getName(), new String[0]));
 			}
 		} catch (Exception e) {
-			ctrl.JSCmds = cmdBack;
+			ctrl.JSplugins = cmdBack;
 			log.error("Error in reload, reverting to cmd backup. Last file: " + this.curFile, e);
 		}
 		return;
@@ -128,7 +151,7 @@ public class loadCMDs implements Runnable {
 		String contents = fileContents.toString();
 
 		//Make new context
-		ScriptEngine jsEngine = ctrl.jsEngine;
+		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		ScriptContext newContext = new SimpleScriptContext();
 		Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
 		engineScope.put("ctrl", ctrl);
@@ -155,13 +178,10 @@ public class loadCMDs implements Runnable {
 		String suffix = "";
 		if (cmdInfo.isUtil()) {
 			//Customized search due to theis being a TreeSet
-			if (!JSutilsBack.contains(fileContents.toString())) {
-				updatedCMDs.add(name);
-			}
-			ctrl.JSutils.add(fileContents.toString());
+			JSUtils.add(fileContents.toString());
 			suffix = "util";
 		} else {
-			ctrl.JSCmds.put(name,cmdInfo);
+			ctrl.JSplugins.put(name, cmdInfo);
 			suffix = "cmd";
 			updateChanges(cmdBack, name, contents);
 		}
@@ -177,10 +197,9 @@ public class loadCMDs implements Runnable {
 	private void updateChanges(TreeMap searched, String name, String contents) {
 		if (searched.get(name) != null && ((TreeMap) searched.get(name)).get("src").equals(contents)) {
 		} //Do nothing
-		else if (searched.get(name) != null) {
+		else if (searched.get(name) != null)
 			updatedCMDs.add(name);
-		} else {
+		else
 			newCMDs.add(name);
-		}
 	}
 }

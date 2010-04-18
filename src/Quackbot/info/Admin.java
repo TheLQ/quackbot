@@ -1,81 +1,130 @@
+/**
+ * @(#)Admin.java
+ *
+ * This file is part of Quackbot
+ */
 package Quackbot.info;
 
 import jpersist.Entity;
 import org.apache.commons.lang.StringUtils;
 
 /**
- *
+ * Bean that holds all Admin info This is usually configured by JPersist
  * @author admins
  */
 public class Admin extends Entity {
 
-	private static final long serialVersionUID = 100L;
-	private int adminId, channelID, serverID;
-	private String user;
+	/**
+	 * Sterilization ID
+	 */
+	private static long serialVersionUID = 100L;
 
-	public Admin() {}
-
-	public Admin(String name) {
-	    this.user = name;
+	/**
+	 * Sterilization ID
+	 * @return the serialVersionUID
+	 */
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
 	}
 
-    /**
-     * @return the serverID
-     */
-    public int getServerID() {
-	return serverID;
-    }
+	/**
+	 * Sterilization ID
+	 * @param aSerialVersionUID the serialVersionUID to set
+	 */
+	public static void setSerialVersionUID(long aSerialVersionUID) {
+		serialVersionUID = aSerialVersionUID;
+	}
 
-    /**
-     * @param serverID the serverID to set
-     */
-    public void setServerID(int serverID) {
-	this.serverID = serverID;
-    }
+	/**
+	 * Value mapped to column in DB or manually provided
+	 */
+	private int adminId, channelID, serverID;
 
-    /**
-     * @return the channelID
-     */
-    public Integer getChannelID() {
-	return channelID;
-    }
+	/**
+	 * Value mapped to column in DB or manually provided
+	 */
+	private String user;
 
-    /**
-     * @param channelID the channelID to set
-     */
-    public void setChannelID(Integer channelID) {
-	this.channelID = channelID;
-    }
+	/**
+	 * Empty constructor
+	 */
+	public Admin() {
+	}
 
-    /**
-     * @return the user
-     */
-    public String getUser() {
-	return user;
-    }
+	/**
+	 * Generate from name
+	 * @param name  Name of admin
+	 */
+	public Admin(String name) {
+		this.user = name;
+	}
 
-    /**
-     * @param user the user to set
-     */
-    public void setUser(String user) {
-	this.user = user;
-    }
 
-    /**
-     * @return the adminId
-     */
-    public int getAdminId() {
-	return adminId;
-    }
+	public String toString() {
+		return StringUtils.join(new Object[]{getAdminId(), getChannelID(), getServerID(), getUser()}, ", ");
+	}
 
-    /**
-     * @param adminId the adminId to set
-     */
-    public void setAdminId(int adminId) {
-	this.adminId = adminId;
-    }
+	/**
+	 * Value mapped to column in DB or manually provided
+	 * @return the adminId
+	 */
+	public int getAdminId() {
+		return adminId;
+	}
 
-    public String toString() {
-	return StringUtils.join(new Object[]{adminId,channelID,serverID,user},", ");
-    }
+	/**
+	 * Value mapped to column in DB or manually provided
+	 * @param adminId the adminId to set
+	 */
+	public void setAdminId(int adminId) {
+		this.adminId = adminId;
+	}
+
+	/**
+	 * Value mapped to column in DB or manually provided
+	 * @return the channelID
+	 */
+	public int getChannelID() {
+		return channelID;
+	}
+
+	/**
+	 * Value mapped to column in DB or manually provided
+	 * @param channelID the channelID to set
+	 */
+	public void setChannelID(int channelID) {
+		this.channelID = channelID;
+	}
+
+	/**
+	 * Value mapped to column in DB or manually provided
+	 * @return the serverID
+	 */
+	public int getServerID() {
+		return serverID;
+	}
+
+	/**
+	 * Value mapped to column in DB or manually provided
+	 * @param serverID the serverID to set
+	 */
+	public void setServerID(int serverID) {
+		this.serverID = serverID;
+	}
+
+	/**
+	 * Value mapped to column in DB or manually provided
+	 * @return the user
+	 */
+	public String getUser() {
+		return user;
+	}
+
+	/**
+	 * Value mapped to column in DB or manually provided
+	 * @param user the user to set
+	 */
+	public void setUser(String user) {
+		this.user = user;
+	}
 }

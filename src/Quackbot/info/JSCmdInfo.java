@@ -1,190 +1,257 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @(#)JSCmdInfo.java
+ *
+ * This file is part of Quackbot
  */
-
 package Quackbot.info;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 
 /**
- *
- * @author admins
+ * JS utility bean, holds all information about JS plugin
+ * @author Lord.Quackstar
  */
 public class JSCmdInfo {
-    private String name,src,help;
-    private boolean admin,ignore,listener,service,util,reqArg;
-    private int params;
-    private ScriptContext context;
-    private Bindings scope;
 
-    /**
-     * @return the src
-     */
-    public String getSrc() {
-	return src;
-    }
+	/**
+	 * Name of command
+	 */
+	private String name;
+	/**
+	 * Raw source code (used for versioning)
+	 */
+	private String src;
+	/**
+	 * Help for command
+	 */
+	private String help;
+	/**
+	 * Admin only?
+	 */
+	private boolean admin;
+	/**
+	 * Ignore command?
+	 */
+	private boolean ignore;
+	/**
+	 * Is Listener?
+	 */
+	private boolean listener;
+	/**
+	 * Is server?
+	 */
+	private boolean service;
+	/**
+	 * Is Util?
+	 */
+	private boolean util;
+	/**
+	 * Requires Arguments?
+	 */
+	private boolean reqArg;
+	/**
+	 * Number of parameters
+	 */
+	private int params;
+	/**
+	 * Current JS context
+	 */
+	private ScriptContext context;
+	/**
+	 * Scope
+	 */
+	private Bindings scope;
 
-    /**
-     * @param src the src to set
-     */
-    public void setSrc(String src) {
-	this.src = src;
-    }
+	/**
+	 * Name of command
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * @return the help
-     */
-    public String getHelp() {
-	return help;
-    }
+	/**
+	 * Name of command
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    /**
-     * @param help the help to set
-     */
-    public void setHelp(String help) {
-	this.help = help;
-    }
+	/**
+	 * Raw source code (used for versioning)
+	 * @return the src
+	 */
+	public String getSrc() {
+		return src;
+	}
 
-    /**
-     * @return the admin
-     */
-    public boolean isAdmin() {
-	return admin;
-    }
+	/**
+	 * Raw source code (used for versioning)
+	 * @param src the src to set
+	 */
+	public void setSrc(String src) {
+		this.src = src;
+	}
 
-    /**
-     * @param admin the admin to set
-     */
-    public void setAdmin(boolean admin) {
-	this.admin = admin;
-    }
+	/**
+	 * Help for command
+	 * @return the help
+	 */
+	public String getHelp() {
+		return help;
+	}
 
-    /**
-     * @return the ignore
-     */
-    public boolean isIgnore() {
-	return ignore;
-    }
+	/**
+	 * Help for command
+	 * @param help the help to set
+	 */
+	public void setHelp(String help) {
+		this.help = help;
+	}
 
-    /**
-     * @param ignore the ignore to set
-     */
-    public void setIgnore(boolean ignore) {
-	this.ignore = ignore;
-    }
+	/**
+	 * Admin only?
+	 * @return the admin
+	 */
+	public boolean isAdmin() {
+		return admin;
+	}
 
-    /**
-     * @return the listener
-     */
-    public boolean isListener() {
-	return listener;
-    }
+	/**
+	 * Admin only?
+	 * @param admin the admin to set
+	 */
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}
 
-    /**
-     * @param listener the listener to set
-     */
-    public void setListener(boolean listener) {
-	this.listener = listener;
-    }
+	/**
+	 * Ignore command?
+	 * @return the ignore
+	 */
+	public boolean isIgnore() {
+		return ignore;
+	}
 
-    /**
-     * @return the service
-     */
-    public boolean isService() {
-	return service;
-    }
+	/**
+	 * Ignore command?
+	 * @param ignore the ignore to set
+	 */
+	public void setIgnore(boolean ignore) {
+		this.ignore = ignore;
+	}
 
-    /**
-     * @param service the service to set
-     */
-    public void setService(boolean service) {
-	this.service = service;
-    }
+	/**
+	 * Is Listener?
+	 * @return the listener
+	 */
+	public boolean isListener() {
+		return listener;
+	}
 
-    /**
-     * @return the util
-     */
-    public boolean isUtil() {
-	return util;
-    }
+	/**
+	 * Is Listener?
+	 * @param listener the listener to set
+	 */
+	public void setListener(boolean listener) {
+		this.listener = listener;
+	}
 
-    /**
-     * @param util the util to set
-     */
-    public void setUtil(boolean util) {
-	this.util = util;
-    }
+	/**
+	 * Is server?
+	 * @return the service
+	 */
+	public boolean isService() {
+		return service;
+	}
 
-    /**
-     * @return the reqArg
-     */
-    public boolean isReqArg() {
-	return reqArg;
-    }
+	/**
+	 * Is server?
+	 * @param service the service to set
+	 */
+	public void setService(boolean service) {
+		this.service = service;
+	}
 
-    /**
-     * @param reqArg the reqArg to set
-     */
-    public void setReqArg(boolean reqArg) {
-	this.reqArg = reqArg;
-    }
+	/**
+	 * Is Util?
+	 * @return the util
+	 */
+	public boolean isUtil() {
+		return util;
+	}
 
-    /**
-     * @return the context
-     */
-    public ScriptContext getContext() {
-	return context;
-    }
+	/**
+	 * Is Util?
+	 * @param util the util to set
+	 */
+	public void setUtil(boolean util) {
+		this.util = util;
+	}
 
-    /**
-     * @param context the context to set
-     */
-    public void setContext(ScriptContext context) {
-	this.context = context;
-    }
+	/**
+	 * Requires Arguments?
+	 * @return the reqArg
+	 */
+	public boolean isReqArg() {
+		return reqArg;
+	}
 
-    /**
-     * @return the scope
-     */
-    public Bindings getScope() {
-	return scope;
-    }
+	/**
+	 * Requires Arguments?
+	 * @param reqArg the reqArg to set
+	 */
+	public void setReqArg(boolean reqArg) {
+		this.reqArg = reqArg;
+	}
 
-    /**
-     * @param scope the scope to set
-     */
-    public void setScope(Bindings scope) {
-	this.scope = scope;
-    }
+	/**
+	 * Number of parameters
+	 * @return the params
+	 */
+	public int getParams() {
+		return params;
+	}
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-	return name;
-    }
+	/**
+	 * Number of parameters
+	 * @param params the params to set
+	 */
+	public void setParams(int params) {
+		this.params = params;
+	}
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-	this.name = name;
-    }
+	/**
+	 * Current JS context
+	 * @return the context
+	 */
+	public ScriptContext getContext() {
+		return context;
+	}
 
-    /**
-     * @return the params
-     */
-    public int getParams() {
-	return params;
-    }
+	/**
+	 * Current JS context
+	 * @param context the context to set
+	 */
+	public void setContext(ScriptContext context) {
+		this.context = context;
+	}
 
-    /**
-     * @param params the params to set
-     */
-    public void setParams(int params) {
-	this.params = params;
-    }
+	/**
+	 * Scope
+	 * @return the scope
+	 */
+	public Bindings getScope() {
+		return scope;
+	}
 
+	/**
+	 * Scope
+	 * @param scope the scope to set
+	 */
+	public void setScope(Bindings scope) {
+		this.scope = scope;
+	}
 }

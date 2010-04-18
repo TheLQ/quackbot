@@ -11,7 +11,7 @@ function invoke() {
 		if(sender.substr(0,prefix.length)==prefix) {
 			msg_suffix = " (please change nick with /nick yournickhere)"
 		}
-        qb.sendMsg(msgInfo,"Welcome to the LyokoFreak Viewing Party"+msg_suffix);
+		qb.sendMsg(msgInfo,"Welcome to the LyokoFreak Viewing Party"+msg_suffix);
 	/*	var netPkgs = new JavaImporter(java.io,java.net);
 		with (netPkgs) {
 			var url = "http://localhost:8082/current.html";
