@@ -13,8 +13,6 @@ import Quackbot.info.BotMessage;
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
 import Quackbot.info.UserMessage;
-import Quackbot.javacmd.CMDSuper;
-import Quackbot.javacmd.JavaTest;
 import Quackbot.log.BotAppender;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,8 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
 import org.apache.log4j.Logger;
 
 import org.jibble.pircbot.PircBot;
@@ -46,10 +42,9 @@ public class Bot extends PircBot {
     final HashSet<String> PREFIXES = new HashSet<String>();
     public TreeMap<String, String> adminList;
     public TreeMap<String, String> chanLockList;
-    public Controller mainInst = InstanceTracker.getCtrlInst();
+    public Controller ctrl = InstanceTracker.getCtrlInst();
     public Server serverDB;
-    public Logger log = Logger.getLogger(Bot.class);
-    public TreeMap<String, CMDSuper> javacmds = new TreeMap<String, CMDSuper>();
+    Logger log = Logger.getLogger(Bot.class);
 
     /**
      * Init bot by setting all information
@@ -61,9 +56,6 @@ public class Bot extends PircBot {
 
 	//Init channel block list
 	chanLockList = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-
-	//Setup classes
-	javacmds.put("JavaTest", new JavaTest());
 
 	setName("Quackbot");
 	setAutoNickChange(true);
@@ -110,11 +102,11 @@ public class Bot extends PircBot {
 
     public void updateServer() {
 	try {
-	    Collection<Channel> channels = mainInst.dbm.loadObjects(new ArrayList<Channel>(), Channel.class);
+	    Collection<Channel> channels = ctrl.dbm.loadObjects(new ArrayList<Channel>(), Channel.class);
 	    for(Channel channel : channels)
 		if(channel.getServerID() == serverDB.getServerId())
 		    serverDB.getChannels().add(channel);
-	    Collection<Admin> admins = mainInst.dbm.loadObjects(new ArrayList<Admin>(), Admin.class);
+	    Collection<Admin> admins = ctrl.dbm.loadObjects(new ArrayList<Admin>(), Admin.class);
 	    for(Admin curAdmin : admins)
 		if(curAdmin.getServerID() == serverDB.getServerId())
 		    serverDB.getAdmins().add(curAdmin);
@@ -147,7 +139,7 @@ public class Bot extends PircBot {
 
 	if (sender.equalsIgnoreCase(getNick())) {
 	    //curServer.removeChannel(channel);
-	    //mainInst.JRocm.update(curServer);
+	    //ctrl.JRocm.update(curServer);
 	}
     }
 
@@ -166,17 +158,13 @@ public class Bot extends PircBot {
      */
     private void runListener(String command, UserMessage msgInfo) {
 	log("Attempting to run listener " + command);
-	if (!mainInst.listeners.containsKey(command)) {
+	if (!JSUtils.getListeners().containsKey(command)) {
 	    log.error("Listiner does not exist!!");
 	    return;
 	}
-	TreeMap<String, Object> cmdinfo = mainInst.listeners.get(command);
+	new PluginExecutor(this,msgInfo,command,new String[0]);
 
-	//Run command in thread pool
-	String jsCmd = "invoke();";
-	log.debug("JS cmd: " + jsCmd);
-	mainInst.threadPool_js.execute(new threadCmdRun(jsCmd, (ScriptContext)cmdinfo.get("context"), (Bindings) cmdinfo.get("scope"), this, msgInfo));
-    }
+	}
 
     /***************USER SUBMITTED COMMANDS FOLLOW*********************/
     @Override
@@ -211,7 +199,7 @@ public class Bot extends PircBot {
 	activateCmd(new UserMessage(null, sender, login, hostname, message));
     }
 
-    //
+
     /**
      * runCommand wrapper, outputs begginin and end to console and catches errors
      */
@@ -256,63 +244,11 @@ public class Bot extends PircBot {
 	    argArray = new String[0];
 	}
 
-	//Does this method exist?
-	if (!methodExists(command)) {
-	    return;
-	}
-
 	//Build UserMessage bean
 	msgInfo.setArgs(argArray);
 	msgInfo.setCommand(command);
 
-	//Check if this is a Java written command
-	if (javacmds.containsKey(command)) {
-	    mainInst.threadPool_js.execute(new RunJavaCommand(command, this, msgInfo));
-	} else { //Must be JS
-	    TreeMap<String, Object> cmdinfo = mainInst.cmds.get(command);
-
-	    //Is this an admin function? If so, is the person an admin?
-	    if (Boolean.parseBoolean(cmdinfo.get("admin").toString()) == true && !isAdmin(msgInfo.sender)) {
-		throw new AdminException();
-	    }
-
-	    //Does this method require args?
-	    String[] jsArgArray = argArray;
-	    if (Boolean.parseBoolean(cmdinfo.get("ReqArg").toString()) == true && argArray.length == 0) {
-		log.debug("Method does require args, passing length 1 array");
-		jsArgArray = new String[1];
-	    }
-
-	    //Does the required number of args exist?
-	    int user_args = argArray.length;
-	    int method_args = Integer.parseInt(cmdinfo.get("param").toString());
-	    log.debug("User Args: " + user_args + " | Req Args: " + method_args);
-	    if (user_args != method_args) {
-		throw new NumArgException(user_args, method_args);
-	    }
-
-	    //All requirements are met, excecute method
-	    log.info("All tests passed, running method");
-	    ScriptContext newContext = (ScriptContext) cmdinfo.get("context");
-	    Bindings engineScope = (Bindings) cmdinfo.get("scope");
-	    engineScope.put("msgInfo", msgInfo);
-	    engineScope.put("qb", this);
-
-	    //build command string
-	    StringBuilder jsCmd = new StringBuilder();
-	    jsCmd.append("invoke( ");
-	    for (String arg : jsArgArray) {
-		jsCmd.append(" '" + arg + "',");
-	    }
-	    jsCmd.deleteCharAt(jsCmd.length() - 1);
-	    jsCmd.append(");");
-
-	    log.debug("JS cmd: " + jsCmd.toString());
-
-	    //Run command in thread pool
-	    //mainInst.threadPool_js.execute(new threadCmdRun(jsCmd.toString(), newContext, this, channel, sender));
-	    mainInst.threadPool_js.execute(new threadCmdRun(jsCmd.toString(), (ScriptContext)cmdinfo.get("context"), (Bindings)cmdinfo.get("scope"), this, msgInfo));
-	}
+	ctrl.threadPool_js.execute(new PluginExecutor(this, msgInfo, command, argArray));
     }
 
     /**
@@ -332,19 +268,6 @@ public class Bot extends PircBot {
     }
 
     /**
-     * Check cmd array for method name
-     * @param method
-     * @return True if command exists, false otherwise
-     */
-    public boolean methodExists(String method) throws InvalidCMDException {
-	if (!mainInst.cmds.containsKey(method) && !javacmds.containsKey(method)) {
-	    throw new InvalidCMDException(method);
-	} else {
-	    return true;
-	}
-    }
-
-    /**
      * Check to see if person is an admin
      * @return True if person is an admin, false otherwise
      */
@@ -360,23 +283,6 @@ public class Bot extends PircBot {
 	String[] channels = getChannels();
 	for (String curChan : channels) {
 	    sendMessage(curChan, msg);
-	}
-    }
-
-    private class RunJavaCommand implements Runnable {
-
-	Bot bot;
-	UserMessage msgInfo;
-	String command;
-
-	public RunJavaCommand(String command, Bot bot, UserMessage msgInfo) {
-	    this.bot = bot;
-	    this.msgInfo = msgInfo;
-	    this.command = command;
-	}
-
-	public void run() {
-	    javacmds.get(command).invoke(bot, msgInfo);
 	}
     }
 }
