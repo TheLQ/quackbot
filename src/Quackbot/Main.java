@@ -5,7 +5,8 @@
  */
 package Quackbot;
 
-import Quackbot.log.ControlAppender; 
+import Quackbot.log.ControlAppender;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -14,34 +15,40 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.util.TimeZone;
+
 import javax.swing.BorderFactory;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
-import org.apache.log4j.ConsoleAppender;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-
 
 /**
  * Provides a GUI for bot
  *  -Output is formated and displayed
- *  -Can initate stop, start, and reload from here
+ *  -Can initate Reload
+ * 
+ * There should only be <b>1</b> instance of this. It can be refrenced by {@link Quackbot.InstanceTracker#getMainInst() InstanceTracker.getMainInst}
  * @author Lord.Quackstar
  */
 public class Main extends JFrame implements ActionListener {
-	public JTextPane BerrorLog,CerrorLog;
-	Logger log = Logger.getLogger(Main.class);
 
 	/**
-	 * Setup and display GUI, redirect output streams, start Controller
+	 * GUI log pane's
+	 */
+	public JTextPane BerrorLog, CerrorLog;
+	/**
+	 * Log4j logger
+	 */
+	private Logger log = Logger.getLogger(Main.class);
+
+	/**
+	 * Setup and display GUI, setup Log4j, start Controller
 	 */
 	public Main() {
 		/***Pre init, setup error log**/
@@ -57,7 +64,7 @@ public class Main extends JFrame implements ActionListener {
 		Logger rootLog = Logger.getRootLogger();
 		rootLog.setLevel(Level.TRACE);
 		rootLog.addAppender(new ControlAppender());
-		
+
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //Will exit when close button is pressed
@@ -77,7 +84,7 @@ public class Main extends JFrame implements ActionListener {
 		CerrorScroll.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		CerrorScroll.setBorder(BorderFactory.createTitledBorder("Controller talk"));
 
-		JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,BerrorScroll,CerrorScroll);
+		JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, BerrorScroll, CerrorScroll);
 		contentPane.add(mainSplit, BorderLayout.CENTER);
 
 		JPanel bottom = new JPanel();
@@ -98,6 +105,7 @@ public class Main extends JFrame implements ActionListener {
 
 		//Initialize controller in new thread to prevent GUI lockups
 		new Thread(new Runnable() {
+
 			public void run() {
 				log.info("Initialiing controller");
 				new Controller();
@@ -106,7 +114,6 @@ public class Main extends JFrame implements ActionListener {
 
 		mainSplit.setDividerLocation(0.50);
 	}
-
 
 	/**
 	 * Button action listener, controls for Controller
@@ -125,6 +132,7 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
 			public void run() {
 				new Main();
 			}

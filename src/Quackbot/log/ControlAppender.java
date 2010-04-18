@@ -1,18 +1,28 @@
+/**
+ * @(#)ControlAppender.java
+ *
+ * This file is part of Quackbot
+ */
 package Quackbot.log;
 
 import Quackbot.InstanceTracker;
+
 import org.apache.log4j.AppenderSkeleton;
+
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
- *
- * @author admins
+ * Appender for everything thats not bot. All events from Bot are ignored
+ * @author Lord.Quackstar
  */
 public class ControlAppender extends AppenderSkeleton {
 
 	String[] BLOCK = new String[]{"Bot", "org.jibble"};
 	WriteOutput out;
 
+	/**
+	 * Inits appender
+	 */
 	public ControlAppender() {
 		out = new WriteOutput(InstanceTracker.getMainInst().CerrorLog);
 	}
