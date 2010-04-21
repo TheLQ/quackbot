@@ -37,7 +37,7 @@ public class Channel extends Entity {
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
-	private int serverID, channelID;
+	private Integer serverID, channelID;
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
@@ -53,7 +53,7 @@ public class Channel extends Entity {
 	 * From server Id
 	 * @param serverID
 	 */
-	public Channel(int serverID) {
+	public Channel(Integer serverID) {
 		this.serverID = serverID;
 	}
 
@@ -86,28 +86,28 @@ public class Channel extends Entity {
 	/**
 	 * @return the serverID
 	 */
-	public int getServerID() {
+	public Integer getServerID() {
 		return serverID;
 	}
 
 	/**
 	 * @param serverID the serverID to set
 	 */
-	public void setServerID(int serverID) {
+	public void setServerID(Integer serverID) {
 		this.serverID = serverID;
 	}
 
 	/**
 	 * @return the channelID
 	 */
-	public int getChannelID() {
+	public Integer getChannelID() {
 		return channelID;
 	}
 
 	/**
 	 * @param channelID the channelID to set
 	 */
-	public void setChannelID(int channelID) {
+	public void setChannelID(Integer channelID) {
 		this.channelID = channelID;
 	}
 
@@ -115,6 +115,8 @@ public class Channel extends Entity {
 	 * @return the channel
 	 */
 	public String getChannel() {
+		if(channel == null)
+			return "";
 		return channel;
 	}
 

@@ -5,7 +5,7 @@
  */
 package Quackbot;
 
-import Quackbot.info.JSCmdInfo;
+import Quackbot.info.JSPlugin;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,7 +53,7 @@ public class loadCMDs implements Runnable {
 	/**
 	 * Controller CMDs backup, used for recovery in case of error
 	 */
-	private TreeMap<String, JSCmdInfo> cmdBack;
+	private TreeMap<String, JSPlugin> cmdBack;
 	/**
 	 * List of all JS utils
 	 */
@@ -71,7 +71,7 @@ public class loadCMDs implements Runnable {
 	 * Initate recursive scan in seperate thread. Reports to bots any updates
 	 */
 	public void run() {
-		cmdBack = new TreeMap<String, JSCmdInfo>(ctrl.JSplugins);
+		cmdBack = new TreeMap<String, JSPlugin>(ctrl.JSplugins);
 		try {
 			ctrl.JSplugins.clear();
 			ctrl.threadPool_js.shutdownNow();
@@ -91,8 +91,8 @@ public class loadCMDs implements Runnable {
 				utilSB.append(curUtil);
 
 			//Add Utils to ALL commands
-			Set<Map.Entry<String,JSCmdInfo>> cmdSet = ctrl.JSplugins.entrySet();
-			for(Map.Entry<String,JSCmdInfo> curCmd : cmdSet)
+			Set<Map.Entry<String,JSPlugin>> cmdSet = ctrl.JSplugins.entrySet();
+			for(Map.Entry<String,JSPlugin> curCmd : cmdSet)
 				new ScriptEngineManager().getEngineByName("JavaScript").eval(utilSB.toString(), curCmd.getValue().getContext());
 
 			log.debug("cmdBack len: " + cmdBack.size() + " | cmds len: " + ctrl.JSplugins.size());
@@ -117,9 +117,9 @@ public class loadCMDs implements Runnable {
 			ctrl.sendGlobalMessage("Bot commands reloaded! " + newStr + " " + updateStr + " " + delStr);
 
 			//Start services
-			Set<Map.Entry<String, JSCmdInfo>> servItr = ctrl.JSplugins.entrySet();
-			for (Map.Entry<String, JSCmdInfo> curServ : servItr) {
-				JSCmdInfo cmdInfo = curServ.getValue();
+			Set<Map.Entry<String, JSPlugin>> servItr = ctrl.JSplugins.entrySet();
+			for (Map.Entry<String, JSPlugin> curServ : servItr) {
+				JSPlugin cmdInfo = curServ.getValue();
 				if (!cmdInfo.isService())
 					continue;
 				log.debug("Excecuting service");
@@ -168,7 +168,7 @@ public class loadCMDs implements Runnable {
 		jsEngine.eval(contents, newContext);
 
 		//Fill in cmd Info
-		JSCmdInfo cmdInfo = new JSCmdInfo();
+		JSPlugin cmdInfo = new JSPlugin();
 		cmdInfo.setName(name);
 		cmdInfo.setAdmin((engineScope.get("admin") == null) ? false : true);
 		cmdInfo.setService((engineScope.get("service") == null) ? false : true);
@@ -204,8 +204,8 @@ public class loadCMDs implements Runnable {
 	 * @param name      Filename of file
 	 * @param contents  Contents of file
 	 */
-	private void updateChanges(TreeMap searched, String name, String contents) {
-		if (searched.get(name) != null && ((TreeMap) searched.get(name)).get("src").equals(contents)) {
+	private void updateChanges(TreeMap<String, JSPlugin> searched, String name, String contents) {
+		if (searched.get(name) != null && (searched.get(name).getSrc().equals(contents))) {
 		} //Do nothing
 		else if (searched.get(name) != null)
 			updatedCMDs.add(name);

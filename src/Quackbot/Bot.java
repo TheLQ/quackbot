@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
+import jpersist.JPersistException;
 
 import org.apache.log4j.Logger;
 
@@ -80,7 +81,7 @@ public class Bot extends PircBot {
 		setAutoNickChange(true);
 		setFinger("Quackbot IRC bot by Lord.Quackstar. Source: http://quackbot.googlecode.com/");
 		setMessageDelay(500);
-		setVersion("Quackbot 0.5");
+		setVersion("Quackbot 3.3");
 		try {
 			//Connect to server and join all channels (fetched from db)
 			connect(serverDB.getAddress(), 6665);
@@ -132,27 +133,10 @@ public class Bot extends PircBot {
 		PREFIXES.add(getNick() + ":");
 		PREFIXES.add(getNick());
 
-		updateServer();
 		List<Channel> channels = serverDB.getChannels();
-		for (Channel curChannel : channels)
+		for (Channel curChannel : channels) {
 			joinChannel(curChannel.getChannel(), curChannel.getPassword());
-	}
-
-	/**
-	 * Utility method updates persistent server object with new Channel and Admin info from database
-	 */
-	public void updateServer() {
-		try {
-			Collection<Channel> channels = ctrl.dbm.loadObjects(new ArrayList<Channel>(), Channel.class);
-			for (Channel channel : channels)
-				if (channel.getServerID() == serverDB.getServerId())
-					serverDB.getChannels().add(channel);
-			Collection<Admin> admins = ctrl.dbm.loadObjects(new ArrayList<Admin>(), Admin.class);
-			for (Admin curAdmin : admins)
-				if (curAdmin.getServerID() == serverDB.getServerId())
-					serverDB.getAdmins().add(curAdmin);
-		} catch (Exception e) {
-			log.fatal("Cannot connect to channels", e);
+			log.debug("Trying to join channel using "+curChannel);
 		}
 	}
 
@@ -177,11 +161,12 @@ public class Bot extends PircBot {
 	@Override
 	public void onJoin(String channel, String sender, String login, String hostname) {
 
-		runListener("onJoin", new UserMessage(channel, sender, login, hostname, null,"onJoin"));
+		runListener("onJoin", new UserMessage(channel, sender, login, hostname, null, "onJoin"));
 
 		//If this is us, add to server info
-		if (sender.equalsIgnoreCase(getNick())) {
-			//curServer.addChannel(new Channel(channel));
+		if (sender.equalsIgnoreCase(getNick()) && !serverDB.channelExists(channel)) {
+			serverDB.addChannel(new Channel(channel));
+			updateDatabase();
 		}
 	}
 
@@ -196,11 +181,12 @@ public class Bot extends PircBot {
 	 */
 	@Override
 	public void onPart(String channel, String sender, String login, String hostname) {
-		runListener("onPart", new UserMessage(channel, sender, login, hostname, null,"onPart"));
+		runListener("onPart", new UserMessage(channel, sender, login, hostname, null, "onPart"));
 
+		//If this is us, add to server info
 		if (sender.equalsIgnoreCase(getNick())) {
-			//curServer.removeChannel(channel);
-			//ctrl.JRocm.update(curServer);
+			serverDB.removeChannel(channel);
+			updateDatabase();
 		}
 	}
 
@@ -208,9 +194,6 @@ public class Bot extends PircBot {
 	 * This method is called whenever someone (possibly us) quits from the
 	 * server.  We will only observe this if the user was in one of the
 	 * channels to which we are connected.
-	 *  <p>
-	 * The implementation of this method in the PircBot abstract class
-	 * performs no actions and may be overridden as required.
 	 *
 	 * @param sourceNick The nick of the user that quit from the server.
 	 * @param sourceLogin The login of the user that quit from the server.
@@ -219,7 +202,7 @@ public class Bot extends PircBot {
 	 */
 	@Override
 	public void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
-		runListener("onQuit", new UserMessage(null, sourceNick, sourceLogin, sourceHostname, reason,"onQuit"));
+		runListener("onQuit", new UserMessage(null, sourceNick, sourceLogin, sourceHostname, reason, "onQuit"));
 	}
 
 	/**
@@ -349,6 +332,14 @@ public class Bot extends PircBot {
 			if (curUser.getNick().equalsIgnoreCase(reqUser))
 				return curUser;
 		return null;
+	}
+
+	public void updateDatabase() {
+		try {
+			serverDB.save(ctrl.dbm);
+		} catch (JPersistException e) {
+			log.error("Error updating database", e);
+		}
 	}
 
 	/**

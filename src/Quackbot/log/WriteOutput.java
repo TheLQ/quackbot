@@ -25,7 +25,7 @@ import org.apache.log4j.spi.LoggingEvent;
  * Utility for writing to output TextFields on GUI using standard format
  * @author Lord.Quackstar
  */
-public class WriteOutput {
+public class WriteOutput implements Runnable {
 
 	/**
 	 * Pane to write to
@@ -43,16 +43,24 @@ public class WriteOutput {
 	 * Appender that is using this
 	 */
 	AppenderSkeleton appender;
+	LoggingEvent event;
+	String address;
+
+	public WriteOutput(JTextPane appendTo, AppenderSkeleton appender, LoggingEvent event) {
+		this(appendTo, appender, event, null);
+	}
 
 	/**
 	 * Simple constructor to init
 	 * @param appendTo JTextPane to append to
 	 */
-	public WriteOutput(JTextPane appendTo,AppenderSkeleton appender) {
+	public WriteOutput(JTextPane appendTo, AppenderSkeleton appender, LoggingEvent event, String address) {
 		this.appender = appender;
 		this.pane = appendTo;
 		this.doc = appendTo.getStyledDocument();
 		this.dateFormatter = new SimpleDateFormat("MM/dd/yyy hh:mm:ss a");
+		this.address = address;
+		this.event = event;
 
 		Style style = doc.addStyle("Class", null);
 		StyleConstants.setForeground(style, Color.blue);
@@ -75,11 +83,7 @@ public class WriteOutput {
 		StyleConstants.setItalic(style, true);
 	}
 
-	public void write(LoggingEvent event) {
-		write(event, null);
-	}
-
-	public void write(LoggingEvent event, String address) {
+	public void run() {
 		try {
 			//get string version
 			String aString = event.getRenderedMessage();
@@ -106,8 +110,8 @@ public class WriteOutput {
 				doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
 			doc.insertString(doc.getLength(), formatMsg(event, address), msgStyle);
 
-			pane.repaint();
-			pane.revalidate();
+			//pane.repaint();
+			//pane.revalidate();
 			pane.setCaretPosition(doc.getLength());
 		} catch (Exception e) {
 			e.printStackTrace(); //Don't use log.error because this is how stuff is outputed
@@ -118,9 +122,8 @@ public class WriteOutput {
 		String[] throwArr = event.getThrowableStrRep();
 		if (throwArr == null)
 			return event.getMessage().toString();
-		return event.getMessage().toString()+"\n"+StringUtils.join(throwArr, " \n");
+		return event.getMessage().toString() + "\n" + StringUtils.join(throwArr, " \n");
 	}
 }
-
 //Log4j PatternLayout config (what this is supposed to look like) "%d{MM/dd/yyy hh:mm:ss a} | [%t] | %-5p | %c{2} | - "+extra+" %m"
 

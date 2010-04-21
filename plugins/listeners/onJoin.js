@@ -8,7 +8,7 @@ function invoke() {
 	if(msgInfo.channel=="#lyokofreak-viewing-party" && !msgInfo.isBot()) {
 		var prefix = "ustream";
 		var msg_suffix = "";
-		if(sender.substr(0,prefix.length)==prefix) {
+		if(msgInfo.sender.substr(0,prefix.length)==prefix) {
 			msg_suffix = " (please change nick with /nick yournickhere)"
 		}
 		qb.sendMsg(new BotMessage(msgInfo,"Welcome to the LyokoFreak Viewing Party"+msg_suffix));

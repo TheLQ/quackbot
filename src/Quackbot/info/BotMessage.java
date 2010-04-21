@@ -41,7 +41,7 @@ public class BotMessage {
 	 * @param t       Exception
 	 */
 	public BotMessage(UserMessage usrMsg, Throwable t) {
-		this.message = t.getMessage();
+		this.message = "ERROR: "+t.getMessage();
 		this.channel = usrMsg.getChannel();
 		this.user = usrMsg.getSender();
 	}

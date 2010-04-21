@@ -20,13 +20,6 @@ public class ControlAppender extends AppenderSkeleton {
 	String[] BLOCK = new String[]{"Bot", "org.jibble"};
 	WriteOutput out;
 
-	/**
-	 * Inits appender
-	 */
-	public ControlAppender() {
-		out = new WriteOutput(InstanceTracker.getMainInst().CerrorLog,this);
-	}
-
 	public void append(LoggingEvent event) {
 		//First make sure that this is comming from the right class
 		String fullClass = event.getLocationInformation().getClassName();
@@ -34,7 +27,7 @@ public class ControlAppender extends AppenderSkeleton {
 			if (fullClass.indexOf(search) != -1)
 				return;
 
-		out.write(event);
+		InstanceTracker.getMainInst().log_threadpool.execute(new WriteOutput(InstanceTracker.getMainInst().CerrorLog,this,event));
 	}
 
 	public boolean requiresLayout() {
