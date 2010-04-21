@@ -5,10 +5,13 @@
  */
 package Quackbot;
 
-import Quackbot.info.JSCmdInfo;
+import Quackbot.info.JSPlugin;
+import Quackbot.info.JavaPlugin;
 import Quackbot.info.Server;
+import Quackbot.plugins.core.Help;
+import Quackbot.plugins.core.JavaHelp;
 
-import Quackbot.plugins.java.JavaTest;
+import Quackbot.plugins.core.JavaTest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,15 +20,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-
 import jpersist.DatabaseManager;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
 
@@ -46,12 +46,14 @@ public class Controller {
 	/**
 	 * TreeMap of all JS plugins
 	 */
-	public TreeMap<String, JSCmdInfo> JSplugins = new TreeMap<String, JSCmdInfo>();
+	public TreeMap<String, JSPlugin> JSplugins = new TreeMap<String, JSPlugin>();
 	/**
 	 * List of Fully Qualified Class names of all Java Plugins
 	 */
-	public final List<String> javaPlugins = Arrays.asList(
-		JavaTest.class.getName());
+	public final List<JavaPlugin> javaPlugins = Arrays.asList(
+		new JavaPlugin(JavaTest.class.getName()),
+		new JavaPlugin(JavaHelp.class.getName()),
+		new JavaPlugin(Help.class.getName()));
 	/**
 	 * Set of all Bot instances
 	 */
@@ -93,16 +95,21 @@ public class Controller {
 		DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
 		dbm = new DatabaseManager("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://localhost/quackbot", null, null, "root", null);
 
-		//Get all servers and pass to botThread generator
+		//Get all server objects from database
+		Collection<Server> c = null;
 		try {
-			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class);
-			for (Server curServer : c) {
-				dbm.loadAssociations(curServer);
+			c = dbm.loadObjects(new ArrayList<Server>(), Server.class, true);
+			for (Server curServer : c)
 				threadPool.execute(new botThread(curServer));
-			}
+
 		} catch (Exception e) {
-			log.error("Could not connect to server", e);
+			if (StringUtils.contains(e.getMessage(), "Communications link failure"))
+				log.fatal("Error in connecting to database. Please check database connectivity and restart application", e);
+			else
+				log.error("Could not connect to server", e);
 		}
+
+
 	}
 
 	/**

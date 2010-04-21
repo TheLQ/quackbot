@@ -12,7 +12,6 @@ import jpersist.PersistentObject;
 import jpersist.annotations.UpdateNullValues;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 /**
  * This is the Server bean mapped to the Database by JPersist. Used by {@link Quackbot.Bot}
@@ -45,7 +44,7 @@ public class Server extends PersistentObject {
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
-	private int serverId;
+	private Integer serverId;
 	/**
 	 * List of all Channels, refrenced by common serverID
 	 */
@@ -54,15 +53,19 @@ public class Server extends PersistentObject {
 	 * List of all Admins, refrenced by common serverID
 	 */
 	private List<Admin> admins = new ArrayList<Admin>();
-	/**
-	 * Log4j Logger
-	 */
-	private Logger log = Logger.getLogger(Server.class);
 
 	/**
 	 * Empty constructor
 	 */
 	public Server() {
+	}
+
+	/**
+	 * Constructor specified by Server ID. Usually used to get all servers from db
+	 * @param serverID
+	 */
+	public Server(int serverID) {
+		this.serverId = serverID;
 	}
 
 	/**
@@ -103,7 +106,7 @@ public class Server extends PersistentObject {
 	 * @param port     Custom port of server
 	 * @param password Password of server
 	 */
-	public Server(int serverId, String address, String port, String password) {
+	public Server(Integer serverId, String address, String port, String password) {
 		this.serverId = serverId;
 		this.address = address;
 		this.port = port;
@@ -204,7 +207,6 @@ public class Server extends PersistentObject {
 	 * @return  List of channel objects
 	 */
 	public List<Channel> getDbAssociation(Channel c) {
-		getLog().debug("Called get DB association - chan");
 		return getChannels();
 	}
 
@@ -214,7 +216,6 @@ public class Server extends PersistentObject {
 	 * @param s
 	 */
 	public void setDbAssociation(Channel c, List<Channel> s) {
-		getLog().debug("Called set DB association - chan");
 		setChannels(s);
 	}
 
@@ -224,7 +225,6 @@ public class Server extends PersistentObject {
 	 * @return DB associations
 	 */
 	public List<Admin> getDbAssociation(Admin c) {
-		getLog().debug("Called get DB association - admin");
 		return getAdmins();
 	}
 
@@ -235,7 +235,6 @@ public class Server extends PersistentObject {
 	 * @param o
 	 */
 	public void setDbAssociation(Admin c, List<Admin> o) {
-		getLog().debug("Called set DB association - admin");
 		setAdmins(o);
 	}
 
@@ -291,7 +290,7 @@ public class Server extends PersistentObject {
 	 * Value mapped to column in DB or manually provided
 	 * @return the serverId
 	 */
-	public int getServerId() {
+	public Integer getServerId() {
 		return serverId;
 	}
 
@@ -299,7 +298,7 @@ public class Server extends PersistentObject {
 	 * Value mapped to column in DB or manually provided
 	 * @param serverId the serverId to set
 	 */
-	public void setServerId(int serverId) {
+	public void setServerId(Integer serverId) {
 		this.serverId = serverId;
 	}
 
@@ -333,21 +332,5 @@ public class Server extends PersistentObject {
 	 */
 	public void setAdmins(List<Admin> admins) {
 		this.admins = admins;
-	}
-
-	/**
-	 * Log4j Logger
-	 * @return the log
-	 */
-	public Logger getLog() {
-		return log;
-	}
-
-	/**
-	 * Log4j Logger
-	 * @param log the log to set
-	 */
-	public void setLog(Logger log) {
-		this.log = log;
 	}
 }

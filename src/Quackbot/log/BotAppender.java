@@ -31,12 +31,11 @@ public class BotAppender extends AppenderSkeleton {
 	 * @param address Address of server
 	 */
 	public BotAppender(String address) {
-		this.out = new WriteOutput(InstanceTracker.getMainInst().BerrorLog,this);
 		this.address = address;
 	}
 
 	public void append(LoggingEvent event) {
-		out.write(event, address);
+		InstanceTracker.getMainInst().log_threadpool.execute(new WriteOutput(InstanceTracker.getMainInst().BerrorLog,this,event,address));
 	}
 
 	public boolean requiresLayout() {

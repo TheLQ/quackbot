@@ -1,102 +1,73 @@
-/**
- * @(#)JSCmdInfo.java
- *
- * This file is part of Quackbot
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
+
 package Quackbot.info;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
+import Quackbot.plugins.core.BasePlugin;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
- * JS utility bean, holds all information about JS plugin
- * @author Lord.Quackstar
+ *
+ * @author admins
  */
-public class JSCmdInfo {
+public class JavaPlugin {
 
 	/**
 	 * Name of command
 	 */
-	private String name;
+	public String name = "";
 	/**
-	 * Raw source code (used for versioning)
+	 * Help for command. HIGHLY recommended to override
 	 */
-	private String src;
-	/**
-	 * Help for command
-	 */
-	private String help;
+	public String help = "";
 	/**
 	 * Admin only?
 	 */
-	private boolean admin;
+	public boolean admin = false;
 	/**
 	 * Ignore command?
 	 */
-	private boolean ignore;
+	public boolean ignore = false;
 	/**
 	 * Is Listener?
 	 */
-	private boolean listener;
+	public boolean listener = false;
 	/**
 	 * Is server?
 	 */
-	private boolean service;
+	public boolean service = false;
 	/**
 	 * Is Util?
 	 */
-	private boolean util;
+	public boolean util = false;
 	/**
 	 * Requires Arguments?
 	 */
-	private boolean reqArg;
+	public boolean reqArg = false;
 	/**
-	 * Number of parameters
+	 *
 	 */
-	private int params;
-	/**
-	 * Current JS context
-	 */
-	private ScriptContext context;
-	/**
-	 * Scope
-	 */
-	private Bindings scope;
+	public static Logger log = Logger.getLogger(JavaPlugin.class);
 
 	/**
-	 * Name of command
-	 * @return the name
+	 * Empty Constructor. Shouldn't be used
 	 */
-	public String getName() {
-		return name;
+	public JavaPlugin() {
 	}
 
 	/**
-	 * Name of command
-	 * @param name the name to set
+	 * Creates empty JavaPlugin with class name
+	 * @param FQCN Fully Qualified Class Name of Java plugin
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public JavaPlugin(String FQCN) {
+		this.name = FQCN;
 	}
 
 	/**
-	 * Raw source code (used for versioning)
-	 * @return the src
-	 */
-	public String getSrc() {
-		return src;
-	}
-
-	/**
-	 * Raw source code (used for versioning)
-	 * @param src the src to set
-	 */
-	public void setSrc(String src) {
-		this.src = src;
-	}
-
-	/**
-	 * Help for command
+	 * Help for command. HIGHLY recommended to override
 	 * @return the help
 	 */
 	public String getHelp() {
@@ -104,7 +75,7 @@ public class JSCmdInfo {
 	}
 
 	/**
-	 * Help for command
+	 * Help for command. HIGHLY recommended to override
 	 * @param help the help to set
 	 */
 	public void setHelp(String help) {
@@ -208,50 +179,36 @@ public class JSCmdInfo {
 	}
 
 	/**
-	 * Number of parameters
-	 * @return the params
+	 * Name of command
+	 * @return the name
 	 */
-	public int getParams() {
-		return params;
+	public String getName() {
+		return name;
 	}
 
 	/**
-	 * Number of parameters
-	 * @param params the params to set
+	 * Name of command
+	 * @param name the name to set
 	 */
-	public void setParams(int params) {
-		this.params = params;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	/**
-	 * Current JS context
-	 * @return the context
-	 */
-	public ScriptContext getContext() {
-		return context;
-	}
-
-	/**
-	 * Current JS context
-	 * @param context the context to set
-	 */
-	public void setContext(ScriptContext context) {
-		this.context = context;
-	}
-
-	/**
-	 * Scope
-	 * @return the scope
-	 */
-	public Bindings getScope() {
-		return scope;
-	}
-
-	/**
-	 * Scope
-	 * @param scope the scope to set
-	 */
-	public void setScope(Bindings scope) {
-		this.scope = scope;
+	public BasePlugin newInstance() throws Exception {
+		BasePlugin plugin = null;
+		try {
+			plugin = (BasePlugin)this.getClass().getClassLoader().loadClass(getName()).newInstance();
+		}
+		catch(ClassCastException e) {
+			if(StringUtils.contains(e.getMessage(),"BasePlugin"))
+				throw new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)");
+			else
+				throw e;
+		}
+		catch(Exception e) {
+			log.error("Unable to create instance of "+getName(),e);
+			throw e;
+		}
+		return plugin;
 	}
 }

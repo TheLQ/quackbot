@@ -38,7 +38,7 @@ public class Admin extends Entity {
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
-	private int adminId, channelID, serverID;
+	private Integer adminId, channelID, serverID;
 
 	/**
 	 * Value mapped to column in DB or manually provided
@@ -68,7 +68,7 @@ public class Admin extends Entity {
 	 * Value mapped to column in DB or manually provided
 	 * @return the adminId
 	 */
-	public int getAdminId() {
+	public Integer getAdminId() {
 		return adminId;
 	}
 
@@ -76,7 +76,7 @@ public class Admin extends Entity {
 	 * Value mapped to column in DB or manually provided
 	 * @param adminId the adminId to set
 	 */
-	public void setAdminId(int adminId) {
+	public void setAdminId(Integer adminId) {
 		this.adminId = adminId;
 	}
 
@@ -84,7 +84,7 @@ public class Admin extends Entity {
 	 * Value mapped to column in DB or manually provided
 	 * @return the channelID
 	 */
-	public int getChannelID() {
+	public Integer getChannelID() {
 		return channelID;
 	}
 
@@ -92,7 +92,7 @@ public class Admin extends Entity {
 	 * Value mapped to column in DB or manually provided
 	 * @param channelID the channelID to set
 	 */
-	public void setChannelID(int channelID) {
+	public void setChannelID(Integer channelID) {
 		this.channelID = channelID;
 	}
 
@@ -100,7 +100,7 @@ public class Admin extends Entity {
 	 * Value mapped to column in DB or manually provided
 	 * @return the serverID
 	 */
-	public int getServerID() {
+	public Integer getServerID() {
 		return serverID;
 	}
 
@@ -108,7 +108,7 @@ public class Admin extends Entity {
 	 * Value mapped to column in DB or manually provided
 	 * @param serverID the serverID to set
 	 */
-	public void setServerID(int serverID) {
+	public void setServerID(Integer serverID) {
 		this.serverID = serverID;
 	}
 

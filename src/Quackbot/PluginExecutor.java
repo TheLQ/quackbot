@@ -10,16 +10,18 @@ import Quackbot.err.InvalidCMDException;
 import Quackbot.err.NumArgException;
 
 import Quackbot.info.BotMessage;
-import Quackbot.info.JSCmdInfo;
+import Quackbot.info.JSPlugin;
+import Quackbot.info.JavaPlugin;
 import Quackbot.info.UserMessage;
+import Quackbot.log.BotAppender;
 
-import Quackbot.plugins.java.JavaCmdTpl;
+import Quackbot.plugins.core.BasePlugin;
 
-import java.util.List;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngineManager;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
 
@@ -66,6 +68,9 @@ public class PluginExecutor implements Runnable {
 		this.params = msgInfo.getArgs();
 		this.msgInfo = msgInfo;
 		this.qb = bot;
+		log.setAdditivity(false);
+		log.removeAllAppenders();
+		log.addAppender(new BotAppender(qb.getServer()));
 	}
 
 	/**
@@ -84,9 +89,9 @@ public class PluginExecutor implements Runnable {
 	 * This simply finds what the command is and sends it to the appropiate parser
 	 */
 	public void run() {
-		log.info("Running Plugin Excecutor for " + command);
+		
 		try {
-			String javaResult = findCI(ctrl.javaPlugins, "Quackbot.plugins.java." + command);
+			JavaPlugin javaResult = Utils.findCI(ctrl.javaPlugins, "Quackbot.plugins.java." + command);
 			if (ctrl.JSplugins.keySet().contains(command))
 				runJs();
 			else if (javaResult != null)
@@ -105,8 +110,17 @@ public class PluginExecutor implements Runnable {
 			log.error("Command does not exist!", e);
 			if (qb != null)
 				qb.sendMsg(new BotMessage(msgInfo, e));
-		} catch (Exception e) {
-			log.error("Other error", e);
+		} catch (ClassCastException e) {
+			log.error("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)", e);
+			if (qb != null) {
+				if(StringUtils.contains(e.getMessage(),"BasePlugin"))
+					qb.sendMsg(new BotMessage(msgInfo,new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)")));
+				else
+					qb.sendMsg(new BotMessage(msgInfo, e));
+			}
+		}
+		catch (Exception e) {
+			log.error("Other error in plugin execution", e);
 			if (qb != null)
 				qb.sendMsg(new BotMessage(msgInfo, e));
 		}
@@ -116,8 +130,9 @@ public class PluginExecutor implements Runnable {
 	 * Javascript executor
 	 * @throws Exception When search or command runs into an error
 	 */
-	private void runJs() throws Exception {
-		JSCmdInfo cmdInfo = ctrl.JSplugins.get(command);
+	public void runJs() throws Exception {
+		log.info("Running Javascript Plugin " + command);
+		JSPlugin cmdInfo = ctrl.JSplugins.get(command);
 		//Is this an admin function? If so, is the person an admin?
 		if (cmdInfo.isAdmin() && !qb.serverDB.adminExists(msgInfo.getSender()))
 			throw new AdminException();
@@ -166,21 +181,9 @@ public class PluginExecutor implements Runnable {
 	 * @param javaLoc    Fully Qualified Class name of command
 	 * @throws Exception When command runs into an error
 	 */
-	private void runJava(String javaLoc) throws Exception {
-		JavaCmdTpl javaCmd = (JavaCmdTpl) this.getClass().getClassLoader().loadClass(javaLoc).newInstance();
+	public void runJava(JavaPlugin javaLoc) throws ClassCastException, Exception {
+		log.info("Running Java Plugin " + command);
+		BasePlugin javaCmd = javaLoc.newInstance();
 		javaCmd.invoke(qb, msgInfo);
-	}
-
-	/**
-	 * Utility to find a string inside of a list case-insisitvly
-	 * @param slist List to search
-	 * @param find  What to find
-	 * @return      Value found in list, null if not found
-	 */
-	private String findCI(List<String> slist, String find) {
-		for (String curItem : slist)
-			if (curItem.equalsIgnoreCase(find))
-				return curItem;
-		return null;
 	}
 }

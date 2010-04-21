@@ -15,6 +15,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.BorderFactory;
 
@@ -48,15 +50,22 @@ public class Main extends JFrame implements ActionListener {
 	private Logger log = Logger.getLogger(Main.class);
 
 	/**
+	 * Thread pool used by appenders so only ONE WriteOutput is running at one time
+	 */
+	public ExecutorService log_threadpool = Executors.newFixedThreadPool(1);
+
+	/**
 	 * Setup and display GUI, setup Log4j, start Controller
 	 */
 	public Main() {
 		/***Pre init, setup error log**/
 		InstanceTracker.setMainInst(this);
 		BerrorLog = new JTextPane();
+		BerrorLog.setContentType("text/html");
 		BerrorLog.setEditable(false);
 		BerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 		CerrorLog = new JTextPane();
+		CerrorLog.setContentType("text/html");
 		CerrorLog.setEditable(false);
 		CerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 
