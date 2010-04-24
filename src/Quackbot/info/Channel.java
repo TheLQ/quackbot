@@ -41,7 +41,7 @@ public class Channel extends Entity {
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
-	private String channel, password = null;
+	private String channel, password;
 
 	/**
 	 * Empty Constructor
@@ -115,8 +115,6 @@ public class Channel extends Entity {
 	 * @return the channel
 	 */
 	public String getChannel() {
-		if(channel == null)
-			return "";
 		return channel;
 	}
 

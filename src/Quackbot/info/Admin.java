@@ -60,6 +60,10 @@ public class Admin extends Entity {
 	}
 
 
+	/**
+	 * Converts admin to String representation
+	 * @return String representation
+	 */
 	public String toString() {
 		return StringUtils.join(new Object[]{getAdminId(), getChannelID(), getServerID(), getUser()}, ", ");
 	}

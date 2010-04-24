@@ -5,6 +5,7 @@
  */
 package Quackbot;
 
+import Quackbot.annotations.HelpDoc;
 import Quackbot.err.AdminException;
 import Quackbot.err.InvalidCMDException;
 import Quackbot.err.NumArgException;
@@ -52,7 +53,7 @@ public class PluginExecutor implements Runnable {
 	/**
 	 * Current Controller instance
 	 */
-	private Controller ctrl = InstanceTracker.getCtrlInst();
+	private Controller ctrl = InstanceTracker.getController();
 	/**
 	 * Log4j logger
 	 */
@@ -89,9 +90,8 @@ public class PluginExecutor implements Runnable {
 	 * This simply finds what the command is and sends it to the appropiate parser
 	 */
 	public void run() {
-		
 		try {
-			JavaPlugin javaResult = Utils.findCI(ctrl.javaPlugins, "Quackbot.plugins.java." + command);
+			JavaPlugin javaResult = Utils.findJavaPlugin(command);
 			if (ctrl.JSplugins.keySet().contains(command))
 				runJs();
 			else if (javaResult != null)
@@ -111,15 +111,16 @@ public class PluginExecutor implements Runnable {
 			if (qb != null)
 				qb.sendMsg(new BotMessage(msgInfo, e));
 		} catch (ClassCastException e) {
-			log.error("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)", e);
-			if (qb != null) {
-				if(StringUtils.contains(e.getMessage(),"BasePlugin"))
-					qb.sendMsg(new BotMessage(msgInfo,new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)")));
-				else
+			if (StringUtils.contains(e.getMessage(), "BasePlugin")) {
+				log.error("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)", e);
+				if (qb != null)
+					qb.sendMsg(new BotMessage(msgInfo, new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)")));
+			} else {
+				log.error("Other classCastException in plugin", e);
+				if (qb != null)
 					qb.sendMsg(new BotMessage(msgInfo, e));
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			log.error("Other error in plugin execution", e);
 			if (qb != null)
 				qb.sendMsg(new BotMessage(msgInfo, e));
@@ -151,7 +152,7 @@ public class PluginExecutor implements Runnable {
 			throw new NumArgException(user_args, method_args);
 
 		//All requirements are met, excecute method
-		log.info("All tests passed, running method "+command);
+		log.info("All tests passed, running method " + command);
 		ScriptContext newContext = (ScriptContext) cmdInfo.getContext();
 		Bindings engineScope = (Bindings) cmdInfo.getScope();
 		if (qb != null) {
@@ -186,4 +187,6 @@ public class PluginExecutor implements Runnable {
 		BasePlugin javaCmd = javaLoc.newInstance();
 		javaCmd.invoke(qb, msgInfo);
 	}
+
+	
 }

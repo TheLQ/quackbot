@@ -8,6 +8,8 @@ import Quackbot.Bot;
 import Quackbot.Controller;
 import Quackbot.InstanceTracker;
 import Quackbot.Utils;
+import Quackbot.annotations.HelpDoc;
+import Quackbot.err.InvalidCMDException;
 import Quackbot.info.BotMessage;
 import Quackbot.info.JSPlugin;
 import Quackbot.info.JavaPlugin;
@@ -17,14 +19,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Lord.Quackstar
  */
-public class Help {
-
-	Controller ctrl = InstanceTracker.getCtrlInst();
+@HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
+public class Help extends BasePlugin {
+	private static Logger log = Logger.getLogger(Help.class);
+	Controller ctrl = InstanceTracker.getController();
 
 	public String help() {
 		return "Displays all commands or help for specific command. Syntax ?help <OPTIONAL:Command>";
@@ -52,11 +56,13 @@ public class Help {
 			qb.sendMsg(new BotMessage(msgInfo, "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ")));
 		} else {
 			String command = msgInfo.getArgs()[0];
-			JavaPlugin javaResult  = Utils.findCI(ctrl.javaPlugins, "Quackbot.plugins.java." + command);
+			JavaPlugin javaResult  = Utils.findJavaPlugin(command);
 			if (ctrl.JSplugins.keySet().contains(command))
 				qb.sendMsg(new BotMessage(msgInfo,ctrl.JSplugins.get(command).getHelp()));
 			else if (javaResult != null)
-				qb.sendMsg(new BotMessage(msgInfo,javaResult.newInstance().help()));
+				qb.sendMsg(new BotMessage(msgInfo,javaResult.getHelp()));
+			else
+				throw new InvalidCMDException(command);
 		}
 	}
 }

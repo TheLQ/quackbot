@@ -8,7 +8,7 @@ function webTalk(url) {
 	var netPkgs = new JavaImporter(java.io,java.net);
 	with (netPkgs) {
 		try {
-			println("Visiting url: "+url);
+			log.debug("Visiting url: "+url);
 
 			// Get the response
 			var rd = new BufferedReader(new InputStreamReader(new URL(url).openConnection().getInputStream()));

@@ -13,11 +13,11 @@ package Quackbot;
 public class InstanceTracker {
 
 	/**
-	 * Main instance. Get with {@link #getMainInst()}
+	 * Main instance. Get with {@link #getMain()}
 	 */
 	private static Main mainInst = null;
 	/**
-	 * Controller instance. Get with {@link #getCtrlInst()}
+	 * Controller instance. Get with {@link #getController()}
 	 */
 	private static Controller ctrlInst = null;
 
@@ -25,7 +25,7 @@ public class InstanceTracker {
 	 * Fetches the only Main instance
 	 * @return The Main instance
 	 */
-	public static Main getMainInst() {
+	public static Main getMain() {
 		return mainInst;
 	}
 
@@ -36,7 +36,7 @@ public class InstanceTracker {
 	 * Sets the Main instance
 	 * @param aMainInst The Main instance being used
 	 */
-	public static void setMainInst(Main aMainInst) {
+	public static void setMain(Main aMainInst) {
 		mainInst = aMainInst;
 	}
 
@@ -44,7 +44,7 @@ public class InstanceTracker {
 	 * Fetches the only Controller Instance
 	 * @return The Controller instance
 	 */
-	public static Controller getCtrlInst() {
+	public static Controller getController() {
 		return ctrlInst;
 	}
 
@@ -55,7 +55,7 @@ public class InstanceTracker {
 	 * Sets the only Controller instance
 	 * @param aCtrlInst The contoller instance being used
 	 */
-	public static void setCtrlInst(Controller aCtrlInst) {
+	public static void setController(Controller aCtrlInst) {
 		ctrlInst = aCtrlInst;
 	}
 }

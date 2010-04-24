@@ -37,7 +37,7 @@ public class loadCMDs implements Runnable {
 	/**
 	 * Current Controller Instance
 	 */
-	Controller ctrl = InstanceTracker.getCtrlInst();
+	Controller ctrl = InstanceTracker.getController();
 	/**
 	 * List of new CMDs
 	 */
@@ -74,8 +74,7 @@ public class loadCMDs implements Runnable {
 		cmdBack = new TreeMap<String, JSPlugin>(ctrl.JSplugins);
 		try {
 			ctrl.JSplugins.clear();
-			ctrl.threadPool_js.shutdownNow();
-			ctrl.threadPool_js = Executors.newCachedThreadPool();
+			ThreadPoolManager.restartPlugin();
 			File cmddir = new File("plugins");
 			if (!cmddir.exists()) {
 				log.fatal("CMD directory not found! CD: " + new File(".").getAbsolutePath());
@@ -123,7 +122,7 @@ public class loadCMDs implements Runnable {
 				if (!cmdInfo.isService())
 					continue;
 				log.debug("Excecuting service");
-				ctrl.threadPool_js.execute(new PluginExecutor(cmdInfo.getName(), new String[0]));
+				ThreadPoolManager.addPlugin(new PluginExecutor(cmdInfo.getName(), new String[0]));
 			}
 		} catch (Exception e) {
 			ctrl.JSplugins = cmdBack;
@@ -191,7 +190,7 @@ public class loadCMDs implements Runnable {
 			JSUtils.add(fileContents.toString());
 			suffix = "util";
 		} else {
-			ctrl.JSplugins.put(name, cmdInfo);
+			ctrl.JSplugins.put(name,cmdInfo);
 			suffix = "cmd";
 			updateChanges(cmdBack, name, contents);
 		}

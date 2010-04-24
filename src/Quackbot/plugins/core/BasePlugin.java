@@ -6,6 +6,7 @@
 package Quackbot.plugins.core;
 
 import Quackbot.Bot;
+import Quackbot.annotations.HelpDoc;
 import Quackbot.err.NumArgException;
 
 import Quackbot.info.UserMessage;
@@ -16,15 +17,8 @@ import Quackbot.info.JavaPlugin;
  * Java command interface. All Java commands MUST implement this
  * @author Lord.Quackstar
  */
+@HelpDoc("This is BasePlugin Help")
 public abstract class BasePlugin extends JavaPlugin {
-
-	/**
-	 * Basic help
-	 * @return If not overridden "No help avalible"
-	 */
-	public String help() {
-		return "No help avalible";
-	}
 
 	/**
 	 * Called when spefic command is requested
