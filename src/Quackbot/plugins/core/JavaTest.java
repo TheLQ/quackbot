@@ -7,6 +7,8 @@ package Quackbot.plugins.core;
 
 import Quackbot.Bot;
 import Quackbot.annotations.HelpDoc;
+import Quackbot.annotations.Param;
+import Quackbot.annotations.ParamNum;
 import Quackbot.info.BotMessage;
 import Quackbot.info.UserMessage;
 
@@ -15,7 +17,9 @@ import Quackbot.info.UserMessage;
  * @author Lord.Quackstar
  */
 @HelpDoc("This is JavaTest Help")
-public class JavaTest extends BasePlugin {
+@ParamNum(1)
+public class JavaTest implements BasePlugin {
+	int something;
 	public void invoke(Bot bot, UserMessage msgInfo) {
 		bot.sendMsg(new BotMessage(msgInfo,"hehe"));
 	}

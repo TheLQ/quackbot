@@ -5,7 +5,6 @@
  */
 package Quackbot;
 
-import Quackbot.annotations.HelpDoc;
 import Quackbot.err.AdminException;
 import Quackbot.err.InvalidCMDException;
 import Quackbot.err.NumArgException;
@@ -17,11 +16,13 @@ import Quackbot.info.UserMessage;
 import Quackbot.log.BotAppender;
 
 import Quackbot.plugins.core.BasePlugin;
-
+import java.util.TreeSet;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.SimpleScriptContext;
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -92,48 +93,44 @@ public class PluginExecutor implements Runnable {
 	public void run() {
 		try {
 			JavaPlugin javaResult = Utils.findJavaPlugin(command);
-			if (ctrl.JSplugins.keySet().contains(command))
-				runJs();
+			JSPlugin jsResult = Utils.findJSPlugin(command);
+			if (jsResult != null)
+				runJs(jsResult);
 			else if (javaResult != null)
 				runJava(javaResult);
 			else
 				throw new InvalidCMDException(command);
 		} catch (AdminException e) {
 			log.error("Person is not admin!!", e);
-			if (qb != null)
-				qb.sendMsg(new BotMessage(msgInfo, e));
+			sendIfBot(new BotMessage(msgInfo, e));
 		} catch (NumArgException e) {
 			log.error("Wrong params!!!", e);
-			if (qb != null)
-				qb.sendMsg(new BotMessage(msgInfo, e));
+			sendIfBot(new BotMessage(msgInfo, e));
 		} catch (InvalidCMDException e) {
 			log.error("Command does not exist!", e);
-			if (qb != null)
-				qb.sendMsg(new BotMessage(msgInfo, e));
+			sendIfBot(new BotMessage(msgInfo, e));
 		} catch (ClassCastException e) {
 			if (StringUtils.contains(e.getMessage(), "BasePlugin")) {
-				log.error("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)", e);
-				if (qb != null)
-					qb.sendMsg(new BotMessage(msgInfo, new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)")));
+				log.error("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?) of " + command, e);
+				sendIfBot(new BotMessage(msgInfo, new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)")));
 			} else {
-				log.error("Other classCastException in plugin", e);
-				if (qb != null)
-					qb.sendMsg(new BotMessage(msgInfo, e));
+				log.error("Other classCastException in plugin " + command, e);
+				sendIfBot(new BotMessage(msgInfo, e));
 			}
 		} catch (Exception e) {
-			log.error("Other error in plugin execution", e);
-			if (qb != null)
-				qb.sendMsg(new BotMessage(msgInfo, e));
+			log.error("Other error in plugin execution of " + command, e);
+			sendIfBot(new BotMessage(msgInfo, e));
 		}
+		if (qb != null)
+			log.info("-----------End execution of command #"+msgInfo.getCmdNum()+",  from " + msgInfo.getRawmsg() + "-----------");
 	}
 
 	/**
 	 * Javascript executor
 	 * @throws Exception When search or command runs into an error
 	 */
-	public void runJs() throws Exception {
+	public void runJs(JSPlugin cmdInfo) throws Exception {
 		log.info("Running Javascript Plugin " + command);
-		JSPlugin cmdInfo = ctrl.JSplugins.get(command);
 		//Is this an admin function? If so, is the person an admin?
 		if (cmdInfo.isAdmin() && !qb.serverDB.adminExists(msgInfo.getSender()))
 			throw new AdminException();
@@ -153,11 +150,16 @@ public class PluginExecutor implements Runnable {
 
 		//All requirements are met, excecute method
 		log.info("All tests passed, running method " + command);
-		ScriptContext newContext = (ScriptContext) cmdInfo.getContext();
-		Bindings engineScope = (Bindings) cmdInfo.getScope();
+		ScriptContext newContext = cmdInfo.getContext();
+		Bindings engineScope = cmdInfo.getScope();
 		if (qb != null) {
 			engineScope.put("msgInfo", msgInfo);
 			engineScope.put("qb", qb);
+		}
+		else {
+			//Prevent "not defined" errors
+			engineScope.put("msgInfo", null);
+			engineScope.put("qb", null);
 		}
 		engineScope.put("log", Logger.getLogger("Quackbot.plugins.js." + cmdInfo.getName()));
 
@@ -188,5 +190,12 @@ public class PluginExecutor implements Runnable {
 		javaCmd.invoke(qb, msgInfo);
 	}
 
-	
+	/**
+	 * Utility to send message to server only if  isn't null
+	 * @param msg Message to send
+	 */
+	private void sendIfBot(BotMessage msg) {
+		if (qb != null)
+			qb.sendMessage(msg.channel, msg.toString());
+	}
 }

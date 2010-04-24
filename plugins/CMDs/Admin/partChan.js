@@ -6,9 +6,9 @@ var ReqArg = true;
 function invoke(newChan) {
 	if(newChan=="null") {
 		//Part current channel
-		qb.partChannel(channel);
-		qb.log("Parted channel "+channel);
-		qb.sendMsg(new BotMessage(msgInfo,"Parted channel "+channel));
+		qb.partChannel(msgInfo.channel);
+		qb.log("Parted channel "+msgInfo.channel);
+		qb.sendMsg(new BotMessage(msgInfo,"Parted channel "+msgInfo.channel));
 	}
 	else {
 		//Part given channel

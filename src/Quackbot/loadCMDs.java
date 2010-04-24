@@ -57,7 +57,7 @@ public class loadCMDs implements Runnable {
 	/**
 	 * List of all JS utils
 	 */
-	public TreeSet<String> JSUtils = new TreeSet<String>();
+	public TreeSet<String> JSUtilsBack = new TreeSet<String>();
 	/**
 	 * Current file being parsed, used for reporting of errors
 	 */
@@ -72,6 +72,7 @@ public class loadCMDs implements Runnable {
 	 */
 	public void run() {
 		cmdBack = new TreeMap<String, JSPlugin>(ctrl.JSplugins);
+		JSUtilsBack = new TreeSet<String>(ctrl.JSUtils);
 		try {
 			ctrl.JSplugins.clear();
 			ThreadPoolManager.restartPlugin();
@@ -84,25 +85,33 @@ public class loadCMDs implements Runnable {
 			//Call recursive file method, will parse and load all cmds
 			traverse(cmddir);
 
-			//Get one big combined string of util stuff
+			//Start utils as big combined string, import all useful stuff
 			StringBuilder utilSB = new StringBuilder();
-			for(String curUtil : JSUtils)
+			utilSB.append("importPackage(Packages.Quackbot);");
+			utilSB.append("importClass(Packages.Quackbot.info.BotMessage);");
+			utilSB.append("importPackage(Packages.Quackbot.info);");
+
+			//Append all utils source code
+			for (String curUtil : ctrl.JSUtils)
 				utilSB.append(curUtil);
 
-			//Add Utils to ALL commands
-			Set<Map.Entry<String,JSPlugin>> cmdSet = ctrl.JSplugins.entrySet();
-			for(Map.Entry<String,JSPlugin> curCmd : cmdSet)
-				new ScriptEngineManager().getEngineByName("JavaScript").eval(utilSB.toString(), curCmd.getValue().getContext());
+			//Eval into context
+			for (Map.Entry<String, JSPlugin> curServ : ctrl.JSplugins.entrySet()) {
+				ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+				ScriptContext newContext = new SimpleScriptContext();
+				JSPlugin curJS = curServ.getValue();
+				jsEngine.eval(utilSB.toString(), newContext);
+				jsEngine.eval(curJS.getSrc(), newContext);
+				curJS.setContext(newContext);
+				curJS.setScope(newContext.getBindings(ScriptContext.ENGINE_SCOPE));
+			}
 
 			log.debug("cmdBack len: " + cmdBack.size() + " | cmds len: " + ctrl.JSplugins.size());
 
 			//Get deleted CMDs
-			Iterator cmdItr = cmdBack.keySet().iterator();
-			while (cmdItr.hasNext()) {
-				String curCmd = (String) cmdItr.next();
+			for(String curCmd : cmdBack.keySet())
 				if (!ctrl.JSplugins.containsKey(curCmd) && !newCMDs.contains(curCmd))
 					deletedCMDs.add(curCmd);
-			}
 
 			String newStr = (newCMDs.size() == 0) ? "" : "New: " + StringUtils.join(newCMDs.toArray(), ", ");
 			String updateStr = (updatedCMDs.size() == 0) ? "" : "Updated: " + StringUtils.join(updatedCMDs.toArray(), ", ");
@@ -116,8 +125,7 @@ public class loadCMDs implements Runnable {
 			ctrl.sendGlobalMessage("Bot commands reloaded! " + newStr + " " + updateStr + " " + delStr);
 
 			//Start services
-			Set<Map.Entry<String, JSPlugin>> servItr = ctrl.JSplugins.entrySet();
-			for (Map.Entry<String, JSPlugin> curServ : servItr) {
+			for (Map.Entry<String, JSPlugin> curServ : ctrl.JSplugins.entrySet()) {
 				JSPlugin cmdInfo = curServ.getValue();
 				if (!cmdInfo.isService())
 					continue;
@@ -126,6 +134,7 @@ public class loadCMDs implements Runnable {
 			}
 		} catch (Exception e) {
 			ctrl.JSplugins = cmdBack;
+			ctrl.JSUtils = JSUtilsBack;
 			log.error("Error in reload, reverting to cmd backup. Last file: " + this.curFile, e);
 		}
 		return;
@@ -163,7 +172,6 @@ public class loadCMDs implements Runnable {
 		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		ScriptContext newContext = new SimpleScriptContext();
 		Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
-		engineScope.put("ctrl", ctrl);
 		jsEngine.eval(contents, newContext);
 
 		//Fill in cmd Info
@@ -179,18 +187,16 @@ public class loadCMDs implements Runnable {
 		cmdInfo.setReqArg(((engineScope.get("ReqArg") == null) ? false : true));
 		if (!cmdInfo.isListener() && !cmdInfo.isService() && !cmdInfo.isUtil())
 			cmdInfo.setParams((int) Double.parseDouble(engineScope.get("param").toString()));
-		cmdInfo.setContext(newContext);
-		cmdInfo.setScope(engineScope);
 
 
 		//Method update list: Is this an existing method?
 		String suffix = "";
 		if (cmdInfo.isUtil()) {
 			//Customized search due to theis being a TreeSet
-			JSUtils.add(fileContents.toString());
+			ctrl.JSUtils.add(fileContents.toString());
 			suffix = "util";
 		} else {
-			ctrl.JSplugins.put(name,cmdInfo);
+			ctrl.JSplugins.put(name, cmdInfo);
 			suffix = "cmd";
 			updateChanges(cmdBack, name, contents);
 		}

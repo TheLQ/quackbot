@@ -25,6 +25,10 @@ public class StdRedirect extends FilterOutputStream {
 	}
 
 	public void write(byte b[], int off, int len) throws IOException {
-		log.info(new String(b, off, len).trim());
+		String stringRep = new String(b, off, len).trim();
+		if(error)
+			log.error(stringRep);
+		else
+			log.info(stringRep);
 	}
 }

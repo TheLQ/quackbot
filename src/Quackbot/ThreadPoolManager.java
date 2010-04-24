@@ -27,7 +27,7 @@ public class ThreadPoolManager {
 	 * Adds a runnable to the Main Queue
 	 * @param rbl Runnable object
 	 */
-	public static void addMain(Runnable rbl) {
+	public static synchronized void addMain(Runnable rbl) {
 		mainPool.execute(rbl);
 	}
 
@@ -35,7 +35,7 @@ public class ThreadPoolManager {
 	 * Adds plugin to plugin Queue
 	 * @param rbl Runnable object
 	 */
-	public static void addPlugin(Runnable rbl) {
+	public static synchronized void addPlugin(Runnable rbl) {
 		pluginPool.execute(rbl);
 	}
 
@@ -47,7 +47,7 @@ public class ThreadPoolManager {
 	 * the pool completly empty. The controller must be restarted immediatly
 	 * after running this method
 	 */
-	public static void restartMain() {
+	public static synchronized void restartMain() {
 		mainPool.shutdownNow();
 		mainPool = Executors.newCachedThreadPool();
 	}
@@ -58,7 +58,7 @@ public class ThreadPoolManager {
 	 *
 	 * WARNING: This will kill all running plugins unless they are in an infinate loop
 	 */
-	public static void restartPlugin() {
+	public static synchronized void restartPlugin() {
 		pluginPool.shutdownNow();
 		pluginPool = Executors.newCachedThreadPool();
 	}
@@ -68,7 +68,7 @@ public class ThreadPoolManager {
 	 * <u>This method is meant to be used internally</u>
 	 * @return Main thread pool
 	 */
-	public static ExecutorService getMain() {
+	public static synchronized ExecutorService getMain() {
 		return mainPool;
 	}
 
@@ -77,7 +77,7 @@ public class ThreadPoolManager {
 	 * <u>This method is meant to be used internally</u>
 	 * @return plugin thread pool
 	 */
-	public static ExecutorService getPlugin() {
+	public static synchronized ExecutorService getPlugin() {
 		return pluginPool;
 	}
 }

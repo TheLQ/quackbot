@@ -1,7 +1,3 @@
-//Provides current time
-
-importClass(Packages.Quackbot.info.BotMessage);
-
 var help = "Returns current time. Syntax: ?time"
 var param = 0;
 

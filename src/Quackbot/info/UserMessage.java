@@ -38,6 +38,7 @@ public class UserMessage {
 	private String rawmsg;
 	private String command;
 	private String[] args = new String[0];
+	private int cmdNum;
 
 	/**
 	 * Empty constructor
@@ -198,5 +199,19 @@ public class UserMessage {
 	 */
 	public void setArgs(String[] args) {
 		this.args = args;
+	}
+
+	/**
+	 * @return the cmdNum
+	 */
+	public int getCmdNum() {
+		return cmdNum;
+	}
+
+	/**
+	 * @param cmdNum the cmdNum to set
+	 */
+	public void setCmdNum(int cmdNum) {
+		this.cmdNum = cmdNum;
 	}
 }

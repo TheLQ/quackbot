@@ -14,8 +14,9 @@ import java.awt.Dimension;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 import java.util.TimeZone;
@@ -53,11 +54,11 @@ public class Main extends JFrame implements ActionListener {
 	/**
 	 * Backup standard output stream
 	 */
-	public OutputStream out;
+	public PrintStream out;
 	/**
 	 * Backup standard error stream
 	 */
-	public OutputStream err;
+	public PrintStream err;
 
 	/**
 	 * Setup and display GUI, setup Log4j, start Controller
@@ -83,7 +84,23 @@ public class Main extends JFrame implements ActionListener {
 
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //Will exit when close button is pressed
+		//On close, kill all connections gracefully
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //Will exit when close button is pressed
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent winEvt) {
+				Logger log = Logger.getLogger(this.getClass());
+				log.info("Closing all IRC and db connections gracefully");
+				Controller ctrl = InstanceTracker.getController();
+				ctrl.stopAll();
+				try {
+					ctrl.dbm.close();
+				}
+				catch(Exception e) {
+					e.printStackTrace(err); //send to standard output because window is closing
+				}
+				System.exit(0);
+			}
+		});
 		setTitle("Quackbot GUI Control Panel");
 		setMinimumSize(new Dimension(1000, 700));
 
