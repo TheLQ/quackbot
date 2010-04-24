@@ -6,6 +6,7 @@
 package Quackbot.log;
 
 import Quackbot.InstanceTracker;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.AppenderSkeleton;
 
@@ -27,7 +28,7 @@ public class ControlAppender extends AppenderSkeleton {
 			if (fullClass.indexOf(search) != -1)
 				return;
 
-		InstanceTracker.getMainInst().log_threadpool.execute(new WriteOutput(InstanceTracker.getMainInst().CerrorLog,this,event));
+		SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().CerrorLog,this,event));
 	}
 
 	public boolean requiresLayout() {

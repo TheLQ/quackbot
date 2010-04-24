@@ -5,13 +5,16 @@
  */
 package Quackbot.info;
 
+import Quackbot.InstanceTracker;
 import java.util.ArrayList;
 import java.util.List;
+import jpersist.JPersistException;
 
 import jpersist.PersistentObject;
 import jpersist.annotations.UpdateNullValues;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  * This is the Server bean mapped to the Database by JPersist. Used by {@link Quackbot.Bot}
@@ -22,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 @UpdateNullValues
 public class Server extends PersistentObject {
 
+	private static Logger logger = Logger.getLogger(Server.class);
 	private static long serialVersionUID = 100L;
 
 	/**
@@ -40,11 +44,11 @@ public class Server extends PersistentObject {
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
-	private String address, password, port;
+	private String address, password;
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
-	private Integer serverId;
+	private Integer serverId, port;
 	/**
 	 * List of all Channels, refrenced by common serverID
 	 */
@@ -64,7 +68,7 @@ public class Server extends PersistentObject {
 	 * Constructor specified by Server ID. Usually used to get all servers from db
 	 * @param serverID
 	 */
-	public Server(int serverID) {
+	public Server(Integer serverID) {
 		this.serverId = serverID;
 	}
 
@@ -81,7 +85,7 @@ public class Server extends PersistentObject {
 	 * @param address Address of server
 	 * @param port    Custom port of server
 	 */
-	public Server(String address, String port) {
+	public Server(String address, Integer port) {
 		this.address = address;
 		this.port = port;
 	}
@@ -93,7 +97,7 @@ public class Server extends PersistentObject {
 	 * @param port     Custom port of server
 	 * @param password Password of server
 	 */
-	public Server(String address, String port, String password) {
+	public Server(String address, Integer port, String password) {
 		this.address = address;
 		this.port = port;
 		this.password = password;
@@ -106,7 +110,7 @@ public class Server extends PersistentObject {
 	 * @param port     Custom port of server
 	 * @param password Password of server
 	 */
-	public Server(Integer serverId, String address, String port, String password) {
+	public Server(Integer serverId, String address, Integer port, String password) {
 		this.serverId = serverId;
 		this.address = address;
 		this.port = port;
@@ -200,6 +204,26 @@ public class Server extends PersistentObject {
 		return StringUtils.join(new Object[]{getAddress(), getPassword(), getPort(), getServerId(), getAdmins(), getChannels()}, ", ");
 	}
 
+	/**
+	 * Utility to update the database with the current Server object.
+	 * <p>
+	 * WARNING: Passing an empty or null server object might destroy the
+	 * database's knowledge of the server. Only JPersist generated Server
+	 * objects should be passed
+	 * @param serverDB JPersist generated Server object
+	 */
+	public void updateDB() {
+		try {
+			save(InstanceTracker.getController().dbm);
+		} catch (Exception e) {
+			logger.error("Error updating database", e);
+		}
+	}
+
+	public int delete() throws JPersistException {
+		return delete(InstanceTracker.getController().dbm);
+	}
+
 	/*******************************************ASSOSIATIONS*************************/
 	/**
 	 * Note: This is only for JPersist framework. DO NOT CALL THIS
@@ -274,7 +298,7 @@ public class Server extends PersistentObject {
 	 * Value mapped to column in DB or manually provided
 	 * @return the port
 	 */
-	public String getPort() {
+	public Integer getPort() {
 		return port;
 	}
 
@@ -282,7 +306,7 @@ public class Server extends PersistentObject {
 	 * Value mapped to column in DB or manually provided
 	 * @param port the port to set
 	 */
-	public void setPort(String port) {
+	public void setPort(Integer port) {
 		this.port = port;
 	}
 

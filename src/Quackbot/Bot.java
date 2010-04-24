@@ -56,7 +56,7 @@ public class Bot extends PircBot {
 	/**
 	 * Current {@link Controller} instance
 	 */
-	public Controller ctrl = InstanceTracker.getCtrlInst();
+	public Controller ctrl = InstanceTracker.getController();
 	/**
 	 * Current Server database object
 	 */
@@ -82,9 +82,18 @@ public class Bot extends PircBot {
 		setFinger("Quackbot IRC bot by Lord.Quackstar. Source: http://quackbot.googlecode.com/");
 		setMessageDelay(500);
 		setVersion("Quackbot 3.3");
+
+		//Some debug
+		StringBuilder serverDebug = new StringBuilder().append("Attempting to connect to "+serverDB.getAddress()+" on port "+serverDB.getPort());
+		if(serverDB.getPassword() != null)
+			serverDebug.append(serverDB.getPassword());
+		log.info(serverDebug.toString());
 		try {
 			//Connect to server and join all channels (fetched from db)
-			connect(serverDB.getAddress(), 6665);
+			if(serverDB.getPassword() != null)
+				connect(serverDB.getAddress(), serverDB.getPort(),serverDB.getPassword());
+			else
+				connect(serverDB.getAddress(), serverDB.getPort());
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
 		}
@@ -134,6 +143,7 @@ public class Bot extends PircBot {
 		PREFIXES.add(getNick());
 
 		List<Channel> channels = serverDB.getChannels();
+		log.debug("Channel length: "+channels.size());
 		for (Channel curChannel : channels) {
 			joinChannel(curChannel.getChannel(), curChannel.getPassword());
 			log.debug("Trying to join channel using "+curChannel);
@@ -166,7 +176,7 @@ public class Bot extends PircBot {
 		//If this is us, add to server info
 		if (sender.equalsIgnoreCase(getNick()) && !serverDB.channelExists(channel)) {
 			serverDB.addChannel(new Channel(channel));
-			updateDatabase();
+			serverDB.updateDB();
 		}
 	}
 
@@ -186,7 +196,7 @@ public class Bot extends PircBot {
 		//If this is us, add to server info
 		if (sender.equalsIgnoreCase(getNick())) {
 			serverDB.removeChannel(channel);
-			updateDatabase();
+			serverDB.updateDB();
 		}
 	}
 
@@ -212,7 +222,7 @@ public class Bot extends PircBot {
 	 */
 	private void runListener(String command, UserMessage msgInfo) {
 		log("Attempting to run listener " + command);
-		ctrl.threadPool_js.execute(new PluginExecutor(this, msgInfo));
+		ThreadPoolManager.addPlugin(new PluginExecutor(this, msgInfo));
 	}
 
 	/***************USER SUBMITTED COMMANDS FOLLOW*********************/
@@ -317,7 +327,7 @@ public class Bot extends PircBot {
 		msgInfo.setArgs(argArray);
 		msgInfo.setCommand(command);
 
-		ctrl.threadPool_js.execute(new PluginExecutor(this, msgInfo));
+		ThreadPoolManager.addPlugin(new PluginExecutor(this, msgInfo));
 	}
 
 	/**
@@ -332,14 +342,6 @@ public class Bot extends PircBot {
 			if (curUser.getNick().equalsIgnoreCase(reqUser))
 				return curUser;
 		return null;
-	}
-
-	public void updateDatabase() {
-		try {
-			serverDB.save(ctrl.dbm);
-		} catch (JPersistException e) {
-			log.error("Error updating database", e);
-		}
 	}
 
 	/**

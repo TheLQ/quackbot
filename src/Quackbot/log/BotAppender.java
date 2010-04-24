@@ -6,6 +6,7 @@
 package Quackbot.log;
 
 import Quackbot.InstanceTracker;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.AppenderSkeleton;
 
@@ -35,7 +36,7 @@ public class BotAppender extends AppenderSkeleton {
 	}
 
 	public void append(LoggingEvent event) {
-		InstanceTracker.getMainInst().log_threadpool.execute(new WriteOutput(InstanceTracker.getMainInst().BerrorLog,this,event,address));
+		SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().BerrorLog,this,event,address));
 	}
 
 	public boolean requiresLayout() {

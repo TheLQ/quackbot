@@ -6,6 +6,7 @@
 package Quackbot;
 
 import Quackbot.log.ControlAppender;
+import Quackbot.log.StdRedirect;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -13,10 +14,11 @@ import java.awt.Dimension;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.swing.BorderFactory;
 
@@ -35,7 +37,7 @@ import org.apache.log4j.Logger;
  *  -Output is formated and displayed
  *  -Can initate Reload
  * 
- * There should only be <b>1</b> instance of this. It can be refrenced by {@link Quackbot.InstanceTracker#getMainInst() InstanceTracker.getMainInst}
+ * There should only be <b>1</b> instance of this. It can be refrenced by {@link Quackbot.InstanceTracker#getMain() InstanceTracker.getMain}
  * @author Lord.Quackstar
  */
 public class Main extends JFrame implements ActionListener {
@@ -48,28 +50,33 @@ public class Main extends JFrame implements ActionListener {
 	 * Log4j logger
 	 */
 	private Logger log = Logger.getLogger(Main.class);
-
 	/**
-	 * Thread pool used by appenders so only ONE WriteOutput is running at one time
+	 * Backup standard output stream
 	 */
-	public ExecutorService log_threadpool = Executors.newFixedThreadPool(1);
+	public OutputStream out;
+	/**
+	 * Backup standard error stream
+	 */
+	public OutputStream err;
 
 	/**
 	 * Setup and display GUI, setup Log4j, start Controller
 	 */
 	public Main() {
 		/***Pre init, setup error log**/
-		InstanceTracker.setMainInst(this);
+		InstanceTracker.setMain(this);
 		BerrorLog = new JTextPane();
-		BerrorLog.setContentType("text/html");
 		BerrorLog.setEditable(false);
 		BerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 		CerrorLog = new JTextPane();
-		CerrorLog.setContentType("text/html");
 		CerrorLog.setEditable(false);
 		CerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		//Add appenders to root logger
+		out = System.out;
+		err = System.err;
+		System.setOut(new PrintStream(new StdRedirect(new ByteArrayOutputStream(), false)));
+		System.setErr(new PrintStream(new StdRedirect(new ByteArrayOutputStream(), true)));
 		Logger rootLog = Logger.getRootLogger();
 		rootLog.setLevel(Level.TRACE);
 		rootLog.addAppender(new ControlAppender());
@@ -132,7 +139,7 @@ public class Main extends JFrame implements ActionListener {
 		String cmd = e.getActionCommand();
 
 		if (cmd.equals("Reload"))
-			InstanceTracker.getCtrlInst().threadPool.execute(new loadCMDs());
+			ThreadPoolManager.addMain(new loadCMDs());
 	}
 
 	/**

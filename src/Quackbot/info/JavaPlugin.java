@@ -5,7 +5,10 @@
 
 package Quackbot.info;
 
+import Quackbot.annotations.HelpDoc;
 import Quackbot.plugins.core.BasePlugin;
+import Quackbot.plugins.core.JavaTest;
+import java.lang.annotation.Annotation;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -13,44 +16,49 @@ import org.apache.log4j.Logger;
  *
  * @author admins
  */
+@HelpDoc("Generic plugin help")
 public class JavaPlugin {
 
 	/**
 	 * Name of command
 	 */
-	public String name = "";
+	private String name = "";
 	/**
 	 * Help for command. HIGHLY recommended to override
 	 */
-	public String help = "";
+	private String help = "";
+	/**
+	 * FQCN of command, needed for dynamic reloading
+	 */
+	private String fqcn = "";
 	/**
 	 * Admin only?
 	 */
-	public boolean admin = false;
+	private boolean admin = false;
 	/**
 	 * Ignore command?
 	 */
-	public boolean ignore = false;
+	private boolean ignore = false;
 	/**
 	 * Is Listener?
 	 */
-	public boolean listener = false;
+	private boolean listener = false;
 	/**
 	 * Is server?
 	 */
-	public boolean service = false;
+	private boolean service = false;
 	/**
 	 * Is Util?
 	 */
-	public boolean util = false;
+	private boolean util = false;
 	/**
 	 * Requires Arguments?
 	 */
-	public boolean reqArg = false;
+	private boolean reqArg = false;
 	/**
 	 *
 	 */
-	public static Logger log = Logger.getLogger(JavaPlugin.class);
+	private static Logger log = Logger.getLogger(JavaPlugin.class);
 
 	/**
 	 * Empty Constructor. Shouldn't be used
@@ -62,8 +70,16 @@ public class JavaPlugin {
 	 * Creates empty JavaPlugin with class name
 	 * @param FQCN Fully Qualified Class Name of Java plugin
 	 */
-	public JavaPlugin(String FQCN) {
-		this.name = FQCN;
+	public JavaPlugin(String className) {
+		this.fqcn = className;
+		String[] fqcn = StringUtils.split(className, ".");
+		this.name = fqcn[fqcn.length-1];
+		try {
+			setHelp(newInstance().getClass().getAnnotation(HelpDoc.class).value());
+		}
+		catch(Exception e) {
+			log.error("Cannot load help of command "+name,e);
+		}
 	}
 
 	/**
@@ -197,7 +213,8 @@ public class JavaPlugin {
 	public BasePlugin newInstance() throws Exception {
 		BasePlugin plugin = null;
 		try {
-			plugin = (BasePlugin)this.getClass().getClassLoader().loadClass(getName()).newInstance();
+			plugin = (BasePlugin)this.getClass().getClassLoader().loadClass(getFqcn()).newInstance();
+			
 		}
 		catch(ClassCastException e) {
 			if(StringUtils.contains(e.getMessage(),"BasePlugin"))
@@ -210,5 +227,19 @@ public class JavaPlugin {
 			throw e;
 		}
 		return plugin;
+	}
+
+	/**
+	 * @return the fqcn
+	 */
+	public String getFqcn() {
+		return fqcn;
+	}
+
+	/**
+	 * @param fqcn the fqcn to set
+	 */
+	public void setFqcn(String fqcn) {
+		this.fqcn = fqcn;
 	}
 }
