@@ -26,13 +26,9 @@ import org.apache.log4j.Logger;
  * @author Lord.Quackstar
  */
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
-public class Help extends BasePlugin {
+public class Help implements BasePlugin {
 	private static Logger log = Logger.getLogger(Help.class);
 	Controller ctrl = InstanceTracker.getController();
-
-	public String help() {
-		return "Displays all commands or help for specific command. Syntax ?help <OPTIONAL:Command>";
-	}
 
 	public void invoke(Bot qb, UserMessage msgInfo) throws Exception {
 		//Does user want command list

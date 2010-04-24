@@ -46,9 +46,9 @@ function invoke(seconds) {
 		qb.sendMsg(new BotMessage(msgInfo,"Whoo, end!!"));
 	}
 	catch(err) {
-		println("ERROR "+err);
+		log.error("ERROR "+err);
 		if(err.toString().search("InterruptedException") != -1) {
-			println("Countdown thread interrupted");
+			log.warn("Countdown thread interrupted");
 			return;
 		}
 	}

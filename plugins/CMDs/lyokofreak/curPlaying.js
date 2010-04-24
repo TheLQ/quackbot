@@ -9,5 +9,5 @@ function invoke() {
 	var msg = webTalk("http://localhost:8082/current.html");
 	if(msg == null)
 		msg = "ERROR: VLC is not running";
-	qb.sendMsg(new BotMessage(userMsg,msg));
+	qb.sendMsg(new BotMessage(msgInfo,msg));
 }

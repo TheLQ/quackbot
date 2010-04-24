@@ -3,9 +3,9 @@ var param = 1;
 var admin = true;
 
 function invoke(reqUser) {
-	qb.deVoice(channel,reqUser);
+	qb.deVoice(msgInfo.channel,reqUser);
 	Thread.sleep(500); //sleep for 500 ms
-	var userObj = qb.getUser(channel,reqUser);
+	var userObj = qb.getUser(msgInfo.channel,reqUser);
 	if(userObj === null)
 		qb.sendMsg(new BotMessage(msgInfo,reqUser+" does not exist"));
 	else if(userObj.hasVoice()==false)

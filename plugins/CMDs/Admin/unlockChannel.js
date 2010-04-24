@@ -3,6 +3,6 @@ var param = 0;
 var admin = true;
 
 function invoke() {
-	qb.chanLockList.remove(channel);
+	qb.chanLockList.remove(msgInfo.getChannel());
 	qb.sendMsg(new BotMessage(msgInfo,"Bot has been unlocked for this channel"));
 }

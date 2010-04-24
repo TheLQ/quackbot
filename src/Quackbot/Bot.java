@@ -9,7 +9,6 @@ import Quackbot.err.AdminException;
 import Quackbot.err.InvalidCMDException;
 import Quackbot.err.NumArgException;
 
-import Quackbot.info.Admin;
 import Quackbot.info.BotMessage;
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
@@ -17,13 +16,11 @@ import Quackbot.info.UserMessage;
 
 import Quackbot.log.BotAppender;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-import jpersist.JPersistException;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -52,15 +49,19 @@ public class Bot extends PircBot {
 	/**
 	 * List of channels bot is locked on. Is NOT persistent!!
 	 */
-	public TreeMap<String, String> chanLockList;
+	public TreeSet<String> chanLockList = new TreeSet<String>();
 	/**
 	 * Current {@link Controller} instance
 	 */
-	public Controller ctrl = InstanceTracker.getController();
+	private Controller ctrl = InstanceTracker.getController();
 	/**
 	 * Current Server database object
 	 */
 	public Server serverDB;
+	/**
+	 * Number of commands executed, used for command ID's
+	 */
+	public int cmdNum = 0;
 	/**
 	 * Log4J logger
 	 */
@@ -73,9 +74,6 @@ public class Bot extends PircBot {
 	public Bot(Server serverDB) {
 		this.serverDB = serverDB;
 		log.addAppender(new BotAppender(serverDB.getAddress()));
-
-		//Init channel block list
-		chanLockList = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 
 		setName("Quackbot");
 		setAutoNickChange(true);
@@ -170,7 +168,6 @@ public class Bot extends PircBot {
 	 */
 	@Override
 	public void onJoin(String channel, String sender, String login, String hostname) {
-
 		runListener("onJoin", new UserMessage(channel, sender, login, hostname, null, "onJoin"));
 
 		//If this is us, add to server info
@@ -221,7 +218,7 @@ public class Bot extends PircBot {
 	 * @param msgInfo UserMessage bean
 	 */
 	private void runListener(String command, UserMessage msgInfo) {
-		log("Attempting to run listener " + command);
+		log.info("Attempting to run listener " + command);
 		ThreadPoolManager.addPlugin(new PluginExecutor(this, msgInfo));
 	}
 
@@ -279,14 +276,15 @@ public class Bot extends PircBot {
 	 * @param msgInfo UserMessage bean
 	 */
 	private void activateCmd(UserMessage msgInfo) {
-		log("-----------BOT ACTIVATED FROM " + msgInfo.getRawmsg() + "-----------");
+		msgInfo.setCmdNum(cmdNum++);
+		log.info("-----------Begin execution of command #"+msgInfo.getCmdNum()+",  from " + msgInfo.getRawmsg() + "-----------");
 		try {
 			runCommand(msgInfo);
 		} catch (Exception e) {
 			sendMessage(msgInfo.getChannel(), msgInfo.getSender() + ": ERROR " + e.getMessage());
 			log.error("Run Error", e);
+			log.info("-----------End execution of command #"+msgInfo.getCmdNum()+",  from " + msgInfo.getRawmsg() + "-----------");
 		}
-		log("-----------END BOT ACTIVATED FROM " + msgInfo.getRawmsg() + "-----------");
 	}
 
 	/**
@@ -306,7 +304,7 @@ public class Bot extends PircBot {
 		}
 
 		//Is channel locked?
-		if (chanLockList.containsKey(msgInfo.getChannel())) {
+		if (chanLockList.contains(msgInfo.getChannel()) && !serverDB.adminExists(msgInfo.getSender())) {
 			log.info("Command ignored due to channel lock in effect");
 			return;
 		}

@@ -6,9 +6,10 @@
 package Quackbot.info;
 
 import Quackbot.annotations.HelpDoc;
+import Quackbot.annotations.Param;
+import Quackbot.annotations.ParamNum;
 import Quackbot.plugins.core.BasePlugin;
-import Quackbot.plugins.core.JavaTest;
-import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -16,7 +17,6 @@ import org.apache.log4j.Logger;
  *
  * @author admins
  */
-@HelpDoc("Generic plugin help")
 public class JavaPlugin {
 
 	/**
@@ -56,15 +56,13 @@ public class JavaPlugin {
 	 */
 	private boolean reqArg = false;
 	/**
-	 *
+	 * Number of params?
+	 */
+	private int paramNum = 0;
+	/**
+	 * Log4j logger
 	 */
 	private static Logger log = Logger.getLogger(JavaPlugin.class);
-
-	/**
-	 * Empty Constructor. Shouldn't be used
-	 */
-	public JavaPlugin() {
-	}
 
 	/**
 	 * Creates empty JavaPlugin with class name
@@ -75,7 +73,36 @@ public class JavaPlugin {
 		String[] fqcn = StringUtils.split(className, ".");
 		this.name = fqcn[fqcn.length-1];
 		try {
-			setHelp(newInstance().getClass().getAnnotation(HelpDoc.class).value());
+			Class<?> javaBase = newInstance().getClass();
+
+			//Param and syntax generation
+			String syntax = "?"+name;
+			if(javaBase.isAnnotationPresent(ParamNum.class))
+				setParamNum(javaBase.getAnnotation(ParamNum.class).value());
+			else {
+				//Defined by field (or none at all), need to count field annotations
+				Field[] fields = javaBase.getFields();
+				int count = 0;
+				StringBuilder syntaxSB = new StringBuilder();
+				for(Field curField : fields)
+					if(curField.isAnnotationPresent(Param.class)) {
+						count++;
+						syntaxSB.append(" <");
+						if(curField.getAnnotation(Param.class).value())
+							syntaxSB.append("OPTIONAL:");
+						syntaxSB.append(">");
+					}
+				syntax = syntaxSB.insert(0, syntax).toString();
+				setParamNum(count);
+			}
+
+			//Help generation
+			if(javaBase.isAnnotationPresent(HelpDoc.class))
+				setHelp(javaBase.getAnnotation(HelpDoc.class).value()+syntax);
+			else if(StringUtils.isNotEmpty(syntax))
+				setHelp(syntax);
+			else
+				setHelp("No help avalible");
 		}
 		catch(Exception e) {
 			log.error("Cannot load help of command "+name,e);
@@ -241,5 +268,19 @@ public class JavaPlugin {
 	 */
 	public void setFqcn(String fqcn) {
 		this.fqcn = fqcn;
+	}
+
+	/**
+	 * @return the paramNum
+	 */
+	public int getParamNum() {
+		return paramNum;
+	}
+
+	/**
+	 * @param paramNum the paramNum to set
+	 */
+	public void setParamNum(int paramNum) {
+		this.paramNum = paramNum;
 	}
 }
