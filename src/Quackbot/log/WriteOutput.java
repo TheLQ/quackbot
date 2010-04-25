@@ -89,7 +89,7 @@ public class WriteOutput implements Runnable {
 			String aString = event.getRenderedMessage();
 
 			//don't print empty strings
-			if (aString.length() <= 2)
+			if (aString == null || aString.length() <= 2)
 				return;
 
 			Style msgStyle;
@@ -110,8 +110,6 @@ public class WriteOutput implements Runnable {
 				doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
 			doc.insertString(doc.getLength(), formatMsg(event, address), msgStyle);
 
-			//pane.repaint();
-			//pane.revalidate();
 			pane.setCaretPosition(doc.getLength());
 		} catch (Exception e) {
 			e.printStackTrace(); //Don't use log.error because this is how stuff is outputed

@@ -5,6 +5,7 @@
  */
 package Quackbot.log;
 
+import Quackbot.InstanceTracker;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,8 +27,10 @@ public class StdRedirect extends FilterOutputStream {
 
 	public void write(byte b[], int off, int len) throws IOException {
 		String stringRep = new String(b, off, len).trim();
-		if(error)
+		if(error) {
 			log.error(stringRep);
+			InstanceTracker.getMain().err.print(stringRep);
+		}
 		else
 			log.info(stringRep);
 	}

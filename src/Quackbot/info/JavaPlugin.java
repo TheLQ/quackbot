@@ -1,21 +1,26 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @(#)JavaPlugin.java
+ *
+ * This file is part of Quackbot
  */
-
 package Quackbot.info;
 
 import Quackbot.annotations.HelpDoc;
-import Quackbot.annotations.Param;
+import Quackbot.annotations.ParamConfig;
 import Quackbot.annotations.ParamNum;
+import Quackbot.err.NumArgException;
+import Quackbot.err.QuackbotException;
 import Quackbot.plugins.core.BasePlugin;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
+ * This is the global JavaBean/Utility for all Java written plugins
  *
- * @author admins
+ * @author Lord.Quackstar
  */
 public class JavaPlugin {
 
@@ -56,9 +61,9 @@ public class JavaPlugin {
 	 */
 	private boolean reqArg = false;
 	/**
-	 * Number of params?
+	 * Param class
 	 */
-	private int paramNum = 0;
+	private ParamField paramField;
 	/**
 	 * Log4j logger
 	 */
@@ -70,42 +75,37 @@ public class JavaPlugin {
 	 */
 	public JavaPlugin(String className) {
 		this.fqcn = className;
-		String[] fqcn = StringUtils.split(className, ".");
-		this.name = fqcn[fqcn.length-1];
+		String[] fqcna = StringUtils.split(className, ".");
+		this.name = fqcna[fqcna.length - 1];
 		try {
 			Class<?> javaBase = newInstance().getClass();
 
+			//Set all fields acessable
+			Field[] fields = javaBase.getDeclaredFields();
+			for (Field curField : fields)
+				curField.setAccessible(true);
+
 			//Param and syntax generation
-			String syntax = "?"+name;
-			if(javaBase.isAnnotationPresent(ParamNum.class))
-				setParamNum(javaBase.getAnnotation(ParamNum.class).value());
-			else {
-				//Defined by field (or none at all), need to count field annotations
-				Field[] fields = javaBase.getFields();
-				int count = 0;
-				StringBuilder syntaxSB = new StringBuilder();
-				for(Field curField : fields)
-					if(curField.isAnnotationPresent(Param.class)) {
-						count++;
-						syntaxSB.append(" <");
-						if(curField.getAnnotation(Param.class).value())
-							syntaxSB.append("OPTIONAL:");
-						syntaxSB.append(">");
-					}
-				syntax = syntaxSB.insert(0, syntax).toString();
-				setParamNum(count);
-			}
+			if(javaBase.isAnnotationPresent(ParamNum.class) && javaBase.isAnnotationPresent(ParamConfig.class))
+				throw new QuackbotException("Class "+name+" cannot use both parameter annotations, please remove one and restarts");
+
+			StringBuilder syntax = new StringBuilder();
+			if (javaBase.isAnnotationPresent(ParamNum.class))
+				setParamField(new ParamField(javaBase.getAnnotation(ParamNum.class).value()));
+			else if (javaBase.isAnnotationPresent(ParamConfig.class))
+				setParamField(new ParamField(javaBase));
+			else
+				setParamField(new ParamField(0));
 
 			//Help generation
-			if(javaBase.isAnnotationPresent(HelpDoc.class))
-				setHelp(javaBase.getAnnotation(HelpDoc.class).value()+syntax);
-			else if(StringUtils.isNotEmpty(syntax))
-				setHelp(syntax);
+			if (javaBase.isAnnotationPresent(HelpDoc.class))
+				setHelp(javaBase.getAnnotation(HelpDoc.class).value() + syntax);
+			else if (StringUtils.isNotEmpty(syntax.toString()))
+				setHelp(syntax.toString());
 			else
 				setHelp("No help avalible");
-		}
-		catch(Exception e) {
-			log.error("Cannot load help of command "+name,e);
+		} catch (Exception e) {
+			log.error("Cannot load help of command " + name, e);
 		}
 	}
 
@@ -240,17 +240,15 @@ public class JavaPlugin {
 	public BasePlugin newInstance() throws Exception {
 		BasePlugin plugin = null;
 		try {
-			plugin = (BasePlugin)this.getClass().getClassLoader().loadClass(getFqcn()).newInstance();
-			
-		}
-		catch(ClassCastException e) {
-			if(StringUtils.contains(e.getMessage(),"BasePlugin"))
+			plugin = (BasePlugin) this.getClass().getClassLoader().loadClass(getFqcn()).newInstance();
+
+		} catch (ClassCastException e) {
+			if (StringUtils.contains(e.getMessage(), "BasePlugin"))
 				throw new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)");
 			else
 				throw e;
-		}
-		catch(Exception e) {
-			log.error("Unable to create instance of "+getName(),e);
+		} catch (Exception e) {
+			log.error("Unable to create instance of " + getName(), e);
 			throw e;
 		}
 		return plugin;
@@ -271,16 +269,100 @@ public class JavaPlugin {
 	}
 
 	/**
-	 * @return the paramNum
+	 * Param class
+	 * @return the paramField
 	 */
-	public int getParamNum() {
-		return paramNum;
+	public ParamField getParamField() {
+		return paramField;
 	}
 
 	/**
-	 * @param paramNum the paramNum to set
+	 * Param class
+	 * @param paramField the paramField to set
 	 */
-	public void setParamNum(int paramNum) {
-		this.paramNum = paramNum;
+	public void setParamField(ParamField paramField) {
+		this.paramField = paramField;
+	}
+
+	public class ParamField {
+
+		/**
+		 * Number of total params?
+		 */
+		private int paramNum = 0;
+		/**
+		 * Number of required params?
+		 */
+		private int reqParamNum = 0;
+		private List<Field> reqFields = new ArrayList<Field>();
+		private List<Field> optFields = new ArrayList<Field>();
+		private Logger logging = Logger.getLogger(ParamField.class);
+
+		/**
+		 * Used for @ParamConfig annotation
+		 * @param clazz
+		 * @throws NoSuchFieldException
+		 */
+		public ParamField(Class<?> clazz) throws NoSuchFieldException {
+			logging.trace("Currently at @ParamConfig handling");
+			String[] pcArr = clazz.getAnnotation(ParamConfig.class).value();
+			logging.trace("ParamConfig len: " + pcArr.length);
+			for (String curName : pcArr) {
+				Field field = clazz.getDeclaredField(curName);
+				paramNum++;
+				reqParamNum++;
+				reqFields.add(field);
+				logging.trace("Adding " + field + " to required");
+			}
+
+			//Loop over optionals
+			pcArr = clazz.getAnnotation(ParamConfig.class).optional();
+			for (String curName : pcArr) {
+				Field field = clazz.getDeclaredField(curName);
+				paramNum++;
+				optFields.add(field);
+				logging.trace("Adding " + field + " to optional");
+			}
+		}
+
+		/**
+		 * Used for @ParamNum annotation
+		 * @param num
+		 */
+		public ParamField(int num) {
+			logging.trace("Currently at @ParamNum handling, passing " + num);
+			paramNum = num;
+			reqParamNum = num;
+		}
+
+		public void fillFields(Object inst, String[] params) throws IllegalAccessException, NoSuchFieldException, NumArgException {
+			int paramLen = params.length;
+			//First check if there are enough fields
+			logging.trace("Required Java params: " + reqParamNum + " user params: " + paramLen);
+			if (paramLen > paramNum) //Do we have too many?
+				throw new NumArgException(paramLen,reqParamNum,paramNum-reqParamNum );
+			else if (paramLen < reqParamNum) //Do we not have enough?
+				throw new NumArgException(paramLen, reqParamNum);
+
+			//Well there are enough fields, continue
+			int paramPos = -1;
+			log.info("User params: " + paramLen + " Feilds: " + reqFields.size());
+			log.trace("Req: " + reqParamNum + ", Optional: " + paramNum);
+			for (Field curField : reqFields) {
+				paramPos++;
+				curField.set(inst, params[paramPos]);
+				log.trace("Param Pos: " + paramPos);
+			}
+
+			//If it dosen't match, then we have optional params to fill
+			if (paramPos != (paramLen - 1))
+				for (Field curField : optFields) {
+					paramPos++;
+					if (paramPos > (paramLen - 1))
+						break;
+					curField.set(inst, params[paramPos]);
+					log.trace("Param Pos - 0: " + paramPos);
+				}
+		}
 	}
 }
