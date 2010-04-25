@@ -16,13 +16,11 @@ import Quackbot.info.UserMessage;
 import Quackbot.log.BotAppender;
 
 import Quackbot.plugins.core.BasePlugin;
-import java.util.TreeSet;
+import java.lang.reflect.Field;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.SimpleScriptContext;
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -122,7 +120,7 @@ public class PluginExecutor implements Runnable {
 			sendIfBot(new BotMessage(msgInfo, e));
 		}
 		if (qb != null)
-			log.info("-----------End execution of command #"+msgInfo.getCmdNum()+",  from " + msgInfo.getRawmsg() + "-----------");
+			log.info("-----------End execution of command #" + msgInfo.getCmdNum() + ",  from " + msgInfo.getRawmsg() + "-----------");
 	}
 
 	/**
@@ -155,8 +153,7 @@ public class PluginExecutor implements Runnable {
 		if (qb != null) {
 			engineScope.put("msgInfo", msgInfo);
 			engineScope.put("qb", qb);
-		}
-		else {
+		} else {
 			//Prevent "not defined" errors
 			engineScope.put("msgInfo", null);
 			engineScope.put("qb", null);
@@ -186,7 +183,9 @@ public class PluginExecutor implements Runnable {
 	 */
 	public void runJava(JavaPlugin javaLoc) throws ClassCastException, Exception {
 		log.info("Running Java Plugin " + command);
+
 		BasePlugin javaCmd = javaLoc.newInstance();
+		javaLoc.getParamField().fillFields(javaCmd, msgInfo.getArgs());
 		javaCmd.invoke(qb, msgInfo);
 	}
 

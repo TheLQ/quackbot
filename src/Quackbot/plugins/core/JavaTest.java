@@ -7,20 +7,33 @@ package Quackbot.plugins.core;
 
 import Quackbot.Bot;
 import Quackbot.annotations.HelpDoc;
-import Quackbot.annotations.Param;
+import Quackbot.annotations.ParamConfig;
 import Quackbot.annotations.ParamNum;
 import Quackbot.info.BotMessage;
 import Quackbot.info.UserMessage;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Simple Java cmd test
  * @author Lord.Quackstar
  */
+@ParamConfig(optional={"optional","optional2","optional3"})
+//@ParamNum(5)
 @HelpDoc("This is JavaTest Help")
-@ParamNum(1)
 public class JavaTest implements BasePlugin {
-	int something;
+	String something;
+	String somethins;
+	String optional ,optional2, optional3;
+
 	public void invoke(Bot bot, UserMessage msgInfo) {
-		bot.sendMsg(new BotMessage(msgInfo,"hehe"));
+		bot.sendMsg(new BotMessage(msgInfo,"You said "+StringUtils.join(msgInfo.getArgs()," ")+" with length "+msgInfo.getArgs().length));
+
+		/*bot.sendMsg(new BotMessage(msgInfo,"hehe, you said "+something+" and "+somethins));
+		if(optional != null)
+			bot.sendMsg(new BotMessage(msgInfo," Hmm, you also said "+optional));
+		if(optional2 != null)
+			bot.sendMsg(new BotMessage(msgInfo," Hmm, you also said "+optional2));
+		if(optional3 != null)
+			bot.sendMsg(new BotMessage(msgInfo," Hmm, you also said "+optional3));*/
 	}
 }

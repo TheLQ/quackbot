@@ -54,14 +54,11 @@ public class Controller {
 	/**
 	 * List of Fully Qualified Class names of all Java Plugins
 	 */
-	public final List<JavaPlugin> javaPlugins = Arrays.asList(
-		new JavaPlugin(JavaTest.class.getName()),
-		new JavaPlugin(Help.class.getName()));
+	public List<JavaPlugin> javaPlugins = new ArrayList<JavaPlugin>();
 	/**
 	 * Set of all Bot instances
 	 */
 	public HashSet<Bot> bots = new HashSet<Bot>();
-	
 	/**
 	 * Current {@link Main} instance
 	 */
@@ -94,20 +91,19 @@ public class Controller {
 		//Get all server objects from database
 		Collection<Server> c = null;
 		try {
-			c = dbm.loadObjects(new ArrayList<Server>(), Server.class,true);
-			if(c.size() == 0)
+			c = dbm.loadObjects(new ArrayList<Server>(), Server.class, true);
+			if (c.size() == 0)
 				log.fatal("Server list is empty!");
 			for (Server curServer : c) {
 				dbm.loadAssociations(c);
 				ThreadPoolManager.addMain(new botThread(curServer));
 			}
 		} catch (Exception e) {
-			if (e instanceof JPersistException) {
+			if (e instanceof JPersistException)
 				if (StringUtils.contains(e.getMessage(), "Communications link failure"))
 					log.fatal("Error in connecting to database. Please check database connectivity and restart application", e);
 				else
 					log.fatal("Database error", e);
-			}
 			else
 				log.fatal("Error encountered while attempting to join servers", e);
 		}
@@ -136,8 +132,8 @@ public class Controller {
 	 * @param channels Vararg of channels to join
 	 */
 	public void addServer(String address, int port, String... channels) {
-		Server srv = new Server(address,6667);
-		for(String curChan : channels)
+		Server srv = new Server(address, 6667);
+		for (String curChan : channels)
 			srv.addChannel(new Channel(curChan));
 		srv.updateDB();
 	}
@@ -149,10 +145,9 @@ public class Controller {
 	public void removeServer(String address) {
 		try {
 			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class);
-			for(Server curServ : c) {
-				if(curServ.getAddress().equals(address))
+			for (Server curServ : c)
+				if (curServ.getAddress().equals(address))
 					curServ.delete();
-			}
 		} catch (Exception e) {
 			log.error("Can't remove server", e);
 		}
@@ -174,7 +169,14 @@ public class Controller {
 	 *	Take this into account if you have services running in the background
 	 */
 	public void reloadPlugins() {
+		log.trace("In reload Plugins");
 		ThreadPoolManager.addMain(new loadCMDs());
+		log.trace("JavaPlugins size: "+javaPlugins.size());
+		if (javaPlugins.size() != 0)
+			javaPlugins.clear();
+		javaPlugins.add(new JavaPlugin(JavaTest.class.getName()));
+		javaPlugins.add(new JavaPlugin(Help.class.getName()));
+		log.info("---end reload---");
 	}
 
 	/**

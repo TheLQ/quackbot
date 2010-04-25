@@ -241,7 +241,7 @@ public class Bot extends PircBot {
 			String curPre = preItr.next().toString();
 			if (curPre.length() < message.length() && message.substring(0, curPre.length()).equals(curPre)) {
 				contPre = true;
-				message = message.substring(curPre.length(), message.length()).trim().toLowerCase();
+				message = message.substring(curPre.length(), message.length()).trim();
 				break;
 			}
 		}

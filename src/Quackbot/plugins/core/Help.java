@@ -1,6 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @(#)Help.java
+ *
+ * This file is part of Quackbot
  */
 package Quackbot.plugins.core;
 
@@ -9,6 +10,7 @@ import Quackbot.Controller;
 import Quackbot.InstanceTracker;
 import Quackbot.Utils;
 import Quackbot.annotations.HelpDoc;
+import Quackbot.annotations.ParamConfig;
 import Quackbot.err.InvalidCMDException;
 import Quackbot.info.BotMessage;
 import Quackbot.info.JSPlugin;
@@ -22,17 +24,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
+ * Core plugin that provides help for a command
  *
  * @author Lord.Quackstar
  */
+@ParamConfig(optional={"pluginName"})
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 public class Help implements BasePlugin {
 	private static Logger log = Logger.getLogger(Help.class);
 	Controller ctrl = InstanceTracker.getController();
-
+	String pluginName;
 	public void invoke(Bot qb, UserMessage msgInfo) throws Exception {
 		//Does user want command list
-		if (msgInfo.getArgs().length == 0) {
+		if (pluginName == null) {
 			List<String> cmdList = new ArrayList<String>();
 
 			//Add Java Plugins
@@ -51,14 +55,13 @@ public class Help implements BasePlugin {
 			//Send to user
 			qb.sendMsg(new BotMessage(msgInfo, "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ")));
 		} else {
-			String command = msgInfo.getArgs()[0];
-			JavaPlugin javaResult  = Utils.findJavaPlugin(command);
-			if (ctrl.JSplugins.keySet().contains(command))
-				qb.sendMsg(new BotMessage(msgInfo,ctrl.JSplugins.get(command).getHelp()));
+			JavaPlugin javaResult  = Utils.findJavaPlugin(pluginName);
+			if (ctrl.JSplugins.keySet().contains(pluginName))
+				qb.sendMsg(new BotMessage(msgInfo,ctrl.JSplugins.get(pluginName).getHelp()));
 			else if (javaResult != null)
 				qb.sendMsg(new BotMessage(msgInfo,javaResult.getHelp()));
 			else
-				throw new InvalidCMDException(command);
+				throw new InvalidCMDException(pluginName);
 		}
 	}
 }

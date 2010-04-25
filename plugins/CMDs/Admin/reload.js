@@ -3,5 +3,5 @@ var param = 0;
 var admin = true;
 
 function invoke() {
-	ThreadPoolManager.addMain(new loadCMDs());
+	InstanceTracker.getController().reloadPlugins();
 }

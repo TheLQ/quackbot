@@ -84,23 +84,7 @@ public class Main extends JFrame implements ActionListener {
 
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
-		//On close, kill all connections gracefully
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //Will exit when close button is pressed
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent winEvt) {
-				Logger log = Logger.getLogger(this.getClass());
-				log.info("Closing all IRC and db connections gracefully");
-				Controller ctrl = InstanceTracker.getController();
-				ctrl.stopAll();
-				try {
-					ctrl.dbm.close();
-				}
-				catch(Exception e) {
-					e.printStackTrace(err); //send to standard output because window is closing
-				}
-				System.exit(0);
-			}
-		});
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Quackbot GUI Control Panel");
 		setMinimumSize(new Dimension(1000, 700));
 
@@ -124,7 +108,7 @@ public class Main extends JFrame implements ActionListener {
 		JButton cancel = new JButton("Stop");
 		cancel.addActionListener(this);
 		bottom.add(cancel);
-		JButton start = new JButton("Start");
+		JButton start = new JButton("Clear");
 		start.addActionListener(this);
 		bottom.add(start);
 		JButton reload = new JButton("Reload");
@@ -157,6 +141,24 @@ public class Main extends JFrame implements ActionListener {
 
 		if (cmd.equals("Reload"))
 			ThreadPoolManager.addMain(new loadCMDs());
+		if (cmd.equals("Clear")) {
+			CerrorLog.setText("");
+			BerrorLog.setText("");
+		}
+	}
+
+	public class shutdownSequence extends Thread {
+		public void run() {
+			Logger log = Logger.getLogger(this.getClass());
+			log.info("Closing all IRC and db connections gracefully");
+			Controller ctrl = InstanceTracker.getController();
+			ctrl.stopAll();
+			try {
+				ctrl.dbm.close();
+			} catch (Exception e) {
+				e.printStackTrace(err); //send to standard output because window is closing
+			}
+		}
 	}
 
 	/**
@@ -167,7 +169,8 @@ public class Main extends JFrame implements ActionListener {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				new Main();
+				Main main = new Main();
+				Runtime.getRuntime().addShutdownHook(main.new shutdownSequence());
 			}
 		});
 	}
