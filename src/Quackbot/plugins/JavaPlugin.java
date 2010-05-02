@@ -80,6 +80,10 @@ public class JavaPlugin implements PluginType {
 	 */
 	private int params;
 	/**
+	 * Optional params
+	 */
+	private int optParams;
+	/**
 	 * Param class
 	 */
 	private ParamField paramField;
@@ -89,10 +93,10 @@ public class JavaPlugin implements PluginType {
 	private static Logger log = Logger.getLogger(JavaPlugin.class);
 
 	public JavaPlugin(String className) {
-		log.info("New JavaPlugin " + className);
-		this.fqcn = className;
+		setFqcn(className);
 		String[] fqcna = StringUtils.split(className, ".");
-		this.name = fqcna[fqcna.length - 1];
+		setName(fqcna[fqcna.length - 1]);
+		log.info("New Java Plugin " + getName());
 		try {
 			Class<?> javaBase = this.getClass().getClassLoader().loadClass(getFqcn());
 
@@ -100,11 +104,6 @@ public class JavaPlugin implements PluginType {
 			Field[] fields = javaBase.getDeclaredFields();
 			for (Field curField : fields)
 				curField.setAccessible(true);
-			log.debug("Hook data: " + javaBase.getAnnotation(Hook.class));
-			Annotation[] annons = javaBase.getAnnotations();
-			for(Annotation curAnn : annons) {
-				log.trace(curAnn);
-			}
 			//Plugin info creation
 			if (javaBase.isAnnotationPresent(ReqArg.class))
 				setReqArg(true);
@@ -168,7 +167,7 @@ public class JavaPlugin implements PluginType {
 	 * @param msgInfo
 	 * @throws Exception
 	 */
-	public void invoke(String command, String[] args, Bot bot, UserMessage msgInfo) throws Exception {
+	public void invoke(String[] args, Bot bot, UserMessage msgInfo) throws Exception {
 		JavaBase javaCmd = newInstance();
 
 		log.info("Running Java Plugin " + msgInfo.getCommand());
@@ -352,6 +351,20 @@ public class JavaPlugin implements PluginType {
 		this.hook = hook;
 	}
 
+	/**
+	 * @return the optParams
+	 */
+	public int getOptParams() {
+		return optParams;
+	}
+
+	/**
+	 * @param optParams the optParams to set
+	 */
+	public void setOptParams(int optParams) {
+		this.optParams = optParams;
+	}
+
 	public class ParamField {
 
 		/**
@@ -373,6 +386,7 @@ public class JavaPlugin implements PluginType {
 		 */
 		public ParamField(Class<?> clazz) throws NoSuchFieldException {
 			String[] pcArr = clazz.getAnnotation(ParamConfig.class).value();
+			//log.trace("Length of ParamConfig "+pcArr+" | Containing "+StringUtils.join(pcArr,","));
 			for (String curName : pcArr) {
 				Field field = clazz.getDeclaredField(curName);
 				paramNum++;
@@ -387,7 +401,8 @@ public class JavaPlugin implements PluginType {
 				paramNum++;
 				optFields.add(field);
 			}
-			JavaPlugin.this.params = paramNum;
+			setParams(reqParamNum);
+			setOptParams(paramNum);
 		}
 
 		/**
@@ -404,10 +419,7 @@ public class JavaPlugin implements PluginType {
 			int paramLen = params.length;
 			//First check if there are enough fields
 			logging.trace("Required Java params: " + reqParamNum + " user params: " + paramLen);
-			if (paramLen > paramNum) //Do we have too many?
-				throw new NumArgException(paramLen, reqParamNum, paramNum - reqParamNum);
-			else if (paramLen < reqParamNum) //Do we not have enough?
-				throw new NumArgException(paramLen, reqParamNum);
+			
 
 			//Well there are enough fields, continue
 			int paramPos = -1;
@@ -425,70 +437,6 @@ public class JavaPlugin implements PluginType {
 						break;
 					curField.set(inst, params[paramPos]);
 				}
-		}
-	}
-
-	private class JPClassLoader extends ClassLoader {
-
-		private static final int CAPACITY = 1024;
-		private String baseClassName;//Root path, for example, a project of the classes directory
-
-		public JPClassLoader(String baseClassName) {
-			if (!baseClassName.endsWith(File.separator))
-				this.baseClassName = baseClassName + File.separator;
-			else
-				this.baseClassName = baseClassName;
-		}
-
-		protected Class<?> findClass(final String name) throws ClassNotFoundException {
-			byte[] b = this.getByteFromClass(name);
-			return this.defineClass(name, b, 0, b.length);
-		}
-
-		private byte[] getByteFromClass(final String name) {
-			String path = StringUtils.replace(name, ".", File.separator) + ".class";
-			File f = new File(baseClassName + path);
-			if (!f.exists() || f.isDirectory())
-				throw new RuntimeException(name + "is not exists!");
-			FileInputStream fileInput = null;
-
-			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			byte[] b = new byte[CAPACITY], classByte = null;
-			try {
-				int readLen;
-				fileInput = new FileInputStream(f);
-
-				while ((readLen = fileInput.read(b)) != -1)
-					byteArrayOutputStream.write(b, 0, readLen);
-
-				classByte = byteArrayOutputStream.toByteArray();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				try {
-					if (fileInput != null)
-						fileInput.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
-					fileInput = null;
-				}
-
-				try {
-					if (byteArrayOutputStream != null)
-						byteArrayOutputStream.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
-					byteArrayOutputStream = null;
-				}
-
-			}
-			return classByte;
 		}
 	}
 }

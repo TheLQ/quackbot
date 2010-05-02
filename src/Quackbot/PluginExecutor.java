@@ -10,17 +10,10 @@ import Quackbot.err.InvalidCMDException;
 import Quackbot.err.NumArgException;
 
 import Quackbot.info.BotMessage;
-import Quackbot.plugins.JSPlugin;
-import Quackbot.plugins.JavaPlugin;
 import Quackbot.info.UserMessage;
 import Quackbot.log.BotAppender;
 
-import Quackbot.plugins.java.JavaBase;
-import java.lang.reflect.Field;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngineManager;
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -108,16 +101,19 @@ public class PluginExecutor implements Runnable {
 			}
 
 			//Does the required number of args exist?
-			int user_args = params.length;
-			int method_args = plugin.getParams();
-			log.debug("User Args: " + user_args + " | Req Args: " + method_args);
-			if (user_args != method_args)
-				throw new NumArgException(user_args, method_args);
+			int paramLen = params.length;
+			int paramNum = plugin.getOptParams();
+			int reqParamNum = plugin.getParams();
+			log.debug("User Args: " + paramLen + " | Req Args: " + reqParamNum+" | Optional: "+paramNum);
+			if (paramLen > paramNum) //Do we have too many?
+				throw new NumArgException(paramLen, reqParamNum, paramNum - reqParamNum);
+			else if (paramLen < reqParamNum) //Do we not have enough?
+				throw new NumArgException(paramLen, reqParamNum);
 
 			//All requirements are met, excecute method
 			log.info("All tests passed, running method " + command);
 
-			plugin.invoke(command, params, bot, msgInfo);
+			plugin.invoke(params, bot, msgInfo);
 		} catch (AdminException e) {
 			log.error("Person is not admin!!", e);
 			sendIfBot(new BotMessage(msgInfo, e));

@@ -126,7 +126,8 @@ public class Controller implements Runnable {
 			new GUI();
 
 		//Restart controller in new thread (prevent GUI updating issues)
-		ThreadPoolManager.addMain(new Controller(custPrefixes, 0));
+		globPrefixes.addAll(custPrefixes);
+		ThreadPoolManager.addMain(new Controller(globPrefixes, pluginTypes, plugins));
 	}
 
 	/**
@@ -134,10 +135,13 @@ public class Controller implements Runnable {
 	 * @param custPrefixes  Prefixes to add
 	 * @param thread        Just a way to seperate this constructor from the rest
 	 */
-	private Controller(List<String> custPrefixes, int thread) {
-		//Add prefixes to globPrefixes
-		globPrefixes.addAll(custPrefixes);
+	private Controller(List<String> custPrefixes, TreeMap<String, Class<? extends PluginType>> pluginTypes, List<PluginType> plugins) {
+		this.globPrefixes = custPrefixes;
+		this.pluginTypes = pluginTypes;
+		this.plugins = plugins;
+	}
 
+	public void run() {
 		InstanceTracker.setController(this);
 		//Setup log4j
 		Logger rootLog = Logger.getRootLogger();
@@ -149,7 +153,7 @@ public class Controller implements Runnable {
 		addPluginType("java", JavaPlugin.class);
 
 		//Load current CMD classes
-		reloadPlugins();
+		reloadPlugins(false);
 		addPlugin(new JavaPlugin(Help.class.getName()));
 
 		//Start service plugins
@@ -180,15 +184,6 @@ public class Controller implements Runnable {
 			else
 				log.fatal("Error encountered while attempting to join servers", e);
 		}
-	}
-
-	/**
-	 * Start of bot working.
-	 * -Loads CMDs
-	 * -Connects to database
-	 * -starts Bots from database info
-	 */
-	public void run() {
 	}
 
 	/**
@@ -249,13 +244,19 @@ public class Controller implements Runnable {
 	 *	Take this into account if you have services running in the background
 	 */
 	public void reloadPlugins() {
-		plugins.removeAll(plugins);
+		reloadPlugins(false);
+	}
+
+	public void reloadPlugins(boolean clean) {
+		log.info("Size: "+plugins);
+		if (clean)
+			plugins.removeAll(plugins);
+		log.info("Size: "+plugins);
 		ThreadPoolManager.pluginPool.execute(new Runnable() {
 			public void run() {
 				reloadPlugins(new File("plugins"));
 			}
 		});
-
 	}
 
 	private void reloadPlugins(File file) {
@@ -275,7 +276,8 @@ public class Controller implements Runnable {
 		try {
 			PluginType plugin = pluginTypes.get(ext).newInstance();
 			plugin.load(file);
-			plugins.add(plugin);
+			if (plugin.getName() != null)
+				plugins.add(plugin);
 		} catch (Exception e) {
 			log.error("Could not load plugin " + StringUtils.split(file.getName(), '.')[0], e);
 		}
@@ -295,7 +297,7 @@ public class Controller implements Runnable {
 	}
 
 	/**
-	 * @param cmdNum the cmdNum to set
+	 * Increments command number and returns new int
 	 */
 	public synchronized int addCmdNum() {
 		return ++cmdNum;

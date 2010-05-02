@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
  * term usage. If used then the command must manually go through the arguments list and manually
  * make syntax help in the command line.
  * Parameters cannot be optional if using this. While taking up more space,
- * {@link Quackbot.annotations.Param} is preferred.
+ * {@link ParamConfig} is preferred.
  * <p>
  * An example on how to use this on a command that takes 1 parameter
  * <br>
@@ -33,9 +33,9 @@ import java.lang.annotation.Target;
  * This annotation is not required if there are 0 parameters, however it
  * is best practice to include it, if not just for readability
  * <p>
- * Using in conjuction with the {@link Quackbot.annotations.Param} annotation will throw a
- * {@link Quackbot.err.ParamException} since they provide conflicting data
- * @see Quackbot.annotations.Param
+ * Using in conjuction with the {@link ParamConfig } annotation will throw a
+ * {@link Quackbot.err.QuackbotException} since they provide conflicting data
+ * @see ParamConfig
  * @author Lord.Quackstar
  */
 @Target(ElementType.TYPE)

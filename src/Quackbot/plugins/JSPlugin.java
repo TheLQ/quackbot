@@ -70,6 +70,10 @@ public class JSPlugin implements PluginType {
 	 */
 	private int params;
 	/**
+	 * Optional params? This is currently not implemented
+	 */
+	private int optParams;
+	/**
 	 * Current JS context
 	 */
 	private ScriptContext context;
@@ -88,6 +92,7 @@ public class JSPlugin implements PluginType {
 		//Basic setup
 		setName(StringUtils.split(file.getName(), ".")[0]);
 		setFile(file);
+		log.debug("New JavaScript Plugin: " + getName());
 
 		//Read File Line By Line
 		BufferedReader input = new BufferedReader(new FileReader(file));
@@ -118,12 +123,10 @@ public class JSPlugin implements PluginType {
 			setParams((int) Double.parseDouble(engineScope.get("param").toString()));
 		else
 			setParams(0);
-		//Method update list: Is this an existing method?
-		log.debug("New CMD: " + name);
 	}
 
-	public void invoke(String command, String[] args, Bot bot, UserMessage msgInfo) throws Exception {
-		log.info("Running Javascript Plugin " + command);
+	public void invoke(String[] args, Bot bot, UserMessage msgInfo) throws Exception {
+		log.info("Running Javascript Plugin " + getName());
 		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 
 		//Compile script on first execution for faster run time
@@ -377,5 +380,21 @@ public class JSPlugin implements PluginType {
 	 */
 	public void setHook(Hooks hook) {
 		this.hook = hook;
+	}
+
+	/**
+	 * Optional params? This is currently not implemented
+	 * @return the optParams
+	 */
+	public int getOptParams() {
+		return optParams;
+	}
+
+	/**
+	 * Optional params? This is currently not implemented
+	 * @param optParams the optParams to set
+	 */
+	public void setOptParams(int optParams) {
+		this.optParams = optParams;
 	}
 }
