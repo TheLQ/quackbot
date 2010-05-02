@@ -2,7 +2,7 @@
  * For the lyokofreak stream, tells users who can't see it that a new person has parted
  */
 
-var listener = true;
+var listener = Hooks.onPart;
 
 function invoke() {
 	if(msgInfo.channel=="#lyokofreak-viewing-party" && !msgInfo.isBot()) {

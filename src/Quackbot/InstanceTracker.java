@@ -6,37 +6,43 @@
 package Quackbot;
 
 /**
- * This Utility class keeps track of the Main and Controller instances.
+ * This Utility class keeps track of the GUI and Controller instances.
  * This way there is only one of each and you don't have to do ugly instance chaining to get them
  * @author Lord.Quackstar
  */
 public class InstanceTracker {
 
 	/**
-	 * Main instance. Get with {@link #getMain()}
+	 * GUI instance. Get with {@link #getMain()}
 	 */
-	private static Main mainInst = null;
+	private static GUI mainInst = null;
 	/**
 	 * Controller instance. Get with {@link #getController()}
 	 */
 	private static Controller ctrlInst = null;
 
 	/**
-	 * Fetches the only Main instance
-	 * @return The Main instance
+	 * Fetches the only GUI instance
+	 * @return The GUI instance
 	 */
-	public static Main getMain() {
+	public static GUI getMain() {
 		return mainInst;
+	}
+
+	public static boolean mainExists() {
+		if(mainInst == null)
+			return false;
+		return true;
 	}
 
 	/**
 	 * <b>WARNING</b> CALLING THIS OUTSIDE OF MAIN.JAVA WILL <i>BREAK</i> THE BOT
-	 * This method should <u>never</u> be called, Main.java automatically sets it
+	 * This method should <u>never</u> be called, GUI.java automatically sets it
 	 *
-	 * Sets the Main instance
-	 * @param aMainInst The Main instance being used
+	 * Sets the GUI instance
+	 * @param aMainInst The GUI instance being used
 	 */
-	public static void setMain(Main aMainInst) {
+	public static void setMain(GUI aMainInst) {
 		mainInst = aMainInst;
 	}
 

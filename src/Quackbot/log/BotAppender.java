@@ -36,7 +36,10 @@ public class BotAppender extends AppenderSkeleton {
 	}
 
 	public void append(LoggingEvent event) {
-		SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().BerrorLog,this,event,address));
+		if (InstanceTracker.mainExists())
+			SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().BerrorLog, this, event, address));
+		else
+			WriteOutput.writeStd(event);
 	}
 
 	public boolean requiresLayout() {
