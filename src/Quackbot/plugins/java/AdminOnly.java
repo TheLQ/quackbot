@@ -6,8 +6,9 @@
 package Quackbot.plugins.java;
 
 /**
+ * Denotes Java Plugin is usable only by Admins
  *
- * @author admins
+ * @author Lord.Quackstar
  */
 public @interface AdminOnly {
 

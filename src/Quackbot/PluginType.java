@@ -52,7 +52,7 @@ public interface PluginType {
 	 * Is Util?
 	 * @return the util
 	 */
-	public boolean isUtil() ;
+	public boolean isUtil();
 
 	/**
 	 * Requires Arguments?
@@ -67,17 +67,45 @@ public interface PluginType {
 	public String getName();
 
 	/**
-	 * Called when spefic command is requested
-	 *
-	 * Commands MUST override this in order to work
-	 * @param bot     Bot instance
-	 * @param msgInfo UserMessage bean
+	 * Number of parameters this command REQUIRES
+	 * @return Numer of params
 	 */
-	public void invoke(String command, String[] args, Bot bot, UserMessage msgInfo) throws Exception;
-
-	public void load(File file) throws Exception;
-
 	public int getParams();
 
+	/**
+	 * Number of OPTIONAL parameters this command has
+	 * @return Number of Optional params
+	 */
+	public int getOptParams();
+
+	/**
+	 * The file that this command parsed
+	 * @return The file
+	 */
 	public File getFile();
+
+	/**
+	 * This is called when the command is requested. This is executed in a seperate thread,
+	 * so the current thread can be paused without affecting bot operation.
+	 * 
+	 * @param args        Any arguments the user passes
+	 * @param bot         The bot that sent the command. <b>Note:</b> Services should expect
+	 *                    this to be null.
+	 * @param msgInfo     The UserMessage that contains all message info
+	 * @throws Exception  If an exception is encountered, it MUST thrown up the chain to be
+	 *                    reported as an error.
+	 */
+	public void invoke(String[] args, Bot bot, UserMessage msgInfo) throws Exception;
+
+	/**
+	 * Load method that is called when a file that matches the extension specified
+	 * is found in plugins directory. If this plugin requires manual adding (IE JavaPlugin)
+	 * then it must set the name to null so it can be ignored
+	 * <p>
+	 * Implementations of this must completly setup the Plugin, parsing all avalible infomration.
+	 * The plugin must then be able to be activated by {@link #invoke(java.lang.String[], Quackbot.Bot, Quackbot.info.UserMessage)}
+	 * @param file         The file that contains the script
+	 * @throws Exception   Any exception encountered while parsing. The command will not be added
+	 */
+	public void load(File file) throws Exception;
 }

@@ -210,7 +210,6 @@ public class Server extends PersistentObject {
 	 * WARNING: Passing an empty or null server object might destroy the
 	 * database's knowledge of the server. Only JPersist generated Server
 	 * objects should be passed
-	 * @param serverDB JPersist generated Server object
 	 */
 	public void updateDB() {
 		try {

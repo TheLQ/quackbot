@@ -1054,6 +1054,7 @@ public class Bot extends PircBot {
 	 * This abstract implementation responds correctly, so if you override this
 	 * method, be sure to either mimic its functionality or to call
 	 * super.onPing(...);
+	 *  <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the ping response.
 	 *	The default ping response is <b>not</b> sent.
 	 * @param sourceNick The nick of the user that sent the PING request.
@@ -1072,6 +1073,7 @@ public class Bot extends PircBot {
 	 * This sends back a correct response, so if you override this method,
 	 * be sure to either mimic its functionality or to call
 	 * super.onServerPing(response);
+	 *  <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the PONG response.
 	 *	The PONG version response is <b>not</b> sent. Failure to implement this will make
 	 *	the server think the bot is disconnected
@@ -1087,6 +1089,7 @@ public class Bot extends PircBot {
 	 * This abstract implementation responds correctly, so if you override this
 	 * method, be sure to either mimic its functionality or to call
 	 * super.onTime(...);
+	 *  <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the time response.
 	 *	The default time response is <b>not</b> sent.
 	 * @param sourceNick The nick of the user that sent the TIME request.
@@ -1104,6 +1107,7 @@ public class Bot extends PircBot {
 	 * This abstract implementation responds correctly, so if you override this
 	 * method, be sure to either mimic its functionality or to call
 	 * super.onFinger(...);
+	 *  <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the finger response.
 	 *	The default finger response is <b>not</b> sent.
 	 * @param sourceNick The nick of the user that sent the FINGER request.
