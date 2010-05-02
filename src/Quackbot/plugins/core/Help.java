@@ -5,16 +5,17 @@
  */
 package Quackbot.plugins.core;
 
+import Quackbot.plugins.java.JavaBase;
 import Quackbot.Bot;
 import Quackbot.Controller;
 import Quackbot.InstanceTracker;
 import Quackbot.Utils;
-import Quackbot.annotations.HelpDoc;
-import Quackbot.annotations.ParamConfig;
+import Quackbot.plugins.java.HelpDoc;
+import Quackbot.plugins.java.ParamConfig;
 import Quackbot.err.InvalidCMDException;
 import Quackbot.info.BotMessage;
-import Quackbot.info.JSPlugin;
-import Quackbot.info.JavaPlugin;
+import Quackbot.plugins.JSPlugin;
+import Quackbot.plugins.JavaPlugin;
 import Quackbot.info.UserMessage;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +31,15 @@ import org.apache.log4j.Logger;
  */
 @ParamConfig(optional={"pluginName"})
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
-public class Help implements BasePlugin {
+public class Help implements JavaBase {
 	private static Logger log = Logger.getLogger(Help.class);
 	Controller ctrl = InstanceTracker.getController();
 	String pluginName;
 	public void invoke(Bot qb, UserMessage msgInfo) throws Exception {
+		qb.sendMsg(new BotMessage(msgInfo,"Function broken"));
+
 		//Does user want command list
-		if (pluginName == null) {
+		/*if (pluginName == null) {
 			List<String> cmdList = new ArrayList<String>();
 
 			//Add Java Plugins
@@ -62,6 +65,6 @@ public class Help implements BasePlugin {
 				qb.sendMsg(new BotMessage(msgInfo,javaResult.getHelp()));
 			else
 				throw new InvalidCMDException(pluginName);
-		}
+		}*/
 	}
 }

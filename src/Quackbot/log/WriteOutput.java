@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.AppenderSkeleton;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
@@ -121,6 +122,16 @@ public class WriteOutput implements Runnable {
 		if (throwArr == null)
 			return event.getMessage().toString();
 		return event.getMessage().toString() + "\n" + StringUtils.join(throwArr, " \n");
+	}
+
+	public static void writeStd(LoggingEvent event) {
+		PatternLayout pl = new PatternLayout("%d{MM/dd/yyy hh:mm:ss a}  %-5p %c - %m");
+		if(event.getThrowableInformation() == null)
+			System.out.println(pl.format(event));
+		else  {
+			System.out.println(pl.format(event));
+			System.out.println(StringUtils.join(event.getThrowableStrRep(), " \n"));
+		}
 	}
 }
 //Log4j PatternLayout config (what this is supposed to look like) "%d{MM/dd/yyy hh:mm:ss a} | [%t] | %-5p | %c{2} | - "+extra+" %m"

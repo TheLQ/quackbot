@@ -1,0 +1,381 @@
+/**
+ * @(#)JSPlugin.java
+ *
+ * This file is part of Quackbot
+ */
+package Quackbot.plugins;
+
+import Quackbot.Bot;
+import Quackbot.InstanceTracker;
+import Quackbot.PluginType;
+import Quackbot.info.Hooks;
+import Quackbot.info.UserMessage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.Invocable;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+/**
+ * JS utility bean, holds all information about JS plugin
+ * @author Lord.Quackstar
+ */
+public class JSPlugin implements PluginType {
+
+	/**
+	 * Name of command
+	 */
+	private String name;
+	/**
+	 * Raw source code (used for versioning)
+	 */
+	private String src;
+	/**
+	 * Help for command
+	 */
+	private String help;
+	/**
+	 * Admin only?
+	 */
+	private boolean admin;
+	/**
+	 * Ignore command?
+	 */
+	private boolean ignore;
+	/**
+	 * Hook?
+	 */
+	private Hooks hook;
+	/**
+	 * Is server?
+	 */
+	private boolean service;
+	/**
+	 * Is Util?
+	 */
+	private boolean util;
+	/**
+	 * Requires Arguments?
+	 */
+	private boolean reqArg;
+	/**
+	 * Number of parameters
+	 */
+	private int params;
+	/**
+	 * Current JS context
+	 */
+	private ScriptContext context;
+	/**
+	 * Scope
+	 */
+	private Bindings scope;
+	private File file;
+	private CompiledScript compiled;
+	/**
+	 * Log4j Logger
+	 */
+	private static Logger log = Logger.getLogger(JSPlugin.class);
+
+	public void load(File file) throws Exception {
+		//Basic setup
+		setName(StringUtils.split(file.getName(), ".")[0]);
+		setFile(file);
+
+		//Read File Line By Line
+		BufferedReader input = new BufferedReader(new FileReader(file));
+		StringBuilder fileContents = new StringBuilder();
+		fileContents.append("importPackage(Packages.Quackbot);");
+		fileContents.append("importPackage(Packages.Quackbot.info);");
+		fileContents.append("importClass(Packages.java.lang.Thread);");
+		String strLine;
+		while ((strLine = input.readLine()) != null)
+			fileContents.append(strLine + System.getProperty("line.separator"));
+		input.close();
+
+		//Make new context
+		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
+		jsEngine.eval(fileContents.toString());
+
+		//Fill in cmd Info
+		setAdmin((engineScope.get("admin") == null) ? false : true);
+		setService((engineScope.get("service") == null) ? false : true);
+		setHook((engineScope.get("hook") == null) ? null : (Hooks) engineScope.get("hook"));
+		setIgnore((engineScope.get("ignore") == null) ? false : true);
+		setUtil((engineScope.get("util") == null) ? false : true);
+		setSrc(fileContents.toString());
+		setHelp((String) engineScope.get("help"));
+		setReqArg(((engineScope.get("ReqArg") == null) ? false : true));
+		if (engineScope.get("param") != null)
+			setParams((int) Double.parseDouble(engineScope.get("param").toString()));
+		else
+			setParams(0);
+		//Method update list: Is this an existing method?
+		log.debug("New CMD: " + name);
+	}
+
+	public void invoke(String command, String[] args, Bot bot, UserMessage msgInfo) throws Exception {
+		log.info("Running Javascript Plugin " + command);
+		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+
+		//Compile script on first execution for faster run time
+		if (getCompiled() == null) {
+			//Get all utils to add to command header
+			StringBuilder compSrc = new StringBuilder();
+			for (PluginType curPlugin : InstanceTracker.getController().plugins)
+				if (curPlugin instanceof JSPlugin) {
+					JSPlugin plugin = (JSPlugin) curPlugin;
+					if (plugin.isUtil())
+						compSrc.append(plugin.getSrc());
+				}
+			compSrc.append(getSrc());
+			Compilable compilingEngine = (Compilable) jsEngine;
+			setCompiled(compilingEngine.compile(compSrc.toString()));
+		}
+
+		//Set script globals
+		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
+		engineScope.put("log", Logger.getLogger("Quackbot.plugins.js." + getName()));
+		if (bot != null) {
+			engineScope.put("msgInfo", msgInfo);
+			engineScope.put("qb", bot);
+		} else {
+			//Prevent "not defined" errors
+			engineScope.put("msgInfo", null);
+			engineScope.put("qb", null);
+		}
+		getCompiled().eval(engineScope);
+
+		//Call invoke function with invoke
+		Invocable inv = (Invocable) getCompiled().getEngine();
+		inv.invokeFunction("invoke", (Object[]) args);
+	}
+
+	/**
+	 * Name of command
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Name of command
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Raw source code (used for versioning)
+	 * @return the src
+	 */
+	public String getSrc() {
+		return src;
+	}
+
+	/**
+	 * Raw source code (used for versioning)
+	 * @param src the src to set
+	 */
+	public void setSrc(String src) {
+		this.src = src;
+	}
+
+	/**
+	 * Help for command
+	 * @return the help
+	 */
+	public String getHelp() {
+		return help;
+	}
+
+	/**
+	 * Help for command
+	 * @param help the help to set
+	 */
+	public void setHelp(String help) {
+		this.help = help;
+	}
+
+	/**
+	 * Admin only?
+	 * @return the admin
+	 */
+	public boolean isAdmin() {
+		return admin;
+	}
+
+	/**
+	 * Admin only?
+	 * @param admin the admin to set
+	 */
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}
+
+	/**
+	 * Ignore command?
+	 * @return the ignore
+	 */
+	public boolean isIgnore() {
+		return ignore;
+	}
+
+	/**
+	 * Ignore command?
+	 * @param ignore the ignore to set
+	 */
+	public void setIgnore(boolean ignore) {
+		this.ignore = ignore;
+	}
+
+	/**
+	 * Is server?
+	 * @return the service
+	 */
+	public boolean isService() {
+		return service;
+	}
+
+	/**
+	 * Is server?
+	 * @param service the service to set
+	 */
+	public void setService(boolean service) {
+		this.service = service;
+	}
+
+	/**
+	 * Is Util?
+	 * @return the util
+	 */
+	public boolean isUtil() {
+		return util;
+	}
+
+	/**
+	 * Is Util?
+	 * @param util the util to set
+	 */
+	public void setUtil(boolean util) {
+		this.util = util;
+	}
+
+	/**
+	 * Requires Arguments?
+	 * @return the reqArg
+	 */
+	public boolean isReqArg() {
+		return reqArg;
+	}
+
+	/**
+	 * Requires Arguments?
+	 * @param reqArg the reqArg to set
+	 */
+	public void setReqArg(boolean reqArg) {
+		this.reqArg = reqArg;
+	}
+
+	/**
+	 * Number of parameters
+	 * @return the params
+	 */
+	public int getParams() {
+		return this.params;
+	}
+
+	/**
+	 * Number of parameters
+	 * @param params the params to set
+	 */
+	public void setParams(int params) {
+		this.params = params;
+	}
+
+	/**
+	 * Current JS context
+	 * @return the context
+	 */
+	public ScriptContext getContext() {
+		return context;
+	}
+
+	/**
+	 * Current JS context
+	 * @param context the context to set
+	 */
+	public void setContext(ScriptContext context) {
+		this.context = context;
+	}
+
+	/**
+	 * Scope
+	 * @return the scope
+	 */
+	public Bindings getScope() {
+		return scope;
+	}
+
+	/**
+	 * Scope
+	 * @param scope the scope to set
+	 */
+	public void setScope(Bindings scope) {
+		this.scope = scope;
+	}
+
+	/**
+	 * @return the file
+	 */
+	public File getFile() {
+		return file;
+	}
+
+	/**
+	 * @param file the file to set
+	 */
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	/**
+	 * @return the compiled
+	 */
+	public CompiledScript getCompiled() {
+		return compiled;
+	}
+
+	/**
+	 * @param compiled the compiled to set
+	 */
+	public void setCompiled(CompiledScript compiled) {
+		this.compiled = compiled;
+	}
+
+	/**
+	 * Hook?
+	 * @return the hook
+	 */
+	public Hooks getHook() {
+		return hook;
+	}
+
+	/**
+	 * Hook?
+	 * @param hook the hook to set
+	 */
+	public void setHook(Hooks hook) {
+		this.hook = hook;
+	}
+}

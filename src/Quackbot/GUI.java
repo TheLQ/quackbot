@@ -1,11 +1,10 @@
 /**
- * @(#)Main.java
+ * @(#)GUI.java
  *
  * This file is part of Quackbot
  */
 package Quackbot;
 
-import Quackbot.log.ControlAppender;
 import Quackbot.log.StdRedirect;
 
 import java.awt.BorderLayout;
@@ -14,8 +13,6 @@ import java.awt.Dimension;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
@@ -30,7 +27,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 
-import org.apache.log4j.Level;
+import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 /**
@@ -41,8 +38,7 @@ import org.apache.log4j.Logger;
  * There should only be <b>1</b> instance of this. It can be refrenced by {@link Quackbot.InstanceTracker#getMain() InstanceTracker.getMain}
  * @author Lord.Quackstar
  */
-public class Main extends JFrame implements ActionListener {
-
+public class GUI extends JFrame implements ActionListener {
 	/**
 	 * GUI log pane's
 	 */
@@ -50,7 +46,7 @@ public class Main extends JFrame implements ActionListener {
 	/**
 	 * Log4j logger
 	 */
-	private Logger log = Logger.getLogger(Main.class);
+	private Logger log = Logger.getLogger(GUI.class);
 	/**
 	 * Backup standard output stream
 	 */
@@ -61,9 +57,9 @@ public class Main extends JFrame implements ActionListener {
 	public PrintStream err;
 
 	/**
-	 * Setup and display GUI, setup Log4j, start Controller
+	 * Recall's this in AWT event queue
 	 */
-	public Main() {
+	public GUI() {
 		/***Pre init, setup error log**/
 		InstanceTracker.setMain(this);
 		BerrorLog = new JTextPane();
@@ -78,9 +74,6 @@ public class Main extends JFrame implements ActionListener {
 		err = System.err;
 		System.setOut(new PrintStream(new StdRedirect(new ByteArrayOutputStream(), false)));
 		System.setErr(new PrintStream(new StdRedirect(new ByteArrayOutputStream(), true)));
-		Logger rootLog = Logger.getRootLogger();
-		rootLog.setLevel(Level.TRACE);
-		rootLog.addAppender(new ControlAppender());
 
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
@@ -120,15 +113,6 @@ public class Main extends JFrame implements ActionListener {
 		add(contentPane); //add to JFrame
 		setVisible(true); //make JFrame visible
 
-		//Initialize controller in new thread to prevent GUI lockups
-		new Thread(new Runnable() {
-
-			public void run() {
-				log.info("Initialiing controller");
-				new Controller();
-			}
-		}).start();
-
 		mainSplit.setDividerLocation(0.50);
 	}
 
@@ -140,38 +124,10 @@ public class Main extends JFrame implements ActionListener {
 		String cmd = e.getActionCommand();
 
 		if (cmd.equals("Reload"))
-			ThreadPoolManager.addMain(new loadCMDs());
+			InstanceTracker.getController().reloadPlugins();
 		if (cmd.equals("Clear")) {
 			CerrorLog.setText("");
 			BerrorLog.setText("");
 		}
-	}
-
-	public class shutdownSequence extends Thread {
-		public void run() {
-			Logger log = Logger.getLogger(this.getClass());
-			log.info("Closing all IRC and db connections gracefully");
-			Controller ctrl = InstanceTracker.getController();
-			ctrl.stopAll();
-			try {
-				ctrl.dbm.close();
-			} catch (Exception e) {
-				e.printStackTrace(err); //send to standard output because window is closing
-			}
-		}
-	}
-
-	/**
-	 * Main method, starts Main
-	 * @param args  Passed parameters. This is ignored
-	 */
-	public static void main(String[] args) {
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-
-			public void run() {
-				Main main = new Main();
-				Runtime.getRuntime().addShutdownHook(main.new shutdownSequence());
-			}
-		});
 	}
 }

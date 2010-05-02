@@ -6,26 +6,29 @@
 package Quackbot;
 
 import Quackbot.info.Channel;
-import Quackbot.info.JSPlugin;
-import Quackbot.info.JavaPlugin;
 import Quackbot.info.Server;
+import Quackbot.log.ControlAppender;
+import Quackbot.plugins.JSPlugin;
+import Quackbot.plugins.JavaPlugin;
 import Quackbot.plugins.core.Help;
-
+import Quackbot.plugins.core.HookTest;
 import Quackbot.plugins.core.JavaTest;
+import java.io.File;
+
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.TreeSet;
+import javax.swing.SwingUtilities;
 
 
 import jpersist.DatabaseManager;
 import jpersist.JPersistException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 
 import org.apache.log4j.Logger;
 
@@ -41,52 +44,122 @@ import org.apache.log4j.Logger;
  *
  * @author Lord.Quackstar
  */
-public class Controller {
-
+public class Controller implements Runnable {
 	/**
-	 * TreeMap of all JS plugins
+	 * Global Prefixes.
 	 */
-	public TreeMap<String, JSPlugin> JSplugins = new TreeMap<String, JSPlugin>();
+	public List<String> globPrefixes = new ArrayList<String>();
 	/**
-	 * TreeSet of all JS utils
+	 * All registered plugin types
 	 */
-	public TreeSet<String> JSUtils = new TreeSet<String>();
+	public TreeMap<String, Class<? extends PluginType>> pluginTypes = new TreeMap<String, Class<? extends PluginType>>();
 	/**
-	 * List of Fully Qualified Class names of all Java Plugins
+	 * List of ALL commands (Java or JS)
 	 */
-	public List<JavaPlugin> javaPlugins = new ArrayList<JavaPlugin>();
+	public List<PluginType> plugins = new ArrayList<PluginType>();
 	/**
 	 * Set of all Bot instances
 	 */
 	public HashSet<Bot> bots = new HashSet<Bot>();
 	/**
-	 * Current {@link Main} instance
-	 */
-	public Main gui = InstanceTracker.getMain();
-	/**
 	 * DatabaseManager instance of JPersist database
 	 */
 	public DatabaseManager dbm = null;
+	public int cmdNum = 0;
 	/**
 	 * Log4j Logger
 	 */
 	private Logger log = Logger.getLogger(Controller.class);
 
 	/**
-	 * Start of bot working.
-	 * -Loads CMDs
-	 * -Connects to database
-	 * -starts Bots from database info
+	 * Calls {@link #Controller(java.util.List, boolean)}
+	 * with empty custom prefixes and makeGui set to true
 	 */
 	public Controller() {
+		this(new ArrayList<String>(), true);
+	}
+
+	/**
+	 * Calls {@link #Controller(java.util.List, boolean)}
+	 * with empty custom prefixes and specified makeGui
+	 * @param makeGui  Show GUI or not
+	 */
+	public Controller(boolean makeGui) {
+		this(new ArrayList<String>(), makeGui);
+	}
+
+	/**
+	 * Calls {@link #Controller(java.util.List, boolean)}
+	 * with specified prefixes and showing GUI
+	 * @param custPrefixes
+	 */
+	public Controller(List<String> custPrefixes) {
+		this(custPrefixes, true);
+	}
+
+	/**
+	 * Main init, restarts this in main thread pool, starts GUI if requested
+	 * <p>
+	 * Private constructor that this calls completly sets up bot. Connects to
+	 * database, adds built in PluginTypes, starts all bots from database
+	 * @param custPrefixes
+	 * @param makeGui
+	 */
+	public Controller(final List<String> custPrefixes, boolean makeGui) {
+		//Add shutdown hook to kill all bots and connections
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				Logger log = Logger.getLogger(this.getClass());
+				log.info("Closing all IRC and db connections gracefully");
+				Controller ctrl = InstanceTracker.getController();
+				ctrl.stopAll();
+				try {
+					ctrl.dbm.close();
+				} catch (Exception e) {
+					e.printStackTrace(); //send to standard output because window is closing
+				}
+			}
+		});
+
+		//Start GUI if requested
+		if (makeGui)
+			new GUI();
+
+		//Restart controller in new thread (prevent GUI updating issues)
+		ThreadPoolManager.addMain(new Controller(custPrefixes, 0));
+	}
+
+	/**
+	 * Private main constructor. Inits everything.
+	 * @param custPrefixes  Prefixes to add
+	 * @param thread        Just a way to seperate this constructor from the rest
+	 */
+	private Controller(List<String> custPrefixes, int thread) {
+		//Add prefixes to globPrefixes
+		globPrefixes.addAll(custPrefixes);
+
 		InstanceTracker.setController(this);
+		//Setup log4j
+		Logger rootLog = Logger.getRootLogger();
+		rootLog.setLevel(Level.TRACE);
+		rootLog.addAppender(new ControlAppender());
+
+		//Setup plugin loading
+		addPluginType("js", JSPlugin.class);
+		addPluginType("java", JavaPlugin.class);
 
 		//Load current CMD classes
 		reloadPlugins();
+		addPlugin(new JavaPlugin(Help.class.getName()));
+
+		//Start service plugins
+		for (PluginType curPlug : plugins)
+			if (curPlug.isService())
+				new PluginExecutor(curPlug.getName(), new String[0]);
 
 		//Connect to database
 		DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
-		dbm = new DatabaseManager("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://192.168.2.11/quackbot", null, null, "root", null);
+		dbm = new DatabaseManager("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://localhost/quackbot", null, null, "root", null);
 
 		//Get all server objects from database
 		Collection<Server> c = null;
@@ -107,8 +180,15 @@ public class Controller {
 			else
 				log.fatal("Error encountered while attempting to join servers", e);
 		}
+	}
 
-
+	/**
+	 * Start of bot working.
+	 * -Loads CMDs
+	 * -Connects to database
+	 * -starts Bots from database info
+	 */
+	public void run() {
 	}
 
 	/**
@@ -169,21 +249,62 @@ public class Controller {
 	 *	Take this into account if you have services running in the background
 	 */
 	public void reloadPlugins() {
-		log.trace("In reload Plugins");
-		ThreadPoolManager.addMain(new loadCMDs());
-		log.trace("JavaPlugins size: "+javaPlugins.size());
-		if (javaPlugins.size() != 0)
-			javaPlugins.clear();
-		javaPlugins.add(new JavaPlugin(JavaTest.class.getName()));
-		javaPlugins.add(new JavaPlugin(Help.class.getName()));
-		log.info("---end reload---");
+		plugins.removeAll(plugins);
+		ThreadPoolManager.pluginPool.execute(new Runnable() {
+			public void run() {
+				reloadPlugins(new File("plugins"));
+			}
+		});
+
+	}
+
+	private void reloadPlugins(File file) {
+		if (file.isDirectory()) {
+			final File[] childs = file.listFiles();
+			for (File child : childs)
+				reloadPlugins(child);
+			return;
+		} //Is this in the .svn directory?
+		else if (file.getAbsolutePath().indexOf(".svn") != -1 || file.getName().equals("JS_Template.js"))
+			return;
+
+		//Get extension of file
+		String ext = StringUtils.split(file.getName(), '.')[1];
+
+		//Load using appropiate type
+		try {
+			PluginType plugin = pluginTypes.get(ext).newInstance();
+			plugin.load(file);
+			plugins.add(plugin);
+		} catch (Exception e) {
+			log.error("Could not load plugin " + StringUtils.split(file.getName(), '.')[0], e);
+		}
+	}
+
+	public void addPluginType(String ext, Class<? extends PluginType> newType) {
+		addPluginType(new String[]{ext}, newType);
+	}
+
+	public void addPluginType(String[] exts, Class<? extends PluginType> newType) {
+		for (String curExt : exts)
+			pluginTypes.put(curExt, newType);
+	}
+
+	public void addPlugin(PluginType plugin) {
+		plugins.add(plugin);
+	}
+
+	/**
+	 * @param cmdNum the cmdNum to set
+	 */
+	public synchronized int addCmdNum() {
+		return ++cmdNum;
 	}
 
 	/**
 	 * Simple thread to run the bot in to prevent it from locking the gui
 	 */
 	public class botThread implements Runnable {
-
 		Server server = null;
 
 		/**
@@ -207,5 +328,16 @@ public class Controller {
 				log.error("Can't make bot connect to server", ex);
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				Controller ctrl = new Controller();
+				ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()));
+				ctrl.addPlugin(new JavaPlugin(HookTest.class.getName()));
+			}
+		});
+
 	}
 }

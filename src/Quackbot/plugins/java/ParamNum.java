@@ -3,7 +3,7 @@
  *
  * This file is part of Quackbot
  */
-package Quackbot.annotations;
+package Quackbot.plugins.java;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -10,12 +10,12 @@ import Quackbot.err.InvalidCMDException;
 import Quackbot.err.NumArgException;
 
 import Quackbot.info.BotMessage;
-import Quackbot.info.JSPlugin;
-import Quackbot.info.JavaPlugin;
+import Quackbot.plugins.JSPlugin;
+import Quackbot.plugins.JavaPlugin;
 import Quackbot.info.UserMessage;
 import Quackbot.log.BotAppender;
 
-import Quackbot.plugins.core.BasePlugin;
+import Quackbot.plugins.java.JavaBase;
 import java.lang.reflect.Field;
 
 import javax.script.Bindings;
@@ -44,7 +44,7 @@ public class PluginExecutor implements Runnable {
 	/**
 	 * Bot instance (optional)
 	 */
-	private Bot qb;
+	private Bot bot;
 	/**
 	 * UserMessage bean (used if Bot is executing a command)
 	 */
@@ -67,10 +67,10 @@ public class PluginExecutor implements Runnable {
 		this.command = msgInfo.getCommand();
 		this.params = msgInfo.getArgs();
 		this.msgInfo = msgInfo;
-		this.qb = bot;
+		this.bot = bot;
 		log.setAdditivity(false);
 		log.removeAllAppenders();
-		log.addAppender(new BotAppender(qb.getServer()));
+		log.addAppender(new BotAppender(this.bot.getServer()));
 	}
 
 	/**
@@ -81,6 +81,8 @@ public class PluginExecutor implements Runnable {
 	public PluginExecutor(String command, String[] params) {
 		this.command = command;
 		this.params = params;
+		this.bot = null;
+		this.msgInfo = null;
 	}
 
 	/**
@@ -89,15 +91,33 @@ public class PluginExecutor implements Runnable {
 	 * This simply finds what the command is and sends it to the appropiate parser
 	 */
 	public void run() {
+		msgInfo.setCmdNum(ctrl.addCmdNum());
+		log.info("-----------Begin execution of command #"+msgInfo.getCmdNum()+",  from " + msgInfo.getRawmsg() + "-----------");
 		try {
-			JavaPlugin javaResult = Utils.findJavaPlugin(command);
-			JSPlugin jsResult = Utils.findJSPlugin(command);
-			if (jsResult != null)
-				runJs(jsResult);
-			else if (javaResult != null)
-				runJava(javaResult);
-			else
+			PluginType plugin = Utils.findPlugin(command);
+			if (plugin == null || plugin.isService() || plugin.isUtil())
 				throw new InvalidCMDException(command);
+			//Is this an admin function? If so, is the person an admin?
+			if (plugin.isAdmin() && bot != null && !bot.serverDB.adminExists(msgInfo.getSender()))
+				throw new AdminException();
+
+			//Does this method require args?
+			if (plugin.isReqArg() && params.length == 0) {
+				log.debug("Method does require args, passing length 1 array");
+				params = new String[1];
+			}
+
+			//Does the required number of args exist?
+			int user_args = params.length;
+			int method_args = plugin.getParams();
+			log.debug("User Args: " + user_args + " | Req Args: " + method_args);
+			if (user_args != method_args)
+				throw new NumArgException(user_args, method_args);
+
+			//All requirements are met, excecute method
+			log.info("All tests passed, running method " + command);
+
+			plugin.invoke(command, params, bot, msgInfo);
 		} catch (AdminException e) {
 			log.error("Person is not admin!!", e);
 			sendIfBot(new BotMessage(msgInfo, e));
@@ -119,74 +139,7 @@ public class PluginExecutor implements Runnable {
 			log.error("Other error in plugin execution of " + command, e);
 			sendIfBot(new BotMessage(msgInfo, e));
 		}
-		if (qb != null)
-			log.info("-----------End execution of command #" + msgInfo.getCmdNum() + ",  from " + msgInfo.getRawmsg() + "-----------");
-	}
-
-	/**
-	 * Javascript executor
-	 * @throws Exception When search or command runs into an error
-	 */
-	public void runJs(JSPlugin cmdInfo) throws Exception {
-		log.info("Running Javascript Plugin " + command);
-		//Is this an admin function? If so, is the person an admin?
-		if (cmdInfo.isAdmin() && !qb.serverDB.adminExists(msgInfo.getSender()))
-			throw new AdminException();
-
-		//Does this method require args?
-		if (cmdInfo.isReqArg() && params.length == 0) {
-			log.debug("Method does require args, passing length 1 array");
-			params = new String[1];
-		}
-
-		//Does the required number of args exist?
-		int user_args = params.length;
-		int method_args = cmdInfo.getParams();
-		log.debug("User Args: " + user_args + " | Req Args: " + method_args);
-		if (user_args != method_args)
-			throw new NumArgException(user_args, method_args);
-
-		//All requirements are met, excecute method
-		log.info("All tests passed, running method " + command);
-		ScriptContext newContext = cmdInfo.getContext();
-		Bindings engineScope = cmdInfo.getScope();
-		if (qb != null) {
-			engineScope.put("msgInfo", msgInfo);
-			engineScope.put("qb", qb);
-		} else {
-			//Prevent "not defined" errors
-			engineScope.put("msgInfo", null);
-			engineScope.put("qb", null);
-		}
-		engineScope.put("log", Logger.getLogger("Quackbot.plugins.js." + cmdInfo.getName()));
-
-		//build command string
-		StringBuilder jsCmd = new StringBuilder();
-		jsCmd.append("invoke( ");
-		for (String arg : params)
-			jsCmd.append(" '" + arg + "',");
-		jsCmd.deleteCharAt(jsCmd.length() - 1);
-		jsCmd.append(");");
-
-		String jsCommand = jsCmd.toString();
-
-		log.debug("JS cmd: " + jsCommand);
-
-		//Run command
-		new ScriptEngineManager().getEngineByName("JavaScript").eval(jsCommand, newContext);
-	}
-
-	/**
-	 * Runs java command
-	 * @param javaLoc    Fully Qualified Class name of command
-	 * @throws Exception When command runs into an error
-	 */
-	public void runJava(JavaPlugin javaLoc) throws ClassCastException, Exception {
-		log.info("Running Java Plugin " + command);
-
-		BasePlugin javaCmd = javaLoc.newInstance();
-		javaLoc.getParamField().fillFields(javaCmd, msgInfo.getArgs());
-		javaCmd.invoke(qb, msgInfo);
+		log.info("-----------End execution of command #" + msgInfo.getCmdNum() + ",  from " + msgInfo.getRawmsg() + "-----------");
 	}
 
 	/**
@@ -194,7 +147,7 @@ public class PluginExecutor implements Runnable {
 	 * @param msg Message to send
 	 */
 	private void sendIfBot(BotMessage msg) {
-		if (qb != null)
-			qb.sendMessage(msg.channel, msg.toString());
+		if (bot != null)
+			bot.sendMessage(msg.channel, msg.toString());
 	}
 }

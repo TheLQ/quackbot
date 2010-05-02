@@ -6,11 +6,11 @@
 package Quackbot.plugins.core;
 
 import Quackbot.Bot;
-import Quackbot.annotations.HelpDoc;
-import Quackbot.annotations.ParamConfig;
-import Quackbot.annotations.ParamNum;
+import Quackbot.plugins.java.HelpDoc;
+import Quackbot.plugins.java.ParamConfig;
 import Quackbot.info.BotMessage;
 import Quackbot.info.UserMessage;
+import Quackbot.plugins.java.JavaBase;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -20,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
 @ParamConfig(optional={"optional","optional2","optional3"})
 //@ParamNum(5)
 @HelpDoc("This is JavaTest Help")
-public class JavaTest implements BasePlugin {
+public class JavaTest implements JavaBase {
 	String something;
 	String somethins;
 	String optional ,optional2, optional3;

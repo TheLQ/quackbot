@@ -28,7 +28,10 @@ public class ControlAppender extends AppenderSkeleton {
 			if (fullClass.indexOf(search) != -1)
 				return;
 
-		SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().CerrorLog,this,event));
+		if(InstanceTracker.mainExists())
+			SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().CerrorLog,this,event));
+		else
+			WriteOutput.writeStd(event);
 	}
 
 	public boolean requiresLayout() {

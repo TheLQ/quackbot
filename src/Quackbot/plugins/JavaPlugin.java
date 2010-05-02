@@ -3,14 +3,29 @@
  *
  * This file is part of Quackbot
  */
-package Quackbot.info;
+package Quackbot.plugins;
 
-import Quackbot.annotations.HelpDoc;
-import Quackbot.annotations.ParamConfig;
-import Quackbot.annotations.ParamNum;
+import Quackbot.plugins.java.JavaBase;
+import Quackbot.Bot;
+import Quackbot.PluginType;
+import Quackbot.plugins.java.HelpDoc;
+import Quackbot.plugins.java.ParamConfig;
+import Quackbot.plugins.java.ParamNum;
 import Quackbot.err.NumArgException;
 import Quackbot.err.QuackbotException;
-import Quackbot.plugins.core.BasePlugin;
+import Quackbot.info.Hooks;
+import Quackbot.info.UserMessage;
+import Quackbot.plugins.java.AdminOnly;
+import Quackbot.plugins.java.Ignore;
+import Quackbot.plugins.java.Hook;
+import Quackbot.plugins.java.ReqArg;
+import Quackbot.plugins.java.Service;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +37,7 @@ import org.apache.log4j.Logger;
  *
  * @author Lord.Quackstar
  */
-public class JavaPlugin {
+public class JavaPlugin implements PluginType {
 
 	/**
 	 * Name of command
@@ -45,9 +60,9 @@ public class JavaPlugin {
 	 */
 	private boolean ignore = false;
 	/**
-	 * Is Listener?
+	 * Is Hook?
 	 */
-	private boolean listener = false;
+	private Hooks hook;
 	/**
 	 * Is server?
 	 */
@@ -61,6 +76,10 @@ public class JavaPlugin {
 	 */
 	private boolean reqArg = false;
 	/**
+	 * Params
+	 */
+	private int params;
+	/**
 	 * Param class
 	 */
 	private ParamField paramField;
@@ -69,25 +88,38 @@ public class JavaPlugin {
 	 */
 	private static Logger log = Logger.getLogger(JavaPlugin.class);
 
-	/**
-	 * Creates empty JavaPlugin with class name
-	 * @param FQCN Fully Qualified Class Name of Java plugin
-	 */
 	public JavaPlugin(String className) {
+		log.info("New JavaPlugin " + className);
 		this.fqcn = className;
 		String[] fqcna = StringUtils.split(className, ".");
 		this.name = fqcna[fqcna.length - 1];
 		try {
-			Class<?> javaBase = newInstance().getClass();
+			Class<?> javaBase = this.getClass().getClassLoader().loadClass(getFqcn());
 
 			//Set all fields acessable
 			Field[] fields = javaBase.getDeclaredFields();
 			for (Field curField : fields)
 				curField.setAccessible(true);
+			log.debug("Hook data: " + javaBase.getAnnotation(Hook.class));
+			Annotation[] annons = javaBase.getAnnotations();
+			for(Annotation curAnn : annons) {
+				log.trace(curAnn);
+			}
+			//Plugin info creation
+			if (javaBase.isAnnotationPresent(ReqArg.class))
+				setReqArg(true);
+			if (javaBase.isAnnotationPresent(AdminOnly.class))
+				setAdmin(true);
+			if (javaBase.isAnnotationPresent(Ignore.class))
+				setIgnore(true);
+			if (javaBase.isAnnotationPresent(Hook.class))
+				setHook(javaBase.getAnnotation(Hook.class).value());
+			if (javaBase.isAnnotationPresent(Service.class))
+				setService(true);
 
 			//Param and syntax generation
-			if(javaBase.isAnnotationPresent(ParamNum.class) && javaBase.isAnnotationPresent(ParamConfig.class))
-				throw new QuackbotException("Class "+name+" cannot use both parameter annotations, please remove one and restarts");
+			if (javaBase.isAnnotationPresent(ParamNum.class) && javaBase.isAnnotationPresent(ParamConfig.class))
+				throw new QuackbotException("Class " + name + " cannot use both parameter annotations, please remove one and restarts");
 
 			StringBuilder syntax = new StringBuilder();
 			if (javaBase.isAnnotationPresent(ParamNum.class))
@@ -107,6 +139,41 @@ public class JavaPlugin {
 		} catch (Exception e) {
 			log.error("Cannot load help of command " + name, e);
 		}
+	}
+
+	public void load(File file) {
+		//Empty, commands must be added manually using constructor
+	}
+
+	public JavaBase newInstance() throws Exception {
+		JavaBase javaCmd = null;
+		try {
+			javaCmd = (JavaBase) this.getClass().getClassLoader().loadClass(getFqcn()).newInstance();
+
+		} catch (ClassCastException e) {
+			if (StringUtils.contains(e.getMessage(), "BasePlugin"))
+				throw new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)");
+			else
+				throw e;
+		} catch (Exception e) {
+			log.error("Unable to create instance of " + getName(), e);
+			throw e;
+		}
+		return javaCmd;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @param bot
+	 * @param msgInfo
+	 * @throws Exception
+	 */
+	public void invoke(String command, String[] args, Bot bot, UserMessage msgInfo) throws Exception {
+		JavaBase javaCmd = newInstance();
+
+		log.info("Running Java Plugin " + msgInfo.getCommand());
+		getParamField().fillFields(javaCmd, msgInfo.getArgs());
+		javaCmd.invoke(bot, msgInfo);
 	}
 
 	/**
@@ -155,22 +222,6 @@ public class JavaPlugin {
 	 */
 	public void setIgnore(boolean ignore) {
 		this.ignore = ignore;
-	}
-
-	/**
-	 * Is Listener?
-	 * @return the listener
-	 */
-	public boolean isListener() {
-		return listener;
-	}
-
-	/**
-	 * Is Listener?
-	 * @param listener the listener to set
-	 */
-	public void setListener(boolean listener) {
-		this.listener = listener;
 	}
 
 	/**
@@ -237,23 +288,6 @@ public class JavaPlugin {
 		this.name = name;
 	}
 
-	public BasePlugin newInstance() throws Exception {
-		BasePlugin plugin = null;
-		try {
-			plugin = (BasePlugin) this.getClass().getClassLoader().loadClass(getFqcn()).newInstance();
-
-		} catch (ClassCastException e) {
-			if (StringUtils.contains(e.getMessage(), "BasePlugin"))
-				throw new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)");
-			else
-				throw e;
-		} catch (Exception e) {
-			log.error("Unable to create instance of " + getName(), e);
-			throw e;
-		}
-		return plugin;
-	}
-
 	/**
 	 * @return the fqcn
 	 */
@@ -284,6 +318,40 @@ public class JavaPlugin {
 		this.paramField = paramField;
 	}
 
+	/**
+	 * @return the params
+	 */
+	public int getParams() {
+		return params;
+	}
+
+	/**
+	 * @param params the params to set
+	 */
+	public void setParams(int params) {
+		this.params = params;
+	}
+
+	public File getFile() {
+		return null; //empty
+	}
+
+	/**
+	 * Is Hook?
+	 * @return the hook
+	 */
+	public Hooks getHook() {
+		return hook;
+	}
+
+	/**
+	 * Is Hook?
+	 * @param hook the hook to set
+	 */
+	public void setHook(Hooks hook) {
+		this.hook = hook;
+	}
+
 	public class ParamField {
 
 		/**
@@ -304,15 +372,12 @@ public class JavaPlugin {
 		 * @throws NoSuchFieldException
 		 */
 		public ParamField(Class<?> clazz) throws NoSuchFieldException {
-			logging.trace("Currently at @ParamConfig handling");
 			String[] pcArr = clazz.getAnnotation(ParamConfig.class).value();
-			logging.trace("ParamConfig len: " + pcArr.length);
 			for (String curName : pcArr) {
 				Field field = clazz.getDeclaredField(curName);
 				paramNum++;
 				reqParamNum++;
 				reqFields.add(field);
-				logging.trace("Adding " + field + " to required");
 			}
 
 			//Loop over optionals
@@ -321,8 +386,8 @@ public class JavaPlugin {
 				Field field = clazz.getDeclaredField(curName);
 				paramNum++;
 				optFields.add(field);
-				logging.trace("Adding " + field + " to optional");
 			}
+			JavaPlugin.this.params = paramNum;
 		}
 
 		/**
@@ -330,9 +395,9 @@ public class JavaPlugin {
 		 * @param num
 		 */
 		public ParamField(int num) {
-			logging.trace("Currently at @ParamNum handling, passing " + num);
 			paramNum = num;
 			reqParamNum = num;
+			JavaPlugin.this.params = paramNum;
 		}
 
 		public void fillFields(Object inst, String[] params) throws IllegalAccessException, NoSuchFieldException, NumArgException {
@@ -340,18 +405,16 @@ public class JavaPlugin {
 			//First check if there are enough fields
 			logging.trace("Required Java params: " + reqParamNum + " user params: " + paramLen);
 			if (paramLen > paramNum) //Do we have too many?
-				throw new NumArgException(paramLen,reqParamNum,paramNum-reqParamNum );
+				throw new NumArgException(paramLen, reqParamNum, paramNum - reqParamNum);
 			else if (paramLen < reqParamNum) //Do we not have enough?
 				throw new NumArgException(paramLen, reqParamNum);
 
 			//Well there are enough fields, continue
 			int paramPos = -1;
 			log.info("User params: " + paramLen + " Feilds: " + reqFields.size());
-			log.trace("Req: " + reqParamNum + ", Optional: " + paramNum);
 			for (Field curField : reqFields) {
 				paramPos++;
 				curField.set(inst, params[paramPos]);
-				log.trace("Param Pos: " + paramPos);
 			}
 
 			//If it dosen't match, then we have optional params to fill
@@ -361,8 +424,71 @@ public class JavaPlugin {
 					if (paramPos > (paramLen - 1))
 						break;
 					curField.set(inst, params[paramPos]);
-					log.trace("Param Pos - 0: " + paramPos);
 				}
+		}
+	}
+
+	private class JPClassLoader extends ClassLoader {
+
+		private static final int CAPACITY = 1024;
+		private String baseClassName;//Root path, for example, a project of the classes directory
+
+		public JPClassLoader(String baseClassName) {
+			if (!baseClassName.endsWith(File.separator))
+				this.baseClassName = baseClassName + File.separator;
+			else
+				this.baseClassName = baseClassName;
+		}
+
+		protected Class<?> findClass(final String name) throws ClassNotFoundException {
+			byte[] b = this.getByteFromClass(name);
+			return this.defineClass(name, b, 0, b.length);
+		}
+
+		private byte[] getByteFromClass(final String name) {
+			String path = StringUtils.replace(name, ".", File.separator) + ".class";
+			File f = new File(baseClassName + path);
+			if (!f.exists() || f.isDirectory())
+				throw new RuntimeException(name + "is not exists!");
+			FileInputStream fileInput = null;
+
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			byte[] b = new byte[CAPACITY], classByte = null;
+			try {
+				int readLen;
+				fileInput = new FileInputStream(f);
+
+				while ((readLen = fileInput.read(b)) != -1)
+					byteArrayOutputStream.write(b, 0, readLen);
+
+				classByte = byteArrayOutputStream.toByteArray();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (fileInput != null)
+						fileInput.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					fileInput = null;
+				}
+
+				try {
+					if (byteArrayOutputStream != null)
+						byteArrayOutputStream.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					byteArrayOutputStream = null;
+				}
+
+			}
+			return classByte;
 		}
 	}
 }

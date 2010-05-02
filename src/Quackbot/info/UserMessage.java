@@ -39,6 +39,8 @@ public class UserMessage {
 	private String command;
 	private String[] args = new String[0];
 	private int cmdNum;
+	private Object extra;
+	private Object extra1;
 
 	/**
 	 * Empty constructor
@@ -55,29 +57,41 @@ public class UserMessage {
 	 * @param message  Message user sent
 	 */
 	public UserMessage(String channel, String sender, String login, String hostname, String message) {
-		this.channel = channel;
-		this.sender = sender;
-		this.login = login;
-		this.hostname = hostname;
-		this.rawmsg = message;
+		this(channel, sender, login, hostname, message, null, null);
 	}
 
-	/**
-	 * Bot listeners will call this
-	 * @param channel  Channel message was sent on
-	 * @param sender   User name
-	 * @param login    User login
-	 * @param hostname User hostname
-	 * @param message  Message user sent
-	 * @param command  Command to run
-	 */
-	public UserMessage(String channel, String sender, String login, String hostname, String message, String command) {
+	public UserMessage(String rawmsg, Object extra) {
+		this(rawmsg,extra,null);
+	}
+
+	public UserMessage(String rawmsg, Object extra, Object extra1) {
+		this.rawmsg = rawmsg;
+		this.extra = extra;
+		this.extra1 = extra1;
+	}
+	
+	public UserMessage(String channel, String sender, String login, String hostname, String message, Object extra) {
+		this(channel, sender, login, hostname, message, extra, null);
+	}
+
+	public UserMessage(String channel, String sender, String login, String hostname, String message, Object extra, Object extra1) {
 		this.channel = channel;
 		this.sender = sender;
 		this.login = login;
 		this.hostname = hostname;
 		this.rawmsg = message;
-		this.command = command;
+		this.extra = extra;
+		this.extra1 = extra1;
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Channel: "+channel+" ");
+		sb.append("Sender: "+sender+" ");
+		sb.append("Login: "+login+" ");
+		sb.append("Hostname: "+hostname+" ");
+		sb.append("RawMsg: "+rawmsg+" ");
+		return sb.toString();
 	}
 
 	/**
@@ -170,22 +184,6 @@ public class UserMessage {
 	}
 
 	/**
-	 * Command user called
-	 * @return the command
-	 */
-	public String getCommand() {
-		return command;
-	}
-
-	/**
-	 * Command user called
-	 * @param command the command to set
-	 */
-	public void setCommand(String command) {
-		this.command = command;
-	}
-
-	/**
 	 * Args passed by user
 	 * @return the args
 	 */
@@ -213,5 +211,47 @@ public class UserMessage {
 	 */
 	public void setCmdNum(int cmdNum) {
 		this.cmdNum = cmdNum;
+	}
+
+	/**
+	 * @return the extra
+	 */
+	public Object getExtra() {
+		return extra;
+	}
+
+	/**
+	 * @param extra the extra to set
+	 */
+	public void setExtra(Object extra) {
+		this.extra = extra;
+	}
+
+	/**
+	 * @return the extra1
+	 */
+	public Object getExtra1() {
+		return extra1;
+	}
+
+	/**
+	 * @param extra1 the extra1 to set
+	 */
+	public void setExtra1(Object extra1) {
+		this.extra1 = extra1;
+	}
+
+	/**
+	 * @return the command
+	 */
+	public String getCommand() {
+		return command;
+	}
+
+	/**
+	 * @param command the command to set
+	 */
+	public void setCommand(String command) {
+		this.command = command;
 	}
 }
