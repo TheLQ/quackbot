@@ -12,7 +12,8 @@ import Quackbot.info.Hooks;
 import Quackbot.info.BotEvent;
 import Quackbot.plugins.java.Hook;
 import Quackbot.plugins.java.JavaBase;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple Java cmd test
@@ -24,7 +25,7 @@ public class HookTest implements JavaBase {
 	String something;
 	String somethins;
 	String optional ,optional2, optional3;
-	private static Logger log = Logger.getLogger(HookTest.class);
+	private static Logger log = LoggerFactory.getLogger(HookTest.class);
 
 	public void invoke(Bot bot, BotEvent msgInfo) {
 		log.trace("In log");

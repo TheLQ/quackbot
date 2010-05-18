@@ -20,7 +20,8 @@ import Quackbot.info.BotEvent;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Core plugin that provides help for a command
@@ -30,7 +31,7 @@ import org.apache.log4j.Logger;
 @ParamConfig(optional = {"pluginName"})
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 public class Help implements JavaBase {
-	private static Logger log = Logger.getLogger(Help.class);
+	private static Logger log = LoggerFactory.getLogger(Help.class);
 	Controller ctrl = InstanceTracker.getController();
 	String pluginName;
 

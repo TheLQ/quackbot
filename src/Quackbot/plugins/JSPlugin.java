@@ -22,7 +22,8 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JS utility bean, holds all information about JS plugin
@@ -87,7 +88,7 @@ public class JSPlugin implements PluginType {
 	/**
 	 * Log4j Logger
 	 */
-	private static Logger log = Logger.getLogger(JSPlugin.class);
+	private static Logger log = LoggerFactory.getLogger(JSPlugin.class);
 
 	public void load(File file) throws Exception {
 		//Basic setup
@@ -147,7 +148,7 @@ public class JSPlugin implements PluginType {
 
 		//Set script globals
 		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
-		engineScope.put("log", Logger.getLogger("Quackbot.plugins.js." + getName()));
+		engineScope.put("log", LoggerFactory.getLogger("Quackbot.plugins.js." + getName()));
 		if (bot != null) {
 			engineScope.put("msgInfo", msgInfo);
 			engineScope.put("qb", bot);

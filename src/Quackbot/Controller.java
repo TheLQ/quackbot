@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
+import javax.sql.DataSource;
 import javax.swing.SwingUtilities;
 
 
@@ -31,7 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main Controller for bot:
@@ -73,9 +75,10 @@ public class Controller {
 	/**
 	 * Log4j Logger
 	 */
-	private Logger log = Logger.getLogger(Controller.class);
+	private Logger log = LoggerFactory.getLogger(Controller.class);
 	public List<AppenderSkeleton> ctrlAppenders = new ArrayList<AppenderSkeleton>();
 	public List<AppenderSkeleton> botAppenders = new ArrayList<AppenderSkeleton>();
+	private boolean setLevel = false;
 
 	/**
 	 * Calls {@link #Controller(java.util.List, boolean)}
@@ -99,8 +102,8 @@ public class Controller {
 		//Setup log4j for quackbot package
 		ctrlAppenders.add(new ControlAppender());
 
-		//Logger rootLog = Logger.getLogger("Quackbot");
-		Logger rootLog = Logger.getRootLogger();
+		//Logger rootLog = LoggerFactory.getLogger("Quackbot");
+		org.apache.log4j.Logger rootLog = org.apache.log4j.Logger.getRootLogger();
 		rootLog.setLevel(Level.ALL);
 		for (AppenderSkeleton curAppender : ctrlAppenders)
 			rootLog.addAppender(curAppender);
@@ -108,7 +111,7 @@ public class Controller {
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				Logger log = Logger.getLogger(this.getClass());
+				Logger log = LoggerFactory.getLogger(this.getClass());
 				log.info("Closing all IRC and db connections gracefully");
 				Controller ctrl = InstanceTracker.getController();
 				ctrl.stopAll();
@@ -123,7 +126,7 @@ public class Controller {
 
 		//This can't run in EDT, end if it is
 		if (SwingUtilities.isEventDispatchThread()) {
-			log.fatal("Controller cannot be started from EDT. Please start from seperate thread");
+			log.error("Controller cannot be started from EDT. Please start from seperate thread");
 			return;
 		}
 
@@ -136,7 +139,7 @@ public class Controller {
 					}
 				});
 		} catch (Exception e) {
-			log.fatal("Cannot start GUI", e);
+			log.error("Cannot start GUI", e);
 		}
 
 		//Setup plugin loading
@@ -148,6 +151,14 @@ public class Controller {
 	}
 
 	public void start() {
+		if(dbm==null) {
+			log.error("Not configured to use database! Must run connectDB ");
+			return;
+		}
+
+		if(!setLevel)
+			DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
+
 		//Load current CMD classes
 		reloadPlugins(false);
 
@@ -156,16 +167,12 @@ public class Controller {
 			if (curPlug.isService())
 				new PluginExecutor(curPlug.getName(), new String[0]);
 
-		//Connect to database
-		DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
-		dbm = new DatabaseManager("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://localhost/quackbot", null, null, "root", null);
-
 		//Get all server objects from database
 		Collection<Server> c = null;
 		try {
 			c = dbm.loadObjects(new ArrayList<Server>(), Server.class, true);
 			if (c.size() == 0)
-				log.fatal("Server list is empty!");
+				log.error("Server list is empty!");
 			for (final Server curServer : c) {
 				dbm.loadAssociations(c);
 				final ExecutorService threadPool = ThreadMgr.newBotPool(curServer.getAddress());
@@ -185,11 +192,11 @@ public class Controller {
 		} catch (Exception e) {
 			if (e instanceof JPersistException)
 				if (StringUtils.contains(e.getMessage(), "Communications link failure"))
-					log.fatal("Error in connecting to database. Please check database connectivity and restart application", e);
+					log.error("Error in connecting to database. Please check database connectivity and restart application", e);
 				else
-					log.fatal("Database error", e);
+					log.error("Database error", e);
 			else
-				log.fatal("Error encountered while attempting to join servers", e);
+				log.error("Error encountered while attempting to join servers", e);
 		}
 	}
 
@@ -306,6 +313,11 @@ public class Controller {
 	public void addMainAppender() {
 	}
 
+	public void setDatabaseLogLevel(java.util.logging.Level level) {
+		DatabaseManager.setLogLevel(level);
+		setLevel = true;
+	}
+
 	/**
 	 * Increments command number and returns new int
 	 */
@@ -313,8 +325,96 @@ public class Controller {
 		return ++cmdNum;
 	}
 
+	/**
+	 * Create a DatabaseManager instance using a supplied DataSource.
+	 * <p>
+	 * This simply calls
+	 * <code>dbm = new DatabaseManager(databaseName, poolSize, dataSource, catalogPattern, schemaPattern);</code>
+	 *
+	 * @param databaseName the name to associate with the DatabaseManager instance
+	 * @param poolSize the number of instances to manage
+	 * @param dataSource the data source that supplies connections
+	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
+	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
+	 */
+	public void connectDB(String databaseName, int poolSize, DataSource dataSource, String catalogPattern, String schemaPattern) {
+		dbm = new DatabaseManager(databaseName, poolSize, dataSource, catalogPattern, schemaPattern);
+	}
+
+	/**
+	 * Connect to Database using using JNDI.
+	 * <p>
+	 * This simply calls
+	 * <code>dbm = new DatabaseManager(databaseName, poolSize,jndiUri, catalogPattern, schemaPattern);</code>
+	 *
+	 * @param databaseName the name to associate with the DatabaseManager instance
+	 * @param poolSize the number of instances to manage
+	 * @param jndiUri the JNDI URI
+	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
+	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
+	 */
+	public void connectDB(String databaseName, int poolSize, String jndiUri, String catalogPattern, String schemaPattern) {
+		dbm = new DatabaseManager(databaseName, poolSize, jndiUri, catalogPattern, schemaPattern);
+	}
+
+	/**
+	 * Create a DatabaseManager instance using JNDI.
+	 * <p>
+	 * This simply calls
+	 * <code>dbm = new DatabaseManager(databaseName, poolSize, jndiUri, catalogPattern, schemaPattern, username, password);</code>
+	 *
+	 * @param databaseName the name to associate with the DatabaseManager instance
+	 * @param poolSize the number of instances to manage
+	 * @param jndiUri the JNDI URI
+	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
+	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
+	 * @param username the username to use for signon
+	 * @param password the password to use for signon
+	 */
+	public void connectDB(String databaseName, int poolSize, String jndiUri, String catalogPattern, String schemaPattern, String username, String password) {
+		dbm = new DatabaseManager(databaseName, poolSize, jndiUri, catalogPattern, schemaPattern, username, password);
+	}
+
+	/**
+	 * Create a DatabaseManager instance using a supplied database driver.
+	 * <p>
+	 * This simply calls
+	 * <code>dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern);</code>
+	 *
+	 * @param databaseName the name to associate with the DatabaseManager instance
+	 * @param poolSize the number of instances to manage
+	 * @param driver the database driver class name
+	 * @param url the driver oriented database url
+	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
+	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
+	 */
+	public void connectDB(String databaseName, int poolSize, String driver, String url, String catalogPattern, String schemaPattern) {
+		dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern);
+	}
+
+	/**
+	 * Create a DatabaseManager instance using a supplied database driver.
+	 * <p>
+	 * This simply calls
+	 * <code>dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern, username, password);</code>
+	 *
+	 * @param databaseName the name to associate with the DatabaseManager instance
+	 * @param poolSize the number of instances to manage
+	 * @param driver the database driver class name
+	 * @param url the driver oriented database url
+	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
+	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
+	 * @param username the username to use for signon
+	 * @param password the password to use for signon
+	 */
+	public void connectDB(String databaseName, int poolSize, String driver, String url, String catalogPattern, String schemaPattern, String username, String password) {
+		dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern, username, password);
+	}
+
 	public static void main(String[] args) {
 		Controller ctrl = new Controller();
+		ctrl.connectDB("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://localhost/quackbot", null, null, "root", null);
+		ctrl.setDatabaseLogLevel(java.util.logging.Level.OFF);
 		ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()));
 		//ctrl.addPlugin(new JavaPlugin(HookTest.class.getName()));
 		ctrl.start();

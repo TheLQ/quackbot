@@ -24,12 +24,14 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.jibble.pircbot.DccChat;
 import org.jibble.pircbot.DccFileTransfer;
 import org.jibble.pircbot.PircBot;
+import org.jibble.pircbot.ReplyConstants;
 
 import org.jibble.pircbot.User;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bot instance that communicates with 1 server
@@ -69,7 +71,7 @@ public class Bot extends PircBot {
 	/**
 	 * Log4J logger
 	 */
-	private Logger log = Logger.getLogger(Bot.class);
+	private Logger log = LoggerFactory.getLogger(Bot.class);
 
 	/**
 	 * Init bot by setting all information

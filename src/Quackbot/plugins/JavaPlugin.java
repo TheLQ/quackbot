@@ -26,7 +26,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the global JavaBean/Utility for all Java written plugins
@@ -86,7 +87,7 @@ public class JavaPlugin implements PluginType {
 	/**
 	 * Log4j logger
 	 */
-	private static Logger log = Logger.getLogger(JavaPlugin.class);
+	private static Logger log = LoggerFactory.getLogger(JavaPlugin.class);
 
 	public JavaPlugin(String className) {
 		setFqcn(className);
@@ -373,7 +374,7 @@ public class JavaPlugin implements PluginType {
 		private int reqParamNum = 0;
 		private List<Field> reqFields = new ArrayList<Field>();
 		private List<Field> optFields = new ArrayList<Field>();
-		private Logger logging = Logger.getLogger(ParamField.class);
+		private Logger logging = LoggerFactory.getLogger(ParamField.class);
 
 		/**
 		 * Used for @ParamConfig annotation

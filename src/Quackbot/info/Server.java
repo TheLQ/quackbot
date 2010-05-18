@@ -14,8 +14,8 @@ import jpersist.JPersistException;
 import jpersist.PersistentObject;
 import jpersist.annotations.UpdateNullValues;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the Server bean mapped to the Database by JPersist. Used by {@link Quackbot.Bot}
@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 @UpdateNullValues
 public class Server extends PersistentObject {
 
-	private static Logger logger = Logger.getLogger(Server.class);
+	private static Logger logger = LoggerFactory.getLogger(Server.class);
 	private static long serialVersionUID = 100L;
 
 	/**

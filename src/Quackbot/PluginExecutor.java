@@ -15,8 +15,9 @@ import Quackbot.info.BotEvent;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * All calls to ANY command run are called using this class.
@@ -48,7 +49,7 @@ public class PluginExecutor implements Runnable {
 	/**
 	 * Log4j logger
 	 */
-	private Logger log = Logger.getLogger(PluginExecutor.class);
+	private Logger log = LoggerFactory.getLogger(PluginExecutor.class);
 
 	/**
 	 * Constructs PluginExecutor for bot. Will report errors to passed bot
