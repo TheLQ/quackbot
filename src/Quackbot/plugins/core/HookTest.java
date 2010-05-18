@@ -6,7 +6,7 @@
 package Quackbot.plugins.core;
 
 import Quackbot.Bot;
-import Quackbot.LogFactory;
+
 import Quackbot.info.BotMessage;
 import Quackbot.info.Hooks;
 import Quackbot.info.BotEvent;
@@ -24,7 +24,7 @@ public class HookTest implements JavaBase {
 	String something;
 	String somethins;
 	String optional ,optional2, optional3;
-	private static Logger log = LogFactory.getLogger(HookTest.class);
+	private static Logger log = Logger.getLogger(HookTest.class);
 
 	public void invoke(Bot bot, BotEvent msgInfo) {
 		log.trace("In log");

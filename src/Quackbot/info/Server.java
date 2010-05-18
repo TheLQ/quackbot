@@ -6,7 +6,7 @@
 package Quackbot.info;
 
 import Quackbot.InstanceTracker;
-import Quackbot.LogFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import jpersist.JPersistException;
@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 @UpdateNullValues
 public class Server extends PersistentObject {
 
-	private static Logger logger = LogFactory.getLogger(Server.class);
+	private static Logger logger = Logger.getLogger(Server.class);
 	private static long serialVersionUID = 100L;
 
 	/**

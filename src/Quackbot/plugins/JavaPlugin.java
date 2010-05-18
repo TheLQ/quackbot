@@ -7,7 +7,7 @@ package Quackbot.plugins;
 
 import Quackbot.plugins.java.JavaBase;
 import Quackbot.Bot;
-import Quackbot.LogFactory;
+
 import Quackbot.PluginType;
 import Quackbot.plugins.java.HelpDoc;
 import Quackbot.plugins.java.ParamConfig;
@@ -86,7 +86,7 @@ public class JavaPlugin implements PluginType {
 	/**
 	 * Log4j logger
 	 */
-	private static Logger log = LogFactory.getLogger(JavaPlugin.class);
+	private static Logger log = Logger.getLogger(JavaPlugin.class);
 
 	public JavaPlugin(String className) {
 		setFqcn(className);
@@ -373,7 +373,7 @@ public class JavaPlugin implements PluginType {
 		private int reqParamNum = 0;
 		private List<Field> reqFields = new ArrayList<Field>();
 		private List<Field> optFields = new ArrayList<Field>();
-		private Logger logging = LogFactory.getLogger(ParamField.class);
+		private Logger logging = Logger.getLogger(ParamField.class);
 
 		/**
 		 * Used for @ParamConfig annotation

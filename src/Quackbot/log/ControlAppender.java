@@ -5,8 +5,8 @@
  */
 package Quackbot.log;
 
+import Quackbot.Bot;
 import Quackbot.InstanceTracker;
-import com.mysql.jdbc.StringUtils;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.AppenderSkeleton;
@@ -19,19 +19,27 @@ import org.apache.log4j.spi.LoggingEvent;
  * @author Lord.Quackstar
  */
 public class ControlAppender extends AppenderSkeleton {
-
 	public ControlAppender() {
 		setName("ControlAppender");
 	}
-	
+
 	/**
 	 * Used by Log4j to write something from the LoggingEvent. This simply points to
 	 * WriteOutput which writes to the the GUI or to the console
 	 * @param event
 	 */
 	public void append(LoggingEvent event) {
-		if(InstanceTracker.mainExists())
-			SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().CerrorLog,this,event));
+		if (!Bot.threadLocal.get().equals("EMPTY")) {
+			if (InstanceTracker.mainExists())
+				SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().BerrorLog, this, event, Bot.threadLocal.get()));
+			else
+				WriteOutput.writeStd(event);
+			return;
+		}
+
+
+		if (InstanceTracker.mainExists())
+			SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().CerrorLog, this, event));
 		else
 			WriteOutput.writeStd(event);
 	}

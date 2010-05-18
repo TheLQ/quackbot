@@ -9,12 +9,10 @@ package Quackbot;
 
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
-import Quackbot.log.BotAppender;
 import Quackbot.log.ControlAppender;
 import Quackbot.plugins.JSPlugin;
 import Quackbot.plugins.JavaPlugin;
 import Quackbot.plugins.core.Help;
-import Quackbot.plugins.core.HookTest;
 import Quackbot.plugins.core.JavaTest;
 import java.io.File;
 
@@ -23,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
 import javax.swing.SwingUtilities;
 
 
@@ -62,7 +61,7 @@ public class Controller {
 	/**
 	 * Set of all Bot instances
 	 */
-	public List<Bot> bots = new ArrayList<Bot>();
+	public TreeMap<String, Bot> bots = new TreeMap<String, Bot>();
 	/**
 	 * DatabaseManager instance of JPersist database
 	 */
@@ -74,7 +73,7 @@ public class Controller {
 	/**
 	 * Log4j Logger
 	 */
-	private Logger log = LogFactory.getLogger(Controller.class);
+	private Logger log = Logger.getLogger(Controller.class);
 	public List<AppenderSkeleton> ctrlAppenders = new ArrayList<AppenderSkeleton>();
 	public List<AppenderSkeleton> botAppenders = new ArrayList<AppenderSkeleton>();
 
@@ -99,16 +98,17 @@ public class Controller {
 
 		//Setup log4j for quackbot package
 		ctrlAppenders.add(new ControlAppender());
-		botAppenders.add(new BotAppender());
-		Logger rootLog = LogFactory.getLogger("Quackbot");
-		rootLog.setLevel(Level.TRACE);
+
+		//Logger rootLog = Logger.getLogger("Quackbot");
+		Logger rootLog = Logger.getRootLogger();
+		rootLog.setLevel(Level.ALL);
 		for (AppenderSkeleton curAppender : ctrlAppenders)
 			rootLog.addAppender(curAppender);
 
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				Logger log = LogFactory.getLogger(this.getClass());
+				Logger log = Logger.getLogger(this.getClass());
 				log.info("Closing all IRC and db connections gracefully");
 				Controller ctrl = InstanceTracker.getController();
 				ctrl.stopAll();
@@ -166,9 +166,21 @@ public class Controller {
 			c = dbm.loadObjects(new ArrayList<Server>(), Server.class, true);
 			if (c.size() == 0)
 				log.fatal("Server list is empty!");
-			for (Server curServer : c) {
+			for (final Server curServer : c) {
 				dbm.loadAssociations(c);
-				ThreadPoolManager.addMain(new botThread(curServer));
+				final ExecutorService threadPool = ThreadMgr.newBotPool(curServer.getAddress());
+				threadPool.execute(new Runnable() {
+					public void run() {
+						try {
+							log.info("Initiating IRC connection to server " + curServer);
+							Bot qb = new Bot(curServer, threadPool);
+							qb.setVerbose(true);
+							bots.put(curServer.getAddress(), qb);
+						} catch (Exception ex) {
+							log.error("Can't make bot connect to server", ex);
+						}
+					}
+				});
 			}
 		} catch (Exception e) {
 			if (e instanceof JPersistException)
@@ -185,11 +197,11 @@ public class Controller {
 	 * Makes all bots quit servers
 	 */
 	public void stopAll() {
-		for (Bot curBot : bots) {
+		for (Bot curBot : bots.values()) {
 			curBot.quitServer("Killed by control panel");
 			curBot.dispose();
-			bots.remove(curBot);
 		}
+		bots.clear();
 		log.info("Killed all bots");
 	}
 
@@ -226,7 +238,7 @@ public class Controller {
 	 * @param msg   Message to send
 	 */
 	public void sendGlobalMessage(String msg) {
-		for (Bot curBot : bots)
+		for (Bot curBot : bots.values())
 			curBot.sendAllMessage(msg);
 	}
 
@@ -243,7 +255,7 @@ public class Controller {
 	public void reloadPlugins(boolean clean) {
 		if (clean)
 			plugins.removeAll(plugins);
-		ThreadPoolManager.pluginPool.execute(new Runnable() {
+		ThreadMgr.addMain(new Runnable() {
 			public void run() {
 				reloadPlugins(new File("plugins"));
 			}
@@ -299,35 +311,6 @@ public class Controller {
 	 */
 	public synchronized int addCmdNum() {
 		return ++cmdNum;
-	}
-
-	/**
-	 * Simple thread to run the bot in to prevent it from locking the gui
-	 */
-	public class botThread implements Runnable {
-		Server server = null;
-
-		/**
-		 * Define some simple variables
-		 * @param server
-		 */
-		public botThread(Server server) {
-			this.server = server;
-		}
-
-		/**
-		 * Initiates bot, joins it to some channels
-		 */
-		public void run() {
-			try {
-				log.info("Initiating IRC connection to server "+server);
-				Bot qb = new Bot(server);
-				qb.setVerbose(true);
-				bots.add(qb);
-			} catch (Exception ex) {
-				log.error("Can't make bot connect to server", ex);
-			}
-		}
 	}
 
 	public static void main(String[] args) {

@@ -9,7 +9,7 @@ import Quackbot.plugins.java.JavaBase;
 import Quackbot.Bot;
 import Quackbot.Controller;
 import Quackbot.InstanceTracker;
-import Quackbot.LogFactory;
+
 import Quackbot.PluginType;
 import Quackbot.Utils;
 import Quackbot.plugins.java.HelpDoc;
@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 @ParamConfig(optional = {"pluginName"})
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 public class Help implements JavaBase {
-	private static Logger log = LogFactory.getLogger(Help.class);
+	private static Logger log = Logger.getLogger(Help.class);
 	Controller ctrl = InstanceTracker.getController();
 	String pluginName;
 
