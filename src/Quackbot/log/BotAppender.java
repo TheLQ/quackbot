@@ -9,6 +9,7 @@ import Quackbot.InstanceTracker;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.MDC;
 
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -19,17 +20,8 @@ import org.apache.log4j.spi.LoggingEvent;
  */
 public class BotAppender extends AppenderSkeleton {
 
-	/**
-	 * Address of Bot server
-	 */
-	String address;
-
-	/**
-	 * Generate from Address
-	 * @param address Address of server
-	 */
-	public BotAppender(String address) {
-		this.address = address;
+	public BotAppender() {
+		setName("BotAppender");
 	}
 
 	/**
@@ -39,7 +31,7 @@ public class BotAppender extends AppenderSkeleton {
 	 */
 	public void append(LoggingEvent event) {
 		if (InstanceTracker.mainExists())
-			SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().BerrorLog, this, event, address));
+			SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().BerrorLog, this, event, event.getMDC("qbAddress").toString()));
 		else
 			WriteOutput.writeStd(event);
 	}
