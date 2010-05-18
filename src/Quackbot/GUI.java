@@ -5,7 +5,6 @@
  */
 package Quackbot;
 
-import Quackbot.log.StdRedirect;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -13,7 +12,6 @@ import java.awt.Dimension;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import java.util.TimeZone;
@@ -27,8 +25,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 
-import javax.swing.SwingUtilities;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a GUI for bot
@@ -46,7 +44,7 @@ public class GUI extends JFrame implements ActionListener {
 	/**
 	 * Log4j logger
 	 */
-	private Logger log = Logger.getLogger(GUI.class);
+	private Logger log = LoggerFactory.getLogger(GUI.class);
 	/**
 	 * Backup standard output stream
 	 */
