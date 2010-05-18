@@ -7,7 +7,7 @@ package Quackbot.plugins.java;
 
 import Quackbot.Bot;
 
-import Quackbot.info.UserMessage;
+import Quackbot.info.BotEvent;
 
 /**
  * Java command interface. All Java commands MUST implement this
@@ -20,7 +20,7 @@ public interface JavaBase {
 	 *
 	 * Commands MUST override this in order to work
 	 * @param bot     Bot instance
-	 * @param msgInfo UserMessage bean
+	 * @param msgInfo BotEvent bean
 	 */
-	public void invoke(Bot bot, UserMessage msgInfo) throws Exception;
+	public void invoke(Bot bot, BotEvent msgInfo) throws Exception;
 }

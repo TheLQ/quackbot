@@ -13,9 +13,8 @@ import Quackbot.info.BotMessage;
 import Quackbot.info.Channel;
 import Quackbot.info.Hooks;
 import Quackbot.info.Server;
-import Quackbot.info.UserMessage;
+import Quackbot.info.BotEvent;
 
-import Quackbot.log.BotAppender;
 import java.util.ArrayList;
 
 import java.util.HashSet;
@@ -24,10 +23,10 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
 import org.jibble.pircbot.DccChat;
 import org.jibble.pircbot.DccFileTransfer;
 import org.jibble.pircbot.PircBot;
-import org.jibble.pircbot.ReplyConstants;
 
 import org.jibble.pircbot.User;
 
@@ -61,7 +60,7 @@ public class Bot extends PircBot {
 	/**
 	 * Log4J logger
 	 */
-	private Logger log = Logger.getLogger(Bot.class);
+	private Logger log = LogFactory.getLogger(Bot.class);
 
 	/**
 	 * Init bot by setting all information
@@ -69,7 +68,7 @@ public class Bot extends PircBot {
 	 */
 	public Bot(Server serverDB) {
 		this.serverDB = serverDB;
-		log.addAppender(new BotAppender(serverDB.getAddress()));
+		MDC.put("qbAddress", serverDB.getAddress());
 
 		setName("Quackbot");
 		setAutoNickChange(true);
@@ -130,7 +129,7 @@ public class Bot extends PircBot {
 	 * @since PircBot 0.9.6 & Quackbot 3.0
 	 */
 	@Override
-	public void onConnect() {
+	protected void onConnect() {
 		runHook(Hooks.onConnect, null);
 
 		//Init prefixes (put here in order to prevent MOTD from tripping bot)
@@ -139,7 +138,6 @@ public class Bot extends PircBot {
 		PREFIXES.add(getNick());
 
 		List<Channel> channels = serverDB.getChannels();
-		log.debug("Channel length: " + channels.size());
 		for (Channel curChannel : channels) {
 			joinChannel(curChannel.getChannel(), curChannel.getPassword());
 			log.debug("Trying to join channel using " + curChannel);
@@ -165,8 +163,8 @@ public class Bot extends PircBot {
 	 * @param message The actual message sent to the channel.
 	 */
 	@Override
-	public void onMessage(String channel, String sender, String login, String hostname, String message) {
-		runHook(Hooks.onMessage, new UserMessage(channel, sender, login, hostname, message));
+	protected void onMessage(String channel, String sender, String login, String hostname, String message) {
+		runHook(Hooks.onMessage, new BotEvent(channel, sender, login, hostname, message));
 		//Look for a prefix
 		Iterator preItr = PREFIXES.iterator();
 		Boolean contPre = false;
@@ -179,8 +177,8 @@ public class Bot extends PircBot {
 			}
 		}
 
-		//Create UserMessage from modified message
-		UserMessage msgInfo = new UserMessage(channel, sender, login, hostname, message);
+		//Create BotEvent from modified message
+		BotEvent msgInfo = new BotEvent(channel, sender, login, hostname, message);
 
 		//Is there a prefix?
 		if (!contPre)
@@ -199,17 +197,17 @@ public class Bot extends PircBot {
 	 * @param message The actual message.
 	 */
 	@Override
-	public void onPrivateMessage(String sender, String login, String hostname, String message) {
-		runHook(Hooks.onPrivateMessage, new UserMessage(null, sender, login, hostname, message));
+	protected void onPrivateMessage(String sender, String login, String hostname, String message) {
+		runHook(Hooks.onPrivateMessage, new BotEvent(null, sender, login, hostname, message));
 		//Because this is a PM, just start going
-		activateCmd(new UserMessage(null, sender, login, hostname, message));
+		activateCmd(new BotEvent(null, sender, login, hostname, message));
 	}
 
 	/**
 	 * runCommand wrapper, outputs begginin and end to console and catches errors
-	 * @param msgInfo UserMessage bean
+	 * @param msgInfo BotEvent bean
 	 */
-	private void activateCmd(UserMessage msgInfo) {
+	private void activateCmd(BotEvent msgInfo) {
 		try {
 			runCommand(msgInfo);
 		} catch (Exception e) {
@@ -222,12 +220,14 @@ public class Bot extends PircBot {
 	 * Executes command
 	 *
 	 * Command handling takes place here purley for nice output for console. If returned, end tag still shown
-	 * @param msgInfo                The UserMessage bean
+	 * @param msgInfo                The BotEvent bean
 	 * @throws InvalidCMDException   If command does not exist
 	 * @throws AdminException        If command is admin only and user is not admin
 	 * @throws NumArgException       If impropper amount of arguments were given
 	 */
-	private void runCommand(UserMessage msgInfo) throws InvalidCMDException, AdminException, NumArgException {
+	private void runCommand(BotEvent msgInfo) throws InvalidCMDException, AdminException, NumArgException {
+		log.trace("Current Command thread: "+Thread.currentThread().getName());
+
 		//Is bot locked?
 		if (botLocked == true && !serverDB.adminExists(msgInfo.getSender())) {
 			log.info("Command ignored due to global lock in effect");
@@ -252,7 +252,7 @@ public class Bot extends PircBot {
 			argArray = new String[0];
 		}
 
-		//Build UserMessage bean
+		//Build BotEvent bean
 		msgInfo.setArgs(argArray);
 		msgInfo.setCommand(command);
 
@@ -287,9 +287,9 @@ public class Bot extends PircBot {
 	/**
 	 * Executes Hook
 	 * @param command The command to run (just the name of the method that is calling this)
-	 * @param msgInfo UserMessage bean
+	 * @param msgInfo BotEvent bean
 	 */
-	public void runHook(Hooks command, UserMessage msgInfo) {
+	private void runHook(Hooks command, BotEvent msgInfo) {
 		List<PluginType> pluginHooks = new ArrayList<PluginType>();
 		for (PluginType curPlugin : InstanceTracker.getController().plugins) {
 			Hooks curHook = curPlugin.getHook();
@@ -364,13 +364,13 @@ public class Bot extends PircBot {
 	 * PircBot implements the interface ReplyConstants, which contains
 	 * contstants that you may find useful here.
 	 *
-	 * @param code The three-digit numerical code for the response. Stored as UserMessage.extra
-	 * @param response The full response from the IRC server. Stored as UserMessage.rawmsg
+	 * @param code The three-digit numerical code for the response. Stored as BotEvent.extra
+	 * @param response The full response from the IRC server. Stored as BotEvent.rawmsg
 	 *
 	 * @see ReplyConstants
 	 */
 	protected void onServerResponse(int code, String response) {
-		runHook(Hooks.onServerResponse, new UserMessage(response, code));
+		runHook(Hooks.onServerResponse, new BotEvent(response, code));
 	}
 
 	/**
@@ -387,13 +387,13 @@ public class Bot extends PircBot {
 	 * At a later time, you may call the getUsers method to obtain an
 	 * up to date list of the users in the channel.
 	 *
-	 * @param channel The name of the channel. Stored as UserMessage.rawmsg
-	 * @param users An array of User objects belonging to this channel. Stored as UserMessage.extra
+	 * @param channel The name of the channel. Stored as BotEvent.rawmsg
+	 * @param users An array of User objects belonging to this channel. Stored as BotEvent.extra
 	 *
 	 * @see User
 	 */
 	protected void onUserList(String channel, User[] users) {
-		runHook(Hooks.onUserList, new UserMessage(channel, users));
+		runHook(Hooks.onUserList, new BotEvent(channel, users));
 	}
 
 	/**
@@ -407,7 +407,7 @@ public class Bot extends PircBot {
 	 * @param action The action carried out by the user.
 	 */
 	protected void onAction(String sender, String login, String hostname, String target, String action) {
-		runHook(Hooks.onAction, new UserMessage(target, sender, login, hostname, action));
+		runHook(Hooks.onAction, new BotEvent(target, sender, login, hostname, action));
 	}
 
 	/**
@@ -420,7 +420,7 @@ public class Bot extends PircBot {
 	 * @param notice The notice message.
 	 */
 	protected void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice) {
-		runHook(Hooks.onNotice, new UserMessage(target, sourceNick, sourceLogin, sourceHostname, notice));
+		runHook(Hooks.onNotice, new BotEvent(target, sourceNick, sourceLogin, sourceHostname, notice));
 	}
 
 	/**
@@ -433,7 +433,7 @@ public class Bot extends PircBot {
 	 * @param hostname The hostname of the user who joined the channel.
 	 */
 	protected void onJoin(String channel, String sender, String login, String hostname) {
-		runHook(Hooks.onJoin, new UserMessage(channel, sender, login, hostname, null));
+		runHook(Hooks.onJoin, new BotEvent(channel, sender, login, hostname, null));
 	}
 
 	/**
@@ -446,7 +446,7 @@ public class Bot extends PircBot {
 	 * @param hostname The hostname of the user who parted from the channel.
 	 */
 	protected void onPart(String channel, String sender, String login, String hostname) {
-		runHook(Hooks.onPart, new UserMessage(channel, sender, login, hostname, null));
+		runHook(Hooks.onPart, new BotEvent(channel, sender, login, hostname, null));
 	}
 
 	/**
@@ -456,10 +456,10 @@ public class Bot extends PircBot {
 	 * @param oldNick The old nick.
 	 * @param login The login of the user.
 	 * @param hostname The hostname of the user.
-	 * @param newNick The new nick. Stored as UserMessage.rawmsg
+	 * @param newNick The new nick. Stored as BotEvent.rawmsg
 	 */
 	protected void onNickChange(String oldNick, String login, String hostname, String newNick) {
-		runHook(Hooks.onNickChange, new UserMessage(login, newNick, login, hostname, newNick));
+		runHook(Hooks.onNickChange, new BotEvent(login, newNick, login, hostname, newNick));
 	}
 
 	/**
@@ -467,14 +467,14 @@ public class Bot extends PircBot {
 	 * any of the channels that we are in.
 	 *
 	 * @param channel The channel from which the recipient was kicked.
-	 * @param kickerNick The nick of the user who performed the kick. Stored as UserMessage.sender
-	 * @param kickerLogin The login of the user who performed the kick. Stored as UserMessage.login
-	 * @param kickerHostname The hostname of the user who performed the kick. Stored as UserMessage.hostName
-	 * @param recipientNick The unfortunate recipient of the kick. Stored as UserMessage.rawmsg
-	 * @param reason The reason given by the user who performed the kick. Stored as UserMessage.extra
+	 * @param kickerNick The nick of the user who performed the kick. Stored as BotEvent.sender
+	 * @param kickerLogin The login of the user who performed the kick. Stored as BotEvent.login
+	 * @param kickerHostname The hostname of the user who performed the kick. Stored as BotEvent.hostName
+	 * @param recipientNick The unfortunate recipient of the kick. Stored as BotEvent.rawmsg
+	 * @param reason The reason given by the user who performed the kick. Stored as BotEvent.extra
 	 */
 	protected void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
-		runHook(Hooks.onKick, new UserMessage(channel, kickerNick, kickerLogin, kickerHostname, recipientNick, reason));
+		runHook(Hooks.onKick, new BotEvent(channel, kickerNick, kickerLogin, kickerHostname, recipientNick, reason));
 	}
 
 	/**
@@ -488,7 +488,7 @@ public class Bot extends PircBot {
 	 * @param reason The reason given for quitting the server.
 	 */
 	protected void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
-		runHook(Hooks.onQuit, new UserMessage(null, sourceNick, sourceLogin, sourceHostname, reason));
+		runHook(Hooks.onQuit, new BotEvent(null, sourceNick, sourceLogin, sourceHostname, reason));
 	}
 
 	/**
@@ -496,15 +496,15 @@ public class Bot extends PircBot {
 	 * PircBot joins a new channel and discovers its topic.
 	 *
 	 * @param channel The channel that the topic belongs to.
-	 * @param topic The topic for the channel. Stored as UserMessage.rawmsg
-	 * @param setBy The nick of the user that set the topic. Stored as UserMessage.sender
-	 * @param date When the topic was set (milliseconds since the epoch). Stored as UserMessage.extra
+	 * @param topic The topic for the channel. Stored as BotEvent.rawmsg
+	 * @param setBy The nick of the user that set the topic. Stored as BotEvent.sender
+	 * @param date When the topic was set (milliseconds since the epoch). Stored as BotEvent.extra
 	 * @param changed True if the topic has just been changed, false if
-	 *                the topic was already there. Stored as UserMessage.extra1
+	 *                the topic was already there. Stored as BotEvent.extra1
 	 *
 	 */
 	protected void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
-		runHook(Hooks.onTopic, new UserMessage(channel, setBy, null, null, topic, date, changed));
+		runHook(Hooks.onTopic, new BotEvent(channel, setBy, null, null, topic, date, changed));
 	}
 
 	/**
@@ -517,13 +517,13 @@ public class Bot extends PircBot {
 	 * may not appear in channel listings.
 	 *
 	 * @param channel The name of the channel.
-	 * @param userCount The number of users visible in this channel. Stored as UserMessage.extra
-	 * @param topic The topic for this channel. Stored as UserMessage.rawmsg
+	 * @param userCount The number of users visible in this channel. Stored as BotEvent.extra
+	 * @param topic The topic for this channel. Stored as BotEvent.rawmsg
 	 *
 	 * @see #listChannels() listChannels
 	 */
 	protected void onChannelInfo(String channel, int userCount, String topic) {
-		runHook(Hooks.onChannelInfo, new UserMessage(channel, null, null, null, topic, userCount));
+		runHook(Hooks.onChannelInfo, new BotEvent(channel, null, null, null, topic, userCount));
 	}
 
 	/**
@@ -538,25 +538,25 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that set the mode.
 	 * @param sourceLogin The login of the user that set the mode.
 	 * @param sourceHostname The hostname of the user that set the mode.
-	 * @param mode The mode that has been set. Stored as UserMessage.rawmsg
+	 * @param mode The mode that has been set. Stored as BotEvent.rawmsg
 	 *
 	 */
 	protected void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		runHook(Hooks.onMode, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, mode));
+		runHook(Hooks.onMode, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, mode));
 	}
 
 	/**
 	 * Called when the mode of a user is set.
 	 *
-	 * @param targetNick The nick that the mode operation applies to. Stored as UserMessage.extra
+	 * @param targetNick The nick that the mode operation applies to. Stored as BotEvent.extra
 	 * @param sourceNick The nick of the user that set the mode.
 	 * @param sourceLogin The login of the user that set the mode.
 	 * @param sourceHostname The hostname of the user that set the mode.
-	 * @param mode The mode that has been set. Stored as UserMessage.rawmsg
+	 * @param mode The mode that has been set. Stored as BotEvent.rawmsg
 	 *
 	 */
 	protected void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		runHook(Hooks.onUserMode, new UserMessage(null, sourceNick, sourceLogin, sourceHostname, mode, targetNick));
+		runHook(Hooks.onUserMode, new BotEvent(null, sourceNick, sourceLogin, sourceHostname, mode, targetNick));
 	}
 
 	/**
@@ -570,10 +570,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param recipient The nick of the user that got 'opped'. Stored as UserMessage.rawmsg
+	 * @param recipient The nick of the user that got 'opped'. Stored as BotEvent.rawmsg
 	 */
 	protected void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		runHook(Hooks.onOp, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, recipient));
+		runHook(Hooks.onOp, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, recipient));
 	}
 
 	/**
@@ -586,10 +586,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param recipient The nick of the user that got 'deopped'. Stored as UserMessage.rawmsg
+	 * @param recipient The nick of the user that got 'deopped'. Stored as BotEvent.rawmsg
 	 */
 	protected void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		runHook(Hooks.onDeop, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, recipient));
+		runHook(Hooks.onDeop, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, recipient));
 	}
 
 	/**
@@ -602,10 +602,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param recipient The nick of the user that got 'voiced'. Stored as UserMessage.rawmsg
+	 * @param recipient The nick of the user that got 'voiced'. Stored as BotEvent.rawmsg
 	 */
 	protected void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		runHook(Hooks.onVoice, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, recipient));
+		runHook(Hooks.onVoice, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, recipient));
 	}
 
 	/**
@@ -618,10 +618,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param recipient The nick of the user that got 'devoiced'. Stored as UserMessage.rawmsg
+	 * @param recipient The nick of the user that got 'devoiced'. Stored as BotEvent.rawmsg
 	 */
 	protected void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		runHook(Hooks.onDeVoice, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, recipient));
+		runHook(Hooks.onDeVoice, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, recipient));
 	}
 
 	/**
@@ -637,10 +637,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param key The new key for the channel. Stored as UserMessage.key
+	 * @param key The new key for the channel. Stored as BotEvent.key
 	 */
 	protected void onSetChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {
-		runHook(Hooks.onSetChannelKey, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, key));
+		runHook(Hooks.onSetChannelKey, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, key));
 	}
 
 	/**
@@ -653,10 +653,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param key The key that was in use before the channel key was removed. Stored as UserMessage.key
+	 * @param key The key that was in use before the channel key was removed. Stored as BotEvent.key
 	 */
 	protected void onRemoveChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {
-		runHook(Hooks.onRemoveChannelKey, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, key));
+		runHook(Hooks.onRemoveChannelKey, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, key));
 	}
 
 	/**
@@ -670,10 +670,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param limit The maximum number of users that may be in this channel at the same time. Stored as UserMessage.extra
+	 * @param limit The maximum number of users that may be in this channel at the same time. Stored as BotEvent.extra
 	 */
 	protected void onSetChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname, int limit) {
-		runHook(Hooks.onSetChannelLimit, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null, limit));
+		runHook(Hooks.onSetChannelLimit, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null, limit));
 	}
 
 	/**
@@ -688,7 +688,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onRemoveChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onRemoveChannelLimit, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onRemoveChannelLimit, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -704,10 +704,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param hostmask The hostmask of the user that has been banned. Stored  as UserMessage.rawmsg
+	 * @param hostmask The hostmask of the user that has been banned. Stored  as BotEvent.rawmsg
 	 */
 	protected void onSetChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {
-		runHook(Hooks.onSetChannelBan, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, hostmask));
+		runHook(Hooks.onSetChannelBan, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, hostmask));
 	}
 
 	/**
@@ -720,10 +720,10 @@ public class Bot extends PircBot {
 	 * @param sourceNick The nick of the user that performed the mode change.
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
-	 * @param hostmask The hostmask of the user that has been banned. Stored  as UserMessage.rawmsg
+	 * @param hostmask The hostmask of the user that has been banned. Stored  as BotEvent.rawmsg
 	 */
 	protected void onRemoveChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {
-		runHook(Hooks.onRemoveChannelBan, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, hostmask));
+		runHook(Hooks.onRemoveChannelBan, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, hostmask));
 	}
 
 	/**
@@ -739,7 +739,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onSetTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onSetTopicProtection, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onSetTopicProtection, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -754,7 +754,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onRemoveTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onRemoveTopicProtection, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onRemoveTopicProtection, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -770,7 +770,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onSetNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onSetNoExternalMessages, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onSetNoExternalMessages, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -786,7 +786,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onRemoveNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onRemoveNoExternalMessages, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onRemoveNoExternalMessages, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -803,7 +803,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onSetInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onSetInviteOnly, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onSetInviteOnly, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -818,7 +818,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onRemoveInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onRemoveInviteOnly, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onRemoveInviteOnly, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -835,7 +835,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onSetModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onSetModerated, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onSetModerated, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -850,7 +850,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onRemoveModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onRemoveModerated, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onRemoveModerated, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -865,7 +865,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onSetPrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onSetPrivate, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onSetPrivate, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -880,7 +880,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onRemovePrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onRemovePrivate, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onRemovePrivate, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -896,7 +896,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onSetSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onSetSecret, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onSetSecret, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -911,7 +911,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
 	protected void onRemoveSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		runHook(Hooks.onRemoveSecret, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onRemoveSecret, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -924,7 +924,7 @@ public class Bot extends PircBot {
 	 * @param channel The channel that we're being invited to.
 	 */
 	protected void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel) {
-		runHook(Hooks.onInvite, new UserMessage(channel, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onInvite, new BotEvent(channel, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -960,13 +960,13 @@ public class Bot extends PircBot {
 	 * method on the DccFileTransfer object, either before you receive the
 	 * file or at any moment during the transfer.
 	 *
-	 * @param transfer The DcccFileTransfer that you may accept. Stored as UserMessage.extra
+	 * @param transfer The DcccFileTransfer that you may accept. Stored as BotEvent.extra
 	 *
 	 * @see DccFileTransfer
 	 *
 	 */
 	protected void onIncomingFileTransfer(DccFileTransfer transfer) {
-		runHook(Hooks.onIncomingFileTransfer, new UserMessage(null, transfer));
+		runHook(Hooks.onIncomingFileTransfer, new BotEvent(null, transfer));
 	}
 
 	/**
@@ -978,15 +978,15 @@ public class Bot extends PircBot {
 	 * You can determine the type by calling the isIncoming or isOutgoing
 	 * methods on the DccFileTransfer object.
 	 *
-	 * @param transfer The DccFileTransfer that has finished. Stored as UserMessage.extra
+	 * @param transfer The DccFileTransfer that has finished. Stored as BotEvent.extra
 	 * @param e null if the file was transfered successfully, otherwise this
-	 *          will report what went wrong. Stored as UserMessage.extra1
+	 *          will report what went wrong. Stored as BotEvent.extra1
 	 *
 	 * @see DccFileTransfer
 	 *
 	 */
 	protected void onFileTransferFinished(DccFileTransfer transfer, Exception e) {
-		runHook(Hooks.onFileTransferFinished, new UserMessage(null, transfer, e));
+		runHook(Hooks.onFileTransferFinished, new BotEvent(null, transfer, e));
 	}
 
 	/**
@@ -1021,13 +1021,13 @@ public class Bot extends PircBot {
 	 * Each time this method is called, it is called from within a new Thread
 	 * so that multiple DCC CHAT sessions can run concurrently.
 	 *
-	 * @param chat A DccChat object that represents the incoming chat request. Stored as UserMessage.extra
+	 * @param chat A DccChat object that represents the incoming chat request. Stored as BotEvent.extra
 	 *
 	 * @see DccChat
 	 *
 	 */
 	protected void onIncomingChatRequest(DccChat chat) {
-		runHook(Hooks.onIncomingChatRequest, new UserMessage(null, chat));
+		runHook(Hooks.onIncomingChatRequest, new BotEvent(null, chat));
 	}
 
 	/**
@@ -1044,7 +1044,7 @@ public class Bot extends PircBot {
 	 * @param target The target of the VERSION request, be it our nick or a channel name.
 	 */
 	protected void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		runHook(Hooks.onVersion, new UserMessage(target, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onVersion, new BotEvent(target, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -1061,10 +1061,10 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that sent the PING request.
 	 * @param sourceHostname The hostname of the user that sent the PING request.
 	 * @param target The target of the PING request, be it our nick or a channel name.
-	 * @param pingValue The value that was supplied as an argument to the PING command. Stored as UserMessage.rawmsg
+	 * @param pingValue The value that was supplied as an argument to the PING command. Stored as BotEvent.rawmsg
 	 */
 	protected void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
-		runHook(Hooks.onPing, new UserMessage(target, sourceNick, sourceLogin, sourceHostname, pingValue));
+		runHook(Hooks.onPing, new BotEvent(target, sourceNick, sourceLogin, sourceHostname, pingValue));
 	}
 
 	/**
@@ -1077,10 +1077,10 @@ public class Bot extends PircBot {
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the PONG response.
 	 *	The PONG version response is <b>not</b> sent. Failure to implement this will make
 	 *	the server think the bot is disconnected
-	 * @param response The response that should be given back in your PONG. Stored as UserMessage.rawmsg
+	 * @param response The response that should be given back in your PONG. Stored as BotEvent.rawmsg
 	 */
 	protected void onServerPing(String response) {
-		runHook(Hooks.onServerPing, new UserMessage(response, null));
+		runHook(Hooks.onServerPing, new BotEvent(response, null));
 	}
 
 	/**
@@ -1098,7 +1098,7 @@ public class Bot extends PircBot {
 	 * @param target The target of the TIME request, be it our nick or a channel name.
 	 */
 	protected void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		runHook(Hooks.onTime, new UserMessage(target, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onTime, new BotEvent(target, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
@@ -1116,17 +1116,17 @@ public class Bot extends PircBot {
 	 * @param target The target of the FINGER request, be it our nick or a channel name.
 	 */
 	protected void onFinger(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		runHook(Hooks.onFinger, new UserMessage(target, sourceNick, sourceLogin, sourceHostname, null));
+		runHook(Hooks.onFinger, new BotEvent(target, sourceNick, sourceLogin, sourceHostname, null));
 	}
 
 	/**
 	 * This method is called whenever we receive a line from the server that
 	 * the PircBot has not been programmed to recognise.
 	 *
-	 * @param line The raw line that was received from the server. Stored as UserMessage.rawmsg
+	 * @param line The raw line that was received from the server. Stored as BotEvent.rawmsg
 	 */
 	protected void onUnknown(String line) {
-		runHook(Hooks.onUnknown, new UserMessage(line, null));
+		runHook(Hooks.onUnknown, new BotEvent(line, null));
 	}
 	//And then it was done :-)
 }

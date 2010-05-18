@@ -46,7 +46,7 @@ public class GUI extends JFrame implements ActionListener {
 	/**
 	 * Log4j logger
 	 */
-	private Logger log = Logger.getLogger(GUI.class);
+	private Logger log = LogFactory.getLogger(GUI.class);
 	/**
 	 * Backup standard output stream
 	 */
@@ -72,8 +72,8 @@ public class GUI extends JFrame implements ActionListener {
 		//Add appenders to root logger
 		out = System.out;
 		err = System.err;
-		System.setOut(new PrintStream(new StdRedirect(new ByteArrayOutputStream(), false)));
-		System.setErr(new PrintStream(new StdRedirect(new ByteArrayOutputStream(), true)));
+		//System.setOut(new PrintStream(new StdRedirect(new ByteArrayOutputStream(), false)));
+		//System.setErr(new PrintStream(new StdRedirect(new ByteArrayOutputStream(), true)));
 
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 

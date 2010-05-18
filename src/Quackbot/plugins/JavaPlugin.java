@@ -7,6 +7,7 @@ package Quackbot.plugins;
 
 import Quackbot.plugins.java.JavaBase;
 import Quackbot.Bot;
+import Quackbot.LogFactory;
 import Quackbot.PluginType;
 import Quackbot.plugins.java.HelpDoc;
 import Quackbot.plugins.java.ParamConfig;
@@ -14,18 +15,13 @@ import Quackbot.plugins.java.ParamNum;
 import Quackbot.err.NumArgException;
 import Quackbot.err.QuackbotException;
 import Quackbot.info.Hooks;
-import Quackbot.info.UserMessage;
+import Quackbot.info.BotEvent;
 import Quackbot.plugins.java.AdminOnly;
 import Quackbot.plugins.java.Ignore;
 import Quackbot.plugins.java.Hook;
 import Quackbot.plugins.java.ReqArg;
 import Quackbot.plugins.java.Service;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +86,7 @@ public class JavaPlugin implements PluginType {
 	/**
 	 * Log4j logger
 	 */
-	private static Logger log = Logger.getLogger(JavaPlugin.class);
+	private static Logger log = LogFactory.getLogger(JavaPlugin.class);
 
 	public JavaPlugin(String className) {
 		setFqcn(className);
@@ -167,7 +163,7 @@ public class JavaPlugin implements PluginType {
 	 * @param msgInfo
 	 * @throws Exception
 	 */
-	public void invoke(String[] args, Bot bot, UserMessage msgInfo) throws Exception {
+	public void invoke(String[] args, Bot bot, BotEvent msgInfo) throws Exception {
 		JavaBase javaCmd = newInstance();
 
 		log.info("Running Java Plugin " + msgInfo.getCommand());
@@ -377,7 +373,7 @@ public class JavaPlugin implements PluginType {
 		private int reqParamNum = 0;
 		private List<Field> reqFields = new ArrayList<Field>();
 		private List<Field> optFields = new ArrayList<Field>();
-		private Logger logging = Logger.getLogger(ParamField.class);
+		private Logger logging = LogFactory.getLogger(ParamField.class);
 
 		/**
 		 * Used for @ParamConfig annotation

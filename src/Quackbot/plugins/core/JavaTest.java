@@ -8,7 +8,7 @@ package Quackbot.plugins.core;
 import Quackbot.Bot;
 import Quackbot.plugins.java.HelpDoc;
 import Quackbot.info.BotMessage;
-import Quackbot.info.UserMessage;
+import Quackbot.info.BotEvent;
 import Quackbot.plugins.java.JavaBase;
 import Quackbot.plugins.java.ParamNum;
 import org.apache.commons.lang.StringUtils;
@@ -25,7 +25,7 @@ public class JavaTest implements JavaBase {
 	String somethins;
 	String optional ,optional2, optional3;
 
-	public void invoke(Bot bot, UserMessage msgInfo) {
+	public void invoke(Bot bot, BotEvent msgInfo) {
 		bot.sendMsg(new BotMessage(msgInfo,"You said "+StringUtils.join(msgInfo.getArgs()," ")+" with length "+msgInfo.getArgs().length));
 
 		/*bot.sendMsg(new BotMessage(msgInfo,"hehe, you said "+something+" and "+somethins));

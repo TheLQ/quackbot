@@ -20,23 +20,16 @@ import org.apache.log4j.spi.LoggingEvent;
  */
 public class ControlAppender extends AppenderSkeleton {
 
-	/**
-	 * FQCN's that should be ignored. It is up to the class to use {@link BotAppender}
-	 */
-	String[] BLOCK = new String[]{"Quackbot.Bot", "org.jibble"};
-
+	public ControlAppender() {
+		setName("ControlAppender");
+	}
+	
 	/**
 	 * Used by Log4j to write something from the LoggingEvent. This simply points to
 	 * WriteOutput which writes to the the GUI or to the console
 	 * @param event
 	 */
 	public void append(LoggingEvent event) {
-		//First make sure that this is comming from the right class
-		String fullClass = event.getLocationInformation().getClassName();
-		for (String search : BLOCK)
-			if (StringUtils.startsWithIgnoreCase(fullClass, search))
-				return;
-
 		if(InstanceTracker.mainExists())
 			SwingUtilities.invokeLater(new WriteOutput(InstanceTracker.getMain().CerrorLog,this,event));
 		else

@@ -80,7 +80,12 @@ public class Channel extends Entity {
 	 * @return String representation of Channel
 	 */
 	public String toString() {
-		return StringUtils.join(new Object[]{getChannel(), getChannelID(), getPassword(), getServerID()}, ", ");
+		return new StringBuilder("[")
+			.append("Channel="+getChannel()+",")
+			.append("Password="+getPassword()+",")
+			.append("ChannelID="+getChannelID()+",")
+			.append("ServerID="+getServerID())
+			.append("]").toString();
 	}
 
 	/**

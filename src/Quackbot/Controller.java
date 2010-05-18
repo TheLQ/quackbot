@@ -2,11 +2,14 @@
  * @(#)Controller.java
  *
  * This file is part of Quackbot
+ *   -javaagent:lib/jrebel.jar -Drebel.log4j-plugin=true -noverify
+ *
  */
 package Quackbot;
 
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
+import Quackbot.log.BotAppender;
 import Quackbot.log.ControlAppender;
 import Quackbot.plugins.JSPlugin;
 import Quackbot.plugins.JavaPlugin;
@@ -18,8 +21,6 @@ import java.io.File;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 import javax.swing.SwingUtilities;
@@ -28,6 +29,7 @@ import javax.swing.SwingUtilities;
 import jpersist.DatabaseManager;
 import jpersist.JPersistException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 
 import org.apache.log4j.Logger;
@@ -44,7 +46,7 @@ import org.apache.log4j.Logger;
  *
  * @author Lord.Quackstar
  */
-public class Controller implements Runnable {
+public class Controller {
 	/**
 	 * Global Prefixes.
 	 */
@@ -60,41 +62,28 @@ public class Controller implements Runnable {
 	/**
 	 * Set of all Bot instances
 	 */
-	public HashSet<Bot> bots = new HashSet<Bot>();
+	public List<Bot> bots = new ArrayList<Bot>();
 	/**
 	 * DatabaseManager instance of JPersist database
 	 */
 	public DatabaseManager dbm = null;
+	/**
+	 * Number of Commands executed, used by logging
+	 */
 	public int cmdNum = 0;
 	/**
 	 * Log4j Logger
 	 */
-	private Logger log = Logger.getLogger(Controller.class);
+	private Logger log = LogFactory.getLogger(Controller.class);
+	public List<AppenderSkeleton> ctrlAppenders = new ArrayList<AppenderSkeleton>();
+	public List<AppenderSkeleton> botAppenders = new ArrayList<AppenderSkeleton>();
 
 	/**
 	 * Calls {@link #Controller(java.util.List, boolean)}
 	 * with empty custom prefixes and makeGui set to true
 	 */
 	public Controller() {
-		this(new ArrayList<String>(), true);
-	}
-
-	/**
-	 * Calls {@link #Controller(java.util.List, boolean)}
-	 * with empty custom prefixes and specified makeGui
-	 * @param makeGui  Show GUI or not
-	 */
-	public Controller(boolean makeGui) {
-		this(new ArrayList<String>(), makeGui);
-	}
-
-	/**
-	 * Calls {@link #Controller(java.util.List, boolean)}
-	 * with specified prefixes and showing GUI
-	 * @param custPrefixes
-	 */
-	public Controller(List<String> custPrefixes) {
-		this(custPrefixes, true);
+		this(true);
 	}
 
 	/**
@@ -102,59 +91,65 @@ public class Controller implements Runnable {
 	 * <p>
 	 * Private constructor that this calls completly sets up bot. Connects to
 	 * database, adds built in PluginTypes, starts all bots from database
-	 * @param custPrefixes
-	 * @param makeGui
+	 * @param makeGui  Show the GUI or not. If there is no GUI, then all output is directed
+	 *                 to the console
 	 */
-	public Controller(final List<String> custPrefixes, boolean makeGui) {
+	public Controller(boolean makeGui) {
+		InstanceTracker.setController(this);
+
+		//Setup log4j for quackbot package
+		ctrlAppenders.add(new ControlAppender());
+		botAppenders.add(new BotAppender());
+		Logger rootLog = LogFactory.getLogger("Quackbot");
+		rootLog.setLevel(Level.TRACE);
+		for (AppenderSkeleton curAppender : ctrlAppenders)
+			rootLog.addAppender(curAppender);
+
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				Logger log = Logger.getLogger(this.getClass());
+				Logger log = LogFactory.getLogger(this.getClass());
 				log.info("Closing all IRC and db connections gracefully");
 				Controller ctrl = InstanceTracker.getController();
 				ctrl.stopAll();
 				try {
 					ctrl.dbm.close();
+				} catch (NullPointerException e) {
 				} catch (Exception e) {
 					e.printStackTrace(); //send to standard output because window is closing
 				}
 			}
 		});
 
+		//This can't run in EDT, end if it is
+		if (SwingUtilities.isEventDispatchThread()) {
+			log.fatal("Controller cannot be started from EDT. Please start from seperate thread");
+			return;
+		}
+
 		//Start GUI if requested
-		if (makeGui)
-			new GUI();
-
-		//Restart controller in new thread (prevent GUI updating issues)
-		globPrefixes.addAll(custPrefixes);
-		ThreadPoolManager.addMain(new Controller(globPrefixes, pluginTypes, plugins));
-	}
-
-	/**
-	 * Private main constructor. Inits everything.
-	 * @param custPrefixes  Prefixes to add
-	 * @param thread        Just a way to seperate this constructor from the rest
-	 */
-	private Controller(List<String> custPrefixes, TreeMap<String, Class<? extends PluginType>> pluginTypes, List<PluginType> plugins) {
-		this.globPrefixes = custPrefixes;
-		this.pluginTypes = pluginTypes;
-		this.plugins = plugins;
-	}
-
-	public void run() {
-		InstanceTracker.setController(this);
-		//Setup log4j
-		Logger rootLog = Logger.getRootLogger();
-		rootLog.setLevel(Level.TRACE);
-		rootLog.addAppender(new ControlAppender());
+		try {
+			if (makeGui)
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						new GUI();
+					}
+				});
+		} catch (Exception e) {
+			log.fatal("Cannot start GUI", e);
+		}
 
 		//Setup plugin loading
 		addPluginType("js", JSPlugin.class);
 		addPluginType("java", JavaPlugin.class);
 
+		//Add basic plugin
+		addPlugin(new JavaPlugin(Help.class.getName()));
+	}
+
+	public void start() {
 		//Load current CMD classes
 		reloadPlugins(false);
-		addPlugin(new JavaPlugin(Help.class.getName()));
 
 		//Start service plugins
 		for (PluginType curPlug : plugins)
@@ -190,9 +185,7 @@ public class Controller implements Runnable {
 	 * Makes all bots quit servers
 	 */
 	public void stopAll() {
-		Iterator botItr = bots.iterator();
-		while (botItr.hasNext()) {
-			Bot curBot = (Bot) botItr.next();
+		for (Bot curBot : bots) {
 			curBot.quitServer("Killed by control panel");
 			curBot.dispose();
 			bots.remove(curBot);
@@ -248,10 +241,8 @@ public class Controller implements Runnable {
 	}
 
 	public void reloadPlugins(boolean clean) {
-		log.info("Size: "+plugins);
 		if (clean)
 			plugins.removeAll(plugins);
-		log.info("Size: "+plugins);
 		ThreadPoolManager.pluginPool.execute(new Runnable() {
 			public void run() {
 				reloadPlugins(new File("plugins"));
@@ -296,6 +287,13 @@ public class Controller implements Runnable {
 		plugins.add(plugin);
 	}
 
+	public void addPrefix(String prefix) {
+		globPrefixes.add(prefix);
+	}
+
+	public void addMainAppender() {
+	}
+
 	/**
 	 * Increments command number and returns new int
 	 */
@@ -322,7 +320,7 @@ public class Controller implements Runnable {
 		 */
 		public void run() {
 			try {
-				log.info("Initiating IRC connection");
+				log.info("Initiating IRC connection to server "+server);
 				Bot qb = new Bot(server);
 				qb.setVerbose(true);
 				bots.add(qb);
@@ -333,13 +331,9 @@ public class Controller implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				Controller ctrl = new Controller();
-				ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()));
-				ctrl.addPlugin(new JavaPlugin(HookTest.class.getName()));
-			}
-		});
-
+		Controller ctrl = new Controller();
+		ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()));
+		//ctrl.addPlugin(new JavaPlugin(HookTest.class.getName()));
+		ctrl.start();
 	}
 }

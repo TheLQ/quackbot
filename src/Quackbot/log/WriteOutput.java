@@ -59,7 +59,7 @@ public class WriteOutput implements Runnable {
 		this.appender = appender;
 		this.pane = appendTo;
 		this.doc = appendTo.getStyledDocument();
-		this.dateFormatter = new SimpleDateFormat("MM/dd/yyy hh:mm:ss a");
+		this.dateFormatter = new SimpleDateFormat("hh:mm:ss a");
 		this.address = address;
 		this.event = event;
 

@@ -26,21 +26,21 @@ public class BotMessage {
 
 	/**
 	 * Message will be sent to user in channel who sent message will be in prefix
-	 * @param usrMsg  UserMessage bean from bot
+	 * @param usrMsg  BotEvent bean from bot
 	 * @param message Message to send
 	 */
-	public BotMessage(UserMessage usrMsg, String message) {
+	public BotMessage(BotEvent usrMsg, String message) {
 		this.message = message;
 		this.channel = usrMsg.getChannel();
 		this.user = usrMsg.getSender();
 	}
 
 	/**
-	 * Send message contained in Throwable to user and channel in UserMessage
-	 * @param usrMsg  UserMessage bean from bot
+	 * Send message contained in Throwable to user and channel in BotEvent
+	 * @param usrMsg  BotEvent bean from bot
 	 * @param t       Exception
 	 */
-	public BotMessage(UserMessage usrMsg, Throwable t) {
+	public BotMessage(BotEvent usrMsg, Throwable t) {
 		this.message = "ERROR: "+t.getMessage();
 		this.channel = usrMsg.getChannel();
 		this.user = usrMsg.getSender();

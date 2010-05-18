@@ -6,7 +6,7 @@
 package Quackbot;
 
 import Quackbot.info.Hooks;
-import Quackbot.info.UserMessage;
+import Quackbot.info.BotEvent;
 import java.io.File;
 
 /**
@@ -91,11 +91,11 @@ public interface PluginType {
 	 * @param args        Any arguments the user passes
 	 * @param bot         The bot that sent the command. <b>Note:</b> Services should expect
 	 *                    this to be null.
-	 * @param msgInfo     The UserMessage that contains all message info
+	 * @param msgInfo     The BotEvent that contains all message info
 	 * @throws Exception  If an exception is encountered, it MUST thrown up the chain to be
 	 *                    reported as an error.
 	 */
-	public void invoke(String[] args, Bot bot, UserMessage msgInfo) throws Exception;
+	public void invoke(String[] args, Bot bot, BotEvent msgInfo) throws Exception;
 
 	/**
 	 * Load method that is called when a file that matches the extension specified
@@ -103,7 +103,7 @@ public interface PluginType {
 	 * then it must set the name to null so it can be ignored
 	 * <p>
 	 * Implementations of this must completly setup the Plugin, parsing all avalible infomration.
-	 * The plugin must then be able to be activated by {@link #invoke(java.lang.String[], Quackbot.Bot, Quackbot.info.UserMessage)}
+	 * The plugin must then be able to be activated by {@link #invoke(java.lang.String[], Quackbot.Bot, Quackbot.info.BotEvent)}
 	 * @param file         The file that contains the script
 	 * @throws Exception   Any exception encountered while parsing. The command will not be added
 	 */

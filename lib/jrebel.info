@@ -1,8 +1,0 @@
-License: limited
-License: personal
-Giveaway: OSS
-Plugin: org.zeroturnaround.javarebel.integration.IntegrationPlugin
-Plugin: org.zeroturnaround.javarebel.integration.log4j.Log4jPlugin
-Class:org/apache/log4j/Category
-Class:org/apache/log4j/LogManager
-Class:org/apache/log4j/helpers/OptionConverter
