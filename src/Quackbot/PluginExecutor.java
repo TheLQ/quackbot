@@ -48,7 +48,7 @@ public class PluginExecutor implements Runnable {
 	/**
 	 * Log4j logger
 	 */
-	private Logger log = LogFactory.getLogger(PluginExecutor.class);
+	private Logger log = Logger.getLogger(PluginExecutor.class);
 
 	/**
 	 * Constructs PluginExecutor for bot. Will report errors to passed bot

@@ -7,7 +7,7 @@ package Quackbot.plugins;
 
 import Quackbot.Bot;
 import Quackbot.InstanceTracker;
-import Quackbot.LogFactory;
+
 import Quackbot.PluginType;
 import Quackbot.info.Hooks;
 import Quackbot.info.BotEvent;
@@ -87,7 +87,7 @@ public class JSPlugin implements PluginType {
 	/**
 	 * Log4j Logger
 	 */
-	private static Logger log = LogFactory.getLogger(JSPlugin.class);
+	private static Logger log = Logger.getLogger(JSPlugin.class);
 
 	public void load(File file) throws Exception {
 		//Basic setup
@@ -147,7 +147,7 @@ public class JSPlugin implements PluginType {
 
 		//Set script globals
 		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
-		engineScope.put("log", LogFactory.getLogger("Quackbot.plugins.js." + getName()));
+		engineScope.put("log", Logger.getLogger("Quackbot.plugins.js." + getName()));
 		if (bot != null) {
 			engineScope.put("msgInfo", msgInfo);
 			engineScope.put("qb", bot);

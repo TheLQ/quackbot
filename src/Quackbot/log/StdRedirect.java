@@ -6,7 +6,7 @@
 package Quackbot.log;
 
 import Quackbot.InstanceTracker;
-import Quackbot.LogFactory;
+
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
  * @author Lord.Quackstar
  */
 public class StdRedirect extends FilterOutputStream {
-	private Logger log = LogFactory.getLogger(StdRedirect.class);
+	private Logger log = Logger.getLogger(StdRedirect.class);
 	boolean error;
 
 	/**

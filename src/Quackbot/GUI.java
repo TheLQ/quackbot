@@ -46,7 +46,7 @@ public class GUI extends JFrame implements ActionListener {
 	/**
 	 * Log4j logger
 	 */
-	private Logger log = LogFactory.getLogger(GUI.class);
+	private Logger log = Logger.getLogger(GUI.class);
 	/**
 	 * Backup standard output stream
 	 */

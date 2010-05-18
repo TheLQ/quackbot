@@ -16,14 +16,15 @@ import Quackbot.info.Server;
 import Quackbot.info.BotEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
 import org.jibble.pircbot.DccChat;
 import org.jibble.pircbot.DccFileTransfer;
 import org.jibble.pircbot.PircBot;
@@ -40,7 +41,6 @@ import org.jibble.pircbot.User;
  * @author Lord.Quackstar
  */
 public class Bot extends PircBot {
-
 	/**
 	 * Says wheather bot is globally locked or not
 	 */
@@ -58,17 +58,27 @@ public class Bot extends PircBot {
 	 */
 	public Server serverDB;
 	/**
+	 * Local threadpool
+	 */
+	public ExecutorService threadPool;
+	public static ThreadGroupLocal<String> threadLocal = new ThreadGroupLocal<String>() {
+		public String initialValue() {
+			return "EMPTY";
+		}
+	};
+	/**
 	 * Log4J logger
 	 */
-	private Logger log = LogFactory.getLogger(Bot.class);
+	private Logger log = Logger.getLogger(Bot.class);
 
 	/**
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(Server serverDB) {
+	public Bot(final Server serverDB, ExecutorService threadPool) {
 		this.serverDB = serverDB;
-		MDC.put("qbAddress", serverDB.getAddress());
+		this.threadPool = threadPool;
+		threadLocal.set(serverDB.getAddress());
 
 		setName("Quackbot");
 		setAutoNickChange(true);
@@ -115,14 +125,6 @@ public class Bot extends PircBot {
 	}
 
 	/**
-	 * Bot error stream wrapper, prefixes with server
-	 * @param line   Line to be outputted
-	 */
-	public void logErr(String line) {
-		log.error(line);
-	}
-
-	/**
 	 * This method is called once the PircBot has successfully connected to
 	 * the IRC server.
 	 *
@@ -150,6 +152,11 @@ public class Bot extends PircBot {
 	 */
 	public void sendMsg(BotMessage msg) {
 		sendMessage(msg.channel, msg.toString());
+	}
+
+	public synchronized void dispose() {
+		super.dispose();
+		threadPool.shutdown();
 	}
 
 	/***************USER SUBMITTED COMMANDS FOLLOW*********************/
@@ -226,7 +233,7 @@ public class Bot extends PircBot {
 	 * @throws NumArgException       If impropper amount of arguments were given
 	 */
 	private void runCommand(BotEvent msgInfo) throws InvalidCMDException, AdminException, NumArgException {
-		log.trace("Current Command thread: "+Thread.currentThread().getName());
+		log.trace("Current Command thread: " + Thread.currentThread().getName());
 
 		//Is bot locked?
 		if (botLocked == true && !serverDB.adminExists(msgInfo.getSender())) {
@@ -256,7 +263,7 @@ public class Bot extends PircBot {
 		msgInfo.setArgs(argArray);
 		msgInfo.setCommand(command);
 
-		ThreadPoolManager.addPlugin(new PluginExecutor(this, msgInfo));
+		threadPool.execute(new PluginExecutor(this, msgInfo));
 	}
 
 	/**
@@ -300,13 +307,13 @@ public class Bot extends PircBot {
 			log.trace("Attempting to run hook " + command);
 			for (PluginType curPlugin : pluginHooks) {
 				msgInfo.setCommand(curPlugin.getName());
-				ThreadPoolManager.addPlugin(new PluginExecutor(this, msgInfo));
+				threadPool.execute(new PluginExecutor(this, msgInfo));
 			}
 		} //Run default command if no hook exists
 		else
 			switch (command) {
 				case onVersion:
-					super.onVersion( msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getRawmsg());
+					super.onVersion(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getRawmsg());
 					break;
 				case onPing:
 					super.onPing(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel(), msgInfo.getRawmsg());
@@ -1129,4 +1136,27 @@ public class Bot extends PircBot {
 		runHook(Hooks.onUnknown, new BotEvent(line, null));
 	}
 	//And then it was done :-)
+
+	public static abstract class ThreadGroupLocal<T> {
+		private final HashMap<ThreadGroup, T> map = new HashMap<ThreadGroup, T>();
+
+		public T get() {
+			T result = null;
+			ThreadGroup group = Thread.currentThread().getThreadGroup();
+			synchronized (map) {
+				result = map.get(group);
+				if (result == null) {
+					result = initialValue();
+					map.put(group, result);
+				}
+			}
+			return result;
+		}
+
+		public void set(T obj) {
+			map.put(Thread.currentThread().getThreadGroup(), obj);
+		}
+
+		public abstract T initialValue();
+	}
 }
