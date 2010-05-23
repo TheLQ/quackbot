@@ -48,6 +48,7 @@ public class ControlAppender extends AppenderSkeleton {
 	/**
 	 * Used by Log4j to determine if this requires a layout. Since all the dirty work is
 	 * done by {@link WriteOutput}, this returns false;
+	 * @return False, since this is a custom layout
 	 */
 	@Override
 	public boolean requiresLayout() {

@@ -6,13 +6,13 @@
 package Quackbot.err;
 
 /**
- * Notify user that command is admin only
+ * Notify user that command is admin. Exception message is "Admin Only Command"/
  *
  * @author Lord.Quackstar
  */
 public class AdminException extends Exception {
 	/**
-	 * Simple constuctor with default text
+	 * Generates exception with message "Admin Only Command".
 	 */
 	public AdminException() {
 		super("Admin Only Command");

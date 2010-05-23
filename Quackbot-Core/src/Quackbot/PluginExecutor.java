@@ -17,12 +17,13 @@ import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 /**
  * All calls to ANY command run are called using this class.
- *
- * Using given command, will execute appropiate Java or JS command (JS preferred)
+ * <p>
+ * Using given command, will execute the appropiate plugin by calling its plugintype's invoke method
+ * <p>
+ * This is meant to be executed inside of either a Bot threadpool or Main threadpool
  * @author Lord.Quackstar
  */
 public class PluginExecutor implements Runnable {
@@ -76,22 +77,14 @@ public class PluginExecutor implements Runnable {
 	}
 
 	/**
-	 * Run search and execution in new thread
-	 *
-	 * This simply finds what the command is and sends it to the appropiate parser
+	 * In new thread, does all checking and execution of specified command
 	 */
 	public void run() {
 		msgInfo.setCmdNum(ctrl.addCmdNum());
 
-		//Redefine current bot for this thread
-		if (bot != null)
-			MDC.put("qbAddress", bot.getServer());
-		else
-			MDC.put("qbAddress", ".services.");
-
 		log.info("-----------Begin execution of command #" + msgInfo.getCmdNum() + ",  from " + msgInfo.getRawmsg() + "-----------");
 		try {
-			PluginType plugin = Utils.findPlugin(command);
+			PluginType plugin = ctrl.findPlugin(command);
 			if (plugin == null || plugin.isService() || plugin.isUtil())
 				throw new InvalidCMDException(command);
 			//Is this an admin function? If so, is the person an admin?

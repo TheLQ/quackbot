@@ -23,7 +23,9 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * Utility for writing to output TextFields on GUI using standard format
+ * Utility for writing to output TextFields on GUI using standard format.
+ * <p>
+ * This should ONLY be executed in AWT Event Queue
  * @author Lord.Quackstar
  */
 public class WriteOutput implements Runnable {
@@ -134,4 +136,3 @@ public class WriteOutput implements Runnable {
 	}
 }
 //Log4j PatternLayout config (what this is supposed to look like) "%d{MM/dd/yyy hh:mm:ss a} | [%t] | %-5p | %c{2} | - "+extra+" %m"
-

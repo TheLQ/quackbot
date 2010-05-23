@@ -6,13 +6,13 @@
 package Quackbot.err;
 
 /**
- * Wrong number of parameters/arguments given
+ * Wrong number of parameters/arguments given.
  *
  * @author Lord.Quackstar
  */
 public class NumArgException extends Exception {
 	/**
-	 * Simple constructor with default text
+	 * Generates message "Wrong number of parameters specified. Given: *given*, Required: *required*
 	 * @param given  Number of given args
 	 * @param req    Number of required args
 	 */
@@ -21,9 +21,10 @@ public class NumArgException extends Exception {
 	}
 
 	/**
-	 * Simple constructor with default text
-	 * @param given  Number of given args
-	 * @param req    Number of required args
+	 * Generates message "Wrong number of parameters specified. Given: *given*, Required: *required*, Optional: *optional*
+	 * @param given    Number of given args
+	 * @param req      Number of required args
+	 * @param optional Number of optional args
 	 */
 	public NumArgException(int given, int req, int optional) {
 		super("Wrong number of parameters specified. Given: " + given + ", Required: " + req + " Optional: " + optional);

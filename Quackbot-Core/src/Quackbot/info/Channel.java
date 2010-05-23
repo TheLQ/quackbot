@@ -5,41 +5,35 @@
  */
 package Quackbot.info;
 
+import Quackbot.Controller;
 import jpersist.Entity;
+import org.slf4j.LoggerFactory;
 
 /**
- * Bean that holds all Channel info
- *
- * This is usually configured by JPersist
+ * Bean that holds all known Channel information. This is meant to be integrated with
+ * JPersist and the database. Only configure if going to add to database, otherwise let
+ * JPersist configure it.
+ * <p>
+ * If this needs to be changed in database, call {@link #updateDB()}
  * @author Lord.Quackstar
  */
 public class Channel extends Entity {
 	/**
-	 * Sterilized ID
+	 * ID of the server Channel is attached to
 	 */
-	private static long serialVersionUID = 100L;
-
+	private Integer serverID;
 	/**
-	 * @return the serialVersionUID
+	 * ID of channel in Database
 	 */
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
-	}
-
+	private Integer channelID;
 	/**
-	 * @param aSerialVersionUID the serialVersionUID to set
+	 * Name of the channel
 	 */
-	public static void setSerialVersionUID(long aSerialVersionUID) {
-		serialVersionUID = aSerialVersionUID;
-	}
+	private String channel;
 	/**
-	 * Value mapped to column in DB or manually provided
+	 * Password of the channel. Can be null.
 	 */
-	private Integer serverID, channelID;
-	/**
-	 * Value mapped to column in DB or manually provided
-	 */
-	private String channel, password;
+	private String password;
 
 	/**
 	 * Empty Constructor
@@ -82,6 +76,33 @@ public class Channel extends Entity {
 	}
 
 	/**
+	 * Utility to update the database with the current Admin object.
+	 * <p>
+	 * WARNING: Passing an empty or null server object might destroy the
+	 * database's knowledge of the server. Only JPersist generated Server
+	 * objects should be passed
+	 * <p>
+	 * This is a convience method for
+	 * <br>
+	 * <code>try {
+	 *		save(Controller.instance.dbm);
+	 * catch (Exception e) {
+	 * updating database", e);
+	 *	}</code>
+	 * @return Channel object with database generated info set
+	 */
+	public Channel updateDB() {
+		try {
+			save(Controller.instance.dbm);
+			return Controller.instance.dbm.loadObject(this);
+		} catch (Exception e) {
+			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
+		}
+		return null;
+	}
+
+	/**
+	 * ID of the server Channel is attached to
 	 * @return the serverID
 	 */
 	public Integer getServerID() {
@@ -89,6 +110,7 @@ public class Channel extends Entity {
 	}
 
 	/**
+	 * ID of the server Channel is attached to
 	 * @param serverID the serverID to set
 	 */
 	public void setServerID(Integer serverID) {
@@ -96,6 +118,7 @@ public class Channel extends Entity {
 	}
 
 	/**
+	 * ID of channel in Database
 	 * @return the channelID
 	 */
 	public Integer getChannelID() {
@@ -103,6 +126,7 @@ public class Channel extends Entity {
 	}
 
 	/**
+	 * ID of channel in Database
 	 * @param channelID the channelID to set
 	 */
 	public void setChannelID(Integer channelID) {
@@ -110,6 +134,7 @@ public class Channel extends Entity {
 	}
 
 	/**
+	 * Name of the channel
 	 * @return the channel
 	 */
 	public String getChannel() {
@@ -117,6 +142,7 @@ public class Channel extends Entity {
 	}
 
 	/**
+	 * Name of the channel
 	 * @param channel the channel to set
 	 */
 	public void setChannel(String channel) {
@@ -124,6 +150,7 @@ public class Channel extends Entity {
 	}
 
 	/**
+	 * Password of the channel. Can be null.
 	 * @return the password
 	 */
 	public String getPassword() {
@@ -131,9 +158,11 @@ public class Channel extends Entity {
 	}
 
 	/**
+	 * Password of the channel. Can be null.
 	 * @param password the password to set
 	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 }

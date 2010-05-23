@@ -9,7 +9,6 @@ import Quackbot.info.Channel;
 import Quackbot.info.Server;
 import java.io.File;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import java.util.concurrent.ThreadFactory;
 import javax.sql.DataSource;
 import javax.swing.SwingUtilities;
 
-
 import jpersist.DatabaseManager;
 import jpersist.JPersistException;
 import org.apache.commons.lang.StringUtils;
@@ -30,18 +28,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Main Controller for bot:
- *  -Holds main thread pool
- *  -Initiates and keeps track of all bots
- *  -Loads (and reload) all CMD classes
- *
- * USED BY: Everything. Initated only by Main
- *
- * There should only be <b>1</b> instance of this. It can be refrenced by {@link Quackbot.InstanceTracker#getController() InstanceTracker.getController}
- *
+ * Quackbot is an advanced IRC bot framework based off of PircBot.
+ * <p>
+ * At the core, its a ready made IRC bot that does everything a normal bot should:
+ * Support for connection to multiple servers, Proper multithreading, abstraction
+ * of commands, hooks into any part of execution, and persistence by database
+ * <p>
+ * This is the main class of Quackbot, configuring and managing everything. There should
+ * only be ONE instance, which is accessable with {@link #instance}.
+ * <p>
+ * If this is being used in a larger project, it is highly recommended to start this in its own thread
+ * <p>
+ * A minimal setup should look like this:
+ * <br>
+ * <code>
+ *      Controller ctrl = new Controller(); //Initalize
+ *		ctrl.connectDB("databasename", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://url.com/databasename", null, null, "username", "password"); //connect to database
+ *		ctrl.start(); //Execute Quackbot
+ * </code>
+ * <br>
+ * All of those calls are absolutly nessesary. Leaving out connectDB will yeild a QuackbotException, leaving out start will just not do anything
+ * <p>
+ * Other methods of intrest include {@link #addPlugin(Quackbot.PluginType)}, {@link #addPrefix(java.lang.String) },
+ * {@link #addServer(java.lang.String, int, java.lang.String[]) }, and {@link #initHooks}
+ * <p>
+ * Please read documentation for more explination
+ * 
  * @author Lord.Quackstar
  */
 public class Controller {
+	/**
+	 * Singleton instance.
+	 */
 	public static Controller instance;
 	/**
 	 * Global Prefixes.
@@ -71,25 +89,44 @@ public class Controller {
 	 * Log4j Logger
 	 */
 	private Logger log = LoggerFactory.getLogger(Controller.class);
+	/**
+	 * Has JPersist had its level set?
+	 */
 	private boolean setLevel = false;
+	/**
+	 * A list of Hooks that will be executed first during {@link #start()}.
+	 * <p>
+	 * Example of execution
+	 * <br>
+	 * <code>
+	 * static {
+	 *	Controller.initHooks.add(new InitHook() {
+	 *		public void run(Controller ctrl) {
+	 *			//do something
+	 *		}
+	 *	});
+	 * }
+	 * </code>
+	 *
+	 * @see InitHook
+	 */
 	public static final List<InitHook> initHooks = new ArrayList<InitHook>();
+	/**
+	 * ThreadPool that all non-bot threads are executed in
+	 */
 	public static final ExecutorService mainPool = Executors.newCachedThreadPool();
 
 	/**
-	 * Calls {@link #Controller(java.util.List, boolean)}
-	 * with empty custom prefixes and makeGui set to true
+	 * Convience method for <code>new Controller(true)</code>
 	 */
 	public Controller() {
 		this(true);
 	}
 
 	/**
-	 * Main init, restarts this in main thread pool, starts GUI if requested
-	 * <p>
-	 * Private constructor that this calls completly sets up bot. Connects to
-	 * database, adds built in PluginTypes, starts all bots from database
-	 * @param makeGui  Show the GUI or not. If there is no GUI, then all output is directed
-	 *                 to the console
+	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
+	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
+	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
 	public Controller(boolean makeGui) {
 		instance = this;
@@ -129,6 +166,10 @@ public class Controller {
 		}
 	}
 
+	/**
+	 * Executues Quackbot. Loads plugins, starts service plugins, connects to servers.
+	 * If this isn't called, then the bot does nothing
+	 */
 	public void start() {
 		if (dbm == null) {
 			log.error("Not configured to use database! Must run connectDB ");
@@ -152,28 +193,13 @@ public class Controller {
 			if (curPlug.isService())
 				new PluginExecutor(curPlug.getName(), new String[0]);
 
-		//Get all server objects from database
-		Collection<Server> c = null;
+		//Connect to all servers
 		try {
-			c = dbm.loadObjects(new ArrayList<Server>(), Server.class, true);
+			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class, true);
 			if (c.size() == 0)
 				log.error("Server list is empty!");
-			for (final Server curServer : c) {
-				dbm.loadAssociations(c);
-				final ExecutorService threadPool = newBotPool(curServer.getAddress());
-				threadPool.execute(new Runnable() {
-					public void run() {
-						try {
-							log.info("Initiating IRC connection to server " + curServer);
-							Bot qb = new Bot(curServer, threadPool);
-							qb.setVerbose(true);
-							bots.put(curServer.getAddress(), qb);
-						} catch (Exception ex) {
-							log.error("Can't make bot connect to server", ex);
-						}
-					}
-				});
-			}
+			for (Server curServer : c)
+				initBot(curServer);
 		} catch (Exception e) {
 			if (e instanceof JPersistException)
 				if (StringUtils.contains(e.getMessage(), "Communications link failure"))
@@ -183,6 +209,26 @@ public class Controller {
 			else
 				log.error("Error encountered while attempting to join servers", e);
 		}
+	}
+
+	/**
+	 * Starts bot using server object
+	 * @param curServer
+	 */
+	public void initBot(final Server curServer) {
+		final ExecutorService threadPool = newBotPool(curServer.getAddress());
+		threadPool.execute(new Runnable() {
+			public void run() {
+				try {
+					log.info("Initiating IRC connection to server " + curServer);
+					Bot qb = new Bot(curServer, threadPool);
+					qb.setVerbose(true);
+					bots.put(curServer.getAddress(), qb);
+				} catch (Exception ex) {
+					log.error("Can't make bot connect to server", ex);
+				}
+			}
+		});
 	}
 
 	/**
@@ -198,20 +244,21 @@ public class Controller {
 	}
 
 	/**
-	 * Creates a new server, adds to database, and joins
+	 * Creates a new server, adds to database, and connects
 	 * @param address  Address of server
 	 * @param port     Port number to be used (if null, the 6667 is used)
 	 * @param channels Vararg of channels to join
 	 */
 	public void addServer(String address, int port, String... channels) {
-		Server srv = new Server(address, 6667);
+		Server srv = new Server(address, port);
 		for (String curChan : channels)
 			srv.addChannel(new Channel(curChan));
-		srv.updateDB();
+		initBot(srv.updateDB());
 	}
 
 	/**
-	 * Deletes a server by address name, removing from database. Will disconnect if nessesary
+	 * Deletes a server by address name, removing from database. This will NOT disconnect
+	 * the associated bot.
 	 * @param address  The address of the server to be deleted
 	 */
 	public void removeServer(String address) {
@@ -226,7 +273,7 @@ public class Controller {
 	}
 
 	/**
-	 * Send a message to every channel on every server the bot is connected to
+	 * Send a message to every channel on every server Quackbot is connected to. Use carefully!
 	 * @param msg   Message to send
 	 */
 	public void sendGlobalMessage(String msg) {
@@ -235,15 +282,16 @@ public class Controller {
 	}
 
 	/**
-	 * Reload all plugins
-	 *
-	 * Note: This does shutdown all the thread pools (Bot instances are unaffected).
-	 *	Take this into account if you have services running in the background
+	 * Reload all plugins, clearing the list
 	 */
 	public void reloadPlugins() {
 		reloadPlugins(true);
 	}
 
+	/**
+	 * Reloads all plugins, clearing list only if requested
+	 * @param clean Clear list of plugins?
+	 */
 	public void reloadPlugins(boolean clean) {
 		log.trace("Reload called with " + clean);
 		if (clean)
@@ -257,6 +305,10 @@ public class Controller {
 		});
 	}
 
+	/**
+	 * Recusrivly load plugins from current file. Use
+	 * @param file
+	 */
 	private void reloadPlugins(File file) {
 		if (file.isDirectory()) {
 			final File[] childs = file.listFiles();
@@ -287,23 +339,45 @@ public class Controller {
 		}
 	}
 
+	/**
+	 * Register a custom plugin type with Quackbot, associating with the specified extention
+	 * @param ext     Exentsion to associate Plugin Type with
+	 * @param newType Class of Plugin Type
+	 */
 	public void addPluginType(String ext, Class<? extends PluginType> newType) {
 		addPluginType(new String[]{ext}, newType);
 	}
 
+	/**
+	 * Register a custom plugin type with Quackbot, associating with the specified extentions
+	 * @param exts     Exentsions to associate Plugin Type with
+	 * @param newType Class of Plugin Type
+	 */
 	public void addPluginType(String[] exts, Class<? extends PluginType> newType) {
 		for (String curExt : exts)
 			pluginTypes.put(curExt, newType);
 	}
 
+	/**
+	 * Add a plugin to Bot
+	 * @param plugin Implementation of PluginType
+	 */
 	public void addPlugin(PluginType plugin) {
 		plugins.add(plugin);
 	}
 
+	/**
+	 * Register a prefix that will activate bot
+	 * @param prefix
+	 */
 	public void addPrefix(String prefix) {
 		globPrefixes.add(prefix);
 	}
 
+	/**
+	 * Set the log level of JPersist. By default its OFF, but can be changed for debugging
+	 * @param level JUT logging level
+	 */
 	public void setDatabaseLogLevel(java.util.logging.Level level) {
 		DatabaseManager.setLogLevel(level);
 		setLevel = true;
@@ -316,7 +390,12 @@ public class Controller {
 		return ++cmdNum;
 	}
 
-	public static ExecutorService newBotPool(final String address) {
+	/**
+	 * Generates a ThreadPool for {@link Bot}
+	 * @param address
+	 * @return Fully configured ThreadPool
+	 */
+	public ExecutorService newBotPool(final String address) {
 		return Executors.newCachedThreadPool(new ThreadFactory() {
 			int threadCounter = 0;
 			List<String> usedNames = new ArrayList<String>();
@@ -334,6 +413,19 @@ public class Controller {
 				return new Thread(threadGroup, rbl, "quackbot-" + goodAddress + "-" + threadCounter++);
 			}
 		});
+	}
+
+	/**
+	 * Find a plugin by name
+	 * @param name Name of plugin
+	 * @return     Plugin Object or null if not found
+	 */
+	public PluginType findPlugin(String name) {
+		List<PluginType> slist = Controller.instance.plugins;
+		for (PluginType curItem : slist)
+			if (curItem.getName().equalsIgnoreCase(name))
+				return curItem;
+		return null;
 	}
 
 	/**
