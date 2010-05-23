@@ -2,8 +2,6 @@
  * @(#)Controller.java
  *
  * This file is part of Quackbot
- *   -javaagent:lib/jrebel.jar -Drebel.log4j-plugin=true -noverify
- *
  */
 package Quackbot;
 
@@ -243,7 +241,7 @@ public class Controller {
 	 *	Take this into account if you have services running in the background
 	 */
 	public void reloadPlugins() {
-		reloadPlugins(false);
+		reloadPlugins(true);
 	}
 
 	public void reloadPlugins(boolean clean) {
