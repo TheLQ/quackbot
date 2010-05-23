@@ -292,6 +292,14 @@ public class Bot extends PircBot {
 			sendMessage(curChan, msg);
 	}
 
+	public boolean isBot(String name) {
+		return getName().equals(name);
+	}
+
+	public boolean isBot(BotEvent event) {
+		return getName().equals(event.getSender());
+	}
+
 	/****************************************HOOKS************************************************************/
 	/**
 	 * Executes Hook

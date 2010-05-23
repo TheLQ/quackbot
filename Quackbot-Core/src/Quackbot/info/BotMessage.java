@@ -73,6 +73,9 @@ public class BotMessage {
 	 */
 	public String toString() {
 		//Use StringBuilder just in case one of the values is null
-		return new StringBuilder().append(user).append(": ").append(message).toString();
+		StringBuilder sb = new StringBuilder();
+		if(user != null)
+			sb.append(user).append(": ");
+		return sb.append(message).toString();
 	}
 }

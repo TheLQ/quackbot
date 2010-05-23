@@ -149,8 +149,10 @@ public class JSPlugin implements PluginType {
 		//Set script globals
 		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 		engineScope.put("log", LoggerFactory.getLogger("Quackbot.plugins.js." + getName()));
-		if (true)
+		if (bot != null) {
 			engineScope.put("msgInfo", msgInfo);
+			engineScope.put("qb", bot);
+		}
 		else {
 			//Prevent "not defined" errors
 			engineScope.put("msgInfo", null);
