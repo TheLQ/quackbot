@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Quackbot.log.ControlAppender;
+import javax.swing.JComboBox;
 
 /**
  * Provides a GUI for bot
@@ -59,7 +60,7 @@ public class GUI extends JFrame implements ActionListener {
 		CerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		//Add appenders to root logger
-		org.apache.log4j.Logger rootLog = org.apache.log4j.Logger.getLogger("Quackbot");
+		org.apache.log4j.Logger rootLog = org.apache.log4j.Logger.getRootLogger();
 		rootLog.setLevel(Level.ALL);
 		rootLog.addAppender(new ControlAppender());
 
@@ -95,6 +96,10 @@ public class GUI extends JFrame implements ActionListener {
 		JButton reload = new JButton("Reload");
 		reload.addActionListener(this);
 		bottom.add(reload);
+		//JComboBox logCombo = new JComboBox(new String[]{"ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF"});
+		JComboBox logCombo = new JComboBox(new Level[]{Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR, Level.OFF});
+		logCombo.addActionListener(this);
+		bottom.add(logCombo);
 
 		contentPane.add(bottom, BorderLayout.SOUTH);
 
@@ -110,6 +115,13 @@ public class GUI extends JFrame implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() instanceof JComboBox) {
+			Level level = (Level)((JComboBox)e.getSource()).getSelectedItem();
+			log.info("Setting log level to "+level);
+			org.apache.log4j.Logger.getRootLogger().setLevel(level);
+			return;
+		}
+
 		String cmd = e.getActionCommand();
 
 		if (cmd.equals("Reload"))
