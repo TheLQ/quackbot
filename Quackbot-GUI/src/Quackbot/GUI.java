@@ -32,7 +32,7 @@ import javax.swing.JComboBox;
  *  -Output is formated and displayed
  *  -Can initate Reload
  * 
- * There should only be <b>1</b> instance of this. It can be refrenced by {@link Quackbot.InstanceTracker#getMain() InstanceTracker.getMain}
+ * There should only be <b>1</b> instance of this. It can be refrenced by {@link #instance}
  * @author Lord.Quackstar
  */
 public class GUI extends JFrame implements ActionListener {

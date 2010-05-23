@@ -10,7 +10,6 @@ import Quackbot.Bot;
 import Quackbot.Controller;
 
 import Quackbot.PluginType;
-import Quackbot.Utils;
 import Quackbot.plugins.java.HelpDoc;
 import Quackbot.plugins.java.ParamConfig;
 import Quackbot.err.InvalidCMDException;
@@ -47,7 +46,7 @@ public class Help implements JavaBase {
 			//Send to user
 			qb.sendMsg(new BotMessage(msgInfo, "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ")));
 		} else {
-			PluginType result = Utils.findPlugin(pluginName);
+			PluginType result = ctrl.findPlugin(pluginName);
 			if (result != null)
 				qb.sendMsg(new BotMessage(msgInfo, result.getHelp()));
 			else

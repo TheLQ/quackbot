@@ -1054,7 +1054,7 @@ public class Bot extends PircBot {
 	 * or to call super.onVersion(...);
 	 * <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the Version response.
-	 *	The default version response is <b>not</b> sent.
+	 * default version response is <b>not</b> sent.
 	 * @param sourceNick The nick of the user that sent the VERSION request.
 	 * @param sourceLogin The login of the user that sent the VERSION request.
 	 * @param sourceHostname The hostname of the user that sent the VERSION request.
@@ -1073,7 +1073,7 @@ public class Bot extends PircBot {
 	 * super.onPing(...);
 	 *  <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the ping response.
-	 *	The default ping response is <b>not</b> sent.
+	 * default ping response is <b>not</b> sent.
 	 * @param sourceNick The nick of the user that sent the PING request.
 	 * @param sourceLogin The login of the user that sent the PING request.
 	 * @param sourceHostname The hostname of the user that sent the PING request.
@@ -1092,8 +1092,8 @@ public class Bot extends PircBot {
 	 * super.onServerPing(response);
 	 *  <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the PONG response.
-	 *	The PONG version response is <b>not</b> sent. Failure to implement this will make
-	 *	the server think the bot is disconnected
+	 * PONG version response is <b>not</b> sent. Failure to implement this will make
+	 * server think the bot is disconnected
 	 * @param response The response that should be given back in your PONG. Stored as BotEvent.rawmsg
 	 */
 	protected void onServerPing(String response) {
@@ -1108,7 +1108,7 @@ public class Bot extends PircBot {
 	 * super.onTime(...);
 	 *  <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the time response.
-	 *	The default time response is <b>not</b> sent.
+	 * default time response is <b>not</b> sent.
 	 * @param sourceNick The nick of the user that sent the TIME request.
 	 * @param sourceLogin The login of the user that sent the TIME request.
 	 * @param sourceHostname The hostname of the user that sent the TIME request.
@@ -1126,7 +1126,7 @@ public class Bot extends PircBot {
 	 * super.onFinger(...);
 	 *  <p>
 	 * <b>WARNING:</b> By hooking this it is up to the Hooking to send the finger response.
-	 *	The default finger response is <b>not</b> sent.
+	 * default finger response is <b>not</b> sent.
 	 * @param sourceNick The nick of the user that sent the FINGER request.
 	 * @param sourceLogin The login of the user that sent the FINGER request.
 	 * @param sourceHostname The hostname of the user that sent the FINGER request.

@@ -14,7 +14,6 @@ import jpersist.JPersistException;
 import jpersist.PersistentObject;
 import jpersist.annotations.UpdateNullValues;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -25,22 +24,6 @@ import org.slf4j.LoggerFactory;
  */
 @UpdateNullValues
 public class Server extends PersistentObject {
-	private static Logger logger = LoggerFactory.getLogger(Server.class);
-	private static long serialVersionUID = 100L;
-
-	/**
-	 * @return the serialVersionUID
-	 */
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
-	}
-
-	/**
-	 * @param aSerialVersionUID the serialVersionUID to set
-	 */
-	public static void setSerialVersionUID(long aSerialVersionUID) {
-		serialVersionUID = aSerialVersionUID;
-	}
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
@@ -210,13 +193,17 @@ public class Server extends PersistentObject {
 	 * WARNING: Passing an empty or null server object might destroy the
 	 * database's knowledge of the server. Only JPersist generated Server
 	 * objects should be passed
+	 * <p>
+	 * @return Server object with database generated info set
 	 */
-	public void updateDB() {
+	public Server updateDB() {
 		try {
 			save(Controller.instance.dbm);
+			return Controller.instance.dbm.loadObject(this);
 		} catch (Exception e) {
-			logger.error("Error updating database", e);
+			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
 		}
+		return null;
 	}
 
 	public int delete() throws JPersistException {
