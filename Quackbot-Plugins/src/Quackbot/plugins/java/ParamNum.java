@@ -1,7 +1,22 @@
 /**
  * @(#)ParamNum.java
  *
+ * Copyright Leon Blakey/Lord.Quackstar, 2009-2010
+ *
  * This file is part of Quackbot
+ *
+ * Quackbot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Quackbot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
 package Quackbot.plugins.java;
 
@@ -24,11 +39,12 @@ import java.lang.annotation.Target;
  * <p>
  * An example on how to use this on a command that takes 1 parameter
  * <br>
- * {@code
+ * <pre>
  * &#064;ParamNum(1)
  * public class someClass extends BasePlugin {
  *	...
  * }}
+ * </pre>
  * <p>
  * This annotation is not required if there are 0 parameters, however it
  * is best practice to include it, if not just for readability
@@ -41,5 +57,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ParamNum {
-	int value();
+
+    /**
+     * Number of Parameters the Plugin requires.
+     * @return Number of Parameters
+     */
+    int value();
 }

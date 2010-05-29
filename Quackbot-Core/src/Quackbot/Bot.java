@@ -1,7 +1,22 @@
 /**
  * @(#)Bot.java
  *
+ * Copyright Leon Blakey/Lord.Quackstar, 2009-2010
+ *
  * This file is part of Quackbot
+ *
+ * Quackbot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Quackbot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
 package Quackbot;
 
@@ -1147,9 +1162,24 @@ public class Bot extends PircBot {
 	}
 	//And then it was done :-)
 
+        /**
+         * Static class that holds variable local to the entire thread group.
+         * Used mainly for logging, but avalible for any other purpose.
+         * <p>
+         * Thanks to the jkad open source project for providing most of the code.
+         * Source: http://code.google.com/p/jkad/source/browse/trunk/JKad/src/jkad/controller/ThreadGroupLocal.java
+         * @param <T>
+         */
 	public static abstract class ThreadGroupLocal<T> {
+            /**
+             * Map storing all variables with ThreadGroup
+             */
 		private final HashMap<ThreadGroup, T> map = new HashMap<ThreadGroup, T>();
 
+                /**
+                 * Get object for current ThreadGroup
+                 * @return Requested Object
+                 */
 		public T get() {
 			T result = null;
 			ThreadGroup group = Thread.currentThread().getThreadGroup();
@@ -1163,10 +1193,18 @@ public class Bot extends PircBot {
 			return result;
 		}
 
+                /**
+                 * Sets object for current ThreadGroup
+                 * @param obj Object to store
+                 */
 		public void set(T obj) {
 			map.put(Thread.currentThread().getThreadGroup(), obj);
 		}
 
+                /**
+                 * Sets an inital value that all created objects have
+                 * @return The inital value
+                 */
 		public abstract T initialValue();
 	}
 }
