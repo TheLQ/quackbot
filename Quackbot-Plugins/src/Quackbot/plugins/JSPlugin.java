@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Lord.Quackstar
  */
 public class JSPlugin implements PluginType {
+
 	/**
 	 * Name of command
 	 */
@@ -118,8 +119,9 @@ public class JSPlugin implements PluginType {
 		fileContents.append("importPackage(Packages.Quackbot.info);");
 		fileContents.append("importClass(Packages.java.lang.Thread);");
 		String strLine;
-		while ((strLine = input.readLine()) != null)
+		while ((strLine = input.readLine()) != null) {
 			fileContents.append(strLine + System.getProperty("line.separator"));
+		}
 		input.close();
 
 		//Make new context
@@ -136,10 +138,11 @@ public class JSPlugin implements PluginType {
 		setSrc(fileContents.toString());
 		setHelp((String) engineScope.get("help"));
 		setReqArg(((engineScope.get("ReqArg") == null) ? false : true));
-		if (engineScope.get("param") != null)
+		if (engineScope.get("param") != null) {
 			setParams((int) Double.parseDouble(engineScope.get("param").toString()));
-		else
+		} else {
 			setParams(0);
+		}
 	}
 
 	public void invoke(String[] args, Bot bot, BotEvent msgInfo) throws Exception {
@@ -150,12 +153,14 @@ public class JSPlugin implements PluginType {
 		if (getCompiled() == null) {
 			//Get all utils to add to command header
 			StringBuilder compSrc = new StringBuilder();
-			for (PluginType curPlugin : Controller.instance.plugins)
+			for (PluginType curPlugin : Controller.instance.plugins) {
 				if (curPlugin instanceof JSPlugin) {
 					JSPlugin plugin = (JSPlugin) curPlugin;
-					if (plugin.isUtil())
+					if (plugin.isUtil()) {
 						compSrc.append(plugin.getSrc());
+					}
 				}
+			}
 			compSrc.append(getSrc());
 			Compilable compilingEngine = (Compilable) jsEngine;
 			setCompiled(compilingEngine.compile(compSrc.toString()));
@@ -167,8 +172,7 @@ public class JSPlugin implements PluginType {
 		if (bot != null) {
 			engineScope.put("msgInfo", msgInfo);
 			engineScope.put("qb", bot);
-		}
-		else {
+		} else {
 			//Prevent "not defined" errors
 			engineScope.put("msgInfo", null);
 			engineScope.put("qb", null);
