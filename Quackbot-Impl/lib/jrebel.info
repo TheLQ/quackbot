@@ -1,5 +1,0 @@
-License: limited
-License: personal
-Giveaway: OSS
-Plugin: org.zeroturnaround.javarebel.integration.IntegrationPlugin
-Plugin: org.zeroturnaround.javarebel.integration.log4j.Log4jPlugin
