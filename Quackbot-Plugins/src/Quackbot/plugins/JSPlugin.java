@@ -22,7 +22,6 @@ package Quackbot.plugins;
 
 import Quackbot.Bot;
 import Quackbot.Controller;
-import Quackbot.InitHook;
 
 import Quackbot.PluginType;
 import Quackbot.info.Hooks;
@@ -37,6 +36,8 @@ import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.SimpleBindings;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,6 @@ import org.slf4j.LoggerFactory;
  * @author Lord.Quackstar
  */
 public class JSPlugin implements PluginType {
-
 	/**
 	 * Name of command
 	 */
@@ -119,9 +119,8 @@ public class JSPlugin implements PluginType {
 		fileContents.append("importPackage(Packages.Quackbot.info);");
 		fileContents.append("importClass(Packages.java.lang.Thread);");
 		String strLine;
-		while ((strLine = input.readLine()) != null) {
+		while ((strLine = input.readLine()) != null)
 			fileContents.append(strLine + System.getProperty("line.separator"));
-		}
 		input.close();
 
 		//Make new context
@@ -138,29 +137,28 @@ public class JSPlugin implements PluginType {
 		setSrc(fileContents.toString());
 		setHelp((String) engineScope.get("help"));
 		setReqArg(((engineScope.get("ReqArg") == null) ? false : true));
-		if (engineScope.get("param") != null) {
+		if (engineScope.get("param") != null)
 			setParams((int) Double.parseDouble(engineScope.get("param").toString()));
-		} else {
+		else
 			setParams(0);
-		}
+
 	}
+
+	ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 
 	public void invoke(String[] args, Bot bot, BotEvent msgInfo) throws Exception {
 		log.info("Running Javascript Plugin " + getName());
-		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 
 		//Compile script on first execution for faster run time
 		if (getCompiled() == null) {
 			//Get all utils to add to command header
 			StringBuilder compSrc = new StringBuilder();
-			for (PluginType curPlugin : Controller.instance.plugins) {
+			for (PluginType curPlugin : Controller.instance.plugins)
 				if (curPlugin instanceof JSPlugin) {
 					JSPlugin plugin = (JSPlugin) curPlugin;
-					if (plugin.isUtil()) {
+					if (plugin.isUtil())
 						compSrc.append(plugin.getSrc());
-					}
 				}
-			}
 			compSrc.append(getSrc());
 			Compilable compilingEngine = (Compilable) jsEngine;
 			setCompiled(compilingEngine.compile(compSrc.toString()));
@@ -168,7 +166,11 @@ public class JSPlugin implements PluginType {
 
 		//Set script globals
 		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
+		log.trace("Values: "+ArrayUtils.toString(engineScope.keySet().toArray()));
+		log.trace("Msginfo: " + msgInfo.toString());
 		engineScope.put("log", LoggerFactory.getLogger("Quackbot.plugins.js." + getName()));
+		engineScope.remove("msgInfo");
+		engineScope.remove("qb");
 		if (bot != null) {
 			engineScope.put("msgInfo", msgInfo);
 			engineScope.put("qb", bot);

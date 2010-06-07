@@ -4,11 +4,11 @@ var admin = true;
 
 function invoke(user,timeMin) {
 	var timeMs = timeMin*60000;
-	var hostmask = "user!*@*"
+	var hostmask = user+"!*@*"
 	qb.ban(msgInfo.channel,hostmask);
 	qb.sendMsg(new BotMessage(msgInfo,user+": You have been muted for "+timeMin));
 	try {
-		log("Sleeping");
+		log.debug("Sleeping");
 		Thread.sleep(timeMs);
 		qb.unBan(msgInfo.channel,hostmask);
 		qb.sendMsg(new BotMessage(msgInfo,user+" has been unmuted"));
@@ -16,7 +16,7 @@ function invoke(user,timeMin) {
 	catch(err) {
 		println("ERROR "+err);
 		if(err.toString().search("InterruptedException") != -1) {
-			log("Warning, mute thread interupted on hostmask "+hostmask);
+			log.warn("mute thread interupted on hostmask "+hostmask);
 			return;
 		}
 	}

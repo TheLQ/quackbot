@@ -44,7 +44,7 @@ public class Channel extends Entity {
 	/**
 	 * Name of the channel
 	 */
-	private String channel;
+	private String name;
 	/**
 	 * Password of the channel. Can be null.
 	 */
@@ -57,19 +57,19 @@ public class Channel extends Entity {
 	}
 
 	/**
-	 * From server Id
-	 * @param serverID
+	 * From channel ID
+	 * @param channelID
 	 */
-	public Channel(Integer serverID) {
-		this.serverID = serverID;
+	public Channel(Integer channelID) {
+		this.channelID = channelID;
 	}
 
 	/**
 	 * Create from string
-	 * @param channel
+	 * @param name
 	 */
-	public Channel(String channel) {
-		this.channel = channel;
+	public Channel(String name) {
+		this.name = name;
 	}
 
 	/**
@@ -77,8 +77,8 @@ public class Channel extends Entity {
 	 * @param channel
 	 * @param password
 	 */
-	public Channel(String channel, String password) {
-		this.channel = channel;
+	public Channel(String name, String password) {
+		this.name = name;
 		this.password = password;
 	}
 
@@ -87,7 +87,7 @@ public class Channel extends Entity {
 	 * @return String representation of Channel
 	 */
 	public String toString() {
-		return new StringBuilder("[").append("Channel=" + getChannel() + ",").append("Password=" + getPassword() + ",").append("ChannelID=" + getChannelID() + ",").append("ServerID=" + getServerID()).append("]").toString();
+		return new StringBuilder("[").append("Channel=" + getName() + ",").append("Password=" + getPassword() + ",").append("ChannelID=" + getChannelID() + ",").append("ServerID=" + getServerID()).append("]").toString();
 	}
 
 	/**
@@ -152,16 +152,16 @@ public class Channel extends Entity {
 	 * Name of the channel
 	 * @return the channel
 	 */
-	public String getChannel() {
-		return channel;
+	public String getName() {
+		return name;
 	}
 
 	/**
 	 * Name of the channel
 	 * @param channel the channel to set
 	 */
-	public void setChannel(String channel) {
-		this.channel = channel;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**

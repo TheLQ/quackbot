@@ -20,6 +20,8 @@
  */
 package Quackbot;
 
+import Quackbot.info.Admin;
+import Quackbot.info.BotEvent;
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
 import java.io.File;
@@ -130,7 +132,10 @@ public class Controller {
 	 * ThreadPool that all non-bot threads are executed in
 	 */
 	public static final ExecutorService mainPool = Executors.newCachedThreadPool();
-
+	/**
+	 * TODO
+	 */
+	 public static int msgWait = 1750;
 	/**
 	 * Convience method for <code>new Controller(true)</code>
 	 */
@@ -202,11 +207,6 @@ public class Controller {
 
 		//Load current CMD classes
 		reloadPlugins(false);
-
-		//Start service plugins
-		for (PluginType curPlug : plugins)
-			if (curPlug.isService())
-				new PluginExecutor(curPlug.getName(), new String[0]);
 
 		//Connect to all servers
 		try {
@@ -308,14 +308,17 @@ public class Controller {
 	 * @param clean Clear list of plugins?
 	 */
 	public void reloadPlugins(boolean clean) {
-		log.trace("Reload called with " + clean);
 		if (clean)
 			plugins.removeAll(plugins);
-		log.trace("Plugins: " + pluginTypes);
 		mainPool.submit(new Runnable() {
 			public void run() {
 				reloadPlugins(new File("plugins"));
-				reloadPlugins(new File("Quackbot-Impl/plugins"));
+				//Start service plugins
+				for (PluginType curPlug : plugins)
+					if (curPlug.isService()) {
+						log.trace("Starting " + curPlug.getName());
+						mainPool.submit(new PluginExecutor(curPlug.getName(), new String[0]));
+					}
 			}
 		});
 	}
@@ -441,6 +444,44 @@ public class Controller {
 			if (curItem.getName().equalsIgnoreCase(name))
 				return curItem;
 		return null;
+	}
+
+	public boolean adminExists(String name, String server, String channel) {
+		try {
+			Collection<Admin> c = dbm.loadObjects(new ArrayList<Admin>(), Admin.class, true);
+			for (Admin curAdmin : c) {
+				//Is this even a match?
+				if (!curAdmin.getUser().equalsIgnoreCase(name))
+					continue;
+
+				//Is this person an admin of this channel?
+				Channel chan = curAdmin.getChannel();
+				if (chan != null && chan.getName().equals(channel))
+					return true;
+
+				//Is this person an admin of the server?
+				Server serv = curAdmin.getServer();
+				if (serv != null && serv.getAddress().equalsIgnoreCase(server))
+					return true;
+
+				//Is this person a global admin?
+				if (serv != null && chan != null)
+					return true;
+			}
+		} catch (Exception e) {
+			log.error("Couldn't finish finding admin", e);
+		}
+		return false;
+	}
+
+	/**
+	 * Utility to check if an admin exists in either the global scope,
+	 * server scope, or channel scope
+	 * @param bot
+	 * @return
+	 */
+	public boolean adminExists(Bot bot, BotEvent msgInfo) {
+		return adminExists(msgInfo.getSender(), bot.getServer(), msgInfo.getChannel());
 	}
 
 	/**

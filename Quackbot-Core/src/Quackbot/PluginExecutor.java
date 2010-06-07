@@ -85,6 +85,7 @@ public class PluginExecutor implements Runnable {
 	 * @param params  Parameters needed for commands
 	 */
 	public PluginExecutor(String command, String[] params) {
+		log.trace("Inited");
 		this.command = command;
 		this.params = params;
 		this.bot = null;
@@ -95,15 +96,16 @@ public class PluginExecutor implements Runnable {
 	 * In new thread, does all checking and execution of specified command
 	 */
 	public void run() {
+		
+		log.info("-----------Begin execution of command #" + msgInfo.getCmdNum() + ",  from " + msgInfo.getRawmsg() + "-----------");
 		msgInfo.setCmdNum(ctrl.addCmdNum());
 
-		log.info("-----------Begin execution of command #" + msgInfo.getCmdNum() + ",  from " + msgInfo.getRawmsg() + "-----------");
 		try {
 			PluginType plugin = ctrl.findPlugin(command);
 			if (plugin == null || plugin.isService() || plugin.isUtil())
 				throw new InvalidCMDException(command);
 			//Is this an admin function? If so, is the person an admin?
-			if (plugin.isAdmin() && bot != null && !bot.serverDB.adminExists(msgInfo.getSender()))
+			if (plugin.isAdmin() && bot != null && !Controller.instance.adminExists(bot,msgInfo))
 				throw new AdminException();
 
 			//Does this method require args?
@@ -117,7 +119,7 @@ public class PluginExecutor implements Runnable {
 			int paramNum = plugin.getOptParams();
 			int reqParamNum = plugin.getParams();
 			log.debug("User Args: " + paramLen + " | Req Args: " + reqParamNum + " | Optional: " + paramNum);
-			if (paramLen > paramNum) //Do we have too many?
+			if (paramLen > paramNum+reqParamNum) //Do we have too many?
 				throw new NumArgException(paramLen, reqParamNum, paramNum - reqParamNum);
 			else if (paramLen < reqParamNum) //Do we not have enough?
 				throw new NumArgException(paramLen, reqParamNum);
@@ -156,6 +158,6 @@ public class PluginExecutor implements Runnable {
 	 */
 	private void sendIfBot(BotMessage msg) {
 		if (bot != null)
-			bot.sendMessage(msg.channel, msg.toString());
+			bot.sendMsg(new BotMessage(msg.channel, msg.toString()));
 	}
 }
