@@ -3,5 +3,5 @@ var param = 0;
 var admin = true;
 
 function invoke() {
-	InstanceTracker.getController().reloadPlugins();
+	Controller.instance.reloadPlugins();
 }

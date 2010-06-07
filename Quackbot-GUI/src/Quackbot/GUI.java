@@ -67,10 +67,10 @@ public class GUI extends JFrame implements ActionListener {
 	public GUI() {
 		instance = this;
 		/***Pre init, setup error log**/
-		BerrorLog = new JTextPane();
+		BerrorLog = new JTextPaneNW();
 		BerrorLog.setEditable(false);
 		BerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
-		CerrorLog = new JTextPane();
+		CerrorLog = new JTextPaneNW();
 		CerrorLog.setEditable(false);
 		CerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -92,11 +92,11 @@ public class GUI extends JFrame implements ActionListener {
 		JScrollPane BerrorScroll = new JScrollPane(BerrorLog);
 		BerrorScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		BerrorScroll.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		BerrorScroll.setBorder(BorderFactory.createTitledBorder("Bot talk"));
+		BerrorScroll.setBorder(BorderFactory.createTitledBorder("Bots"));
 		JScrollPane CerrorScroll = new JScrollPane(CerrorLog);
 		CerrorScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		CerrorScroll.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		CerrorScroll.setBorder(BorderFactory.createTitledBorder("Controller talk"));
+		CerrorScroll.setBorder(BorderFactory.createTitledBorder("Controller"));
 
 		JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, BerrorScroll, CerrorScroll);
 		contentPane.add(mainSplit, BorderLayout.CENTER);
@@ -111,7 +111,6 @@ public class GUI extends JFrame implements ActionListener {
 		JButton reload = new JButton("Reload");
 		reload.addActionListener(this);
 		bottom.add(reload);
-		//JComboBox logCombo = new JComboBox(new String[]{"ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF"});
 		JComboBox logCombo = new JComboBox(new Level[]{Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR, Level.OFF});
 		logCombo.addActionListener(this);
 		bottom.add(logCombo);
@@ -130,9 +129,9 @@ public class GUI extends JFrame implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() instanceof JComboBox) {
-			Level level = (Level)((JComboBox)e.getSource()).getSelectedItem();
-			log.info("Setting log level to "+level);
+		if (e.getSource() instanceof JComboBox) {
+			Level level = (Level) ((JComboBox) e.getSource()).getSelectedItem();
+			log.info("Setting log level to " + level);
 			org.apache.log4j.Logger.getRootLogger().setLevel(level);
 			return;
 		}
@@ -147,9 +146,16 @@ public class GUI extends JFrame implements ActionListener {
 		}
 	}
 
-	public static void main(String[] args) {
-		Controller ctrl = new Controller();
-		ctrl.connectDB("quackbot", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://localhost/quackbot", null, null, "root", null);
-		ctrl.setDatabaseLogLevel(java.util.logging.Level.OFF);
+	public class JTextPaneNW extends JTextPane {
+		public void setSize(Dimension d) {
+			if (d.width < getParent().getSize().width)
+				d.width = getParent().getSize().width;
+
+			super.setSize(d);
+		}
+
+		public boolean getScrollableTracksViewportWidth() {
+			return false;
+		}
 	}
 }

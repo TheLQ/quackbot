@@ -22,6 +22,9 @@ package Quackbot.info;
 
 import Quackbot.Controller;
 import jpersist.Entity;
+import jpersist.JPersistException;
+import jpersist.annotations.ConcreteTableInheritance;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -32,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * If this needs to be changed in database, call {@link #updateDB()}
  * @author admins
  */
+@ConcreteTableInheritance
 public class Admin extends Entity {
 	/**
 	 * The ID of the admin
@@ -55,6 +59,10 @@ public class Admin extends Entity {
 	 * The username of the admin
 	 */
 	private String user;
+	/**
+	 * Logging system
+	 */
+	private static Logger log = LoggerFactory.getLogger(Admin.class);
 
 	/**
 	 * Empty constructor
@@ -180,4 +188,39 @@ public class Admin extends Entity {
 		this.user = user;
 	}
 
+	/**
+	 * The Channel object that the admin might be attached to. Can be null
+	 * <p>
+	 * A null value indicates this isn't attached to a channel. The admin can
+	 * either be server admin or global admin
+	 * <p>
+	 * Note that this isn't mapped by JPersist, it is simply a convience method
+	 * @return the channel
+	 */
+	public Channel getChannel() {
+		try {
+			return Controller.instance.dbm.loadObject(new Channel(getChannelID()));
+		} catch (JPersistException e) {
+			log.error("Could not fetch channel",e);
+		}
+		return null;
+	}
+
+	/**
+	 * The Server object that the admin might be attached to. Can be null
+	 * <p>
+	 * A null value indicates the admin isn't attached to a server. They must
+	 * be a global admin.
+	 * <p>
+	 * Note that this isn't mapped by JPersist, it is simply a convience method
+	 * @return the server
+	 */
+	public Server getServer() {
+		try {
+			return Controller.instance.dbm.loadObject(new Server(getChannelID()));
+		} catch (JPersistException e) {
+			log.error("Could not fetch Server",e);
+		}
+		return null;
+	}
 }

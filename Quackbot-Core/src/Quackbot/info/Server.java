@@ -133,17 +133,6 @@ public class Server extends PersistentObject {
 	}
 
 	/**
-	 * Checks if admin exists
-	 * @param name Name of admin
-	 * @return     True if found, false otherwise
-	 */
-	public boolean adminExists(String name) {
-		if (getAdmin(name) == null)
-			return false;
-		return true;
-	}
-
-	/**
 	 * Gets admin by name
 	 * @param name Name of admin
 	 * @return     Admin object
@@ -189,7 +178,7 @@ public class Server extends PersistentObject {
 	 */
 	public Channel getChannel(String channel) {
 		for (Channel curChannel : getChannels())
-			if (curChannel.getChannel().equalsIgnoreCase(channel))
+			if (curChannel.getName().equalsIgnoreCase(channel))
 				return curChannel;
 		return null;
 	}

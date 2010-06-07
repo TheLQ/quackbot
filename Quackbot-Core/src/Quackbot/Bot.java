@@ -37,7 +37,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 
 import org.slf4j.Logger;
 import org.jibble.pircbot.DccChat;
@@ -78,11 +82,22 @@ public class Bot extends PircBot {
 	 * Local threadpool
 	 */
 	public ExecutorService threadPool;
+	/**
+	 * Stores variable local to this thread group
+	 */
 	public static ThreadGroupLocal<String> threadLocal = new ThreadGroupLocal<String>() {
 		public String initialValue() {
 			return "EMPTY";
 		}
 	};
+	/**
+	* TODO
+	*/
+	public ExecutorService msgQueue = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+		public Thread newThread(Runnable rbl) {
+			return new Thread(Thread.currentThread().getThreadGroup(), rbl, "quackbot-" + Bot.this.getServer() + "-msgqueue");
+		}
+	});
 	/**
 	 * Log4J logger
 	 */
@@ -117,6 +132,8 @@ public class Bot extends PircBot {
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
 		}
+
+
 	}
 
 	/**
@@ -158,17 +175,46 @@ public class Bot extends PircBot {
 
 		List<Channel> channels = serverDB.getChannels();
 		for (Channel curChannel : channels) {
-			joinChannel(curChannel.getChannel(), curChannel.getPassword());
+			joinChannel(curChannel.getName(), curChannel.getPassword());
 			log.debug("Trying to join channel using " + curChannel);
 		}
 	}
 
 	/**
 	 * <b>Main bot output</b> All commands should use this to communicate with server
+	 * <p>
+	 * Note that this method BLOCKS until message is sent!
 	 * @param msg Message to send
 	 */
-	public void sendMsg(BotMessage msg) {
-		sendMessage(msg.channel, msg.toString());
+	public void sendMsg(final BotMessage msg) {
+		try {
+			Future task;
+			synchronized(msgQueue) {
+				task = msgQueue.submit(new Runnable() {
+					public void run() {
+						sendRawLine("PRIVMSG " + msg.channel + " :" + msg.message);
+					}
+				});
+				//Add a seperate wait so next runnable doesn't get executed yet but
+				//above one unblocks
+				msgQueue.submit(new Runnable() {
+					public void run() {
+						try {
+							//log.warn("Waiting " + System.currentTimeMillis());
+							Thread.sleep(Controller.msgWait);
+						} catch (InterruptedException e) {
+							log.error("Wait to send message interupted", e);
+						}
+					}
+				});
+			}
+			//Block until done
+			task.get();
+		} catch (ExecutionException e) {
+			log.error("Couldn't schedule send message to be executed", e);
+		} catch (InterruptedException e) {
+			log.error("Wait to send message interupted", e);
+		}
 	}
 
 	public synchronized void dispose() {
@@ -235,7 +281,7 @@ public class Bot extends PircBot {
 		try {
 			runCommand(msgInfo);
 		} catch (Exception e) {
-			sendMessage(msgInfo.getChannel(), msgInfo.getSender() + ": ERROR " + e.getMessage());
+			sendMsg(new BotMessage(msgInfo.getChannel(), msgInfo.getSender() + ": ERROR " + e.getMessage()));
 			log.error("Run Error", e);
 		}
 	}
@@ -250,16 +296,14 @@ public class Bot extends PircBot {
 	 * @throws NumArgException       If impropper amount of arguments were given
 	 */
 	private void runCommand(BotEvent msgInfo) throws InvalidCMDException, AdminException, NumArgException {
-		log.trace("Current Command thread: " + Thread.currentThread().getName());
-
 		//Is bot locked?
-		if (botLocked == true && !serverDB.adminExists(msgInfo.getSender())) {
+		if (botLocked == true && !Controller.instance.adminExists(this, msgInfo)) {
 			log.info("Command ignored due to global lock in effect");
 			return;
 		}
 
 		//Is channel locked?
-		if (chanLockList.contains(msgInfo.getChannel()) && !serverDB.adminExists(msgInfo.getSender())) {
+		if (chanLockList.contains(msgInfo.getChannel()) && !Controller.instance.adminExists(this, msgInfo)) {
 			log.info("Command ignored due to channel lock in effect");
 			return;
 		}
@@ -304,7 +348,7 @@ public class Bot extends PircBot {
 	public void sendAllMessage(String msg) {
 		String[] channels = getChannels();
 		for (String curChan : channels)
-			sendMessage(curChan, msg);
+			sendMsg(new BotMessage(curChan, msg));
 	}
 
 	public boolean isBot(String name) {
@@ -1162,24 +1206,24 @@ public class Bot extends PircBot {
 	}
 	//And then it was done :-)
 
-        /**
-         * Static class that holds variable local to the entire thread group.
-         * Used mainly for logging, but avalible for any other purpose.
-         * <p>
-         * Thanks to the jkad open source project for providing most of the code.
-         * Source: http://code.google.com/p/jkad/source/browse/trunk/JKad/src/jkad/controller/ThreadGroupLocal.java
-         * @param <T>
-         */
+	/**
+	 * Static class that holds variable local to the entire thread group.
+	 * Used mainly for logging, but avalible for any other purpose.
+	 * <p>
+	 * Thanks to the jkad open source project for providing most of the code.
+	 * Source: http://code.google.com/p/jkad/source/browse/trunk/JKad/src/jkad/controller/ThreadGroupLocal.java
+	 * @param <T>
+	 */
 	public static abstract class ThreadGroupLocal<T> {
-            /**
-             * Map storing all variables with ThreadGroup
-             */
+		/**
+		 * Map storing all variables with ThreadGroup
+		 */
 		private final HashMap<ThreadGroup, T> map = new HashMap<ThreadGroup, T>();
 
-                /**
-                 * Get object for current ThreadGroup
-                 * @return Requested Object
-                 */
+		/**
+		 * Get object for current ThreadGroup
+		 * @return Requested Object
+		 */
 		public T get() {
 			T result = null;
 			ThreadGroup group = Thread.currentThread().getThreadGroup();
@@ -1193,18 +1237,18 @@ public class Bot extends PircBot {
 			return result;
 		}
 
-                /**
-                 * Sets object for current ThreadGroup
-                 * @param obj Object to store
-                 */
+		/**
+		 * Sets object for current ThreadGroup
+		 * @param obj Object to store
+		 */
 		public void set(T obj) {
 			map.put(Thread.currentThread().getThreadGroup(), obj);
 		}
 
-                /**
-                 * Sets an inital value that all created objects have
-                 * @return The inital value
-                 */
+		/**
+		 * Sets an inital value that all created objects have
+		 * @return The inital value
+		 */
 		public abstract T initialValue();
 	}
 }

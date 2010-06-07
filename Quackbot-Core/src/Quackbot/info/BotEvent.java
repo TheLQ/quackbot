@@ -156,6 +156,10 @@ public class BotEvent {
 		sb.append("Login: " + getLogin() + " ");
 		sb.append("Hostname: " + getHostname() + " ");
 		sb.append("RawMsg: " + getRawmsg() + " ");
+		if(extra1 != null)
+			sb.append("Extra: " + getExtra() + " ");
+		if(extra1 != null)
+			sb.append("Extra1: " + getExtra1() + " ");
 		return sb.toString();
 	}
 
