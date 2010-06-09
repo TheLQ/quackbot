@@ -158,6 +158,6 @@ public class PluginExecutor implements Runnable {
 	 */
 	private void sendIfBot(BotMessage msg) {
 		if (bot != null)
-			bot.sendMsg(new BotMessage(msg.channel, msg.toString()));
+			bot.sendMsg(new BotMessage( msg.getChannel(), msg.toString()));
 	}
 }
