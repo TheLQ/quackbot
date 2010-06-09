@@ -6,5 +6,3 @@ Add Triggered countdown
 -Addcountdown uses current spawned thread and adds id to cmdTalk
 -timeremaining displays time remaining from ID. If no id given caculates it to closest avalible countdown
 -killcountdown kills countdown
-
-Abstract all plugins
