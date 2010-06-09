@@ -31,17 +31,17 @@ import Quackbot.info.Server;
 import Quackbot.info.BotEvent;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.jibble.pircbot.DccChat;
@@ -85,19 +85,11 @@ public class Bot extends PircBot {
 	/**
 	 * Stores variable local to this thread group
 	 */
-	public static ThreadGroupLocal<String> threadLocal = new ThreadGroupLocal<String>() {
-		public String initialValue() {
-			return "EMPTY";
-		}
-	};
+	public static ThreadGroupLocal<String> threadLocal = new ThreadGroupLocal<String>("EMPTY");
 	/**
-	* TODO
-	*/
-	public ExecutorService msgQueue = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-		public Thread newThread(Runnable rbl) {
-			return new Thread(Thread.currentThread().getThreadGroup(), rbl, "quackbot-" + Bot.this.getServer() + "-msgqueue");
-		}
-	});
+	 * A custom outgoing queue used for tracking
+	 */
+	public final CustBlockingQueue<BotMessage> msgQueue = new CustBlockingQueue<BotMessage>(1);
 	/**
 	 * Log4J logger
 	 */
@@ -115,7 +107,7 @@ public class Bot extends PircBot {
 		setName("Quackbot");
 		setAutoNickChange(true);
 		setFinger("Quackbot IRC bot by Lord.Quackstar. Source: http://quackbot.googlecode.com/");
-		setMessageDelay(500);
+		setMessageDelay(0);
 		setVersion("Quackbot 3.3");
 
 		//Some debug
@@ -133,6 +125,25 @@ public class Bot extends PircBot {
 			log.error("Error in connecting", e);
 		}
 
+		// A consumer thread
+		new Thread(new Runnable() {
+			public void run() {
+				while (true)
+					try {
+						// Blocks until there is something in the queue
+						BotMessage msg = msgQueue.take();
+						sendRawLine("PRIVMSG " + msg.getChannel() + " :" + msg.getMessage());
+						//Release lock so that put() unblocks
+						msgQueue.lock.lockInterruptibly();
+						msgQueue.doneProcessing.signal();
+						msgQueue.lock.unlock();
+						//Wait before continuing
+						Thread.sleep(Controller.msgWait);
+					} catch (InterruptedException e) {
+						log.error("Wait for sending message interrupted", e);
+					}
+			}
+		}).start();
 
 	}
 
@@ -179,6 +190,7 @@ public class Bot extends PircBot {
 			log.debug("Trying to join channel using " + curChannel);
 		}
 	}
+	Date mostRecentUpdate = new Date();
 
 	/**
 	 * <b>Main bot output</b> All commands should use this to communicate with server
@@ -188,30 +200,7 @@ public class Bot extends PircBot {
 	 */
 	public void sendMsg(final BotMessage msg) {
 		try {
-			Future task;
-			synchronized(msgQueue) {
-				task = msgQueue.submit(new Runnable() {
-					public void run() {
-						sendRawLine("PRIVMSG " + msg.channel + " :" + msg.message);
-					}
-				});
-				//Add a seperate wait so next runnable doesn't get executed yet but
-				//above one unblocks
-				msgQueue.submit(new Runnable() {
-					public void run() {
-						try {
-							//log.warn("Waiting " + System.currentTimeMillis());
-							Thread.sleep(Controller.msgWait);
-						} catch (InterruptedException e) {
-							log.error("Wait to send message interupted", e);
-						}
-					}
-				});
-			}
-			//Block until done
-			task.get();
-		} catch (ExecutionException e) {
-			log.error("Couldn't schedule send message to be executed", e);
+			msgQueue.put(msg);
 		} catch (InterruptedException e) {
 			log.error("Wait to send message interupted", e);
 		}
@@ -1214,11 +1203,16 @@ public class Bot extends PircBot {
 	 * Source: http://code.google.com/p/jkad/source/browse/trunk/JKad/src/jkad/controller/ThreadGroupLocal.java
 	 * @param <T>
 	 */
-	public static abstract class ThreadGroupLocal<T> {
+	public static class ThreadGroupLocal<T> {
 		/**
 		 * Map storing all variables with ThreadGroup
 		 */
 		private final HashMap<ThreadGroup, T> map = new HashMap<ThreadGroup, T>();
+		private T initValue;
+
+		public ThreadGroupLocal(T initValue) {
+			this.initValue = initValue;
+		}
 
 		/**
 		 * Get object for current ThreadGroup
@@ -1230,7 +1224,7 @@ public class Bot extends PircBot {
 			synchronized (map) {
 				result = map.get(group);
 				if (result == null) {
-					result = initialValue();
+					result = initValue;
 					map.put(group, result);
 				}
 			}
@@ -1244,11 +1238,21 @@ public class Bot extends PircBot {
 		public void set(T obj) {
 			map.put(Thread.currentThread().getThreadGroup(), obj);
 		}
+	}
 
-		/**
-		 * Sets an inital value that all created objects have
-		 * @return The inital value
-		 */
-		public abstract T initialValue();
+	public class CustBlockingQueue<E> extends ArrayBlockingQueue<E> {
+		public ReentrantLock lock = new ReentrantLock(false);
+		public Condition doneProcessing = lock.newCondition();
+
+		public CustBlockingQueue(int capacity) {
+			super(capacity);
+		}
+
+		public void put(E e) throws InterruptedException {
+			lock.lockInterruptibly();
+			super.put(e);
+			doneProcessing.await();
+			lock.unlock();
+		}
 	}
 }

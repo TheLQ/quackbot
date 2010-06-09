@@ -28,15 +28,15 @@ public class BotMessage {
 	/**
 	 * Message to be sent (REQUIRED)
 	 */
-	public String message;
+	private String message;
 	/**
-	 * Channel to send message on (Optional)
+	 * Channel to send message on (REQUIRED)
 	 */
-	public String channel;
+	private String channel;
 	/**
 	 * User to recieve message (Optional)
 	 */
-	public String user;
+	private String user;
 
 	/**
 	 * Message will be sent to user in channel who sent message will be in prefix
@@ -89,8 +89,56 @@ public class BotMessage {
 	public String toString() {
 		//Use StringBuilder just in case one of the values is null
 		StringBuilder sb = new StringBuilder();
-		if(user != null)
-			sb.append(user).append(": ");
-		return sb.append(message).toString();
+		if (getUser() != null)
+			sb.append(getUser()).append(": ");
+		return sb.append(getMessage()).toString();
+	}
+
+	/**
+	 * Message to be sent (REQUIRED)
+	 * @return the message, null being represented by an EMPTY STRING
+	 */
+	public String getMessage() {
+		return (message == null) ? "" : message;
+	}
+
+	/**
+	 * Message to be sent (REQUIRED)
+	 * @param message the message to set
+	 */
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	/**
+	 * Channel to send message on (REQUIRED)
+	 * @return the channel, null being represented by an EMPTY STRING
+	 */
+	public String getChannel() {
+		return (channel == null) ? "" : channel;
+	}
+
+	/**
+	 * Channel to send message on (REQUIRED)
+	 * @param channel the channel to set
+	 */
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+
+	/**
+	 * User to recieve message (Optional)
+	 * @return the user, null being represented by an EMPTY STRING
+	 */
+	public String getUser() {
+		return (user == null) ? "" : user;
+	}
+
+	/**
+	 * User to recieve message (Optional)
+	 * @param user the user to set
+	 */
+	public void setUser(String user) {
+		this.user = user;
 	}
 }

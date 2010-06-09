@@ -1,45 +1,31 @@
 package Quackbot.impl;
 
-import Quackbot.Bot;
-import Quackbot.Controller;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.ArrayList;
+import org.apache.commons.lang.ArrayUtils;
 
+/**
+ * Test class for various things. Not relevent to anything
+ * @author LordQuackstar
+ */
 public class SandBox {
 	public SandBox() {
-		ExecutorService msgQueue = Executors.newSingleThreadScheduledExecutor();
-		for (int i = 0; i < 10; i++) {
-			try {
-				msgQueue.submit(new Runnable() {
-					public void run() {
-						System.out.println("I'm free!!!");
-					}
-				}).get();
-				//Add a seperate wait so next runnable doesn't get executed yet but
-				//above one unblocks
-				msgQueue.submit(new Runnable() {
-					public void run() {
-						try {
-							System.err.println("Waiting");
-							Thread.sleep(Controller.msgWait);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				}).get();
-
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		int[] set = {1, 1, 1};
 	}
 
-	public static void main(String[] args) {
-		new SandBox();
+	    static void recurse(int diceNumber, int[] values, final int MAX) {
+        if (diceNumber == values.length) {
+            System.out.println(java.util.Arrays.toString(values));
+        } else {
+            for (int v = 1; v <= MAX; v++) {
+                values[diceNumber] = v;
+                recurse(diceNumber + 1, values, MAX);
+            }
+        }
+    }
 
+	public static void main(String[] args) {
+		//new SandBox();
+		int[] into = new int[3];
+		recurse(0, into, 4);
 	}
 }
