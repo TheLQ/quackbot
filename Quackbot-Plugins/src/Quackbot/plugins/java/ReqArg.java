@@ -20,6 +20,11 @@
  */
 package Quackbot.plugins.java;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Denotes that this Java Plugin requires args. A 1 length string array will
  * be made
@@ -28,5 +33,7 @@ package Quackbot.plugins.java;
  *
  * @author Lord.Quackstar
  */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface ReqArg {
 }

@@ -23,9 +23,9 @@ package Quackbot.plugins.impl;
 import Quackbot.Bot;
 
 import Quackbot.info.BotMessage;
-import Quackbot.info.Hooks;
+import Quackbot.hook.Event;
 import Quackbot.info.BotEvent;
-import Quackbot.plugins.java.Hook;
+import Quackbot.plugins.java.Hooks;
 import Quackbot.plugins.java.JavaBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Simple Java cmd test
  * @author Lord.Quackstar
  */
-@Hook(Hooks.onMessage)
+@Hooks(Event.onMessage)
 public class HookTest implements JavaBase {
 	String something;
 	String somethins;

@@ -33,4 +33,8 @@ public class InvalidCMDException extends Exception {
 	public InvalidCMDException(String cmd) {
 		super("Command " + cmd + " does not exist");
 	}
+
+	public InvalidCMDException(String cmd, String reason) {
+		super("Command " + cmd + " does not exist ("+reason+")");
+	}
 }

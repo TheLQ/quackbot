@@ -54,8 +54,8 @@ public class Main {
 		ds.setTestOnBorrow(true);
 
 		ctrl.connectDB(dbInfo[0], 10, ds, null, null);
-		ctrl.setDatabaseLogLevel(java.util.logging.Level.ALL);
-		ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()));
+		ctrl.setDatabaseLogLevel(java.util.logging.Level.OFF);
+		ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()),true);
 		//ctrl.addPlugin(new JavaPlugin(HookTest.class.getName()));
 		ctrl.start();
 	}

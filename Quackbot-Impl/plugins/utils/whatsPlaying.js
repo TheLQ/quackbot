@@ -5,7 +5,7 @@ var util = true;
 
 function whatsPlaying() {
 	log.debug("Initalizing vlc update");
-	var msg = webTalk("http://localhost:8907/current.html");
+	var msg = webTalk("http://127.0.0.1:8909/current.html");
 	if(msg == null)
 		return "ERROR: No media player is running";
 

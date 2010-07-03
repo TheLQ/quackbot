@@ -20,11 +20,18 @@
  */
 package Quackbot.plugins.java;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Denotes that this Java Plugin is a service. Upon initialization the
- * service will immediatly be invoked.
+ * service will immediately be invoked.
  *
  * @author Lord.Quackstar
  */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Service {
 }

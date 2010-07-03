@@ -39,7 +39,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 /**
  * Appender for everything thats not bot. All events from Bot are ignored
- * 
+ *
  * @author Lord.Quackstar
  */
 public class ControlAppender extends AppenderSkeleton {
@@ -145,25 +145,16 @@ public class ControlAppender extends AppenderSkeleton {
 
 			//Only add styles if they don't already exist
 			if (doc.getStyle("Class") == null) {
-				Style style = doc.addStyle("Class", null);
-				StyleConstants.setForeground(style, Color.blue);
-
-				style = doc.addStyle("Normal", null);
-
-				style = doc.addStyle("Error", null);
-				StyleConstants.setForeground(style, Color.red);
-
-				style = doc.addStyle("BotSend", null);
-				StyleConstants.setForeground(style, Color.ORANGE);
-
-				style = doc.addStyle("Server", null);
-				StyleConstants.setBold(style, true);
-
-				style = doc.addStyle("Thread", null);
-				StyleConstants.setItalic(style, true);
-
-				style = doc.addStyle("Level", null);
-				StyleConstants.setItalic(style, true);
+				doc.addStyle("Normal", null);
+				StyleConstants.setForeground(doc.addStyle("Class", null), Color.blue);
+				StyleConstants.setForeground(doc.addStyle("Error", null), Color.red);
+				//BotSend gets a better shade of orange than Color.organ gives
+				StyleConstants.setForeground(doc.addStyle("BotSend", null), new Color(255, 127, 0));
+				//BotRecv gets a better shade of green than Color.green gives
+				StyleConstants.setForeground(doc.addStyle("BotRecv", null), new Color(0, 159, 107));
+				StyleConstants.setBold(doc.addStyle("Server", null), true);
+				StyleConstants.setItalic(doc.addStyle("Thread", null), true);
+				StyleConstants.setItalic(doc.addStyle("Level", null), true);
 			}
 		}
 
@@ -179,12 +170,22 @@ public class ControlAppender extends AppenderSkeleton {
 				if (aString == null || aString.length() <= 2)
 					return;
 
-				Style msgStyle;
+				Style msgStyle = null;
 				String message = event.getMessage().toString();
-				if (event.getLevel().isGreaterOrEqual(Level.WARN) || message.substring(0, 3).equals("###"))
+				if (event.getLevel().isGreaterOrEqual(Level.WARN))
 					msgStyle = doc.getStyle("Error");
-				else if (message.substring(0, 3).equals(">>>"))
+				else if(message.substring(0, 3).equals("###")) {
+					msgStyle = doc.getStyle("Error");
+					message = message.substring(3);
+				}
+				else if (message.substring(0, 3).equals(">>>")) {
 					msgStyle = doc.getStyle("BotSend");
+					message = message.substring(3);
+				}
+				else if (message.substring(0, 3).equals("@@@")) {
+					msgStyle = doc.getStyle("BotRecv");
+					message = message.substring(3);
+				}
 				else
 					msgStyle = doc.getStyle("Normal");
 
@@ -196,7 +197,7 @@ public class ControlAppender extends AppenderSkeleton {
 				doc.insertString(doc.getLength(), event.getLoggerName() + " ", doc.getStyle("Class"));
 				if (address != null)
 					doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
-				doc.insertString(doc.getLength(), formatMsg(event, address), msgStyle);
+				doc.insertString(doc.getLength(), formatMsg(event, address,message), msgStyle);
 
 				pane.setCaretPosition(prevLength);
 			} catch (Exception e) {
@@ -204,11 +205,11 @@ public class ControlAppender extends AppenderSkeleton {
 			}
 		}
 
-		public String formatMsg(LoggingEvent event, String address) {
+		public String formatMsg(LoggingEvent event, String address, String message) {
 			String[] throwArr = event.getThrowableStrRep();
 			if (throwArr == null)
-				return event.getMessage().toString();
-			return event.getMessage().toString() + "\n" + StringUtils.join(throwArr, " \n");
+				return message.toString();
+			return message.toString() + "\n" + StringUtils.join(throwArr, " \n");
 		}
 	}
 }

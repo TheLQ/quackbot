@@ -24,7 +24,7 @@ import Quackbot.Bot;
 import Quackbot.Controller;
 
 import Quackbot.PluginType;
-import Quackbot.info.Hooks;
+import Quackbot.hook.Event;
 import Quackbot.info.BotEvent;
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,7 +36,6 @@ import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.SimpleBindings;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -62,35 +61,35 @@ public class JSPlugin implements PluginType {
 	/**
 	 * Admin only?
 	 */
-	private boolean admin;
+	private boolean admin = false;
 	/**
 	 * Ignore command?
 	 */
-	private boolean ignore;
+	private boolean ignore = false;
 	/**
-	 * Hook?
+	 * Event?
 	 */
-	private Hooks hook;
+	private Event hook;
 	/**
 	 * Is server?
 	 */
-	private boolean service;
+	private boolean service = false;
 	/**
 	 * Is Util?
 	 */
-	private boolean util;
+	private boolean util = false;
 	/**
 	 * Requires Arguments?
 	 */
-	private boolean reqArg;
+	private boolean reqArg = false;
 	/**
 	 * Number of parameters
 	 */
-	private int params;
+	private int params = 0;
 	/**
 	 * Optional params? This is currently not implemented
 	 */
-	private int optParams;
+	private int optParams = 0;
 	/**
 	 * Current JS context
 	 */
@@ -117,6 +116,7 @@ public class JSPlugin implements PluginType {
 		StringBuilder fileContents = new StringBuilder();
 		fileContents.append("importPackage(Packages.Quackbot);");
 		fileContents.append("importPackage(Packages.Quackbot.info);");
+		fileContents.append("importPackage(Packages.Quackbot.hook);");
 		fileContents.append("importClass(Packages.java.lang.Thread);");
 		String strLine;
 		while ((strLine = input.readLine()) != null)
@@ -131,7 +131,7 @@ public class JSPlugin implements PluginType {
 		//Fill in cmd Info
 		setAdmin((engineScope.get("admin") == null) ? false : true);
 		setService((engineScope.get("service") == null) ? false : true);
-		setHook((engineScope.get("hook") == null) ? null : (Hooks) engineScope.get("hook"));
+		setHook((engineScope.get("hook") == null) ? null : (Event) engineScope.get("hook"));
 		setIgnore((engineScope.get("ignore") == null) ? false : true);
 		setUtil((engineScope.get("util") == null) ? false : true);
 		setSrc(fileContents.toString());
@@ -143,7 +143,6 @@ public class JSPlugin implements PluginType {
 			setParams(0);
 
 	}
-
 	ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 
 	public void invoke(String[] args, Bot bot, BotEvent msgInfo) throws Exception {
@@ -153,12 +152,12 @@ public class JSPlugin implements PluginType {
 		if (getCompiled() == null) {
 			//Get all utils to add to command header
 			StringBuilder compSrc = new StringBuilder();
-			for (PluginType curPlugin : Controller.instance.plugins)
-				if (curPlugin instanceof JSPlugin) {
-					JSPlugin plugin = (JSPlugin) curPlugin;
-					if (plugin.isUtil())
-						compSrc.append(plugin.getSrc());
-				}
+				for (PluginType curPlugin : Controller.instance.plugins)
+					if (curPlugin instanceof JSPlugin) {
+						JSPlugin plugin = (JSPlugin) curPlugin;
+						if (plugin.isUtil())
+							compSrc.append(plugin.getSrc());
+					}
 			compSrc.append(getSrc());
 			Compilable compilingEngine = (Compilable) jsEngine;
 			setCompiled(compilingEngine.compile(compSrc.toString()));
@@ -166,7 +165,6 @@ public class JSPlugin implements PluginType {
 
 		//Set script globals
 		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
-		log.trace("Values: "+ArrayUtils.toString(engineScope.keySet().toArray()));
 		log.trace("Msginfo: " + msgInfo.toString());
 		engineScope.put("log", LoggerFactory.getLogger("Quackbot.plugins.js." + getName()));
 		engineScope.remove("msgInfo");
@@ -391,18 +389,18 @@ public class JSPlugin implements PluginType {
 	}
 
 	/**
-	 * Hook?
+	 * Event?
 	 * @return the hook
 	 */
-	public Hooks getHook() {
+	public Event getHook() {
 		return hook;
 	}
 
 	/**
-	 * Hook?
+	 * Event?
 	 * @param hook the hook to set
 	 */
-	public void setHook(Hooks hook) {
+	public void setHook(Event hook) {
 		this.hook = hook;
 	}
 

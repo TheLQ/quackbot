@@ -20,10 +20,17 @@
  */
 package Quackbot.plugins.java;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Denotes Java Plugin is usable only by Admins. No parameters are needed
  *
  * @author Lord.Quackstar
  */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface AdminOnly {
 }
