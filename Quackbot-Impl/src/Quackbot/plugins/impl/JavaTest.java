@@ -25,7 +25,7 @@ import Quackbot.plugins.java.HelpDoc;
 import Quackbot.info.BotMessage;
 import Quackbot.info.BotEvent;
 import Quackbot.plugins.java.JavaBase;
-import Quackbot.plugins.java.ParamNum;
+import Quackbot.plugins.java.ParamCount;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -33,7 +33,7 @@ import org.apache.commons.lang.StringUtils;
  * @author Lord.Quackstar
  */
 //@ParamConfig(optional={"optional","optional2","optional3"})
-@ParamNum(5)
+@ParamCount(5)
 @HelpDoc("This is JavaTest Help")
 public class JavaTest implements JavaBase {
 	String something;

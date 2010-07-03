@@ -1,5 +1,5 @@
 /**
- * @(#)ParamNum.java
+ * @(#)ParamCount.java
  *
  * Copyright Leon Blakey/Lord.Quackstar, 2009-2010
  *
@@ -40,7 +40,7 @@ import java.lang.annotation.Target;
  * An example on how to use this on a command that takes 1 parameter
  * <br>
  * <pre>
- * &#064;ParamNum(1)
+ * &#064;ParamCount(1)
  * public class someClass extends BasePlugin {
  *	...
  * }}
@@ -56,11 +56,17 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ParamNum {
+public @interface ParamCount {
 
     /**
-     * Number of Parameters the Plugin requires.
+     * Number of parameters the Plugin requires.
      * @return Number of Parameters
      */
     int value();
+
+	/**
+	 * Number of optional parameters the Plugin requires.
+	 * @return
+	 */
+	int optional() default 0;
 }

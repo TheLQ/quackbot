@@ -1,8 +1,0 @@
-var help = "Bans by Host. Syntax: ?hostBan <user>";
-var admin = true;
-
-function invoke() {
-	var hostmask = "*!*@"+msgInfo.getHostname();
-	qb.ban(msgInfo.channel,hostmask);
-	qb.sendMsg(new BotMessage(msgInfo.channel,"Banned user "+msgInfo.sender+" with "+hostmask);
-}

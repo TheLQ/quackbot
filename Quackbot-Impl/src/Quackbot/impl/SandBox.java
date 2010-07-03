@@ -1,7 +1,8 @@
 package Quackbot.impl;
 
-import java.util.ArrayList;
-import org.apache.commons.lang.ArrayUtils;
+import Quackbot.GUI;
+import Quackbot.plugins.JavaPlugin;
+import Quackbot.plugins.core.Help;
 
 /**
  * Test class for various things. Not relevent to anything
@@ -9,23 +10,28 @@ import org.apache.commons.lang.ArrayUtils;
  */
 public class SandBox {
 	public SandBox() {
-		int[] set = {1, 1, 1};
+		try {
+			new JavaPlugin(Help.class);
+			/**
+			ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+			jsEngine.eval(new FileReader("plugins/testCase.js"));
+			Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
+
+			//Transform JS array into Java array
+			NativeArray narr = (NativeArray) engineScope.get("args");
+			String[] array = new String[(int) narr.getLength()];
+			for (Object o : narr.getIds()) {
+				//For some reason can't cast the whole array to Integer[], but it works per element
+				int index = (Integer) o;
+				array[index] = (String) narr.get(index, null);
+			}
+			System.out.println(StringUtils.join(array));**/
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	    static void recurse(int diceNumber, int[] values, final int MAX) {
-        if (diceNumber == values.length) {
-            System.out.println(java.util.Arrays.toString(values));
-        } else {
-            for (int v = 1; v <= MAX; v++) {
-                values[diceNumber] = v;
-                recurse(diceNumber + 1, values, MAX);
-            }
-        }
-    }
-
 	public static void main(String[] args) {
-		//new SandBox();
-		int[] into = new int[3];
-		recurse(0, into, 4);
+		new SandBox();
 	}
 }

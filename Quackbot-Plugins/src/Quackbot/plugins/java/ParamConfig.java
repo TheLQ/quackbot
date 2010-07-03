@@ -48,7 +48,7 @@ public @interface ParamConfig {
     /**
      * String array (just use {"value1","value2"}) of names of all
      * <u>optional</u> parameters (default is empty array)
-     * @return
+     * @return String array of all optional parameters
      */
     String[] optional() default {};
 }

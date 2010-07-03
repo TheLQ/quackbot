@@ -20,6 +20,9 @@
  */
 package Quackbot;
 
+import Quackbot.err.InvalidCMDException;
+import Quackbot.hook.Event;
+import Quackbot.hook.HookManager;
 import Quackbot.info.Admin;
 import Quackbot.info.BotEvent;
 import Quackbot.info.Channel;
@@ -87,9 +90,13 @@ public class Controller {
 	 */
 	public TreeMap<String, Class<? extends PluginType>> pluginTypes = new TreeMap<String, Class<? extends PluginType>>();
 	/**
-	 * List of ALL commands (Java or JS)
+	 * List of all avaliable plugins
 	 */
-	public List<PluginType> plugins = new ArrayList<PluginType>();
+	public final List<PluginType> plugins = new ArrayList<PluginType>();
+	/**
+	 * List of plugins that should never be removed
+	 */
+	public final List<PluginType> pluginsPerm = new ArrayList<PluginType>();
 	/**
 	 * Set of all Bot instances
 	 */
@@ -111,31 +118,14 @@ public class Controller {
 	 */
 	private boolean setLevel = false;
 	/**
-	 * A list of Hooks that will be executed first during {@link #start()}.
-	 * <p>
-	 * Example of execution
-	 * <br>
-	 * <code>
-	 * static {
-	 *	Controller.initHooks.add(new InitHook() {
-	 *		public void run(Controller ctrl) {
-	 *			//do something
-	 *		}
-	 *	});
-	 * }
-	 * </code>
-	 *
-	 * @see InitHook
-	 */
-	public static final List<InitHook> initHooks = new ArrayList<InitHook>();
-	/**
 	 * ThreadPool that all non-bot threads are executed in
 	 */
 	public static final ExecutorService mainPool = Executors.newCachedThreadPool();
 	/**
-	 * TODO
+	 * Wait between sending messages
 	 */
-	 public static int msgWait = 1750;
+	public static int msgWait = 1750;
+
 	/**
 	 * Convience method for <code>new Controller(true)</code>
 	 */
@@ -181,7 +171,6 @@ public class Controller {
 				getClass().getClassLoader().loadClass("Quackbot.GUI").newInstance();
 			} catch (Exception e) {
 				log.error("Unable to start GUI", e);
-				e.printStackTrace();
 			}
 		}
 	}
@@ -200,18 +189,15 @@ public class Controller {
 			DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
 
 		//Call list of commands
-		synchronized (initHooks) {
-			for (InitHook curHook : initHooks)
-				curHook.run(this);
-		}
+		HookManager.executeEvent(null, new BotEvent(Event.onInit, null));
 
 		//Load current CMD classes
-		reloadPlugins(false);
+		reloadPlugins();
 
 		//Connect to all servers
 		try {
 			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class, true);
-			if (c.size() == 0)
+			if (c.isEmpty())
 				log.error("Server list is empty!");
 			for (Server curServer : c)
 				initBot(curServer);
@@ -297,28 +283,30 @@ public class Controller {
 	}
 
 	/**
-	 * Reload all plugins, clearing the list
-	 */
-	public void reloadPlugins() {
-		reloadPlugins(true);
-	}
-
-	/**
 	 * Reloads all plugins, clearing list only if requested
 	 * @param clean Clear list of plugins?
 	 */
-	public void reloadPlugins(boolean clean) {
-		if (clean)
-			plugins.removeAll(plugins);
+	public void reloadPlugins() {
+		HookManager.executeEvent(null, new BotEvent(Event.onPluginLoadStart, null));
+		plugins.removeAll(plugins);
+
 		mainPool.submit(new Runnable() {
 			public void run() {
-				reloadPlugins(new File("plugins"));
-				//Start service plugins
-				for (PluginType curPlug : plugins)
-					if (curPlug.isService()) {
-						log.trace("Starting " + curPlug.getName());
-						mainPool.submit(new PluginExecutor(curPlug.getName(), new String[0]));
-					}
+				try {
+					//Load all permanent plugins
+					for (PluginType curPlug : pluginsPerm)
+						addPlugin(curPlug);
+					reloadPlugins(new File("plugins"));
+					HookManager.executeEvent(null, new BotEvent(Event.onPluginLoadComplete, null));
+					//Start service plugins
+					for (PluginType curPlug : plugins)
+						if (curPlug.isService()) {
+							log.trace("Starting " + curPlug.getName());
+							mainPool.submit(new PluginExecutor(curPlug.getName(), new String[0]));
+						}
+				} catch (Exception e) {
+					log.error("Error in plugin loading!!!", e);
+				}
 			}
 		});
 	}
@@ -328,30 +316,31 @@ public class Controller {
 	 * @param file
 	 */
 	private void reloadPlugins(File file) {
-		if (file.isDirectory()) {
-			final File[] childs = file.listFiles();
-			for (File child : childs)
-				reloadPlugins(child);
-			return;
-		} //Is this in the .svn directory?
-		else if (file.getAbsolutePath().indexOf(".svn") != -1 || file.getName().equals("JS_Template.js"))
-			return;
-
-		//Get extension of file
-		String[] extArr = StringUtils.split(file.getName(), '.');
-		if (extArr.length < 2)
-			return;
-		String ext = extArr[1];
-
 		//Load using appropiate type
 		try {
+			if (file.isDirectory()) {
+				final File[] childs = file.listFiles();
+				for (File child : childs)
+					reloadPlugins(child);
+				return;
+			} //Is this in the .svn directory?
+			else if (file.getAbsolutePath().indexOf(".svn") != -1 || file.getName().equals("JS_Template.js"))
+				return;
+
+			//Get extension of file
+			String[] extArr = StringUtils.split(file.getName(), '.');
+			if (extArr.length < 2)
+				return;
+			String ext = extArr[1];
+
+
 			Class<? extends PluginType> pluginType = pluginTypes.get(ext);
 			if (pluginType == null)
 				return;
 			PluginType plugin = pluginType.newInstance();
 			plugin.load(file);
 			if (plugin.getName() != null)
-				plugins.add(plugin);
+				addPlugin(plugin);
 		} catch (Exception e) {
 			log.error("Could not load plugin " + StringUtils.split(file.getName(), '.')[0], e);
 		}
@@ -368,7 +357,7 @@ public class Controller {
 
 	/**
 	 * Register a custom plugin type with Quackbot, associating with the specified extentions
-	 * @param exts     Exentsions to associate Plugin Type with
+	 * @param exts     Extention to associate Plugin Type with
 	 * @param newType Class of Plugin Type
 	 */
 	public void addPluginType(String[] exts, Class<? extends PluginType> newType) {
@@ -381,7 +370,19 @@ public class Controller {
 	 * @param plugin Implementation of PluginType
 	 */
 	public void addPlugin(PluginType plugin) {
+		addPlugin(plugin, false);
+	}
+
+	/**
+	 * Add a permanent plugin to the permanent list. Does NOT update real
+	 * @param plugin Implementation of PluginType
+	 */
+	public void addPlugin(PluginType plugin, boolean permanently) {
+		if (permanently)
+			pluginsPerm.add(plugin);
 		plugins.add(plugin);
+		HookManager.executeEvent(null, new BotEvent<PluginType, Void>(Event.onPluginLoad, null).setExtra(plugin));
+
 	}
 
 	/**
@@ -439,11 +440,34 @@ public class Controller {
 	 * @return     Plugin Object or null if not found
 	 */
 	public PluginType findPlugin(String name) {
-		List<PluginType> slist = Controller.instance.plugins;
-		for (PluginType curItem : slist)
+		for (PluginType curItem : plugins)
 			if (curItem.getName().equalsIgnoreCase(name))
 				return curItem;
 		return null;
+	}
+
+	public static boolean isPluginUsable(PluginType plugin) {
+		return isPluginUsable(plugin,true);
+	}
+
+	public static boolean isPluginUsable(PluginType plugin, boolean checkAdmin) {
+		boolean usable = (!plugin.isIgnore() && !plugin.isService() && !plugin.isUtil());
+		if(checkAdmin)
+			return usable && !plugin.isAdmin();
+		else
+			return usable;
+	}
+
+	public static boolean throwIsPluginUsable(PluginType plugin, boolean checkAdmin, Bot bot, BotEvent msgInfo) throws InvalidCMDException {
+		if(plugin.isUtil())
+			throw new InvalidCMDException(plugin.getName(),"Util");
+		else if(plugin.isAdmin())
+			throw new InvalidCMDException(plugin.getName(),"Admin only");
+		else if(plugin.isService())
+			throw new InvalidCMDException(plugin.getName(),"Service");
+		else if(plugin.isIgnore())
+			throw new InvalidCMDException(plugin.getName(),"Disabled");
+		return true;
 	}
 
 	public boolean adminExists(String name, String server, String channel) {
@@ -468,7 +492,7 @@ public class Controller {
 				if (serv != null && chan != null)
 					return true;
 			}
-		} catch (Exception e) {
+		} catch (JPersistException e) {
 			log.error("Couldn't finish finding admin", e);
 		}
 		return false;
@@ -478,7 +502,7 @@ public class Controller {
 	 * Utility to check if an admin exists in either the global scope,
 	 * server scope, or channel scope
 	 * @param bot
-	 * @return
+	 * @return True if admin exists, false otherwise
 	 */
 	public boolean adminExists(Bot bot, BotEvent msgInfo) {
 		return adminExists(msgInfo.getSender(), bot.getServer(), msgInfo.getChannel());

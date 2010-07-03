@@ -20,11 +20,18 @@
  */
 package Quackbot.plugins.java;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Denotes that this Java Plugin should be ignored. This will
  * not be added to the Plugin list.`F
  *
  * @author Lord.Quackstar
  */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Ignore {
 }

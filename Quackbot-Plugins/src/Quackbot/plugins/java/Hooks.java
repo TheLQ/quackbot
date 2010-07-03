@@ -1,5 +1,5 @@
 /**
- * @(#)Hook.java
+ * @(#)Hooks.java
  *
  * Copyright Leon Blakey/Lord.Quackstar, 2009-2010
  *
@@ -20,7 +20,7 @@
  */
 package Quackbot.plugins.java;
 
-import Quackbot.info.Hooks;
+import Quackbot.hook.Event;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,13 +34,13 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Hook {
+public @interface Hooks {
     /**
-     * Provide a Hook enum that corresponds to the type of hook it was. Hooks
-     * should only Hook into one part, since each Hook configures things diffrently
+     * Provide a Hooks enum that corresponds to the type of hook it was. Hooks
+     * should only Hooks into one part, since each Hooks configures things diffrently
      * and expect diffrent results.
      *
      * @return Corresponding Hooks enum that this plugin hooks into`FF
      */
-     Hooks value();
+     Event value();
 }

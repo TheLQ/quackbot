@@ -74,8 +74,8 @@ public class Channel extends Entity {
 
 	/**
 	 * Create from string and password
-	 * @param channel
-	 * @param password
+	 * @param name The channel that this object should represent
+	 * @param password The password of the channel
 	 */
 	public Channel(String name, String password) {
 		this.name = name;
@@ -158,7 +158,7 @@ public class Channel extends Entity {
 
 	/**
 	 * Name of the channel
-	 * @param channel the channel to set
+	 * @param name the channel to set
 	 */
 	public void setName(String name) {
 		this.name = name;

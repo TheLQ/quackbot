@@ -2,7 +2,7 @@
  * For the lyokofreak stream, tells users who can't see it that a new person has joined
  */
 
-var hook = Hooks.onJoin;
+var hook = Event.onJoin;
 
 function invoke() {
 	log.debug("JS Result: "+msgInfo.toString());

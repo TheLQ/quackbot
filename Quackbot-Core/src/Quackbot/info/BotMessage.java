@@ -20,6 +20,11 @@
  */
 package Quackbot.info;
 
+import Quackbot.err.QuackbotException;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Bean that holds bot message
  * @author Lord.Quackstar
@@ -54,7 +59,7 @@ public class BotMessage {
 	 * @param usrMsg  BotEvent bean from bot
 	 * @param t       Exception
 	 */
-	public BotMessage(BotEvent usrMsg, Throwable t) {
+	public BotMessage(BotEvent usrMsg, Exception t) {
 		this.message = "ERROR: " + t.getMessage();
 		this.channel = usrMsg.getChannel();
 		this.user = usrMsg.getSender();
@@ -82,16 +87,30 @@ public class BotMessage {
 		this.channel = channel;
 	}
 
+	private Logger log = LoggerFactory.getLogger(this.getClass());
+
 	/**
-	 * Convert message to string
+	 * Convert message to an IRC command.
 	 * @return Message in string format
 	 */
-	public String toString() {
+	public String toIrcCommand() throws QuackbotException {
 		//Use StringBuilder just in case one of the values is null
-		StringBuilder sb = new StringBuilder();
-		if (getUser() != null)
+		StringBuilder sb = new StringBuilder("PRIVMSG ");
+		if(StringUtils.isNotBlank(getChannel()))
+			sb.append(getChannel()).append(" :");
+		if (StringUtils.isNotBlank(getUser()))
 			sb.append(getUser()).append(": ");
+		if(StringUtils.isBlank(getChannel()) && StringUtils.isBlank(getUser()))
+			throw new QuackbotException("No user or Channel defined!");
 		return sb.append(getMessage()).toString();
+	}
+
+	/**
+	 * Returns string representation of BotMessage. To get an IRC command, use {@link #toIrcCommand()}
+	 * @return String Representation
+	 */
+	public String toString() {
+		return new StringBuilder("[").append("Channel=" + getChannel() + ",").append("User=" + getUser() + ",").append("Message=" + getMessage() + ",").append("]").toString();
 	}
 
 	/**

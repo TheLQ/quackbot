@@ -20,7 +20,8 @@
  */
 package Quackbot;
 
-import Quackbot.info.Hooks;
+import Quackbot.hook.Event;
+import Quackbot.hook.HookManager;
 import Quackbot.info.BotEvent;
 import java.io.File;
 
@@ -30,35 +31,44 @@ import java.io.File;
  * Many of the get* and is* methods should respond to private fields, just like a
  * JavaBean syntax. There only here to force you to use them.
  *
+ *
  * @author Lord.Quackstar
  */
 public interface PluginType {
 	/**
-	 * Should return the help for a command
-	 * @return the help
+	 * Should return an explanation of the command and its syntax.
+	 * Verbosity should be kept to a minimum, as by default you get one line.
+	 * @return And help provided
 	 */
 	public String getHelp();
 
 	/**
-	 * Admin only?
+	 * Should return true if the command is usable by Admins, false otherwise.
+	 * An Admin is a privileged user able to things most can't.
 	 * @return the admin
 	 */
 	public boolean isAdmin();
 
 	/**
-	 * Ignore command?
+	 * Should return true if the command should be ignored, false otherwise. An
+	 * ignored plugin is one that cannot be used by users and does not show up
+	 * in help.
 	 * @return the ignore
 	 */
 	public boolean isIgnore();
 
 	/**
-	 * Is Listener?
-	 * @return the listener
+	 * Should return any Event that the hook is a part of. And plugin that is part
+	 * of an event is called during the execution of it. See {@link HookManager} for
+	 * more information
+	 * @return The proper Event enum type
 	 */
-	public Hooks getHook();
+	public Event getHook();
 
 	/**
-	 * Is server?
+	 * Should return true if the plugin is a service, false otherwise. Services
+	 * are plugins that are called immediately upon connection to the server and
+	 * can be
 	 * @return the service
 	 */
 	public boolean isService();
@@ -98,6 +108,12 @@ public interface PluginType {
 	 * @return The file
 	 */
 	public File getFile();
+
+	/**
+	 * Change the ignore status to true or false.
+	 * @param ignore Ignore?
+	 */
+	public void setIgnore(boolean ignore);
 
 	/**
 	 * This is called when the command is requested. This is executed in a seperate thread,
