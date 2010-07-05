@@ -116,7 +116,7 @@ public class Controller {
 	/**
 	 * Has JPersist had its level set?
 	 */
-	private boolean setLevel = false;
+	private java.util.logging.Level setLevel = java.util.logging.Level.OFF;
 	/**
 	 * ThreadPool that all non-bot threads are executed in
 	 */
@@ -126,6 +126,9 @@ public class Controller {
 	 */
 	public static int msgWait = 1750;
 
+	/**
+	 *
+	 */
 	/**
 	 * Convience method for <code>new Controller(true)</code>
 	 */
@@ -185,8 +188,8 @@ public class Controller {
 			return;
 		}
 
-		if (!setLevel)
-			DatabaseManager.setLogLevel(java.util.logging.Level.OFF);
+		//Logging level of JPersist
+		DatabaseManager.setLogLevel(setLevel);
 
 		//Call list of commands
 		HookManager.executeEvent(null, new BotEvent(Event.onInit, null));
@@ -316,6 +319,12 @@ public class Controller {
 	 * @param file
 	 */
 	private void reloadPlugins(File file) {
+		//Get extension of file
+		String[] extArr = StringUtils.split(file.getName(), '.');
+		if (extArr.length < 2)
+			return;
+		String ext = extArr[1];
+
 		//Load using appropiate type
 		try {
 			if (file.isDirectory()) {
@@ -327,19 +336,11 @@ public class Controller {
 			else if (file.getAbsolutePath().indexOf(".svn") != -1 || file.getName().equals("JS_Template.js"))
 				return;
 
-			//Get extension of file
-			String[] extArr = StringUtils.split(file.getName(), '.');
-			if (extArr.length < 2)
-				return;
-			String ext = extArr[1];
-
-
 			Class<? extends PluginType> pluginType = pluginTypes.get(ext);
 			if (pluginType == null)
 				return;
 			PluginType plugin = pluginType.newInstance();
 			plugin.load(file);
-			if (plugin.getName() != null)
 				addPlugin(plugin);
 		} catch (Exception e) {
 			log.error("Could not load plugin " + StringUtils.split(file.getName(), '.')[0], e);
@@ -398,8 +399,7 @@ public class Controller {
 	 * @param level JUT logging level
 	 */
 	public void setDatabaseLogLevel(java.util.logging.Level level) {
-		DatabaseManager.setLogLevel(level);
-		setLevel = true;
+		setLevel = level;
 	}
 
 	/**
@@ -447,26 +447,26 @@ public class Controller {
 	}
 
 	public static boolean isPluginUsable(PluginType plugin) {
-		return isPluginUsable(plugin,true);
+		return isPluginUsable(plugin, true);
 	}
 
 	public static boolean isPluginUsable(PluginType plugin, boolean checkAdmin) {
 		boolean usable = (!plugin.isIgnore() && !plugin.isService() && !plugin.isUtil());
-		if(checkAdmin)
+		if (checkAdmin)
 			return usable && !plugin.isAdmin();
 		else
 			return usable;
 	}
 
 	public static boolean throwIsPluginUsable(PluginType plugin, boolean checkAdmin, Bot bot, BotEvent msgInfo) throws InvalidCMDException {
-		if(plugin.isUtil())
-			throw new InvalidCMDException(plugin.getName(),"Util");
-		else if(plugin.isAdmin())
-			throw new InvalidCMDException(plugin.getName(),"Admin only");
-		else if(plugin.isService())
-			throw new InvalidCMDException(plugin.getName(),"Service");
-		else if(plugin.isIgnore())
-			throw new InvalidCMDException(plugin.getName(),"Disabled");
+		if (plugin.isUtil())
+			throw new InvalidCMDException(plugin.getName(), "Util");
+		else if (plugin.isAdmin() && checkAdmin)
+			throw new InvalidCMDException(plugin.getName(), "Admin only");
+		else if (plugin.isService())
+			throw new InvalidCMDException(plugin.getName(), "Service");
+		else if (plugin.isIgnore())
+			throw new InvalidCMDException(plugin.getName(), "Disabled");
 		return true;
 	}
 

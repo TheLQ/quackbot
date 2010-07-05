@@ -17,7 +17,7 @@ public class HookList<A,B> extends ArrayList<PluginHook> {
 		super();
 	}
 
-	public void startStack(Bot bot, BotEvent<A,B> msgInfo) {
+	public void startStack(Bot bot, BotEvent<A,B> msgInfo) throws Exception {
 		//Reset all class vars
 		interupted = needsSuper = false;
 		ignored = new ArrayList<PluginHook>();

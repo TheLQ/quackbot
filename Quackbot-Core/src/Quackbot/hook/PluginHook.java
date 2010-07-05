@@ -19,5 +19,5 @@ import Quackbot.info.BotEvent;
  * @author LordQuackstar
  */
 public interface PluginHook<A,B> {
-	public void run(HookList hookStack, Bot bot, BotEvent<A,B> msgInfo);
+	public void run(HookList hookStack, Bot bot, BotEvent<A,B> msgInfo) throws Exception;
 }

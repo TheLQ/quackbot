@@ -58,14 +58,6 @@ public interface PluginType {
 	public boolean isIgnore();
 
 	/**
-	 * Should return any Event that the hook is a part of. And plugin that is part
-	 * of an event is called during the execution of it. See {@link HookManager} for
-	 * more information
-	 * @return The proper Event enum type
-	 */
-	public Event getHook();
-
-	/**
 	 * Should return true if the plugin is a service, false otherwise. Services
 	 * are plugins that are called immediately upon connection to the server and
 	 * can be
@@ -78,12 +70,6 @@ public interface PluginType {
 	 * @return the util
 	 */
 	public boolean isUtil();
-
-	/**
-	 * Requires Arguments?
-	 * @return the reqArg
-	 */
-	public boolean isReqArg();
 
 	/**
 	 * Name of command
@@ -126,7 +112,7 @@ public interface PluginType {
 	 * @throws Exception  If an exception is encountered, it MUST thrown up the chain to be
 	 *                    reported as an error.
 	 */
-	public void invoke(String[] args, Bot bot, BotEvent msgInfo) throws Exception;
+	public void invoke(Bot bot, BotEvent msgInfo) throws Exception;
 
 	/**
 	 * Load method that is called when a file that matches the extension specified

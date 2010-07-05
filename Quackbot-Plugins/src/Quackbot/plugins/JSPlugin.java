@@ -24,11 +24,17 @@ import Quackbot.Bot;
 import Quackbot.Controller;
 
 import Quackbot.PluginType;
+import Quackbot.err.QuackbotException;
 import Quackbot.hook.Event;
+import Quackbot.hook.HookList;
+import Quackbot.hook.HookManager;
+import Quackbot.hook.PluginHook;
 import Quackbot.info.BotEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
@@ -36,74 +42,55 @@ import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.org.mozilla.javascript.internal.NativeArray;
+import sun.org.mozilla.javascript.internal.NativeFunction;
+import sun.org.mozilla.javascript.internal.NativeObject;
 
 /**
  * JS utility bean, holds all information about JS plugin
  * @author Lord.Quackstar
  */
 public class JSPlugin implements PluginType {
-	/**
-	 * Name of command
-	 */
 	private String name;
-	/**
-	 * Raw source code (used for versioning)
-	 */
-	private String src;
-	/**
-	 * Help for command
-	 */
 	private String help;
-	/**
-	 * Admin only?
-	 */
 	private boolean admin = false;
-	/**
-	 * Ignore command?
-	 */
 	private boolean ignore = false;
-	/**
-	 * Event?
-	 */
-	private Event hook;
-	/**
-	 * Is server?
-	 */
 	private boolean service = false;
-	/**
-	 * Is Util?
-	 */
 	private boolean util = false;
-	/**
-	 * Requires Arguments?
-	 */
-	private boolean reqArg = false;
-	/**
-	 * Number of parameters
-	 */
 	private int params = 0;
-	/**
-	 * Optional params? This is currently not implemented
-	 */
 	private int optParams = 0;
-	/**
-	 * Current JS context
-	 */
-	private ScriptContext context;
-	/**
-	 * Scope
-	 */
-	private Bindings scope;
 	private File file;
-	private CompiledScript compiled;
 	/**
 	 * Log4j Logger
 	 */
 	private static Logger log = LoggerFactory.getLogger(JSPlugin.class);
+	/**
+	 * Scope of current engine
+	 */
+	private Bindings scope;
+	/**
+	 * Compiled script (for faster execution)
+	 */
+	private CompiledScript compiled;
+	/**
+	 * The engine used by this script
+	 */
+	private ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+	/**
+	 * Names of variables of required variables
+	 */
+	private List<String> reqVars;
+	/**
+	 * Names of variables of optional variables
+	 */
+	private List<String> optVars;
+	/**
+	 * Raw source code
+	 */
+	private String src;
 
 	public void load(File file) throws Exception {
 		//Basic setup
@@ -120,47 +107,143 @@ public class JSPlugin implements PluginType {
 		fileContents.append("importClass(Packages.java.lang.Thread);");
 		String strLine;
 		while ((strLine = input.readLine()) != null)
-			fileContents.append(strLine + System.getProperty("line.separator"));
+			fileContents.append(strLine).append(System.getProperty("line.separator"));
 		input.close();
 
-		//Make new context
-		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+		//Make an Engine and a context to use for this plugin
+		jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 		jsEngine.eval(fileContents.toString());
+
+		//Check for an invoke function
+		Object invFuncSuper = engineScope.get("invoke");
+		if (invFuncSuper == null)
+			throw new QuackbotException("No invoke function defined!");
+		if (!(invFuncSuper instanceof NativeFunction))
+			throw new QuackbotException("invoke name overwritten by variable. Must rename invoke variable to something else");
+
+		//Is this a hook?
+		Object hook = engineScope.get("hook");
+		if (hook != null) {
+			List<Event> events = new ArrayList<Event>();
+			//Load specified Events
+			if (hook instanceof NativeArray) {
+				//Must get from JavaScript array object
+				NativeArray arr = (NativeArray) hook;
+				for (Object o : arr.getIds())
+					events.add((Event) arr.get((Integer) o, null));
+			} //Is this just an Event?
+			else if (hook instanceof Event)
+				events.add((Event) hook);
+			else
+				throw new QuackbotException("Unkown Hook variable type in " + file.getName() + ". Must be either an Event or an array of events.");
+
+			for (Event curEvent : events)
+				HookManager.addHook(curEvent, new PluginHook() {
+					public void run(HookList hookStack, Bot bot, BotEvent msgInfo) throws Exception {
+						JSPlugin.this.invoke(bot, msgInfo);
+					}
+				});
+		}
+
+		if((engineScope.get("params") != null) ) {
+			throw new QuackbotException("Should use up to date params");
+		}
 
 		//Fill in cmd Info
 		setAdmin((engineScope.get("admin") == null) ? false : true);
 		setService((engineScope.get("service") == null) ? false : true);
-		setHook((engineScope.get("hook") == null) ? null : (Event) engineScope.get("hook"));
 		setIgnore((engineScope.get("ignore") == null) ? false : true);
 		setUtil((engineScope.get("util") == null) ? false : true);
 		setSrc(fileContents.toString());
 		setHelp((String) engineScope.get("help"));
-		setReqArg(((engineScope.get("ReqArg") == null) ? false : true));
-		if (engineScope.get("param") != null)
-			setParams((int) Double.parseDouble(engineScope.get("param").toString()));
-		else
+
+		//Parse paramConfig and paramCount handling the many avalible types (plain,
+		//array, and object with required and optional arrays) over two configurations
+		Object paramConfigSuper = engineScope.get("paramConfig");
+		Object paramCountSuper = engineScope.get("paramCount");
+		NativeFunction invokeFunc = (NativeFunction)engineScope.get("invoke");
+		if (paramConfigSuper != null && paramCountSuper != null)
+			throw new QuackbotException("JS Plugin " + getName() + " can only use one parameter configuration. Must remove one and reload.");
+		if (paramConfigSuper != null) {
+			if (paramConfigSuper instanceof String)
+				reqVars.add((String) paramConfigSuper);
+			else if (paramConfigSuper instanceof NativeArray)
+				reqVars.addAll(convertToStringList("paramConfig", paramConfigSuper));
+			else if (paramConfigSuper instanceof NativeObject) {
+				NativeObject paramConfig = (NativeObject) paramConfigSuper;
+				Object requiredSuper = paramConfig.get("required", null);
+				Object optionalSuper = paramConfig.get("optional", null);
+				if (optionalSuper != null)
+					if (optionalSuper instanceof String)
+						optVars.add((String) optionalSuper);
+					else if (optionalSuper instanceof NativeArray)
+						optVars.addAll(convertToStringList("optional in paramConfig", optionalSuper));
+					else
+						throw new QuackbotException("Optional section in paramConfig can only be an array or String");
+				else if (requiredSuper != null)
+					if (requiredSuper instanceof String)
+						reqVars.add((String) requiredSuper);
+					else if (requiredSuper instanceof NativeArray)
+						reqVars.addAll(convertToStringList("required in paramConfig", requiredSuper));
+					else
+						throw new QuackbotException("Required section in paramConfig can only be an array or String");
+			} else
+				throw new QuackbotException("paramConfig can only be a String, array, or object");
+			setParams(reqVars.size());
+			setOptParams(optVars.size());
+		} else if (paramCountSuper != null)
+			if (paramCountSuper instanceof Integer)
+				setParams((Integer) paramCountSuper);
+			else if (paramCountSuper instanceof NativeArray)
+				reqVars.addAll(convertToStringList("paramCount", paramCountSuper));
+			else if (paramCountSuper instanceof NativeObject) {
+				NativeObject paramConfig = (NativeObject) paramCountSuper;
+				Object requiredSuper = paramConfig.get("required", null);
+				Object optionalSuper = paramConfig.get("optional", null);
+				if (optionalSuper != null)
+					if (optionalSuper instanceof NativeArray) {
+						List<Integer> countList = convertToIntList("optional in paramCount", optionalSuper);
+						setParams(countList.get(0));
+						if (countList.size() > 1)
+							setOptParams(countList.get(0));
+						if (countList.size() > 2)
+							throw new QuackbotException("optional array in paramCount larger than 2. Must be int his format: [requiredCount, optionalCount]");
+					} else
+						throw new QuackbotException("Optional section in paramCount can only be an array or String");
+				else if (requiredSuper != null) {
+					List<Integer> countList = convertToIntList("optional in paramCount", optionalSuper);
+					setParams(countList.get(0));
+					if (countList.size() > 1)
+						setOptParams(countList.get(0));
+					if (countList.size() > 2)
+						throw new QuackbotException("required array in paramCount larger than 2. Must be int his format: [requiredCount, optionalCount]");
+				} else
+					throw new QuackbotException("Required section in paramCount can only be an array or String");
+			} else
+				throw new QuackbotException("paramCount can only be a String, array, or object");
+		else if(invokeFunc.getArity() > 0)
+			setParams(invokeFunc.getArity());
+		else {
+			setOptParams(0);
 			setParams(0);
-
+		}
 	}
-	ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 
-	public void invoke(String[] args, Bot bot, BotEvent msgInfo) throws Exception {
+	public void invoke(Bot bot, BotEvent msgInfo) throws Exception {
 		log.info("Running Javascript Plugin " + getName());
 
-		//Compile script on first execution for faster run time
-		if (getCompiled() == null) {
+		//Compile on load (so all utils are loaded)
+		if (compiled == null) {
 			//Get all utils to add to command header
 			StringBuilder compSrc = new StringBuilder();
-				for (PluginType curPlugin : Controller.instance.plugins)
-					if (curPlugin instanceof JSPlugin) {
-						JSPlugin plugin = (JSPlugin) curPlugin;
-						if (plugin.isUtil())
-							compSrc.append(plugin.getSrc());
-					}
-			compSrc.append(getSrc());
-			Compilable compilingEngine = (Compilable) jsEngine;
-			setCompiled(compilingEngine.compile(compSrc.toString()));
+			for (PluginType curPlugin : Controller.instance.plugins)
+				if (curPlugin instanceof JSPlugin) {
+					JSPlugin plugin = (JSPlugin) curPlugin;
+					if (plugin.isUtil())
+						compSrc.append(plugin.getSrc());
+				}
+			compiled = ((Compilable) jsEngine).compile(compSrc + getSrc());
 		}
 
 		//Set script globals
@@ -177,11 +260,43 @@ public class JSPlugin implements PluginType {
 			engineScope.put("msgInfo", null);
 			engineScope.put("qb", null);
 		}
-		getCompiled().eval(engineScope);
+
+		//Setup parameters if required
+		List<String> combinedList = new ArrayList<String>(reqVars);
+		combinedList.addAll(optVars);
+		if (combinedList.size() > 0)
+			for (int i = 0; i <= combinedList.size(); i++)
+				engineScope.put(combinedList.get(i), msgInfo.getArgs()[i]);
+		compiled.eval(engineScope);
 
 		//Call invoke function with invoke
-		Invocable inv = (Invocable) getCompiled().getEngine();
-		inv.invokeFunction("invoke", (Object[]) args);
+		Invocable inv = (Invocable) compiled.getEngine();
+		if (((NativeFunction) engineScope.get("invoke")).getArity() >= msgInfo.getArgs().length)
+			inv.invokeFunction("invoke", (Object[]) msgInfo.getArgs());
+		else
+			inv.invokeFunction("invoke", new Object[]{});
+	}
+
+	public List<String> convertToStringList(String name, Object arr) throws QuackbotException {
+		NativeArray narr = (NativeArray) arr;
+		List<String> nativeList = new ArrayList<String>();
+		for (Object o : narr.getIds()) {
+			if (!(o instanceof String))
+				throw new QuackbotException("Array " + name + " can only contain strings");
+			nativeList.add((String) narr.get((Integer) o, null));
+		}
+		return nativeList;
+	}
+
+	public List<Integer> convertToIntList(String name, Object arr) throws QuackbotException {
+		NativeArray narr = (NativeArray) arr;
+		List<Integer> nativeList = new ArrayList<Integer>();
+		for (Object o : narr.getIds()) {
+			if (!(o instanceof Integer))
+				throw new QuackbotException("Array " + name + " can only contain numbers");
+			nativeList.add((Integer) narr.get((Integer) o, null));
+		}
+		return nativeList;
 	}
 
 	/**
@@ -297,22 +412,6 @@ public class JSPlugin implements PluginType {
 	}
 
 	/**
-	 * Requires Arguments?
-	 * @return the reqArg
-	 */
-	public boolean isReqArg() {
-		return reqArg;
-	}
-
-	/**
-	 * Requires Arguments?
-	 * @param reqArg the reqArg to set
-	 */
-	public void setReqArg(boolean reqArg) {
-		this.reqArg = reqArg;
-	}
-
-	/**
 	 * Number of parameters
 	 * @return the params
 	 */
@@ -329,38 +428,6 @@ public class JSPlugin implements PluginType {
 	}
 
 	/**
-	 * Current JS context
-	 * @return the context
-	 */
-	public ScriptContext getContext() {
-		return context;
-	}
-
-	/**
-	 * Current JS context
-	 * @param context the context to set
-	 */
-	public void setContext(ScriptContext context) {
-		this.context = context;
-	}
-
-	/**
-	 * Scope
-	 * @return the scope
-	 */
-	public Bindings getScope() {
-		return scope;
-	}
-
-	/**
-	 * Scope
-	 * @param scope the scope to set
-	 */
-	public void setScope(Bindings scope) {
-		this.scope = scope;
-	}
-
-	/**
 	 * @return the file
 	 */
 	public File getFile() {
@@ -372,36 +439,6 @@ public class JSPlugin implements PluginType {
 	 */
 	public void setFile(File file) {
 		this.file = file;
-	}
-
-	/**
-	 * @return the compiled
-	 */
-	public CompiledScript getCompiled() {
-		return compiled;
-	}
-
-	/**
-	 * @param compiled the compiled to set
-	 */
-	public void setCompiled(CompiledScript compiled) {
-		this.compiled = compiled;
-	}
-
-	/**
-	 * Event?
-	 * @return the hook
-	 */
-	public Event getHook() {
-		return hook;
-	}
-
-	/**
-	 * Event?
-	 * @param hook the hook to set
-	 */
-	public void setHook(Event hook) {
-		this.hook = hook;
 	}
 
 	/**

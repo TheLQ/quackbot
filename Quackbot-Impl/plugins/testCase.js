@@ -1,5 +1,3 @@
-var args = ["woot1","woot2"]
-
-function invoke() {
-	log.debug("JS Result: "+woot1);
+function invoke(something) {
+	bot.sendMsg(new BotMessage(msgInfo,"You said "+something));
 }
