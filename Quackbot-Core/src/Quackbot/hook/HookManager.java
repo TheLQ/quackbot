@@ -2,13 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package Quackbot.hook;
 
 import Quackbot.Bot;
-import Quackbot.err.QuackbotException;
 import Quackbot.info.BotEvent;
 import java.util.EnumMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * First, some definitions:
@@ -40,10 +40,12 @@ import java.util.EnumMap;
  * @author LordQuackstar
  */
 public class HookManager {
-	protected static final EnumMap<Event,HookList<?,?>> hookMap = new EnumMap<Event,HookList<?,?>>(Event.class);
+	protected static final EnumMap<Event, HookList<?, ?>> hookMap = new EnumMap<Event, HookList<?, ?>>(Event.class);
+	private static Logger log = LoggerFactory.getLogger(HookManager.class);
+
 	static {
 		//Setup hookMap with values for all the avalible hooks
-		for(Event curHook : Event.values())
+		for (Event curHook : Event.values())
 			hookMap.put(curHook, new HookList());
 	}
 
@@ -66,8 +68,12 @@ public class HookManager {
 	}
 
 	public static void executeEvent(Bot bot, BotEvent msgInfo) {
-		if(msgInfo == null)
+		if (msgInfo == null)
 			throw new NullPointerException("msgInfo is null, must be set");
-		hookMap.get(msgInfo.getEvent()).startStack(bot, msgInfo);
+		try {
+			hookMap.get(msgInfo.getEvent()).startStack(bot, msgInfo);
+		} catch (Exception e) {
+			log.error("Can't finish executing event " + msgInfo.getEvent().toString(), e);
+		}
 	}
 }

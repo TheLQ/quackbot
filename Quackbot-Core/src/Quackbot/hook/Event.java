@@ -881,21 +881,4 @@ public enum Event {
 	 * </ul>
 	 */
 	onPluginLoadComplete;
-
-	public static boolean hookExists(Event hook) {
-		for (PluginType curPlugin : Controller.instance.plugins)
-			if (curPlugin.getHook() != null)
-				return true;
-		return false;
-	}
-
-	public static List<PluginType> getHooks(Event matchHook) {
-		List<PluginType> plugins = new ArrayList<PluginType>();
-		for (PluginType curPlugin : Controller.instance.plugins) {
-			Event curHook = curPlugin.getHook();
-			if (curHook != null && curHook == matchHook)
-				plugins.add(curPlugin);
-		}
-		return plugins;
-	}
 }

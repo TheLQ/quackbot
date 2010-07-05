@@ -40,7 +40,6 @@ import Quackbot.plugins.core.Help;
 import Quackbot.plugins.java.AdminOnly;
 import Quackbot.plugins.java.Ignore;
 import Quackbot.plugins.java.Hooks;
-import Quackbot.plugins.java.ReqArg;
 import Quackbot.plugins.java.Service;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -76,10 +75,6 @@ public class JavaPlugin implements PluginType {
 	 */
 	private String help = "";
 	/**
-	 * FQCN of command, needed for dynamic reloading
-	 */
-	private String fqcn = "";
-	/**
 	 * Admin only?
 	 */
 	private boolean admin = false;
@@ -100,10 +95,6 @@ public class JavaPlugin implements PluginType {
 	 */
 	private boolean util = false;
 	/**
-	 * Requires Arguments?
-	 */
-	private boolean reqArg = false;
-	/**
 	 * Params
 	 */
 	private int params = 0;
@@ -123,12 +114,13 @@ public class JavaPlugin implements PluginType {
 	}
 
 	public JavaPlugin(String className) {
-		setFqcn(className);
+		String fqcn = className;
 		String[] fqcna = StringUtils.split(className, ".");
-		setName(fqcna[fqcna.length - 1]);
-		log.info("New Java Plugin " + getName());
+		name = fqcna[fqcna.length - 1];
+
+		log.info("New Java Plugin " + name);
 		try {
-			clazz = this.getClass().getClassLoader().loadClass(getFqcn());
+			clazz = this.getClass().getClassLoader().loadClass(fqcn);
 
 			//Set all fields acessable
 			Field[] fields = clazz.getDeclaredFields();
@@ -136,46 +128,43 @@ public class JavaPlugin implements PluginType {
 				curField.setAccessible(true);
 
 			//Plugin info creation
-			if (clazz.isAnnotationPresent(ReqArg.class))
-				setReqArg(true);
 			if (clazz.isAnnotationPresent(AdminOnly.class))
-				setAdmin(true);
+				admin = true;
 			if (clazz.isAnnotationPresent(Ignore.class))
-				setIgnore(true);
-			if (clazz.isAnnotationPresent(Hooks.class))
-				setHook(clazz.getAnnotation(Hooks.class).value());
+				ignore = true;
+			if (clazz.isAnnotationPresent(Hooks.class)) //TODO
+				hook = clazz.getAnnotation(Hooks.class).value();
+
 			if (clazz.isAnnotationPresent(Service.class))
-				setService(true);
+				service = true;
 
 			//Param and syntax generation
 			if (clazz.isAnnotationPresent(ParamCount.class) && clazz.isAnnotationPresent(ParamConfig.class))
 				throw new QuackbotException("Class " + name + " cannot use both parameter annotations, please remove one and restart");
 			else if (clazz.isAnnotationPresent(ParamCount.class)) {
-			
-				setParams(clazz.getAnnotation(ParamCount.class).value());
-				setOptParams(clazz.getAnnotation(ParamCount.class).optional());
+
+				params = clazz.getAnnotation(ParamCount.class).value();
+				optParams = clazz.getAnnotation(ParamCount.class).optional();
 			} else if (clazz.isAnnotationPresent(ParamConfig.class)) {
-			
+
 				//Get required names
 				for (String curName : clazz.getAnnotation(ParamConfig.class).value()) {
 					paramFields.add(clazz.getDeclaredField(curName));
-					setParams(++params);
+					params = ++params;
 				}
-			
+
 				//Get optionals
 				for (String curName : clazz.getAnnotation(ParamConfig.class).optional()) {
-				
 					paramFields.add(clazz.getDeclaredField(curName));
-					setOptParams(++optParams);
+					optParams = ++optParams;
 				}
-				
 			}
 
 			//Help generation
 			if (clazz.isAnnotationPresent(HelpDoc.class))
-				setHelp(clazz.getAnnotation(HelpDoc.class).value());
+				help = clazz.getAnnotation(HelpDoc.class).value();
 			else
-				setHelp("No help avalible");
+				help = "No help avalible";
 		} catch (Exception e) {
 			log.error("Cannot load help of command " + name, e);
 		}
@@ -188,7 +177,7 @@ public class JavaPlugin implements PluginType {
 	public JavaBase newInstance() throws Exception {
 		JavaBase javaCmd = null;
 		try {
-			javaCmd = (JavaBase)clazz.newInstance();
+			javaCmd = (JavaBase) clazz.newInstance();
 		} catch (ClassCastException e) {
 			if (StringUtils.contains(e.getMessage(), "BasePlugin"))
 				throw new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)");
@@ -207,13 +196,11 @@ public class JavaPlugin implements PluginType {
 	 * @param msgInfo
 	 * @throws Exception
 	 */
-	public void invoke(String[] args, Bot bot, BotEvent msgInfo) throws Exception {
+	public void invoke(Bot bot, BotEvent msgInfo) throws Exception {
 		JavaBase javaCmd = newInstance();
-
-		log.debug("Running Java Plugin " + msgInfo.getCommand());
-		int paramLen = paramFields.size();
 		int userParams = msgInfo.getArgs().length;
 
+		log.debug("Running Java Plugin " + msgInfo.getCommand());
 		//Set fields if the plugin uses ParamConfig
 		if (!paramFields.isEmpty())
 			for (int i = 0; i < userParams; i++)
@@ -303,22 +290,6 @@ public class JavaPlugin implements PluginType {
 	}
 
 	/**
-	 * Requires Arguments?
-	 * @return the reqArg
-	 */
-	public boolean isReqArg() {
-		return reqArg;
-	}
-
-	/**
-	 * Requires Arguments?
-	 * @param reqArg the reqArg to set
-	 */
-	public void setReqArg(boolean reqArg) {
-		this.reqArg = reqArg;
-	}
-
-	/**
 	 * Name of command
 	 * @return the name
 	 */
@@ -332,20 +303,6 @@ public class JavaPlugin implements PluginType {
 	 */
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	/**
-	 * @return the fqcn
-	 */
-	public String getFqcn() {
-		return fqcn;
-	}
-
-	/**
-	 * @param fqcn the fqcn to set
-	 */
-	public void setFqcn(String fqcn) {
-		this.fqcn = fqcn;
 	}
 
 	/**

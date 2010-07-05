@@ -55,7 +55,7 @@ public class Help implements JavaBase {
 
 			//Add Java Plugins
 			for (PluginType curPlugin : ctrl.plugins)
-				if (!curPlugin.isAdmin())
+				if (Controller.isPluginUsable(curPlugin))
 					cmdList.add(curPlugin.getName());
 
 			//Send to user

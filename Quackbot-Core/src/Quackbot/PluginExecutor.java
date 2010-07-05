@@ -108,12 +108,6 @@ public class PluginExecutor implements Runnable {
 			if (plugin.isAdmin() && bot != null && !Controller.instance.adminExists(bot, msgInfo))
 				throw new AdminException();
 
-			//Does this method require args?
-			if (plugin.isReqArg() && params.length == 0) {
-				log.debug("Method does require args, passing length 1 array");
-				params = new String[1];
-			}
-
 			//Does the required number of args exist?
 			int paramLen = params.length;
 			int paramNum = plugin.getOptParams();
@@ -127,7 +121,7 @@ public class PluginExecutor implements Runnable {
 			//All requirements are met, excecute method
 			log.info("All tests passed, running method " + command);
 
-			plugin.invoke(params, bot, msgInfo);
+			plugin.invoke(bot, msgInfo);
 		} catch (AdminException e) {
 			log.error("Person is not admin!!", e);
 			sendIfBot(msgInfo, e);
