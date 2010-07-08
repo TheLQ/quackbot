@@ -5,6 +5,7 @@
 package Quackbot.hook;
 
 import Quackbot.Bot;
+import Quackbot.PluginType;
 import Quackbot.info.BotEvent;
 import java.util.EnumMap;
 import org.slf4j.Logger;
@@ -59,6 +60,15 @@ public class HookManager {
 		hookMap.get(hookType).add(hook);
 	}
 
+	public static void addPluginHook(Event[] events, final PluginType plugin) {
+		for (Event curEvent : events)
+			addHook(curEvent, new PluginHook() {
+				public void run(HookList hookStack, Bot bot, BotEvent msgInfo) throws Exception {
+					plugin.invoke(bot, msgInfo);
+				}
+			});
+	}
+
 	public static void removeHook(Event hookType, PluginHook hook) {
 		hookMap.get(hookType).remove(hook);
 	}
@@ -67,7 +77,7 @@ public class HookManager {
 		return hookMap.get(hookType);
 	}
 
-	public static void executeEvent(Bot bot, BotEvent msgInfo) {
+	public static <A,B> void executeEvent(Bot bot, BotEvent msgInfo) {
 		if (msgInfo == null)
 			throw new NullPointerException("msgInfo is null, must be set");
 		try {

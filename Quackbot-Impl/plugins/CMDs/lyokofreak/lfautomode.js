@@ -3,6 +3,6 @@ var param = 0;
 var admin = true;
 
 function invoke() {
-	qb.setMode(msgInfo.channel,"-mnGUf");
-	qb.sendMsg(new BotMessage(msgInfo,"Removed all modes except t"));
+	qb.setMode(event.channel,"-mnGUf");
+	qb.sendMsg(new BotMessage(event,"Removed all modes except t"));
 }

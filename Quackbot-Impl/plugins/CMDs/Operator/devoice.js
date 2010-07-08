@@ -3,13 +3,13 @@ var param = 1;
 var admin = true;
 
 function invoke(reqUser) {
-	qb.deVoice(msgInfo.channel,reqUser);
+	qb.deVoice(event.channel,reqUser);
 	Thread.sleep(500); //sleep for 500 ms
-	var userObj = qb.getUser(msgInfo.channel,reqUser);
+	var userObj = qb.getUser(event.channel,reqUser);
 	if(userObj === null)
-		qb.sendMsg(new BotMessage(msgInfo,reqUser+" does not exist"));
+		qb.sendMsg(new BotMessage(event,reqUser+" does not exist"));
 	else if(userObj.hasVoice()==false)
-		qb.sendMsg(new BotMessage(msgInfo,reqUser+" is no longer voiced"));
+		qb.sendMsg(new BotMessage(event,reqUser+" is no longer voiced"));
 	else
-		qb.sendMsg(new BotMessage(msgInfo,"Failed to devoice "+reqUser+" (bot not an op?)"));
+		qb.sendMsg(new BotMessage(event,"Failed to devoice "+reqUser+" (bot not an op?)"));
 }

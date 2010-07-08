@@ -3,13 +3,13 @@ var param = 1;
 var admin = true;
 
 function invoke(reqUser) {
-	qb.deOp(msgInfo.channel,reqUser);
+	qb.deOp(event.channel,reqUser);
 	Thread.sleep(500); //sleep for 500 ms
-	var userObj = qb.getUser(msgInfo.channel,reqUser);
+	var userObj = qb.getUser(event.channel,reqUser);
 	if(userObj === null)
-		qb.sendMsg(new BotMessage(msgInfo,reqUser+" does not exist"));
+		qb.sendMsg(new BotMessage(event,reqUser+" does not exist"));
 	else if(userObj.isOp()==false)
-		qb.sendMsg(new BotMessage(msgInfo,reqUser+" is no longer an op"));
+		qb.sendMsg(new BotMessage(event,reqUser+" is no longer an op"));
 	else
-		qb.sendMsg(new BotMessage(msgInfo,"Failed to deop "+reqUser+" (bot not an op?)"));
+		qb.sendMsg(new BotMessage(event,"Failed to deop "+reqUser+" (bot not an op?)"));
 }

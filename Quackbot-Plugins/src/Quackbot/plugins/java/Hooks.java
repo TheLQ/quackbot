@@ -42,5 +42,5 @@ public @interface Hooks {
      *
      * @return Corresponding Hooks enum that this plugin hooks into`FF
      */
-     Event value();
+     Event[] value();
 }

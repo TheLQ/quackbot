@@ -46,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Quackbot.log.ControlAppender;
-import java.lang.String;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
@@ -107,7 +106,7 @@ public class GUI extends JFrame implements ActionListener {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						PluginType plugin = msgInfo.getExtra();
-						GUI.instance.pluginTableModel.addRow(new Object[]{plugin.getName(), new Boolean(!plugin.isIgnore())});
+						GUI.instance.pluginTableModel.addRow(new Object[]{plugin.getName(), plugin.isEnabled()});
 					}
 				});
 			}
@@ -212,8 +211,8 @@ public class GUI extends JFrame implements ActionListener {
 					Boolean enabled = (Boolean) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 1);
 					String plugin = StringUtils.trimToNull((String) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 0));
 					PluginType curPlugin = Controller.instance.findPlugin(plugin);
-					curPlugin.setIgnore(!enabled.booleanValue());
-					log.debug("Set plugin "+curPlugin.getName()+" ignore status to "+curPlugin.isIgnore());
+					curPlugin.setEnabled(enabled.booleanValue());
+					log.debug("Set plugin "+curPlugin.getName()+" enabled status to "+curPlugin.isEnabled());
 				}
 			}
 		});

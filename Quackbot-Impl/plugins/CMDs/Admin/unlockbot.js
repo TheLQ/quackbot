@@ -4,5 +4,5 @@ var admin = true;
 
 function invoke() {
 	qb.botLocked = false;
-	qb.sendMsg(new BotMessage(msgInfo,"Bot has been unlocked globaly"));
+	qb.sendMsg(new BotMessage(event,"Bot has been unlocked globaly"));
 }

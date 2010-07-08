@@ -55,7 +55,7 @@ public interface PluginType {
 	 * in help.
 	 * @return the ignore
 	 */
-	public boolean isIgnore();
+	public boolean isEnabled();
 
 	/**
 	 * Should return true if the plugin is a service, false otherwise. Services
@@ -78,18 +78,6 @@ public interface PluginType {
 	public String getName();
 
 	/**
-	 * Number of parameters this command REQUIRES
-	 * @return Numer of params
-	 */
-	public int getParams();
-
-	/**
-	 * Number of OPTIONAL parameters this command has
-	 * @return Number of Optional params
-	 */
-	public int getOptParams();
-
-	/**
 	 * The file that this command parsed
 	 * @return The file
 	 */
@@ -99,7 +87,9 @@ public interface PluginType {
 	 * Change the ignore status to true or false.
 	 * @param ignore Ignore?
 	 */
-	public void setIgnore(boolean ignore);
+	public void setEnabled(boolean enabled);
+
+	public ParameterConfig getParamConfig();
 
 	/**
 	 * This is called when the command is requested. This is executed in a seperate thread,
@@ -124,5 +114,5 @@ public interface PluginType {
 	 * @param file         The file that contains the script
 	 * @throws Exception   Any exception encountered while parsing. The command will not be added
 	 */
-	public void load(File file) throws Exception;
+	public boolean load(File file) throws Exception;
 }

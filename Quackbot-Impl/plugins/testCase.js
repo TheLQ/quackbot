@@ -1,3 +1,4 @@
-function invoke(something) {
-	bot.sendMsg(new BotMessage(msgInfo,"You said "+something));
+var parameters={optional:1};
+function invoke() {
+	println("QuackUtils is HUTGBH");
 }

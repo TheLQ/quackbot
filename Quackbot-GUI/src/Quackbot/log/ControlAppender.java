@@ -62,7 +62,6 @@ public class ControlAppender extends AppenderSkeleton {
 			return;
 		}
 
-
 		if (GUIExists())
 			SwingUtilities.invokeLater(new WriteOutput(GUI.instance.CerrorLog, this, event));
 		else

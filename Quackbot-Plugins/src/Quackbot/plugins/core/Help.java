@@ -26,10 +26,10 @@ import Quackbot.Controller;
 
 import Quackbot.PluginType;
 import Quackbot.plugins.java.HelpDoc;
-import Quackbot.plugins.java.ParamConfig;
 import Quackbot.err.InvalidCMDException;
 import Quackbot.info.BotMessage;
 import Quackbot.info.BotEvent;
+import Quackbot.plugins.java.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Lord.Quackstar
  */
-@ParamConfig(optional = {"pluginName"})
+@Parameters(optional = {"pluginName"})
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 public class Help implements JavaBase {
 	private static Logger log = LoggerFactory.getLogger(Help.class);

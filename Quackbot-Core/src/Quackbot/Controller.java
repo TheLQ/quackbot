@@ -127,9 +127,6 @@ public class Controller {
 	public static int msgWait = 1750;
 
 	/**
-	 *
-	 */
-	/**
 	 * Convience method for <code>new Controller(true)</code>
 	 */
 	public Controller() {
@@ -303,10 +300,8 @@ public class Controller {
 					HookManager.executeEvent(null, new BotEvent(Event.onPluginLoadComplete, null));
 					//Start service plugins
 					for (PluginType curPlug : plugins)
-						if (curPlug.isService()) {
-							log.trace("Starting " + curPlug.getName());
+						if (curPlug.isService())
 							mainPool.submit(new PluginExecutor(curPlug.getName(), new String[0]));
-						}
 				} catch (Exception e) {
 					log.error("Error in plugin loading!!!", e);
 				}
@@ -319,12 +314,7 @@ public class Controller {
 	 * @param file
 	 */
 	private void reloadPlugins(File file) {
-		//Get extension of file
-		String[] extArr = StringUtils.split(file.getName(), '.');
-		if (extArr.length < 2)
-			return;
-		String ext = extArr[1];
-
+		String[] extArr = null;
 		//Load using appropiate type
 		try {
 			if (file.isDirectory()) {
@@ -336,14 +326,21 @@ public class Controller {
 			else if (file.getAbsolutePath().indexOf(".svn") != -1 || file.getName().equals("JS_Template.js"))
 				return;
 
+			//Get extension of file
+			extArr = StringUtils.split(file.getName(), '.');
+			if (extArr.length < 2)
+				return;
+			String ext = extArr[1];
+
+			//Load with pluginType
 			Class<? extends PluginType> pluginType = pluginTypes.get(ext);
 			if (pluginType == null)
 				return;
 			PluginType plugin = pluginType.newInstance();
-			plugin.load(file);
+			if (plugin.load(file))
 				addPlugin(plugin);
 		} catch (Exception e) {
-			log.error("Could not load plugin " + StringUtils.split(file.getName(), '.')[0], e);
+			log.error("Could not load plugin " + extArr[0], e);
 		}
 	}
 
@@ -451,7 +448,7 @@ public class Controller {
 	}
 
 	public static boolean isPluginUsable(PluginType plugin, boolean checkAdmin) {
-		boolean usable = (!plugin.isIgnore() && !plugin.isService() && !plugin.isUtil());
+		boolean usable = (plugin.isEnabled() && !plugin.isService() && !plugin.isUtil());
 		if (checkAdmin)
 			return usable && !plugin.isAdmin();
 		else
@@ -465,7 +462,7 @@ public class Controller {
 			throw new InvalidCMDException(plugin.getName(), "Admin only");
 		else if (plugin.isService())
 			throw new InvalidCMDException(plugin.getName(), "Service");
-		else if (plugin.isIgnore())
+		else if (!plugin.isEnabled())
 			throw new InvalidCMDException(plugin.getName(), "Disabled");
 		return true;
 	}

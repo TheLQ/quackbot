@@ -5,13 +5,13 @@ var admin = true;
 function invoke(user,timeMin) {
 	var timeMs = timeMin*60000;
 	var hostmask = user+"!*@*"
-	qb.ban(msgInfo.channel,hostmask);
-	qb.sendMsg(new BotMessage(msgInfo,user+": You have been muted for "+timeMin));
+	qb.ban(event.channel,hostmask);
+	qb.sendMsg(new BotMessage(event,user+": You have been muted for "+timeMin));
 	try {
 		log.debug("Sleeping");
 		Thread.sleep(timeMs);
-		qb.unBan(msgInfo.channel,hostmask);
-		qb.sendMsg(new BotMessage(msgInfo,user+" has been unmuted"));
+		qb.unBan(event.channel,hostmask);
+		qb.sendMsg(new BotMessage(event,user+" has been unmuted"));
 	}
 	catch(err) {
 		println("ERROR "+err);

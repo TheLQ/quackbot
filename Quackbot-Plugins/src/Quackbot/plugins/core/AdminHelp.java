@@ -13,7 +13,7 @@ import Quackbot.info.BotMessage;
 import Quackbot.plugins.java.AdminOnly;
 import Quackbot.plugins.java.HelpDoc;
 import Quackbot.plugins.java.JavaBase;
-import Quackbot.plugins.java.ParamConfig;
+import Quackbot.plugins.java.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author LordQuackstar
  */
-@ParamConfig(optional = {"pluginName"})
+@Parameters(optional = {"pluginName"})
 @HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 @AdminOnly
 public class AdminHelp implements JavaBase {

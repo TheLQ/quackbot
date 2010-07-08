@@ -1,5 +1,5 @@
 /**
- * @(#)ParamConfig.java
+ * @(#)Ignore.java
  *
  * Copyright Leon Blakey/Lord.Quackstar, 2009-2010
  *
@@ -26,29 +26,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Easy to use Java plugin parameter configurer
- * <p>
- * Passed string's correspond to field <u>names</u> in the plugin class. Passing
- * non-existant field names will throw a {@link NoSuchFieldException} and disable
- * the plugin.
+ * Denotes that this Java Plugin should be ignored.
  *
  * @author Lord.Quackstar
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ParamConfig {
-
-    /**
-     * String array (just use {"value1","value2"}) of names of all
-     * required parameters
-     * @return String array (default is empty array)
-     */
-    String[] value() default {};
-
-    /**
-     * String array (just use {"value1","value2"}) of names of all
-     * <u>optional</u> parameters (default is empty array)
-     * @return String array of all optional parameters
-     */
-    String[] optional() default {};
+public @interface Disabled {
 }

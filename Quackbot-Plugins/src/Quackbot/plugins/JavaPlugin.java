@@ -20,6 +20,7 @@
  */
 package Quackbot.plugins;
 
+import Quackbot.ParameterConfig;
 import Quackbot.hook.HookList;
 import Quackbot.plugins.java.JavaBase;
 import Quackbot.Bot;
@@ -27,10 +28,6 @@ import Quackbot.Controller;
 
 import Quackbot.PluginType;
 import Quackbot.plugins.java.HelpDoc;
-import Quackbot.plugins.java.ParamConfig;
-import Quackbot.plugins.java.ParamCount;
-import Quackbot.err.NumArgException;
-import Quackbot.err.QuackbotException;
 import Quackbot.hook.Event;
 import Quackbot.hook.HookManager;
 import Quackbot.hook.PluginHook;
@@ -38,13 +35,12 @@ import Quackbot.info.BotEvent;
 import Quackbot.plugins.core.AdminHelp;
 import Quackbot.plugins.core.Help;
 import Quackbot.plugins.java.AdminOnly;
-import Quackbot.plugins.java.Ignore;
+import Quackbot.plugins.java.Disabled;
 import Quackbot.plugins.java.Hooks;
+import Quackbot.plugins.java.Parameters;
 import Quackbot.plugins.java.Service;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,48 +62,25 @@ public class JavaPlugin implements PluginType {
 			}
 		});
 	}
-	/**
-	 * Name of command
-	 */
 	private String name = "";
-	/**
-	 * Help for command. HIGHLY recommended to override
-	 */
 	private String help = "";
-	/**
-	 * Admin only?
-	 */
 	private boolean admin = false;
-	/**
-	 * Ignore command?
-	 */
-	private boolean ignore = false;
-	/**
-	 * Is Hooks?
-	 */
-	private Event hook;
-	/**
-	 * Is server?
-	 */
+	private boolean enabled = true;
 	private boolean service = false;
-	/**
-	 * Is Util?
-	 */
 	private boolean util = false;
-	/**
-	 * Params
-	 */
-	private int params = 0;
-	/**
-	 * Optional params
-	 */
-	private int optParams = 0;
 	/**
 	 * Log4j logger
 	 */
 	private static Logger log = LoggerFactory.getLogger(JavaPlugin.class);
-	protected List<Field> paramFields = new ArrayList<Field>();
 	protected Class<?> clazz;
+	protected JavaBase instance;
+	ParameterConfig<Field> paramConfig = new ParameterConfig<Field>() {
+		public void fillByObject(Field object, String argument) throws Exception {
+			if(instance == null)
+				return;
+			object.set(instance, argument);
+		}
+	};
 
 	public JavaPlugin(Class<?> clazz) {
 		this(clazz.getName());
@@ -130,64 +103,38 @@ public class JavaPlugin implements PluginType {
 			//Plugin info creation
 			if (clazz.isAnnotationPresent(AdminOnly.class))
 				admin = true;
-			if (clazz.isAnnotationPresent(Ignore.class))
-				ignore = true;
+			if (clazz.isAnnotationPresent(Disabled.class))
+				enabled = false;
 			if (clazz.isAnnotationPresent(Hooks.class)) //TODO
-				hook = clazz.getAnnotation(Hooks.class).value();
-
+				HookManager.addPluginHook(clazz.getAnnotation(Hooks.class).value(), this);
 			if (clazz.isAnnotationPresent(Service.class))
 				service = true;
 
 			//Param and syntax generation
-			if (clazz.isAnnotationPresent(ParamCount.class) && clazz.isAnnotationPresent(ParamConfig.class))
-				throw new QuackbotException("Class " + name + " cannot use both parameter annotations, please remove one and restart");
-			else if (clazz.isAnnotationPresent(ParamCount.class)) {
-
-				params = clazz.getAnnotation(ParamCount.class).value();
-				optParams = clazz.getAnnotation(ParamCount.class).optional();
-			} else if (clazz.isAnnotationPresent(ParamConfig.class)) {
-
-				//Get required names
-				for (String curName : clazz.getAnnotation(ParamConfig.class).value()) {
-					paramFields.add(clazz.getDeclaredField(curName));
-					params = ++params;
-				}
-
-				//Get optionals
-				for (String curName : clazz.getAnnotation(ParamConfig.class).optional()) {
-					paramFields.add(clazz.getDeclaredField(curName));
-					optParams = ++optParams;
-				}
+			if (clazz.isAnnotationPresent(Parameters.class)) {
+				Parameters paramAnnot = clazz.getAnnotation(Parameters.class);
+				if (paramAnnot.optionalCount() != -1)
+					paramConfig.setOptionalCount(paramAnnot.optionalCount());
+				if (paramAnnot.requiredCount() != -1)
+					paramConfig.setRequiredCount(paramAnnot.requiredCount());
+				if (paramAnnot.optional().length != 0)
+					for (String curFieldName : paramAnnot.optional())
+						paramConfig.addOptionalObject(clazz.getDeclaredField(curFieldName));
+				if (paramAnnot.value().length != 0)
+					for (String curFieldName : paramAnnot.value())
+						paramConfig.addRequiredObject(clazz.getDeclaredField(curFieldName));
 			}
 
 			//Help generation
 			if (clazz.isAnnotationPresent(HelpDoc.class))
 				help = clazz.getAnnotation(HelpDoc.class).value();
-			else
-				help = "No help avalible";
 		} catch (Exception e) {
 			log.error("Cannot load help of command " + name, e);
 		}
 	}
 
-	public void load(File file) {
+	public boolean load(File file) throws Exception {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + file.getAbsolutePath());
-	}
-
-	public JavaBase newInstance() throws Exception {
-		JavaBase javaCmd = null;
-		try {
-			javaCmd = (JavaBase) clazz.newInstance();
-		} catch (ClassCastException e) {
-			if (StringUtils.contains(e.getMessage(), "BasePlugin"))
-				throw new ClassCastException("Can't cast java plugin to BasePlugin (maybe class isn't exentding it?)");
-			else
-				throw e;
-		} catch (Exception e) {
-			log.error("Unable to create instance of " + getName(), e);
-			throw e;
-		}
-		return javaCmd;
 	}
 
 	/**
@@ -197,16 +144,23 @@ public class JavaPlugin implements PluginType {
 	 * @throws Exception
 	 */
 	public void invoke(Bot bot, BotEvent msgInfo) throws Exception {
-		JavaBase javaCmd = newInstance();
-		int userParams = msgInfo.getArgs().length;
-
 		log.debug("Running Java Plugin " + msgInfo.getCommand());
-		//Set fields if the plugin uses ParamConfig
-		if (!paramFields.isEmpty())
-			for (int i = 0; i < userParams; i++)
-				paramFields.get(i).set(javaCmd, msgInfo.getArgs()[i]);
+		try {
+			instance = (JavaBase) clazz.newInstance();
+		} catch (ClassCastException e) {
+			if (StringUtils.contains(e.getMessage(), "JavaBase"))
+				throw new ClassCastException("Can't cast java plugin to JavaBase (maybe class isn't exentding it?)");
+			else
+				throw e;
+		} catch (Exception e) {
+			throw e;
+		}
 
-		javaCmd.invoke(bot, msgInfo);
+		//Because the instance isn't set yet, no parameters have been filled
+		paramConfig.fillParameters(msgInfo.getArgs());
+
+		//Call the invoke method of the plugin
+		instance.invoke(bot, msgInfo);
 	}
 
 	/**
@@ -239,22 +193,6 @@ public class JavaPlugin implements PluginType {
 	 */
 	public void setAdmin(boolean admin) {
 		this.admin = admin;
-	}
-
-	/**
-	 * Ignore command?
-	 * @return the ignore
-	 */
-	public boolean isIgnore() {
-		return ignore;
-	}
-
-	/**
-	 * Ignore command?
-	 * @param ignore the ignore to set
-	 */
-	public void setIgnore(boolean ignore) {
-		this.ignore = ignore;
 	}
 
 	/**
@@ -305,51 +243,19 @@ public class JavaPlugin implements PluginType {
 		this.name = name;
 	}
 
-	/**
-	 * @return the params
-	 */
-	public int getParams() {
-		return params;
-	}
-
-	/**
-	 * @param params the params to set
-	 */
-	public void setParams(int params) {
-		this.params = params;
-	}
-
 	public File getFile() {
 		return null; //empty
 	}
 
-	/**
-	 * Is Hooks?
-	 * @return the hook
-	 */
-	public Event getHook() {
-		return hook;
+	public boolean isEnabled() {
+		return enabled;
 	}
 
-	/**
-	 * Is Hooks?
-	 * @param hook the hook to set
-	 */
-	public void setHook(Event hook) {
-		this.hook = hook;
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
-	/**
-	 * @return the optParams
-	 */
-	public int getOptParams() {
-		return optParams;
-	}
-
-	/**
-	 * @param optParams the optParams to set
-	 */
-	public void setOptParams(int optParams) {
-		this.optParams = optParams;
+	public ParameterConfig getParamConfig() {
+		return paramConfig;
 	}
 }
