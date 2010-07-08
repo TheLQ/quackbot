@@ -4,5 +4,5 @@ var admin = true;
 
 function invoke() {
 	ThreadPoolManager.restartPlugin();
-	qb.sendMsg(new BotMessage(msgInfo,"Services sucessfully killed"));
+	qb.sendMsg(new BotMessage(event,"Services sucessfully killed"));
 }

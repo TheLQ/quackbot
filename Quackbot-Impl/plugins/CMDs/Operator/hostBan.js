@@ -3,7 +3,7 @@ var admin = true;
 
 function invoke() {
 
-	var hostmask = "*!*@"+msgInfo.getHostname();
-	qb.ban(msgInfo.channel,hostmask);
-	qb.sendMsg(new BotMessage(msgInfo.channel,"Banned user "+msgInfo.sender+" with "+hostmask));
+	var hostmask = "*!*@"+event.getHostname();
+	qb.ban(event.channel,hostmask);
+	qb.sendMsg(new BotMessage(event.channel,"Banned user "+event.sender+" with "+hostmask));
 }

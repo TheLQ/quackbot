@@ -3,6 +3,6 @@ var param = 0;
 var admin = true;
 
 function invoke() {
-	qb.chanLockList.add(msgInfo.getChannel());
-	qb.sendMsg(new BotMessage(msgInfo,"Bot has been locked for this channel"));
+	qb.chanLockList.add(event.getChannel());
+	qb.sendMsg(new BotMessage(event,"Bot has been locked for this channel"));
 }

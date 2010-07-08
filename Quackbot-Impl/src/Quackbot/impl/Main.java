@@ -21,7 +21,10 @@
 package Quackbot.impl;
 
 import Quackbot.Controller;
+import Quackbot.plugins.JSPlugin;
 import Quackbot.plugins.JavaPlugin;
+import Quackbot.plugins.core.AdminHelp;
+import Quackbot.plugins.core.Help;
 import Quackbot.plugins.impl.JavaTest;
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,15 +50,15 @@ public class Main {
 		//This is not nessesary for most applications
 		BasicDataSource ds = new BasicDataSource();
 		ds.setDriverClassName("com.mysql.jdbc.Driver");
-		ds.setUsername(dbInfo[2]);
-		ds.setPassword(dbInfo[3]);
-		ds.setUrl(dbInfo[1] + "?autoReconnect=true");
+		ds.setUsername(dbInfo[1]);
+		ds.setPassword(dbInfo[2]);
+		ds.setUrl(dbInfo[0] + "?autoReconnect=true");
 		ds.setValidationQuery("SELECT * FROM quackbot_server");
 		ds.setTestOnBorrow(true);
 
 		ctrl.connectDB(dbInfo[0], 10, ds, null, null);
 		ctrl.setDatabaseLogLevel(java.util.logging.Level.OFF);
-		ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()),true);
+		ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()), true);
 		//ctrl.addPlugin(new JavaPlugin(HookTest.class.getName()));
 		ctrl.start();
 	}

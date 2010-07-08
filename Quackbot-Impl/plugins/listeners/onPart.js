@@ -6,8 +6,8 @@ var hook = Event.onPart;
 var ignore = true;
 
 function invoke() {
-//log.debug("Channel: "+msgInfo.channel+" | Bot: "+qb.isBot(msgInfo)+" | Result: "+(msgInfo.channel=="#lyokofreak-viewing-party" && !qb.isBot(msgInfo)));
-//	if(msgInfo.channel=="#lyokofreak-viewing-party" && !qb.isBot(msgInfo) && qb.getServer().indexOf("ustream") != -1) {
-//		qb.sendMsg(new BotMessage("#lyokofreak-viewing-party","User "+msgInfo.sender+" has parted"));
+//log.debug("Channel: "+event.channel+" | Bot: "+qb.isBot(event)+" | Result: "+(event.channel=="#lyokofreak-viewing-party" && !qb.isBot(event)));
+//	if(event.channel=="#lyokofreak-viewing-party" && !qb.isBot(event) && qb.getServer().indexOf("ustream") != -1) {
+//		qb.sendMsg(new BotMessage("#lyokofreak-viewing-party","User "+event.sender+" has parted"));
 //	}
 }

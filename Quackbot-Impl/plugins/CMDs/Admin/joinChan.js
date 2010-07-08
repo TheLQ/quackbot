@@ -5,5 +5,5 @@ var admin = true;
 function invoke(newChan) {
 	qb.joinChannel(newChan);
 	qb.log("Joined new channel "+newChan);
-	qb.sendMsg(new BotMessage(msgInfo,"Joined channel "+newChan));
+	qb.sendMsg(new BotMessage(event,"Joined channel "+newChan));
 }

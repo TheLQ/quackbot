@@ -26,6 +26,8 @@ import Quackbot.err.NumArgException;
 
 import Quackbot.info.BotMessage;
 import Quackbot.info.BotEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +51,7 @@ public class PluginExecutor implements Runnable {
 	/**
 	 * Arguments to pass
 	 */
-	private String[] params;
+	private String[] args;
 	/**
 	 * Bot instance (optional)
 	 */
@@ -74,7 +76,7 @@ public class PluginExecutor implements Runnable {
 	 */
 	public PluginExecutor(Bot bot, BotEvent msgInfo) {
 		this.command = msgInfo.getCommand();
-		this.params = msgInfo.getArgs();
+		this.args = msgInfo.getArgs();
 		this.msgInfo = msgInfo;
 		this.bot = bot;
 	}
@@ -87,7 +89,7 @@ public class PluginExecutor implements Runnable {
 	public PluginExecutor(String command, String[] params) {
 		log.trace("Inited");
 		this.command = command;
-		this.params = params;
+		this.args = params;
 		this.bot = null;
 		this.msgInfo = null;
 	}
@@ -102,21 +104,25 @@ public class PluginExecutor implements Runnable {
 		try {
 			PluginType plugin = ctrl.findPlugin(command);
 			//Is this a valid plugin?
-			if (plugin == null || plugin.isService() || plugin.isUtil() || plugin.isIgnore())
+			if (plugin == null || plugin.isService() || plugin.isUtil() || !plugin.isEnabled())
 				throw new InvalidCMDException(command);
 			//Is this an admin function? If so, is the person an admin?
 			if (plugin.isAdmin() && bot != null && !Controller.instance.adminExists(bot, msgInfo))
 				throw new AdminException();
 
 			//Does the required number of args exist?
-			int paramLen = params.length;
-			int paramNum = plugin.getOptParams();
-			int reqParamNum = plugin.getParams();
+			ParameterConfig paramConfig = plugin.getParamConfig();
+			int paramLen = args.length;
+			int paramNum = plugin.getParamConfig().optionalCount;
+			int reqParamNum = plugin.getParamConfig().requiredCount;
 			log.debug("User Args: " + paramLen + " | Req Args: " + reqParamNum + " | Optional: " + paramNum);
 			if (paramLen > paramNum + reqParamNum) //Do we have too many?
 				throw new NumArgException(paramLen, reqParamNum, paramNum - reqParamNum);
 			else if (paramLen < reqParamNum) //Do we not have enough?
 				throw new NumArgException(paramLen, reqParamNum);
+
+			//Setup parameters
+			paramConfig.fillParameters(args);
 
 			//All requirements are met, excecute method
 			log.info("All tests passed, running method " + command);
