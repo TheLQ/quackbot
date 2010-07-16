@@ -41,6 +41,7 @@ public interface PluginType {
 	 * @return And help provided
 	 */
 	public String getHelp();
+	public void setHelp(String help);
 
 	/**
 	 * Should return true if the command is usable by Admins, false otherwise.
@@ -48,6 +49,7 @@ public interface PluginType {
 	 * @return the admin
 	 */
 	public boolean isAdmin();
+	public void setAdmin(boolean admin);
 
 	/**
 	 * Should return true if the command should be ignored, false otherwise. An
@@ -56,6 +58,7 @@ public interface PluginType {
 	 * @return the ignore
 	 */
 	public boolean isEnabled();
+	public void setEnabled(boolean enabled);
 
 	/**
 	 * Should return true if the plugin is a service, false otherwise. Services
@@ -64,12 +67,14 @@ public interface PluginType {
 	 * @return the service
 	 */
 	public boolean isService();
+	public void setService(boolean service);
 
 	/**
 	 * Is Util?
 	 * @return the util
 	 */
 	public boolean isUtil();
+	public void setUtil(boolean util);
 
 	/**
 	 * Name of command
@@ -87,7 +92,7 @@ public interface PluginType {
 	 * Change the ignore status to true or false.
 	 * @param ignore Ignore?
 	 */
-	public void setEnabled(boolean enabled);
+	
 
 	public ParameterConfig getParamConfig();
 

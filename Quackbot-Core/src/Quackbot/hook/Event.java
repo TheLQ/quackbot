@@ -846,6 +846,7 @@ public enum Event {
 	 * </ul>
 	 */
 	onVoice,
+	//-------------BEGIN QUACKEDBOT EVENTS-------------------
 	/**
 	 * Called when the Controller is about to start loading plugins and connecting
 	 * to servers. Its recommended that any hooks are added in static blocks so
@@ -880,5 +881,21 @@ public enum Event {
 	 * <li>Empty, there is no information to pass.</li>
 	 * </ul>
 	 */
-	onPluginLoadComplete;
+	onPluginLoadComplete,
+	/**
+	 * TODO
+	 */
+	onCommand,
+	/**
+	 * TODO
+	 */
+	onCommandInvoke,
+	/**
+	 * TODO
+	 */
+	onCommandFinish,
+	/**
+	 * TODO
+	 */
+	onCommandFail;
 }

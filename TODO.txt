@@ -7,7 +7,12 @@ Add Triggered countdown
 -timeremaining displays time remaining from ID. If no id given caculates it to closest avalible countdown
 -killcountdown kills countdown
 
-Refractor JS code
-Use InterpretedFunction to get parameters?
-Use arrays for Hooks, TEST
-Test javascript hooks in general
+Add hook for onHookCalled, stop recursion
+GUI Stats
+-How many times commands and events have been called and failed attempts (break down to basic exceptions)
+-Expandable list of exceptions with filter option
+-Total row
+
+Persistant object
+
+First time setup GUI (for creating info)

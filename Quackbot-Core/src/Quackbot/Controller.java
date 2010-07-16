@@ -189,10 +189,13 @@ public class Controller {
 		DatabaseManager.setLogLevel(setLevel);
 
 		//Call list of commands
-		HookManager.executeEvent(null, new BotEvent(Event.onInit, null));
+		HookManager.executeEvent(null, false, new BotEvent(Event.onInit, null));
 
 		//Load current CMD classes
 		reloadPlugins();
+
+		//if(true)
+		//	return;
 
 		//Connect to all servers
 		try {
@@ -287,7 +290,7 @@ public class Controller {
 	 * @param clean Clear list of plugins?
 	 */
 	public void reloadPlugins() {
-		HookManager.executeEvent(null, new BotEvent(Event.onPluginLoadStart, null));
+		HookManager.executeEvent(null, false, new BotEvent(Event.onPluginLoadStart, null));
 		plugins.removeAll(plugins);
 
 		mainPool.submit(new Runnable() {
@@ -297,13 +300,15 @@ public class Controller {
 					for (PluginType curPlug : pluginsPerm)
 						addPlugin(curPlug);
 					reloadPlugins(new File("plugins"));
-					HookManager.executeEvent(null, new BotEvent(Event.onPluginLoadComplete, null));
+					HookManager.executeEvent(null, false, new BotEvent(Event.onPluginLoadComplete, null));
 					//Start service plugins
 					for (PluginType curPlug : plugins)
 						if (curPlug.isService())
 							mainPool.submit(new PluginExecutor(curPlug.getName(), new String[0]));
 				} catch (Exception e) {
 					log.error("Error in plugin loading!!!", e);
+				} finally {
+					log.warn("List length: "+plugins.size());
 				}
 			}
 		});

@@ -1,5 +1,5 @@
 var help = "Attempts to voice a person. Admin only command. Syntax: ?voice <USER>";
-var param = 1;
+var parameter = 1;
 var admin = true;
 
 function invoke(reqUser) {

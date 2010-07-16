@@ -46,7 +46,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Quackbot.log.ControlAppender;
+import java.awt.CardLayout;
 import javax.swing.JComboBox;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelListener;
@@ -72,46 +74,7 @@ public class GUI extends JFrame implements ActionListener {
 	 * Log4j logger
 	 */
 	private Logger log = LoggerFactory.getLogger(GUI.class);
-	/**
-	 * Plugin panel
-	 */
-	final JPanel pluginPanel = new JPanel();
-	/**
-	 * Plugin Table
-	 */
-	final DefaultTableModel pluginTableModel = new DefaultTableModel() {
-		public Class getColumnClass(int c) {
-			return getValueAt(0, c).getClass();
-		}
-	};
-	/**
-	 * TODO
-	 */
-	final JTable pluginTable = new JTable(pluginTableModel);
-
-
-	static {
-		HookManager.addHook(Event.onPluginLoadStart, new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						GUI.instance.pluginTableModel.setRowCount(0);
-					}
-				});
-			}
-		});
-
-		HookManager.addHook(Event.onPluginLoad, new PluginHook<PluginType, Void>() {
-			public void run(HookList hookStack, Bot bot, final BotEvent<PluginType, Void> msgInfo) {
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						PluginType plugin = msgInfo.getExtra();
-						GUI.instance.pluginTableModel.addRow(new Object[]{plugin.getName(), plugin.isEnabled()});
-					}
-				});
-			}
-		});
-	}
+	
 
 	/**
 	 * Recall's this in AWT event queue
@@ -136,10 +99,8 @@ public class GUI extends JFrame implements ActionListener {
 		setTitle("Quackbot GUI Control Panel");
 		setMinimumSize(new Dimension(1000, 700));
 
-		JPanel contentPane = new JPanel();
-		contentPane.setLayout(new BorderLayout());
-
 		//Configuration of body
+		JPanel msgPanel = new JPanel(new BorderLayout());
 		JScrollPane BerrorScroll = new JScrollPane(BerrorLog);
 		BerrorScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		BerrorScroll.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -150,7 +111,7 @@ public class GUI extends JFrame implements ActionListener {
 		CerrorScroll.setBorder(BorderFactory.createTitledBorder("Controller"));
 
 		JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, BerrorScroll, CerrorScroll);
-		contentPane.add(mainSplit, BorderLayout.CENTER);
+		msgPanel.add(mainSplit, BorderLayout.CENTER);
 
 		//Configure bottom controls
 		JPanel bottom = new JPanel();
@@ -166,59 +127,24 @@ public class GUI extends JFrame implements ActionListener {
 		JComboBox logCombo = new JComboBox(new Level[]{Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR, Level.OFF});
 		logCombo.addActionListener(this);
 		bottom.add(logCombo);
-		contentPane.add(bottom, BorderLayout.SOUTH);
+		msgPanel.add(bottom, BorderLayout.SOUTH);
 
 		//Configure Plugin Sidepanel
-		pluginTable.setRowSelectionAllowed(false);
-		pluginTable.setColumnSelectionAllowed(false);
-		pluginTable.setCellSelectionEnabled(false);
-		JScrollPane pluginScroll = new JScrollPane(pluginTable);
-		pluginScroll.setBorder(BorderFactory.createTitledBorder("Active plugins"));
-		pluginScroll.setPreferredSize(new Dimension(170, 900));
-		contentPane.add(pluginScroll, BorderLayout.EAST);
+		JTabbedPane contentPane = new JTabbedPane();
+		contentPane.addTab("Console",msgPanel);
+		contentPane.addTab("Plugin Info",new InfoPlugins());
+		contentPane.addTab("Stats",new InfoStats());
 
 		add(contentPane); //add to JFrame
 		setVisible(true); //make JFrame visible
 
 		mainSplit.setDividerLocation(0.50);
 
-		pluginTableModel.addColumn("Name");
-		pluginTableModel.addColumn("Enabled");
-
-		//Inefficent but only way to check if value has changed
-		/**new Thread(new Runnable() {
-			public void run() {
-				while (true) {
-					for (int i = 0; i < pluginTableModel.getRowCount(); i++) {
-						Boolean isIgnored = Controller.instance.findPlugin(pluginTableModel.getValueAt(i, 0).toString()).isIgnore();
-						if (isIgnored == ((Boolean) pluginTableModel.getValueAt(i, 1)))
-							pluginTableModel.setValueAt(isIgnored, i, 1);
-					}
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						log.warn("Wait to update plugin list interupted");
-						return;
-					}
-				}
-			}
-		}).start();**/
-
-		//Check for updates from table
-		pluginTableModel.addTableModelListener(new TableModelListener() {
-			public void tableChanged(TableModelEvent e) {
-				if (e.getType() == TableModelEvent.UPDATE) {
-					Boolean enabled = (Boolean) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 1);
-					String plugin = StringUtils.trimToNull((String) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 0));
-					PluginType curPlugin = Controller.instance.findPlugin(plugin);
-					curPlugin.setEnabled(enabled.booleanValue());
-					log.debug("Set plugin "+curPlugin.getName()+" enabled status to "+curPlugin.isEnabled());
-				}
-			}
-		});
-
 		instance = this;
 	}
+
+
+
 
 	/**
 	 * Button action listener, controls for Controller

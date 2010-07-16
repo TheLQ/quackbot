@@ -71,5 +71,6 @@ public class Help implements JavaBase {
 			else
 				throw new InvalidCMDException(pluginName);
 		}
+		log.warn("List length: "+ctrl.plugins.size());
 	}
 }

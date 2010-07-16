@@ -56,13 +56,18 @@ public class HookManager {
 	private HookManager() {
 	}
 
-	public static void addHook(Event hookType, PluginHook hook) {
-		hookMap.get(hookType).add(hook);
+	public static void addHook(Event event, String name, PluginHook hook) {
+		hookMap.get(event).add(hook);
 	}
 
-	public static void addPluginHook(Event[] events, final PluginType plugin) {
+	public static void addHooks(Event[] events, String name, PluginHook hook) {
 		for (Event curEvent : events)
-			addHook(curEvent, new PluginHook() {
+			addHook(curEvent, name, hook);
+	}
+
+	public static void addPluginHooks(Event[] events, final PluginType plugin) {
+		for (Event curEvent : events)
+			addHook(curEvent, "Plugin" + plugin.getName(), new PluginHook() {
 				public void run(HookList hookStack, Bot bot, BotEvent msgInfo) throws Exception {
 					plugin.invoke(bot, msgInfo);
 				}
@@ -77,13 +82,30 @@ public class HookManager {
 		return hookMap.get(hookType);
 	}
 
-	public static <A,B> void executeEvent(Bot bot, BotEvent msgInfo) {
-		if (msgInfo == null)
-			throw new NullPointerException("msgInfo is null, must be set");
-		try {
-			hookMap.get(msgInfo.getEvent()).startStack(bot, msgInfo);
-		} catch (Exception e) {
-			log.error("Can't finish executing event " + msgInfo.getEvent().toString(), e);
-		}
+	public static void executeEvent(final Bot bot, final BotEvent msgInfo) {
+		executeEvent(bot, true, msgInfo);
+	}
+
+	public static void executeEvent(final Bot bot, boolean newThread, final BotEvent msgInfo) {
+		if(hookMap.get(msgInfo.getEvent()).size() == 0)
+			return;
+		Runnable run = new Runnable() {
+			public void run() {
+				if (msgInfo == null)
+					throw new NullPointerException("msgInfo is null, must be set");
+				try {
+					hookMap.get(msgInfo.getEvent()).startStack(bot, msgInfo);
+				} catch (Exception e) {
+					log.error("Can't finish executing event " + msgInfo.getEvent().toString(), e);
+				}
+			}
+		};
+		if (newThread && bot != null)
+			bot.threadPool.submit(run);
+		else if (newThread)
+			new Thread(run).start();
+		else
+			run.run();
+
 	}
 }

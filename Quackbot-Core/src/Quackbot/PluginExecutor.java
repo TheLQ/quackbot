@@ -23,11 +23,11 @@ package Quackbot;
 import Quackbot.err.AdminException;
 import Quackbot.err.InvalidCMDException;
 import Quackbot.err.NumArgException;
+import Quackbot.hook.Event;
+import Quackbot.hook.HookManager;
 
 import Quackbot.info.BotMessage;
 import Quackbot.info.BotEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 
 import org.apache.commons.lang.StringUtils;
@@ -127,7 +127,9 @@ public class PluginExecutor implements Runnable {
 			//All requirements are met, excecute method
 			log.info("All tests passed, running method " + command);
 
+			HookManager.executeEvent(bot, msgInfo.setEvent(Event.onCommandInvoke));
 			plugin.invoke(bot, msgInfo);
+			HookManager.executeEvent(bot, msgInfo.setEvent(Event.onCommandFinish));
 		} catch (AdminException e) {
 			log.error("Person is not admin!!", e);
 			sendIfBot(msgInfo, e);

@@ -1,11 +1,19 @@
+var util = false;
+var hook = null;
+//var ignore = false;
 var ignore = true;
+var parameters = 0;
+var admin = false;
+var service = false;
+var enabled = true;
+var help = '';
 var QuackUtils = {
 	toJavaArray: function(type, arr) {
 		var jArr;
 		if(arr.length) {
 			jArr = java.lang.reflect.Array.newInstance(type, arr.length);
 			for(var i=0;i<arr.length;i++)
-			jArr[i] = arr[i];
+				jArr[i] = arr[i];
 		}
 		else {
 			jArr = java.lang.reflect.Array.newInstance(type, 1);
@@ -15,13 +23,13 @@ var QuackUtils = {
 	},
 	setRequiredParams: function(paramConfig) {
 		//Is it even set?
-		if(typeof parameters == "undefined")
+		if(typeof parameters == 'undefined')
 			return null;
 		else if(typeof(parameters) == 'object')
 			if(QuackUtils.isArray(parameters))   //Is this an array?
 				for(i in parameters)
 					paramConfig.addRequiredObject(parameters[i]);
-			else if(typeof parameters.required == "undefined") 
+			else if(typeof parameters.required == 'undefined')
 				return null;
 			else if(QuackUtils.isArray(parameters.required)) //Is the required field an array?
 				for(i in parameters.required)
@@ -38,7 +46,7 @@ var QuackUtils = {
 			if(parameters.length || typeof parameters.optional == 'undefined')
 				return null;
 			//Is the optional field an array?
-			else if(parameters.optional.length && typeof parameters.optional != "string")
+			else if(parameters.optional.length && typeof parameters.optional != 'string')
 				for(i in parameters.optional)
 					paramConfig.addOptionalObject(parameters.optional[i]);
 			//Must be a string or a number
@@ -62,8 +70,13 @@ var QuackUtils = {
 			throw 'Unknown type in parameters for plugin, is '+typeof(object);
 	},
 	isArray: function(object) {
-		return object.length && typeof object != "string";
+		return object.length && typeof object != 'string';
+	},
+	pickBest: function(param, defult) {
+		if(typeof param == 'undefined')
+			return defult;
+		else
+			return param;
 	},
 	stringClass: new java.lang.String().getClass()
 }
-

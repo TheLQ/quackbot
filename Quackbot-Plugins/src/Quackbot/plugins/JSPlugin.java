@@ -57,7 +57,6 @@ public class JSPlugin implements PluginType {
 	private boolean service = false;
 	private boolean util = false;
 	private File file;
-	
 	/**
 	 * Log4j Logger
 	 */
@@ -106,40 +105,35 @@ public class JSPlugin implements PluginType {
 		//Make an Engine and a context to use for this plugin
 		jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
+		jsEngine.eval(genQuackUtils());
 		jsEngine.eval(fileContents.toString());
 
 		//Should we just ignore this?
-		if(engineScope.get("ignore") != null && (Boolean)engineScope.get("ignore") == true) {
+		if (castToBoolean(engineScope.get("ignore"))) {
 			log.info("Ignore variable set, skipping");
 			return false;
 		}
+		
 
 		//Add the QuackUtils js utility class
-		jsEngine.eval(new FileReader("plugins/QuackUtils.js"));
 		Object quackUtils = engineScope.get("QuackUtils");
 		Invocable inv = (Invocable) jsEngine;
 
 		//Is this a hook?
 		Object hook = engineScope.get("hook");
 		if (hook != null) {
-			Object[] obj = new Object[]{Event.class, hook};
-			Event[] events = (Event[]) inv.invokeMethod(quackUtils, "toJavaArray", obj);
-			for (Event curEvent : events)
-				HookManager.addHook(curEvent, new PluginHook() {
-					public void run(HookList hookStack, Bot bot, BotEvent msgInfo) throws Exception {
-						JSPlugin.this.invoke(bot, msgInfo);
-					}
-				});
+			Event[] events = (Event[]) inv.invokeMethod(quackUtils, "toJavaArray", new Object[]{Event.class, hook});
+			HookManager.addPluginHooks(events, this);
 		}
 
-		if ((engineScope.get("params") != null))
+		if (engineScope.get("params") != null)
 			throw new QuackbotException("Should use up to date params");
 
 		//Fill in cmd Info
-		setAdmin((engineScope.get("admin") == null) ? false : true);
-		setService((engineScope.get("service") == null) ? false : true);
-		setEnabled((engineScope.get("enabled") == null) ? true : false);
-		setUtil((engineScope.get("util") == null) ? false : true);
+		setAdmin(castToBoolean(engineScope.get("admin")));
+		setService(castToBoolean(engineScope.get("service")));
+		setEnabled(castToBoolean(engineScope.get("enabled")));
+		setUtil(castToBoolean(engineScope.get("util")));
 		setHelp((String) engineScope.get("help"));
 		src = fileContents.toString();
 
@@ -149,10 +143,9 @@ public class JSPlugin implements PluginType {
 			throw new QuackbotException("Invoke function not declared");
 
 		//Add parameters
-		Object[] paramArgs = new Object[]{paramConfig};
 		if (jsEngine.get("parameters") != null) {
-			inv.invokeMethod(quackUtils, "setOptionalParams", paramArgs);
-			inv.invokeMethod(quackUtils, "setRequiredParams", paramArgs);
+			inv.invokeMethod(quackUtils, "setOptionalParams", paramConfig);
+			inv.invokeMethod(quackUtils, "setRequiredParams", paramConfig);
 		}
 		return true;
 	}
@@ -191,7 +184,97 @@ public class JSPlugin implements PluginType {
 
 		//Call invoke function with invoke
 		Invocable inv = (Invocable) compiled.getEngine();
-		inv.invokeFunction("invoke", new Object[]{});
+		inv.invokeFunction("invoke", (Object[]) msgInfo.getArgs());
+	}
+
+	public boolean castToBoolean(Object obj) {
+		if (obj == null || !(obj instanceof Boolean))
+			return false;
+		return (Boolean) obj;
+	}
+
+	public String genQuackUtils() {
+		return "var util = false;\n"
+				+ "var hook = null;\n"
+				+ "var ignore = false;\n"
+				+ "var parameters = 0;\n"
+				+ "var admin = false;\n"
+				+ "var service = false;\n"
+				+ "var enabled = true;\n"
+				+ "var help = '';\n"
+				+ "var QuackUtils = {\n"
+				+ "	toJavaArray: function(type, arr) {\n"
+				+ "		var jArr;\n"
+				+ "		if(arr.length) {\n"
+				+ "			jArr = java.lang.reflect.Array.newInstance(type, arr.length);\n"
+				+ "			for(var i=0;i<arr.length;i++)\n"
+				+ "				jArr[i] = arr[i];\n"
+				+ "		}\n"
+				+ "		else {\n"
+				+ "			jArr = java.lang.reflect.Array.newInstance(type, 1);\n"
+				+ "			jArr[0] = arr;\n"
+				+ "		}\n"
+				+ "		return jArr;\n"
+				+ "	},\n"
+				+ "	setRequiredParams: function(paramConfig) {\n"
+				+ "		//Is it even set?\n"
+				+ "		if(typeof parameters == 'undefined')\n"
+				+ "			return null;\n"
+				+ "		else if(typeof(parameters) == 'object')\n"
+				+ "			if(QuackUtils.isArray(parameters))   //Is this an array?\n"
+				+ "				for(i in parameters)\n"
+				+ "					paramConfig.addRequiredObject(parameters[i]);\n"
+				+ "			else if(typeof parameters.required == 'undefined') \n"
+				+ "				return null;\n"
+				+ "			else if(QuackUtils.isArray(parameters.required)) //Is the required field an array?\n"
+				+ "				for(i in parameters.required)\n"
+				+ "					paramConfig.addRequiredObject(parameters.required[i]);\n"
+				+ "			else //Required field must be a string or a number\n"
+				+ "				QuackUtils.handleStringNum(paramConfig, true, parameters.required);\n"
+				+ "		//Must be a string or a number\n"
+				+ "		else\n"
+				+ "			QuackUtils.handleStringNum(paramConfig, true, parameters);\n"
+				+ "	},\n"
+				+ "	setOptionalParams: function(paramConfig) {\n"
+				+ "		if(typeof(parameters) == 'object')\n"
+				+ "			//Is this an array or non-existant?\n"
+				+ "			if(parameters.length || typeof parameters.optional == 'undefined')\n"
+				+ "				return null;\n"
+				+ "			//Is the optional field an array?\n"
+				+ "			else if(parameters.optional.length && typeof parameters.optional != 'string')\n"
+				+ "				for(i in parameters.optional)\n"
+				+ "					paramConfig.addOptionalObject(parameters.optional[i]);\n"
+				+ "			//Must be a string or a number\n"
+				+ "			else\n"
+				+ "				QuackUtils.handleStringNum(paramConfig,false,parameters.optional);\n"
+				+ "		else\n"
+				+ "			return null;\n"
+				+ "	},\n"
+				+ "	handleStringNum: function(paramConfig,required,object) {\n"
+				+ "		if(typeof(object) == 'number')\n"
+				+ "			if(required)\n"
+				+ "				paramConfig.setRequiredCount(object);\n"
+				+ "			else\n"
+				+ "				paramConfig.setOptionalCount(object);\n"
+				+ "		else if(typeof(object) == 'string')\n"
+				+ "			if(required)\n"
+				+ "				paramConfig.addRequiredObject(object);\n"
+				+ "			else\n"
+				+ "				paramConfig.addOptionalObject(object);\n"
+				+ "		else\n"
+				+ "			throw 'Unknown type in parameters for plugin, is '+typeof(object);\n"
+				+ "	},\n"
+				+ "	isArray: function(object) {\n"
+				+ "		return object.length && typeof object != 'string';\n"
+				+ "	},\n"
+				+ "	pickBest: function(param, defult) {\n"
+				+ "		if(typeof param == 'undefined')\n"
+				+ "			return defult;\n"
+				+ "		else\n"
+				+ "			return param;\n"
+				+ "	},\n"
+				+ "	stringClass: new java.lang.String().getClass()\n"
+				+ "}";
 	}
 
 	/**
