@@ -39,7 +39,7 @@ public class AdminHelp implements JavaBase {
 
 			//Add Java Plugins
 			for (PluginType curPlugin : ctrl.plugins)
-				if (Controller.isPluginUsable(curPlugin))
+				if (Controller.isPluginUsable(curPlugin, false))
 					cmdList.add(curPlugin.getName());
 
 			//Send to user

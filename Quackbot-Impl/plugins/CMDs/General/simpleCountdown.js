@@ -1,5 +1,5 @@
 var help = "Starts countdown of specified length. Syntax: ?simpleCountdown <seconds>";
-var param = 1;
+var parameter = 1;
 
 var futureMs = 0;
 var msRemain = 0;

@@ -153,7 +153,7 @@ public class Bot extends PircBot {
 	 */
 	static {
 		//Default onMessage handling
-		HookManager.addHook(Event.onMessage, new PluginHook() {
+		HookManager.addHook(Event.onMessage, "QuackRunCommand", new PluginHook() {
 			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
 				//Look for a prefix
 				Iterator preItr = bot.PREFIXES.iterator();
@@ -174,39 +174,39 @@ public class Bot extends PircBot {
 		});
 
 		//Default onPrivateMessage handling
-		HookManager.addHook(Event.onPrivateMessage, new PluginHook() {
+		HookManager.addHook(Event.onPrivateMessage, "QuackRunPMCommand", new PluginHook() {
 			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
 				bot.activateCmd(msgInfo);
 			}
 		});
 
 		//Default onVersion handling
-		HookManager.addHook(Event.onVersion, new PluginHook() {
+		HookManager.addHook(Event.onVersion, "NativeOnVersion", new PluginHook() {
 			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
 				bot.onVersionSuper(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel());
 			}
 		});
 
-		//Default onPint handling
-		HookManager.addHook(Event.onPing, new PluginHook() {
+		//Default onPing handling
+		HookManager.addHook(Event.onPing, "NativeOnPing", new PluginHook() {
 			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
 				bot.onPingSuper(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel(), msgInfo.getRawmsg());
 			}
 		});
 
-		HookManager.addHook(Event.onServerPing, new PluginHook() {
+		HookManager.addHook(Event.onServerPing, "NativeOnServerPing", new PluginHook() {
 			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
 				bot.onServerPingSuper(msgInfo.getRawmsg());
 			}
 		});
 
-		HookManager.addHook(Event.onTime, new PluginHook() {
+		HookManager.addHook(Event.onTime, "NativeOnTime", new PluginHook() {
 			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
 				bot.onTimeSuper(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel());
 			}
 		});
 
-		HookManager.addHook(Event.onFinger, new PluginHook() {
+		HookManager.addHook(Event.onFinger, "NativeOnFinger", new PluginHook() {
 			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
 				bot.onFingerSuper(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel());
 			}
@@ -280,17 +280,18 @@ public class Bot extends PircBot {
 		super.dispose();
 	}
 
-	/***************USER SUBMITTED COMMANDS FOLLOW*********************/
 	/**
 	 * runCommand wrapper, outputs beginning and end to console and catches errors
 	 * @param msgInfo BotEvent bean
 	 */
 	public void activateCmd(BotEvent msgInfo) {
 		try {
+			HookManager.executeEvent(this, msgInfo.setEvent(Event.onCommand));
 			runCommand(msgInfo);
 		} catch (Exception e) {
 			sendMsg(new BotMessage(msgInfo, e));
 			log.error("Run Error", e);
+			HookManager.executeEvent(this, msgInfo.setEvent(Event.onCommandFail).setExtra(e));
 		}
 	}
 
@@ -904,7 +905,7 @@ public class Bot extends PircBot {
 	protected void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
 		HookManager.executeEvent(this, new BotEvent(Event.onVersion, target, sourceNick, sourceLogin, sourceHostname, null));
 	}
-	
+
 	/**
 	 * Calls super implementation for default behavior
 	 * 

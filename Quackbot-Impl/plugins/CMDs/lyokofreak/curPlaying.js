@@ -1,7 +1,4 @@
-/* 
- * Tells user whats playing
- */
-
+var help = "Tells user whats playing"
 var param = 0; //Prevent error with
 
 function invoke() {

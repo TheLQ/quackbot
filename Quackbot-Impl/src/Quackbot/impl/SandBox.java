@@ -1,7 +1,10 @@
 package Quackbot.impl;
 
-import java.io.File;
-import org.apache.commons.lang.StringUtils;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 /**
  * Test class for various things. Not relevent to anything
@@ -9,19 +12,13 @@ import org.apache.commons.lang.StringUtils;
  */
 public class SandBox {
 	public SandBox() {
+		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+		Bindings engineScope = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 		try {
-			System.out.println("Before split");
-			System.out.println("Name: "+new File("plugins").getName());
-			System.out.println("After");
-			//Get extension of file
-			String[] extArr = StringUtils.split(new File("plugins").getName(), '.');
-			System.out.println("After split");
-			if (extArr.length < 2)
-				return;
-			String ext = extArr[1];
-			System.out.println("Finsihed");
-
-		} catch (Exception e) {
+			jsEngine.eval("var hello = 'HELLO THERE';");
+			jsEngine.eval("var hello = null;");
+			System.out.println(engineScope.get("hello")==null);
+		} catch (ScriptException e) {
 			e.printStackTrace();
 		}
 	}
@@ -31,3 +28,4 @@ public class SandBox {
 	}
 }
 //-javaagent:lib/jrebel.jar -noverify
+

@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JavaPlugin implements PluginType {
 	static {
-		HookManager.addHook(Event.onInit, new PluginHook() {
+		HookManager.addHook(Event.onInit, "QBPluginInit",new PluginHook() {
 			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
 				Controller ctrl = Controller.instance;
 				ctrl.addPluginType("java", JavaPlugin.class);
@@ -106,7 +106,7 @@ public class JavaPlugin implements PluginType {
 			if (clazz.isAnnotationPresent(Disabled.class))
 				enabled = false;
 			if (clazz.isAnnotationPresent(Hooks.class)) //TODO
-				HookManager.addPluginHook(clazz.getAnnotation(Hooks.class).value(), this);
+				HookManager.addPluginHooks(clazz.getAnnotation(Hooks.class).value(), this);
 			if (clazz.isAnnotationPresent(Service.class))
 				service = true;
 

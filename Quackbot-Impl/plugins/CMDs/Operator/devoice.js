@@ -1,5 +1,5 @@
 var help = "Attempts to deop a person. Admin only command. Syntax: ?devoice <USER>";
-var param = 1;
+var parameter = 1;
 var admin = true;
 
 function invoke(reqUser) {
