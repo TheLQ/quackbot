@@ -54,9 +54,9 @@ public class ControlAppender extends AppenderSkeleton {
 	 */
 	@Override
 	public void append(LoggingEvent event) {
-		if (!Bot.threadLocal.get().equals("EMPTY")) {
+		if (Bot.getPoolLocal() != null) {
 			if (GUIExists())
-				SwingUtilities.invokeLater(new WriteOutput(GUI.instance.BerrorLog, this, event, Bot.threadLocal.get()));
+				SwingUtilities.invokeLater(new WriteOutput(GUI.instance.BerrorLog, this, event, Bot.getPoolLocal().getServer()));
 			else
 				writeStd(event);
 			return;
@@ -160,6 +160,7 @@ public class ControlAppender extends AppenderSkeleton {
 		/**
 		 * Actually formats and add's the text to JTextPane in AWT Event Queue
 		 */
+		@Override
 		public void run() {
 			try {
 				//get string version

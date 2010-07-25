@@ -23,28 +23,23 @@ package Quackbot;
 import Quackbot.err.AdminException;
 import Quackbot.err.InvalidCMDException;
 import Quackbot.err.NumArgException;
-import Quackbot.err.QuackbotException;
-import Quackbot.hook.HookList;
 
-import Quackbot.info.BotMessage;
 import Quackbot.info.Channel;
-import Quackbot.hook.Event;
 import Quackbot.hook.HookManager;
-import Quackbot.hook.PluginHook;
+import Quackbot.hook.Hook;
 import Quackbot.info.Server;
-import Quackbot.info.BotEvent;
+import java.awt.Event;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.concurrent.CountDownLatch;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ArrayBlockingQueue;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
 import org.jibble.pircbot.DccChat;
@@ -64,15 +59,11 @@ import org.slf4j.LoggerFactory;
  * @version 3.0
  * @author Lord.Quackstar
  */
-public class Bot extends PircBot {
+public class Bot extends PircBot implements Comparable<Bot> {
 	/**
 	 * Says weather bot is globally locked or not
 	 */
 	public boolean botLocked = false;
-	/**
-	 * Set of prefixes that will initate bot command
-	 */
-	public final HashSet<String> PREFIXES = new HashSet<String>();
 	/**
 	 * List of channels bot is locked on. Is NOT persistent!!
 	 */
@@ -88,15 +79,12 @@ public class Bot extends PircBot {
 	/**
 	 * Stores variable local to this thread group
 	 */
-	public static ThreadGroupLocal<String> threadLocal = new ThreadGroupLocal<String>("EMPTY");
-	/**
-	 * A custom outgoing queue used for tracking
-	 */
-	public final CustBlockingQueue msgQueue = new CustBlockingQueue(1);
+	private static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
 	/**
 	 * Log4J logger
 	 */
 	private Logger log = LoggerFactory.getLogger(Bot.class);
+	public UUID unique;
 
 	/**
 	 * Init bot by setting all information
@@ -105,7 +93,8 @@ public class Bot extends PircBot {
 	public Bot(final Server serverDB, ExecutorService threadPool) {
 		this.serverDB = serverDB;
 		this.threadPool = threadPool;
-		threadLocal.set(serverDB.getAddress());
+		poolLocal.set(this);
+		unique = UUID.randomUUID();
 
 		setName("Quackbot");
 		setAutoNickChange(true);
@@ -127,94 +116,162 @@ public class Bot extends PircBot {
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
 		}
-
-		// A consumer thread
-		new Thread(new Runnable() {
-			public void run() {
-				while (true)
-					try {
-						// Blocks until there is something in the queue
-						MessageQueueEntry entry = msgQueue.take();
-						sendRawLine(entry.msg);
-						//Release lock so that put() unblocks
-						entry.lock.countDown();
-						//Wait before continuing
-						Thread.sleep(Controller.msgWait);
-					} catch (InterruptedException e) {
-						log.error("Wait for sending message interrupted", e);
-					}
-			}
-		}).start();
-
 	}
 
 	/**
 	 * This adds the default hooks for command management
 	 */
 	static {
-		//Default onMessage handling
-		HookManager.addHook(Event.onMessage, "QuackRunCommand", new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				//Look for a prefix
-				Iterator preItr = bot.PREFIXES.iterator();
-				Boolean contPre = false;
-				String msg = msgInfo.getRawmsg();
-				while (preItr.hasNext()) {
-					String curPre = preItr.next().toString();
-					if (curPre.length() < msg.length() && msg.substring(0, curPre.length()).equals(curPre)) {
-						contPre = true;
-						msgInfo.setRawmsg(msg.substring(curPre.length(), msg.length()).trim());
+		//Default onPrivateMessage handling
+		HookManager.addPluginHook(new Hook("QuackBotNative") {
+			private Logger log = LoggerFactory.getLogger(Bot.class);
 
-						//Bot activated, start command process
-						bot.activateCmd(msgInfo);
-						break;
+			@Override
+			public void onMessage(String channel, String sender, String login, String hostname, String message) {
+				int cmdNum = Controller.instance.addCmdNum();
+				log.info("-----------Begin execution of command #" + cmdNum + ",  from channel " + channel + " using message" + message + "-----------");
+				String command = "";
+				try {
+					if (getBot().isLocked(channel, sender, true)) {
+						log.warn("Bot locked");
+						return;
 					}
+
+					//Look for a prefix
+					log.info("Prefixes: " + StringUtils.join(getBot().getPrefixes(), " | "));
+					for (String curPrefix : getBot().getPrefixes())
+						if (curPrefix.length() < message.length() && message.substring(0, curPrefix.length()).equals(curPrefix)) {
+							message = message.substring(curPrefix.length(), message.length()).trim();
+							command = message.split(" ", 2)[0];
+							Command cmd = setupCommand(command, channel, sender, login, hostname, message);
+							cmd.onCommand(channel, sender, login, hostname, getArgs(message));
+							cmd.onCommandChannel(channel, sender, login, hostname, getArgs(message));
+							break;
+						}
+				} catch (Exception e) {
+					log.error("Error encountered when running command " + command, e);
+					getBot().sendMessage(channel, sender, "ERROR: " + e.getMessage());
+				} finally {
+					log.info("-----------End execution of command #" + cmdNum + ",  from channel " + channel + " using message" + message + "-----------");
 				}
 			}
-		});
 
-		//Default onPrivateMessage handling
-		HookManager.addHook(Event.onPrivateMessage, "QuackRunPMCommand", new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				bot.activateCmd(msgInfo);
+			@Override
+			public void onPrivateMessage(String sender, String login, String hostname, String message) {
+				int cmdNum = Controller.instance.addCmdNum();
+				log.info("-----------Begin execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
+				String command = "";
+
+				try {
+					if (getBot().isLocked(null, sender, true)) {
+						log.warn("Bot locked");
+						return;
+					}
+
+					//Look for a prefix
+					command = message.split(" ", 2)[0];
+					Command cmd = setupCommand(command, null, sender, login, hostname, message);
+					cmd.onCommand(sender, sender, login, hostname, getArgs(message));
+					cmd.onCommandPM(sender, login, hostname, getArgs(message));
+				} catch (Exception e) {
+					log.error("Error encountered when running command " + command, e);
+					getBot().sendMessage(sender, "ERROR: " + e.getMessage());
+				} finally {
+					log.info("-----------End execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
+				}
+			}
+
+			public String[] getArgs(String message) {
+				String[] args;
+				if (message.indexOf(" ") > -1)
+					args = (String[]) ArrayUtils.remove(message.split(" "), 1);
+				else
+					args = new String[0];
+				return args;
+			}
+
+			public Command setupCommand(String command, String channel, String sender, String login, String hostname, String message) throws Exception {
+				Controller ctrl = Controller.instance;
+				//Parse message to get cmd and args
+				String[] args = getArgs(message);
+
+				Command plugin = CommandManager.getCommand(command);
+				//Is this a valid plugin?
+				if (plugin == null || !plugin.isEnabled())
+					throw new InvalidCMDException(command);
+				//Is this an admin function? If so, is the person an admin?
+				if (plugin.isAdmin() && !Controller.instance.isAdmin(sender, getBot(), channel))
+					throw new AdminException();
+
+				//Does the required number of args exist?
+				int paramLen = args.length;
+				int paramNum = plugin.getRequiredParams();
+				int reqParamNum = plugin.getOptionalParams();
+				log.debug("User Args: " + paramLen + " | Req Args: " + reqParamNum + " | Optional: " + paramNum);
+				if (paramLen > paramNum + reqParamNum) //Do we have too many?
+					throw new NumArgException(paramLen, reqParamNum, paramNum - reqParamNum);
+				else if (paramLen < reqParamNum) //Do we not have enough?
+					throw new NumArgException(paramLen, reqParamNum);
+
+				return plugin;
 			}
 		});
 
-		//Default onVersion handling
-		HookManager.addHook(Event.onVersion, "NativeOnVersion", new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				bot.onVersionSuper(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel());
+		HookManager.addPluginHook(new Hook("IRCNative") {
+			@Override
+			public void onFinger(String sourceNick, String sourceLogin, String sourceHostname, String target) {
+				getBot().sendRawLine("NOTICE " + sourceNick + " :\u0001FINGER " + getBot().getFinger() + "\u0001");
 			}
-		});
 
-		//Default onPing handling
-		HookManager.addHook(Event.onPing, "NativeOnPing", new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				bot.onPingSuper(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel(), msgInfo.getRawmsg());
+			@Override
+			public void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
+				getBot().sendRawLine("NOTICE " + sourceNick + " :\u0001PING " + pingValue + "\u0001");
 			}
-		});
 
-		HookManager.addHook(Event.onServerPing, "NativeOnServerPing", new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				bot.onServerPingSuper(msgInfo.getRawmsg());
+			@Override
+			public void onServerPing(String response) throws Exception {
+				getBot().sendRawLine("PONG " + response);
 			}
-		});
 
-		HookManager.addHook(Event.onTime, "NativeOnTime", new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				bot.onTimeSuper(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel());
+			@Override
+			public void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
+				getBot().sendRawLine("NOTICE " + sourceNick + " :\u0001TIME " + new Date().toString() + "\u0001");
 			}
-		});
 
-		HookManager.addHook(Event.onFinger, "NativeOnFinger", new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				bot.onFingerSuper(msgInfo.getSender(), msgInfo.getLogin(), msgInfo.getHostname(), msgInfo.getChannel());
+			@Override
+			public void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
+				getBot().sendRawLine("NOTICE " + sourceNick + " :\u0001VERSION " + getBot().getVersion() + "\u0001");
 			}
 		});
 	}
 
+	public static Bot getPoolLocal() {
+		return poolLocal.get();
+	}
+
+	public boolean isLocked(String channel, String sender) {
+		return isLocked(channel, sender, false);
+	}
+
+	public boolean isLocked(String channel, String sender, boolean sayError) {
+		//Is bot locked?
+		if (botLocked == true && !Controller.instance.isAdmin(getServer(), channel, sender)) {
+			if (sayError)
+				log.info("Command ignored due to global lock in effect");
+			return true;
+		}
+
+		//Is channel locked?
+		if (channel != null && chanLockList.contains(channel) && !Controller.instance.isAdmin(getServer(), channel, sender)) {
+			if (sayError)
+				log.info("Command ignored due to channel lock in effect");
+			return true;
+		}
+		return false;
+	}
+
 	/**
-	 * PircBot commands use this, simply redirects to Log4j. SHOULD NOT BE USED OUTSIDE OF PIRCBOT
+	 * PircBot commands use simply redirects to Log4j. SHOULD NOT BE USED OUTSIDE OF PIRCBOT
 	 * <p>
 	 * Each line in the log begins with a number which
 	 * represents the logging time (as the number of milliseconds since the
@@ -244,13 +301,8 @@ public class Bot extends PircBot {
 	 * @since PircBot 0.9.6 & Quackbot 3.0
 	 */
 	@Override
-	protected void onConnect() {
-		HookManager.executeEvent(this, new BotEvent(Event.onConnect, null));
-
-		//Init prefixes (put here in order to prevent MOTD from tripping bot)
-		PREFIXES.add("?");
-		PREFIXES.add(getNick() + ":");
-		PREFIXES.add(getNick());
+	public void onConnect() {
+		HookManager.getList("onConnect").execute();
 
 		List<Channel> channels = serverDB.getChannels();
 		for (Channel curChannel : channels) {
@@ -259,40 +311,10 @@ public class Bot extends PircBot {
 		}
 	}
 
-	/**
-	 * <b>Main bot output</b> All commands should use this to communicate with server
-	 * <p>
-	 * Note that this method BLOCKS until message is sent!
-	 * @param msg Message to send
-	 */
-	public void sendMsg(final BotMessage msg) {
-		try {
-			msgQueue.put(msg.toIrcCommand());
-		} catch (InterruptedException e) {
-			log.error("Wait to send message interupted", e);
-		} catch (QuackbotException e) {
-			log.error("Can't put message on queue", e);
-		}
-	}
-
+	@Override
 	public synchronized void dispose() {
 		threadPool.shutdown();
 		super.dispose();
-	}
-
-	/**
-	 * runCommand wrapper, outputs beginning and end to console and catches errors
-	 * @param msgInfo BotEvent bean
-	 */
-	public void activateCmd(BotEvent msgInfo) {
-		try {
-			HookManager.executeEvent(this, msgInfo.setEvent(Event.onCommand));
-			runCommand(msgInfo);
-		} catch (Exception e) {
-			sendMsg(new BotMessage(msgInfo, e));
-			log.error("Run Error", e);
-			HookManager.executeEvent(this, msgInfo.setEvent(Event.onCommandFail).setExtra(e));
-		}
 	}
 
 	/**
@@ -304,38 +326,6 @@ public class Bot extends PircBot {
 	 * @throws AdminException        If command is admin only and user is not admin
 	 * @throws NumArgException       If improper amount of arguments were given
 	 */
-	protected void runCommand(BotEvent msgInfo) throws InvalidCMDException, AdminException, NumArgException {
-		//Is bot locked?
-		if (botLocked == true && !Controller.instance.adminExists(this, msgInfo)) {
-			log.info("Command ignored due to global lock in effect");
-			return;
-		}
-
-		//Is channel locked?
-		if (msgInfo.getChannel() != null && chanLockList.contains(msgInfo.getChannel()) && !Controller.instance.adminExists(this, msgInfo)) {
-			log.info("Command ignored due to channel lock in effect");
-			return;
-		}
-
-		String[] argArray;
-		String command;
-		//Parse message to get cmd and args
-		if (msgInfo.getRawmsg().indexOf(" ") > -1) {
-			String[] msgArray = msgInfo.getRawmsg().split(" ", 2);
-			command = msgArray[0].trim();
-			argArray = msgArray[1].split(" ");
-		} else {
-			command = msgInfo.getRawmsg().trim();
-			argArray = new String[0];
-		}
-
-		//Build BotEvent bean
-		msgInfo.setArgs(argArray);
-		msgInfo.setCommand(command);
-
-		threadPool.execute(new PluginExecutor(this, msgInfo));
-	}
-
 	/**
 	 * Utility method to get a specific user from channel
 	 * @param channel  Channel to search in
@@ -357,15 +347,28 @@ public class Bot extends PircBot {
 	public void sendAllMessage(String msg) {
 		String[] channels = getChannels();
 		for (String curChan : channels)
-			sendMsg(new BotMessage(curChan, msg));
+			sendMessage(curChan, msg);
+	}
+
+	public void sendMessage(String channel, String user, String message) {
+		sendMessage(channel, user + message);
 	}
 
 	public boolean isBot(String name) {
 		return getName().equals(name);
 	}
 
-	public boolean isBot(BotEvent event) {
-		return getName().equals(event.getSender());
+	public List<String> getPrefixes() {
+		//Merge the global list and the Bot specific list
+		ArrayList<String> list = new ArrayList<String>(Controller.instance.globPrefixes);
+		list.add(getNick() + ":");
+		list.add(getNick());
+		return list;
+	}
+
+	@Override
+	public int compareTo(Bot bot) {
+		return unique.compareTo(bot.unique);
 	}
 
 	/****************************************HOOKS************************************************************/
@@ -379,8 +382,8 @@ public class Bot extends PircBot {
 	 * @param message The actual message sent to the channel.
 	 */
 	@Override
-	protected void onMessage(String channel, String sender, String login, String hostname, String message) {
-		HookManager.executeEvent(this, new BotEvent(Event.onMessage, channel, sender, login, hostname, message));
+	public void onMessage(String channel, String sender, String login, String hostname, String message) {
+		HookManager.getList("onMessage").execute(channel, sender, login, hostname, message);
 	}
 
 	/**
@@ -391,15 +394,17 @@ public class Bot extends PircBot {
 	 * @param hostname The hostname of the person who sent the private message.
 	 * @param message The actual message.
 	 */
-	protected void onPrivateMessage(String sender, String login, String hostname, String message) {
-		HookManager.executeEvent(this, new BotEvent(Event.onPrivateMessage, null, sender, login, hostname, message));
+	@Override
+	public void onPrivateMessage(String sender, String login, String hostname, String message) {
+		HookManager.getList("onPrivateMessage").execute(sender, login, hostname, message);
 	}
 
 	/**
 	 * See {@link Event#onDisconnect}
 	 */
-	protected void onDisconnect() {
-		HookManager.executeEvent(this, new BotEvent(Event.onDisconnect, null));
+	@Override
+	public void onDisconnect() {
+		HookManager.getList("onDisconnect").execute();
 	}
 
 	/**
@@ -410,8 +415,9 @@ public class Bot extends PircBot {
 	 *
 	 * @see ReplyConstants
 	 */
-	protected void onServerResponse(int code, String response) {
-		HookManager.executeEvent(this, new BotEvent<Integer, Void>(Event.onServerResponse, response).setExtra(code));
+	@Override
+	public void onServerResponse(int code, String response) {
+		HookManager.getList("onServerResponse").execute(code, response);
 	}
 
 	/**
@@ -422,8 +428,9 @@ public class Bot extends PircBot {
 	 *
 	 * @see User
 	 */
-	protected void onUserList(String channel, User[] users) {
-		HookManager.executeEvent(this, new BotEvent<User[], Void>(Event.onUserList, channel, null, null, null, null).setExtra(users));
+	@Override
+	public void onUserList(String channel, User[] users) {
+		HookManager.getList("onUserList").execute(channel, users);
 	}
 
 	/**
@@ -435,8 +442,9 @@ public class Bot extends PircBot {
 	 * @param target The target of the action, be it a channel or our nick.
 	 * @param action The action carried out by the user.
 	 */
-	protected void onAction(String sender, String login, String hostname, String target, String action) {
-		HookManager.executeEvent(this, new BotEvent(Event.onAction, target, sender, login, hostname, action));
+	@Override
+	public void onAction(String sender, String login, String hostname, String target, String action) {
+		HookManager.getList("onAction").execute(sender, login, hostname, target, action);
 	}
 
 	/**
@@ -448,8 +456,9 @@ public class Bot extends PircBot {
 	 * @param target The target of the notice, be it our nick or a channel name.
 	 * @param notice The notice message.
 	 */
-	protected void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice) {
-		HookManager.executeEvent(this, new BotEvent(Event.onNotice, target, sourceNick, sourceLogin, sourceHostname, notice));
+	@Override
+	public void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice) {
+		HookManager.getList("onNotice").execute(sourceNick, sourceLogin, sourceHostname, target, notice);
 	}
 
 	/**
@@ -460,8 +469,9 @@ public class Bot extends PircBot {
 	 * @param login The login of the user who joined the channel.
 	 * @param hostname The hostname of the user who joined the channel.
 	 */
-	protected void onJoin(String channel, String sender, String login, String hostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onJoin, channel, sender, login, hostname, null));
+	@Override
+	public void onJoin(String channel, String sender, String login, String hostname) {
+		HookManager.getList("onJoin").execute(channel, sender, login, hostname);
 	}
 
 	/**
@@ -472,8 +482,9 @@ public class Bot extends PircBot {
 	 * @param login The login of the user who parted from the channel.
 	 * @param hostname The hostname of the user who parted from the channel.
 	 */
-	protected void onPart(String channel, String sender, String login, String hostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onPart, channel, sender, login, hostname, null));
+	@Override
+	public void onPart(String channel, String sender, String login, String hostname) {
+		HookManager.getList("onPart").execute(channel, sender, login, hostname);
 	}
 
 	/**
@@ -484,8 +495,9 @@ public class Bot extends PircBot {
 	 * @param hostname The hostname of the user.
 	 * @param newNick The new nick. 
 	 */
-	protected void onNickChange(String oldNick, String login, String hostname, String newNick) {
-		HookManager.executeEvent(this, new BotEvent(Event.onNickChange, oldNick, newNick, login, hostname, null));
+	@Override
+	public void onNickChange(String oldNick, String login, String hostname, String newNick) {
+		HookManager.getList("onNickChange").execute(oldNick, login, hostname, newNick);
 	}
 
 	/**
@@ -498,8 +510,9 @@ public class Bot extends PircBot {
 	 * @param recipientNick The unfortunate recipient of the kick. Stored as BotEvent.extra
 	 * @param reason The reason given by the user who performed the kick. Stored as BotEvent.rawmsg
 	 */
-	protected void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
-		HookManager.executeEvent(this, new BotEvent<String, Void>(Event.onKick, channel, kickerNick, kickerLogin, kickerHostname, reason).setExtra(recipientNick));
+	@Override
+	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
+		HookManager.getList("onKick").execute(channel, kickerNick, kickerLogin, kickerHostname, recipientNick, reason);
 	}
 
 	/**
@@ -510,8 +523,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that quit from the server.
 	 * @param reason The reason given for quitting the server.
 	 */
-	protected void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
-		HookManager.executeEvent(this, new BotEvent(Event.onQuit, null, sourceNick, sourceLogin, sourceHostname, reason));
+	@Override
+	public void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
+		HookManager.getList("onQuit").execute(sourceNick, sourceLogin, sourceHostname, reason);
 	}
 
 	/**
@@ -525,8 +539,9 @@ public class Bot extends PircBot {
 	 *                the topic was already there. Stored as BotEvent.extra1
 	 *
 	 */
-	protected void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
-		HookManager.executeEvent(this, new BotEvent<Long, Boolean>(Event.onTopic, channel, setBy, null, null, topic).setExtra(date).setExtra1(changed));
+	@Override
+	public void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
+		HookManager.getList("onTopic").execute(channel, topic, setBy, date, changed);
 	}
 
 	/**
@@ -538,8 +553,9 @@ public class Bot extends PircBot {
 	 *
 	 * @see #listChannels() listChannels
 	 */
-	protected void onChannelInfo(String channel, int userCount, String topic) {
-		HookManager.executeEvent(this, new BotEvent<Integer, Void>(Event.onChannelInfo, channel, null, null, null, topic).setExtra(userCount));
+	@Override
+	public void onChannelInfo(String channel, int userCount, String topic) {
+		HookManager.getList("onChannelInfo").execute(channel, userCount, topic);
 	}
 
 	/**
@@ -552,8 +568,9 @@ public class Bot extends PircBot {
 	 * @param mode The mode that has been set. Stored as BotEvent.rawmsg
 	 *
 	 */
-	protected void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		HookManager.executeEvent(this, new BotEvent(Event.onMode, channel, sourceNick, sourceLogin, sourceHostname, mode));
+	@Override
+	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
+		HookManager.getList("onMode").execute(channel, sourceNick, sourceLogin, sourceHostname, mode);
 	}
 
 	/**
@@ -566,8 +583,9 @@ public class Bot extends PircBot {
 	 * @param mode The mode that has been set. Stored as BotEvent.rawmsg
 	 *
 	 */
-	protected void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		HookManager.executeEvent(this, new BotEvent(Event.onUserMode, targetNick, sourceNick, sourceLogin, sourceHostname, mode));
+	@Override
+	public void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
+		HookManager.getList("onUserMode").execute(targetNick, sourceNick, sourceLogin, sourceHostname, mode);
 	}
 
 	/**
@@ -579,8 +597,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param recipient The nick of the user that got 'opped'. Stored as BotEvent.rawmsg
 	 */
-	protected void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		HookManager.executeEvent(this, new BotEvent(Event.onOp, channel, sourceNick, sourceLogin, sourceHostname, recipient));
+	@Override
+	public void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
+		HookManager.getList("onOp").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
 	}
 
 	/**
@@ -592,8 +611,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param recipient The nick of the user that got 'deopped'. Stored as BotEvent.rawmsg
 	 */
-	protected void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		HookManager.executeEvent(this, new BotEvent(Event.onDeop, channel, sourceNick, sourceLogin, sourceHostname, recipient));
+	@Override
+	public void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
+		HookManager.getList("onDeop").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
 	}
 
 	/**
@@ -605,8 +625,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param recipient The nick of the user that got 'voiced'. Stored as BotEvent.rawmsg
 	 */
-	protected void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		HookManager.executeEvent(this, new BotEvent(Event.onVoice, channel, sourceNick, sourceLogin, sourceHostname, recipient));
+	@Override
+	public void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
+		HookManager.getList("onVoice").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
 	}
 
 	/**
@@ -618,8 +639,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param recipient The nick of the user that got 'devoiced'. Stored as BotEvent.rawmsg
 	 */
-	protected void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		HookManager.executeEvent(this, new BotEvent(Event.onDeVoice, channel, sourceNick, sourceLogin, sourceHostname, recipient));
+	@Override
+	public void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
+		HookManager.getList("onDeVoice").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
 	}
 
 	/**
@@ -631,8 +653,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param key The new key for the channel. Stored as BotEvent.rawmsg
 	 */
-	protected void onSetChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {
-		HookManager.executeEvent(this, new BotEvent(Event.onSetChannelKey, channel, sourceNick, sourceLogin, sourceHostname, key));
+	@Override
+	public void onSetChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {
+		HookManager.getList("onSetChannelKey").execute(channel, sourceNick, sourceLogin, sourceHostname, key);
 	}
 
 	/**
@@ -644,8 +667,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param key The key that was in use before the channel key was removed. Stored as BotEvent.key
 	 */
-	protected void onRemoveChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemoveChannelKey, channel, sourceNick, sourceLogin, sourceHostname, key));
+	@Override
+	public void onRemoveChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {
+		HookManager.getList("onRemoveChannelKey").execute(channel, sourceNick, sourceLogin, sourceHostname, key);
 	}
 
 	/**
@@ -657,8 +681,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param limit The maximum number of users that may be in this channel at the same time. Stored as BotEvent.extra
 	 */
-	protected void onSetChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname, int limit) {
-		HookManager.executeEvent(this, new BotEvent<Integer, Void>(Event.onSetChannelLimit, channel, sourceNick, sourceLogin, sourceHostname, null).setExtra(limit));
+	@Override
+	public void onSetChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname, int limit) {
+		HookManager.getList("onSetChannelLimit").execute(channel, sourceNick, sourceLogin, sourceHostname, limit);
 	}
 
 	/**
@@ -669,8 +694,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onRemoveChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemoveChannelLimit, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onRemoveChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onRemoveChannelLimit").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -682,8 +708,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param hostmask The hostmask of the user that has been banned. Stored  as BotEvent.rawmsg
 	 */
-	protected void onSetChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {
-		HookManager.executeEvent(this, new BotEvent(Event.onSetChannelBan, channel, sourceNick, sourceLogin, sourceHostname, hostmask));
+	@Override
+	public void onSetChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {
+		HookManager.getList("onSetChannelBan").execute(channel, sourceNick, sourceLogin, sourceHostname, hostmask);
 	}
 
 	/**
@@ -695,8 +722,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 * @param hostmask The hostmask of the user that has been banned. Stored  as BotEvent.rawmsg
 	 */
-	protected void onRemoveChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemoveChannelBan, channel, sourceNick, sourceLogin, sourceHostname, hostmask));
+	@Override
+	public void onRemoveChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {
+		HookManager.getList("onRemoveChannelBan").execute(channel, sourceNick, sourceLogin, sourceHostname, hostmask);
 	}
 
 	/**
@@ -707,8 +735,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onSetTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onSetTopicProtection, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onSetTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onSetTopicProtection").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -719,8 +748,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onRemoveTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemoveTopicProtection, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onRemoveTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onRemoveTopicProtection").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -731,8 +761,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onSetNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onSetNoExternalMessages, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onSetNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onSetNoExternalMessages").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -743,8 +774,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onRemoveNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemoveNoExternalMessages, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onRemoveNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onRemoveNoExternalMessages").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -755,8 +787,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onSetInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onSetInviteOnly, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onSetInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onSetInviteOnly").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -767,8 +800,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onRemoveInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemoveInviteOnly, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onRemoveInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onRemoveInviteOnly").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -779,8 +813,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onSetModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onSetModerated, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onSetModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onSetModerated").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -791,8 +826,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onRemoveModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemoveModerated, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onRemoveModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onRemoveModerated").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -803,8 +839,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onSetPrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onSetPrivate, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onSetPrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onSetPrivate").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -815,8 +852,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onRemovePrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemovePrivate, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onRemovePrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onRemovePrivate").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -827,8 +865,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onSetSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onSetSecret, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onSetSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onSetSecret").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -839,8 +878,9 @@ public class Bot extends PircBot {
 	 * @param sourceLogin The login of the user that performed the mode change.
 	 * @param sourceHostname The hostname of the user that performed the mode change.
 	 */
-	protected void onRemoveSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.executeEvent(this, new BotEvent(Event.onRemoveSecret, channel, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onRemoveSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
+		HookManager.getList("onRemoveSecret").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -852,8 +892,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that sent the invitation.
 	 * @param channel The channel that we're being invited to. Stored as rawmsg
 	 */
-	protected void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel) {
-		HookManager.executeEvent(this, new BotEvent(Event.onInvite, targetNick, sourceNick, sourceLogin, sourceHostname, channel));
+	@Override
+	public void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel) {
+		HookManager.getList("onInvite").execute(targetNick, sourceNick, sourceLogin, sourceHostname, channel);
 	}
 
 	/**
@@ -864,8 +905,9 @@ public class Bot extends PircBot {
 	 * @see DccFileTransfer
 	 *
 	 */
-	protected void onIncomingFileTransfer(DccFileTransfer transfer) {
-		HookManager.executeEvent(this, new BotEvent<DccFileTransfer, Void>(Event.onIncomingFileTransfer, null).setExtra(transfer));
+	@Override
+	public void onIncomingFileTransfer(DccFileTransfer transfer) {
+		HookManager.getList("onIncomingFileTransfer").execute(transfer);
 	}
 
 	/**
@@ -878,8 +920,9 @@ public class Bot extends PircBot {
 	 * @see DccFileTransfer
 	 *
 	 */
-	protected void onFileTransferFinished(DccFileTransfer transfer, Exception e) {
-		HookManager.executeEvent(this, new BotEvent<DccFileTransfer, Exception>(Event.onFileTransferFinished, null).setExtra(transfer).setExtra1(e));
+	@Override
+	public void onFileTransferFinished(DccFileTransfer transfer, Exception e) {
+		HookManager.getList("").execute(transfer, e);
 	}
 
 	/**
@@ -890,8 +933,9 @@ public class Bot extends PircBot {
 	 * @see DccChat
 	 *
 	 */
-	protected void onIncomingChatRequest(DccChat chat) {
-		HookManager.executeEvent(this, new BotEvent<DccChat, Void>(Event.onIncomingChatRequest, null).setExtra(chat));
+	@Override
+	public void onIncomingChatRequest(DccChat chat) {
+		HookManager.getList("onIncomingChatRequest").execute(chat);
 	}
 
 	/**
@@ -902,8 +946,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that sent the VERSION request.
 	 * @param target The target of the VERSION request, be it our nick or a channel name.
 	 */
-	protected void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		HookManager.executeEvent(this, new BotEvent(Event.onVersion, target, sourceNick, sourceLogin, sourceHostname, null));
+	@Override
+	public void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
+		HookManager.getList("onVersion").execute(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
 	/**
@@ -914,7 +959,7 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that sent the VERSION request.
 	 * @param target The target of the VERSION request, be it our nick or a channel name.
 	 */
-	protected void onVersionSuper(String sourceNick, String sourceLogin, String sourceHostname, String target) {
+	public void onVersionSuper(String sourceNick, String sourceLogin, String sourceHostname, String target) {
 		super.onVersion(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
@@ -927,21 +972,9 @@ public class Bot extends PircBot {
 	 * @param target The target of the PING request, be it our nick or a channel name.
 	 * @param pingValue The value that was supplied as an argument to the PING command. Stored as BotEvent.rawmsg
 	 */
-	protected void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
-		HookManager.executeEvent(this, new BotEvent(Event.onPing, target, sourceNick, sourceLogin, sourceHostname, pingValue));
-	}
-
-	/**
-	 * Calls super onPing for default behavior
-	 *
-	 * @param sourceNick The nick of the user that sent the PING request.
-	 * @param sourceLogin The login of the user that sent the PING request.
-	 * @param sourceHostname The hostname of the user that sent the PING request.
-	 * @param target The target of the PING request, be it our nick or a channel name.
-	 * @param pingValue The value that was supplied as an argument to the PING command. Stored as BotEvent.rawmsg
-	 */
-	protected void onPingSuper(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
-		super.onPing(sourceNick, sourceLogin, sourceHostname, target, pingValue);
+	@Override
+	public void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
+		HookManager.getList("onPing").execute(sourceNick, sourceLogin, sourceHostname, target, pingValue);
 	}
 
 	/**
@@ -949,17 +982,9 @@ public class Bot extends PircBot {
 	 * 
 	 * @param response The response that should be given back in your PONG. Stored as BotEvent.rawmsg
 	 */
-	protected void onServerPing(String response) {
-		HookManager.executeEvent(this, new BotEvent(Event.onServerPing, response));
-	}
-
-	/**
-	 * Calls super onServerPing for default behavior
-	 *
-	 * @param response The response that should be given back in your PONG. Stored as BotEvent.rawmsg
-	 */
-	protected void onServerPingSuper(String response) {
-		super.onServerPing(response);
+	@Override
+	public void onServerPing(String response) {
+		HookManager.getList("onServerPing").execute(response);
 	}
 
 	/**
@@ -970,20 +995,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that sent the TIME request.
 	 * @param target The target of the TIME request, be it our nick or a channel name.
 	 */
-	protected void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		HookManager.executeEvent(this, new BotEvent(Event.onTime, target, sourceNick, sourceLogin, sourceHostname, null));
-	}
-
-	/**
-	 * Calls onTime super for default behavior
-	 *
-	 * @param sourceNick The nick of the user that sent the TIME request.
-	 * @param sourceLogin The login of the user that sent the TIME request.
-	 * @param sourceHostname The hostname of the user that sent the TIME request.
-	 * @param target The target of the TIME request, be it our nick or a channel name.
-	 */
-	protected void onTimeSuper(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		super.onTime(sourceNick, sourceLogin, sourceHostname, target);
+	@Override
+	public void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
+		HookManager.getList("").execute(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
 	/**
@@ -994,20 +1008,9 @@ public class Bot extends PircBot {
 	 * @param sourceHostname The hostname of the user that sent the FINGER request.
 	 * @param target The target of the FINGER request, be it our nick or a channel name.
 	 */
-	protected void onFinger(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		HookManager.executeEvent(this, new BotEvent(Event.onFinger, target, sourceNick, sourceLogin, sourceHostname, null));
-	}
-
-	/**
-	 * Calls super onFinger for default behavior
-	 *
-	 * @param sourceNick The nick of the user that sent the FINGER request.
-	 * @param sourceLogin The login of the user that sent the FINGER request.
-	 * @param sourceHostname The hostname of the user that sent the FINGER request.
-	 * @param target The target of the FINGER request, be it our nick or a channel name.
-	 */
-	protected void onFingerSuper(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		super.onFinger(sourceNick, sourceLogin, sourceHostname, target);
+	@Override
+	public void onFinger(String sourceNick, String sourceLogin, String sourceHostname, String target) {
+		HookManager.getList("onFinger").execute(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
 	/**
@@ -1015,8 +1018,9 @@ public class Bot extends PircBot {
 	 *
 	 * @param line The raw line that was received from the server. Stored as BotEvent.rawmsg
 	 */
-	protected void onUnknown(String line) {
-		HookManager.executeEvent(this, new BotEvent(Event.onUnknown, line));
+	@Override
+	public void onUnknown(String line) {
+		HookManager.getList("onUnknown").execute(line);
 	}
 	//And then it was done :-)
 
@@ -1062,28 +1066,6 @@ public class Bot extends PircBot {
 		 */
 		public void set(T obj) {
 			map.put(Thread.currentThread().getThreadGroup(), obj);
-		}
-	}
-
-	public class CustBlockingQueue extends ArrayBlockingQueue<MessageQueueEntry> {
-		public CustBlockingQueue(int capacity) {
-			super(capacity);
-		}
-
-		public void put(String e) throws InterruptedException {
-			CountDownLatch latch = new CountDownLatch(1);
-			super.put(new MessageQueueEntry(e, latch));
-			latch.await();
-		}
-	}
-
-	protected class MessageQueueEntry {
-		protected CountDownLatch lock;
-		protected String msg;
-
-		public MessageQueueEntry(String e, CountDownLatch latch) {
-			msg = e;
-			lock = latch;
 		}
 	}
 }

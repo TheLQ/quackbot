@@ -1,10 +1,8 @@
 var util = false;
 var hook = null;
-//var ignore = false;
-var ignore = true;
+var ignore = false;
 var parameters = 0;
 var admin = false;
-var service = false;
 var enabled = true;
 var help = '';
 var QuackUtils = {
@@ -21,53 +19,34 @@ var QuackUtils = {
 		}
 		return jArr;
 	},
-	setRequiredParams: function(paramConfig) {
+	getRequiredParams: function() {
 		//Is it even set?
 		if(typeof parameters == 'undefined')
-			return null;
+			return 0;
 		else if(typeof(parameters) == 'object')
-			if(QuackUtils.isArray(parameters))   //Is this an array?
-				for(i in parameters)
-					paramConfig.addRequiredObject(parameters[i]);
+			if(QuackUtils.isArray(parameters))
+				return parameters[0]
 			else if(typeof parameters.required == 'undefined')
-				return null;
-			else if(QuackUtils.isArray(parameters.required)) //Is the required field an array?
-				for(i in parameters.required)
-					paramConfig.addRequiredObject(parameters.required[i]);
+				return 0;
+			else //Required field must be a number
+				return parameters.required;
+		//Must be a number
+		else
+			return parameters;
+	},
+	getOptionalParams: function() {
+		if(typeof parameters == 'undefined')
+			return 0;
+		else if(typeof(parameters) == 'object')
+			if(QuackUtils.isArray(parameters))
+				return parameters[1]
+			else if(typeof parameters.optional== 'undefined')
+				return 0;
 			else //Required field must be a string or a number
-				QuackUtils.handleStringNum(paramConfig, true, parameters.required);
-		//Must be a string or a number
+				return parameters.optional;
+		//Must be a number, but only for required
 		else
-			QuackUtils.handleStringNum(paramConfig, true, parameters);
-	},
-	setOptionalParams: function(paramConfig) {
-		if(typeof(parameters) == 'object')
-			//Is this an array or non-existant?
-			if(parameters.length || typeof parameters.optional == 'undefined')
-				return null;
-			//Is the optional field an array?
-			else if(parameters.optional.length && typeof parameters.optional != 'string')
-				for(i in parameters.optional)
-					paramConfig.addOptionalObject(parameters.optional[i]);
-			//Must be a string or a number
-			else
-				QuackUtils.handleStringNum(paramConfig,false,parameters.optional);
-		else
-			return null;
-	},
-	handleStringNum: function(paramConfig,required,object) {
-		if(typeof(object) == 'number')
-			if(required)
-				paramConfig.setRequiredCount(object);
-			else
-				paramConfig.setOptionalCount(object);
-		else if(typeof(object) == 'string')
-			if(required)
-				paramConfig.addRequiredObject(object);
-			else
-				paramConfig.addOptionalObject(object);
-		else
-			throw 'Unknown type in parameters for plugin, is '+typeof(object);
+			return 0;
 	},
 	isArray: function(object) {
 		return object.length && typeof object != 'string';
@@ -79,4 +58,25 @@ var QuackUtils = {
 			return param;
 	},
 	stringClass: new java.lang.String().getClass()
+}
+function getEnabled() {
+	return command.getEnabled();
+}
+function setEnabled(value) {
+	return command.setEnabled(value);
+}
+function getAdmin() {
+	return command.getAdmin();
+}
+function setAdmin(value) {
+	return command.setAdmin(value);
+}
+function getHelp() {
+	return command.getHelp();
+}
+function setHelp(value) {
+	return command.setHelp(value);
+}
+function getEnabled() {
+	return command.getEnabled();
 }

@@ -20,11 +20,6 @@
  */
 package Quackbot;
 
-import Quackbot.hook.Event;
-import Quackbot.hook.HookList;
-import Quackbot.hook.HookManager;
-import Quackbot.hook.PluginHook;
-import Quackbot.info.BotEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -39,22 +34,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
-import javax.swing.event.TableModelEvent;
 
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Quackbot.log.ControlAppender;
-import java.awt.CardLayout;
 import javax.swing.JComboBox;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Provides a GUI for bot
@@ -150,6 +137,7 @@ public class GUI extends JFrame implements ActionListener {
 	 * Button action listener, controls for Controller
 	 * @param e  Event
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JComboBox) {
 			Level level = (Level) ((JComboBox) e.getSource()).getSelectedItem();

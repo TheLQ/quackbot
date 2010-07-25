@@ -20,11 +20,8 @@
  */
 package Quackbot;
 
-import Quackbot.err.InvalidCMDException;
-import Quackbot.hook.Event;
 import Quackbot.hook.HookManager;
 import Quackbot.info.Admin;
-import Quackbot.info.BotEvent;
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
 import java.io.File;
@@ -69,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * All of those calls are absolutly nessesary. Leaving out connectDB will yeild a QuackbotException, leaving out start will just not do anything
  * <p>
- * Other methods of intrest include {@link #addPlugin(Quackbot.PluginType)}, {@link #addPrefix(java.lang.String) },
+ * Other methods of intrest include {@link #addCommand(Quackbot.PluginLoader)}, {@link #addPrefix(java.lang.String) },
  * {@link #addServer(java.lang.String, int, java.lang.String[]) }, and {@link #initHooks}
  * <p>
  * Please read documentation for more explination
@@ -88,15 +85,7 @@ public class Controller {
 	/**
 	 * All registered plugin types
 	 */
-	public TreeMap<String, Class<? extends PluginType>> pluginTypes = new TreeMap<String, Class<? extends PluginType>>();
-	/**
-	 * List of all avaliable plugins
-	 */
-	public final List<PluginType> plugins = new ArrayList<PluginType>();
-	/**
-	 * List of plugins that should never be removed
-	 */
-	public final List<PluginType> pluginsPerm = new ArrayList<PluginType>();
+	public static TreeMap<String, PluginLoader> pluginLoaders = new TreeMap<String, PluginLoader>();
 	/**
 	 * Set of all Bot instances
 	 */
@@ -120,7 +109,15 @@ public class Controller {
 	/**
 	 * ThreadPool that all non-bot threads are executed in
 	 */
-	public static final ExecutorService mainPool = Executors.newCachedThreadPool();
+	public static final ExecutorService mainPool = Executors.newCachedThreadPool(new ThreadFactory() {
+		public int count = 0;
+		public ThreadGroup threadGroup = new ThreadGroup("mainPool");
+
+		@Override
+		public Thread newThread(Runnable r) {
+			return new Thread(threadGroup, "mainPool-" + (++count));
+		}
+	});
 	/**
 	 * Wait between sending messages
 	 */
@@ -143,6 +140,7 @@ public class Controller {
 
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
 			public void run() {
 				Logger log = LoggerFactory.getLogger(this.getClass());
 				log.info("Closing all IRC and db connections gracefully");
@@ -157,6 +155,7 @@ public class Controller {
 			}
 		});
 
+		//Do we need to make a GUI?
 		if (makeGui) {
 			//This can't run in EDT, end if it is
 			if (SwingUtilities.isEventDispatchThread()) {
@@ -173,10 +172,17 @@ public class Controller {
 				log.error("Unable to start GUI", e);
 			}
 		}
+
+		//Blindly load plugin defaults
+		try {
+			Class.forName("Quackbot.plugins.JavaPluginLoader");
+		} catch (Exception e) {
+			log.trace("Loading JavaPluginLoader for setup has silently failed", e);
+		}
 	}
 
 	/**
-	 * Executues Quackbot. Loads plugins, starts service plugins, connects to servers.
+	 * Executues Quackbot. Loads commands, starts service commands, connects to servers.
 	 * If this isn't called, then the bot does nothing
 	 */
 	public void start() {
@@ -189,13 +195,13 @@ public class Controller {
 		DatabaseManager.setLogLevel(setLevel);
 
 		//Call list of commands
-		HookManager.executeEvent(null, false, new BotEvent(Event.onInit, null));
+		HookManager.getList("onInit").execute();
 
 		//Load current CMD classes
 		reloadPlugins();
 
 		//if(true)
-		//	return;
+		//return;
 
 		//Connect to all servers
 		try {
@@ -222,6 +228,7 @@ public class Controller {
 	public void initBot(final Server curServer) {
 		final ExecutorService threadPool = newBotPool(curServer.getAddress());
 		threadPool.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					log.info("Initiating IRC connection to server " + curServer);
@@ -286,36 +293,29 @@ public class Controller {
 	}
 
 	/**
-	 * Reloads all plugins, clearing list only if requested
-	 * @param clean Clear list of plugins?
+	 * Reloads all commands, clearing list only if requested
+	 * @param clean Clear list of commands?
 	 */
 	public void reloadPlugins() {
-		HookManager.executeEvent(null, false, new BotEvent(Event.onPluginLoadStart, null));
-		plugins.removeAll(plugins);
+		HookManager.getList("onPluginLoadStart").execute();
+		CommandManager.removeAll();
 
 		mainPool.submit(new Runnable() {
+			@Override
 			public void run() {
 				try {
-					//Load all permanent plugins
-					for (PluginType curPlug : pluginsPerm)
-						addPlugin(curPlug);
+					//Load all permanent commands
 					reloadPlugins(new File("plugins"));
-					HookManager.executeEvent(null, false, new BotEvent(Event.onPluginLoadComplete, null));
-					//Start service plugins
-					for (PluginType curPlug : plugins)
-						if (curPlug.isService())
-							mainPool.submit(new PluginExecutor(curPlug.getName(), new String[0]));
+					HookManager.getList("onPluginLoadComplete").execute();
 				} catch (Exception e) {
 					log.error("Error in plugin loading!!!", e);
-				} finally {
-					log.warn("List length: "+plugins.size());
 				}
 			}
 		});
 	}
 
 	/**
-	 * Recusrivly load plugins from current file. Use
+	 * Recusrivly load commands from current file. Use
 	 * @param file
 	 */
 	private void reloadPlugins(File file) {
@@ -338,12 +338,7 @@ public class Controller {
 			String ext = extArr[1];
 
 			//Load with pluginType
-			Class<? extends PluginType> pluginType = pluginTypes.get(ext);
-			if (pluginType == null)
-				return;
-			PluginType plugin = pluginType.newInstance();
-			if (plugin.load(file))
-				addPlugin(plugin);
+			pluginLoaders.get(ext).load(file);
 		} catch (Exception e) {
 			log.error("Could not load plugin " + extArr[0], e);
 		}
@@ -351,41 +346,21 @@ public class Controller {
 
 	/**
 	 * Register a custom plugin type with Quackbot, associating with the specified extention
-	 * @param ext     Exentsion to associate Plugin Type with
-	 * @param newType Class of Plugin Type
+	 * @param ext     Exentsion to associate Command Type with
+	 * @param newType Class of Command Type
 	 */
-	public void addPluginType(String ext, Class<? extends PluginType> newType) {
-		addPluginType(new String[]{ext}, newType);
+	public static void addPluginLoader(PluginLoader loader, String ext) {
+		addPluginLoader(loader, new String[]{ext});
 	}
 
 	/**
 	 * Register a custom plugin type with Quackbot, associating with the specified extentions
-	 * @param exts     Extention to associate Plugin Type with
-	 * @param newType Class of Plugin Type
+	 * @param exts     Extention to associate Command Type with
+	 * @param newType Class of Command Type
 	 */
-	public void addPluginType(String[] exts, Class<? extends PluginType> newType) {
+	public static void addPluginLoader(PluginLoader loader, String[] exts) {
 		for (String curExt : exts)
-			pluginTypes.put(curExt, newType);
-	}
-
-	/**
-	 * Add a plugin to Bot
-	 * @param plugin Implementation of PluginType
-	 */
-	public void addPlugin(PluginType plugin) {
-		addPlugin(plugin, false);
-	}
-
-	/**
-	 * Add a permanent plugin to the permanent list. Does NOT update real
-	 * @param plugin Implementation of PluginType
-	 */
-	public void addPlugin(PluginType plugin, boolean permanently) {
-		if (permanently)
-			pluginsPerm.add(plugin);
-		plugins.add(plugin);
-		HookManager.executeEvent(null, new BotEvent<PluginType, Void>(Event.onPluginLoad, null).setExtra(plugin));
-
+			pluginLoaders.put(curExt, loader);
 	}
 
 	/**
@@ -422,6 +397,7 @@ public class Controller {
 			List<String> usedNames = new ArrayList<String>();
 			ThreadGroup threadGroup;
 
+			@Override
 			public Thread newThread(Runnable rbl) {
 				String goodAddress = address;
 
@@ -436,43 +412,17 @@ public class Controller {
 		});
 	}
 
+	public boolean isAdmin(String name, Bot bot, String channel) {
+		return isAdmin(name, bot.getServer(), channel);
+	}
+
 	/**
-	 * Find a plugin by name
-	 * @param name Name of plugin
-	 * @return     Plugin Object or null if not found
+	 * Utility to check if an admin exists in either the global scope,
+	 * server scope, or channel scope
+	 * @param bot
+	 * @return True if admin exists, false otherwise
 	 */
-	public PluginType findPlugin(String name) {
-		for (PluginType curItem : plugins)
-			if (curItem.getName().equalsIgnoreCase(name))
-				return curItem;
-		return null;
-	}
-
-	public static boolean isPluginUsable(PluginType plugin) {
-		return isPluginUsable(plugin, true);
-	}
-
-	public static boolean isPluginUsable(PluginType plugin, boolean checkAdmin) {
-		boolean usable = (plugin.isEnabled() && !plugin.isService() && !plugin.isUtil());
-		if (checkAdmin)
-			return usable && !plugin.isAdmin();
-		else
-			return usable;
-	}
-
-	public static boolean throwIsPluginUsable(PluginType plugin, boolean checkAdmin, Bot bot, BotEvent msgInfo) throws InvalidCMDException {
-		if (plugin.isUtil())
-			throw new InvalidCMDException(plugin.getName(), "Util");
-		else if (plugin.isAdmin() && checkAdmin)
-			throw new InvalidCMDException(plugin.getName(), "Admin only");
-		else if (plugin.isService())
-			throw new InvalidCMDException(plugin.getName(), "Service");
-		else if (!plugin.isEnabled())
-			throw new InvalidCMDException(plugin.getName(), "Disabled");
-		return true;
-	}
-
-	public boolean adminExists(String name, String server, String channel) {
+	public boolean isAdmin(String name, String server, String channel) {
 		try {
 			Collection<Admin> c = dbm.loadObjects(new ArrayList<Admin>(), Admin.class, true);
 			for (Admin curAdmin : c) {
@@ -498,16 +448,6 @@ public class Controller {
 			log.error("Couldn't finish finding admin", e);
 		}
 		return false;
-	}
-
-	/**
-	 * Utility to check if an admin exists in either the global scope,
-	 * server scope, or channel scope
-	 * @param bot
-	 * @return True if admin exists, false otherwise
-	 */
-	public boolean adminExists(Bot bot, BotEvent msgInfo) {
-		return adminExists(msgInfo.getSender(), bot.getServer(), msgInfo.getChannel());
 	}
 
 	/**
