@@ -82,8 +82,13 @@ public class Channel extends Entity {
 	 * Convert to String
 	 * @return String representation of Channel
 	 */
+	@Override
 	public String toString() {
-		return new StringBuilder("[").append("Channel=" + getName() + ",").append("Password=" + getPassword() + ",").append("ChannelID=" + getChannelID() + ",").append("ServerID=" + getServerID()).append("]").toString();
+		return new StringBuilder("[").append("Channel=").append(getName()).append(",").
+				append("Password=").append(getPassword()).append(",").
+				append("ChannelID=").append(getChannelID()).append(",").
+				append("ServerID=").append(getServerID()).append("]").
+				toString();
 	}
 
 	/**
@@ -175,5 +180,4 @@ public class Channel extends Entity {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
 }

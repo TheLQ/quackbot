@@ -1,6 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2009-2010 Leon Blakey
+ *
+ * Quackedbot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Quackedbot  is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package Quackbot.plugins.core;
 
@@ -35,7 +47,7 @@ public class AdminHelp extends Command {
 			List<String> cmdList = new ArrayList<String>();
 
 			//Add Java Plugins
-			for (Command curCmd :CommandManager.getCommands())
+			for (Command curCmd : CommandManager.getCommands())
 				if (curCmd.isEnabled() && curCmd.isAdmin())
 					cmdList.add(curCmd.getName());
 
@@ -47,7 +59,7 @@ public class AdminHelp extends Command {
 				throw new InvalidCMDException(args[0]);
 			else if (!result.isEnabled())
 				throw new InvalidCMDException(args[0], "(disabled)");
-			else if(StringUtils.isBlank(result.getHelp()))
+			else if (StringUtils.isBlank(result.getHelp()))
 				getBot().sendMessage(channel, sender, "No help avalible");
 			else
 				getBot().sendMessage(channel, sender, result.getHelp());
