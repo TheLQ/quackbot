@@ -1,22 +1,18 @@
-/**
- * @(#)HelpDoc.java
+/*
+ * Copyright (C) 2009-2010 Leon Blakey
  *
- * Copyright Leon Blakey/Lord.Quackstar, 2009-2010
- *
- * This file is part of Quackbot
- *
- * Quackbot is free software: you can redistribute it and/or modify
+ * Quackedbot is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Quackbot is distributed in the hope that it will be useful,
+ * Quackedbot  is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package Quackbot.plugins.java;
 
@@ -42,12 +38,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HelpDoc {
-
-    /**
-     * Help string that will be given to user upon request. It is highly
-     * recommended that every Java Plugin (and plugin's in general) need
-     * to include.
-     * @return Given help string, or "No help available" when none is given
-     */
-    String value() default "No help available";
+	/**
+	 * Help string that will be given to user upon request. It is highly
+	 * recommended that every Java Plugin (and plugin's in general) need
+	 * to include.
+	 * @return Given help string, or "No help available" when none is given
+	 */
+	String value() default "No help available";
 }

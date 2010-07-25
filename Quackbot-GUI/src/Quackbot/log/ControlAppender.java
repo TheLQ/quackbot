@@ -1,22 +1,18 @@
-/**
- * @(#)ControlAppender.java
+/*
+ * Copyright (C) 2009-2010 Leon Blakey
  *
- * Copyright Leon Blakey/Lord.Quackstar, 2009-2010
- *
- * This file is part of Quackbot
- *
- * Quackbot is free software: you can redistribute it and/or modify
+ * Quackedbot is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Quackbot is distributed in the hope that it will be useful,
+ * Quackedbot  is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package Quackbot.log;
 
@@ -174,19 +170,16 @@ public class ControlAppender extends AppenderSkeleton {
 				String message = event.getMessage().toString();
 				if (event.getLevel().isGreaterOrEqual(Level.WARN))
 					msgStyle = doc.getStyle("Error");
-				else if(message.substring(0, 3).equals("###")) {
+				else if (message.substring(0, 3).equals("###")) {
 					msgStyle = doc.getStyle("Error");
 					message = message.substring(3);
-				}
-				else if (message.substring(0, 3).equals(">>>")) {
+				} else if (message.substring(0, 3).equals(">>>")) {
 					msgStyle = doc.getStyle("BotSend");
 					message = message.substring(3);
-				}
-				else if (message.substring(0, 3).equals("@@@")) {
+				} else if (message.substring(0, 3).equals("@@@")) {
 					msgStyle = doc.getStyle("BotRecv");
 					message = message.substring(3);
-				}
-				else
+				} else
 					msgStyle = doc.getStyle("Normal");
 
 				doc.insertString(doc.getLength(), "\n", doc.getStyle("Normal"));
@@ -197,7 +190,7 @@ public class ControlAppender extends AppenderSkeleton {
 				doc.insertString(doc.getLength(), event.getLoggerName() + " ", doc.getStyle("Class"));
 				if (address != null)
 					doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
-				doc.insertString(doc.getLength(), formatMsg(event, address,message), msgStyle);
+				doc.insertString(doc.getLength(), formatMsg(event, address, message), msgStyle);
 
 				pane.setCaretPosition(prevLength);
 			} catch (Exception e) {

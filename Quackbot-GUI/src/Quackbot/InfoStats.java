@@ -1,6 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2009-2010 Leon Blakey
+ *
+ * Quackedbot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Quackedbot  is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package Quackbot;
 
@@ -46,17 +58,17 @@ public class InfoStats extends JSplitPaneDivid {
 		super(VERTICAL_SPLIT, new JSplitPaneDivid(HORIZONTAL_SPLIT, topLeft, topRight), bottom);
 
 		//Info bits
-		topLeft.add(new JLabel("Uptime",JLabel.RIGHT));
+		topLeft.add(new JLabel("Uptime", JLabel.RIGHT));
 		topLeft.add(uptime = new JLabel("00:00:00"));
-		topLeft.add(new JLabel("Connected Servers",JLabel.RIGHT));
+		topLeft.add(new JLabel("Connected Servers", JLabel.RIGHT));
 		topLeft.add(totalServers = new JLabel("0"));
-		topLeft.add(new JLabel("Connected Channels",JLabel.RIGHT));
-		topLeft.add(totalChan =  new JLabel("0"));
-		topLeft.add(new JLabel("Total Users",JLabel.RIGHT));
-		topLeft.add(totalUsers  = new JLabel("0"));
-		topLeft.add(new JLabel("Total Messages",JLabel.RIGHT));
+		topLeft.add(new JLabel("Connected Channels", JLabel.RIGHT));
+		topLeft.add(totalChan = new JLabel("0"));
+		topLeft.add(new JLabel("Total Users", JLabel.RIGHT));
+		topLeft.add(totalUsers = new JLabel("0"));
+		topLeft.add(new JLabel("Total Messages", JLabel.RIGHT));
 		topLeft.add(totalMessages = new JLabel("0"));
-		topLeft.add(new JLabel("Total Commands",JLabel.RIGHT));
+		topLeft.add(new JLabel("Total Commands", JLabel.RIGHT));
 		topLeft.add(totalCommands = new JLabel("0"));
 
 		topRight.add(new JButton("Top Right"));

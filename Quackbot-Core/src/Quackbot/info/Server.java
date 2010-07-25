@@ -183,8 +183,15 @@ public class Server extends PersistentObject {
 	 * Converts object to string
 	 * @return String representation
 	 */
+	@Override
 	public String toString() {
-		return new StringBuilder("[").append("Address=" + getAddress() + ",").append("Password=" + getPassword() + ",").append("Port=" + getPort() + ",").append("ServerID=" + getServerId() + ",").append("Admins=" + getAdmins().toString() + ",").append("Channels=" + getChannels().toString()).append("]").toString();
+		return new StringBuilder("[").append("Address=").append(getAddress()).append(",").
+				append("Password=").append(getPassword()).append(",").
+				append("Port=").append(getPort()).append(",").
+				append("ServerID=").append(getServerId()).append(",").
+				append("Admins=").append(getAdmins().toString()).append(",").
+				append("Channels=").append(getChannels().toString()).append("]").
+				toString();
 	}
 
 	/**

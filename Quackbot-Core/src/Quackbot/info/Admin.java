@@ -78,8 +78,13 @@ public class Admin extends Entity {
 	 * Converts admin to String representation
 	 * @return String representation
 	 */
+	@Override
 	public String toString() {
-		return new StringBuilder("[").append("UserName=" + getUser() + ",").append("AdminID=" + getAdminId() + ",").append("ChannelID=" + getChannelID() + ",").append("ServerID=" + getServerID()).append("]").toString();
+		return new StringBuilder("[").append("UserName=").append(getUser()).append(",").
+				append("AdminID=").append(getAdminId()).append(",").
+				append("ChannelID=").append(getChannelID()).append(",").
+				append("ServerID=").append(getServerID()).append("]").
+				toString();
 	}
 
 	/**
@@ -197,7 +202,7 @@ public class Admin extends Entity {
 		try {
 			return Controller.instance.dbm.loadObject(new Channel(getChannelID()));
 		} catch (JPersistException e) {
-			log.error("Could not fetch channel",e);
+			log.error("Could not fetch channel", e);
 		}
 		return null;
 	}
@@ -215,7 +220,7 @@ public class Admin extends Entity {
 		try {
 			return Controller.instance.dbm.loadObject(new Server(getChannelID()));
 		} catch (JPersistException e) {
-			log.error("Could not fetch Server",e);
+			log.error("Could not fetch Server", e);
 		}
 		return null;
 	}
