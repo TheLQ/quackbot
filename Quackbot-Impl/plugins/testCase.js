@@ -1,4 +1,9 @@
-var parameters={optional:1};
-function invoke() {
-	println("QuackUtils is HUTGBH");
+importPackage(Packages.Quackbot);
+var parameters={
+	optional:1
+};
+var v = new Command() {
+	onCommand: function onCommand(channel, sender, login, host) {
+		println("QuackUtils is HUTGBH");
+	}
 }

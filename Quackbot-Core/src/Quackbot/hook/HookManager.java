@@ -1,13 +1,26 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2009-2010 Leon Blakey
+ *
+ * Quackedbot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Quackedbot  is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package Quackbot.hook;
 
-import Quackbot.Bot;
-import Quackbot.PluginType;
-import Quackbot.info.BotEvent;
-import java.util.EnumMap;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,21 +47,28 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Internally, Event types are kept on an enum map while hooks are kept on their
  * corresponding {@link HookList}. Please see {@link HookList} for more
- * information. The the avalible events are defined in the {@link Event} enum.
+ * information. The the avalible events are defined in the enum.
  * <p>
  * HookManager is a singleton handling all Event operations. It holds the above
  * mentioned map and various methods for executing tasks.
  * @author LordQuackstar
  */
 public class HookManager {
-	protected static final EnumMap<Event, HookList<?, ?>> hookMap = new EnumMap<Event, HookList<?, ?>>(Event.class);
+	/**
+	 * String - Name of Hook Method
+	 * ArrayList - All Hooks for that method
+	 *		BaseHook - Hook
+	 */
+	private static final Map<String, HookList> hooks = Collections.synchronizedMap(new TreeMap<String, HookList>() {
+		{
+			for (Method curMethod : BaseHook.class.getDeclaredMethods())
+				put(curMethod.getName(), new HookList(curMethod.getName()));
+		}
+	});
+	/**
+	 * TODO
+	 */
 	private static Logger log = LoggerFactory.getLogger(HookManager.class);
-
-	static {
-		//Setup hookMap with values for all the avalible hooks
-		for (Event curHook : Event.values())
-			hookMap.put(curHook, new HookList());
-	}
 
 	/**
 	 * This class is a Singleton and should not be initialized
@@ -56,56 +76,37 @@ public class HookManager {
 	private HookManager() {
 	}
 
-	public static void addHook(Event event, String name, PluginHook hook) {
-		hookMap.get(event).add(hook);
-	}
-
-	public static void addHooks(Event[] events, String name, PluginHook hook) {
-		for (Event curEvent : events)
-			addHook(curEvent, name, hook);
-	}
-
-	public static void addPluginHooks(Event[] events, final PluginType plugin) {
-		for (Event curEvent : events)
-			addHook(curEvent, "Plugin" + plugin.getName(), new PluginHook() {
-				public void run(HookList hookStack, Bot bot, BotEvent msgInfo) throws Exception {
-					plugin.invoke(bot, msgInfo);
-				}
-			});
-	}
-
-	public static void removeHook(Event hookType, PluginHook hook) {
-		hookMap.get(hookType).remove(hook);
-	}
-
-	public static HookList getEvent(Event hookType) {
-		return hookMap.get(hookType);
-	}
-
-	public static void executeEvent(final Bot bot, final BotEvent msgInfo) {
-		executeEvent(bot, true, msgInfo);
-	}
-
-	public static void executeEvent(final Bot bot, boolean newThread, final BotEvent msgInfo) {
-		if(hookMap.get(msgInfo.getEvent()).size() == 0)
-			return;
-		Runnable run = new Runnable() {
-			public void run() {
-				if (msgInfo == null)
-					throw new NullPointerException("msgInfo is null, must be set");
-				try {
-					hookMap.get(msgInfo.getEvent()).startStack(bot, msgInfo);
-				} catch (Exception e) {
-					log.error("Can't finish executing event " + msgInfo.getEvent().toString(), e);
-				}
+	public static void addPluginHook(BaseHook hook) {
+		System.out.println("Adding hook " + hook.getName());
+		for (Method curMethod : hook.getClass().getDeclaredMethods())
+			if (hooks.containsKey(curMethod.getName())) {
+				curMethod.setAccessible(true);
+				getHookList(curMethod.getName()).add(hook);
 			}
-		};
-		if (newThread && bot != null)
-			bot.threadPool.submit(run);
-		else if (newThread)
-			new Thread(run).start();
-		else
-			run.run();
+	}
 
+	public static void removePluginHook(String hookName) {
+		for (HookList curList : hooks.values())
+			for (BaseHook curHook : curList)
+				if (curHook.getName().equals(hookName))
+					curList.remove(curHook);
+	}
+
+	public static void removePluginHook(BaseHook hook) {
+		for (HookList curList : hooks.values())
+			curList.remove(hook);
+	}
+
+	public static HookList getHookList(String event) {
+		return hooks.get(event);
+	}
+
+	public static HookList getList(String name) {
+		//Create new entry if bot does not exist
+		return hooks.get(name);
+	}
+
+	public static ArrayList<String> getNames() {
+		return new ArrayList<String>(hooks.keySet());
 	}
 }

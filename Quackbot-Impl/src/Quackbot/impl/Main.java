@@ -21,10 +21,7 @@
 package Quackbot.impl;
 
 import Quackbot.Controller;
-import Quackbot.plugins.JSPlugin;
-import Quackbot.plugins.JavaPlugin;
-import Quackbot.plugins.core.AdminHelp;
-import Quackbot.plugins.core.Help;
+import Quackbot.plugins.JavaPluginLoader;
 import Quackbot.plugins.impl.JavaTest;
 import java.io.BufferedReader;
 import java.io.File;
@@ -58,8 +55,9 @@ public class Main {
 
 		ctrl.connectDB(dbInfo[0], 10, ds, null, null);
 		ctrl.setDatabaseLogLevel(java.util.logging.Level.OFF);
-		ctrl.addPlugin(new JavaPlugin(JavaTest.class.getName()), true);
-		//ctrl.addPlugin(new JavaPlugin(HookTest.class.getName()));
+		JavaPluginLoader.load(new JavaTest());
+		//ctrl.addCommand(new JavaPluginLoader(HookTest.class.getName()));
+		ctrl.addPrefix("?");
 		ctrl.start();
 	}
 

@@ -4,19 +4,13 @@
  */
 package Quackbot;
 
-import Quackbot.hook.Event;
-import Quackbot.hook.HookList;
 import Quackbot.hook.HookManager;
-import Quackbot.hook.PluginHook;
-import Quackbot.info.BotEvent;
+import Quackbot.hook.Hook;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -32,11 +26,13 @@ import org.slf4j.LoggerFactory;
  */
 public class InfoPlugins extends JScrollPane {
 	final static DefaultTableModel pluginTableModel = new DefaultTableModel() {
+		@Override
 		public Class getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 	};
 	final static JTable pluginTable = new JTable(pluginTableModel) {
+		@Override
 		public String getToolTipText(MouseEvent e) {
 			Point p = e.getPoint();
 			int rowIndex = pluginTable.rowAtPoint(p);
@@ -51,30 +47,22 @@ public class InfoPlugins extends JScrollPane {
 	private Logger log = LoggerFactory.getLogger(InfoPlugins.class);
 
 	static {
-		HookManager.addHook(Event.onPluginLoadStart, "QBGuiPluginClear", new PluginHook() {
-			public void run(HookList hookStack, Bot bot, BotEvent msgInfo) {
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						pluginTableModel.setRowCount(0);
-					}
-				});
+		HookManager.addPluginHook(new Hook("QBGuiPluginPanel") {
+			private Logger log = LoggerFactory.getLogger(getClass());
+			@Override
+			public void onCommandLoad(Command command) throws Exception {
+				log.info("Whoo, called on "+command.getName());
+				pluginTableModel.addRow(new Object[]{command.getName(),
+							command.isEnabled(),
+							command.isAdmin(),
+							command.getHelp(),
+							command.getRequiredParams(),
+							command.getOptionalParams()});
 			}
-		});
 
-		HookManager.addHook(Event.onPluginLoad, "QBGuiPluginAdd", new PluginHook<PluginType, Void>() {
-			public void run(HookList hookStack, Bot bot, final BotEvent<PluginType, Void> msgInfo) {
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						PluginType plugin = msgInfo.getExtra();
-						pluginTableModel.addRow(new Object[]{plugin.getName(),
-									plugin.isEnabled(),
-									plugin.isAdmin(),
-									plugin.isService(),
-									plugin.isUtil(),
-									plugin.getHelp(),
-									plugin.getParamConfig()});
-					}
-				});
+			@Override
+			public void onPluginLoadStart() throws Exception {
+				pluginTableModel.setRowCount(0);
 			}
 		});
 	}
@@ -89,16 +77,11 @@ public class InfoPlugins extends JScrollPane {
 		pluginTableModel.addColumn("Name");
 		pluginTableModel.addColumn("Enabled");
 		pluginTableModel.addColumn("Admin Only");
-		pluginTableModel.addColumn("Service");
-		pluginTableModel.addColumn("Util");
 		pluginTableModel.addColumn("Help");
-		pluginTableModel.addColumn("ParamConfig");
+		pluginTableModel.addColumn("Required");
+		pluginTableModel.addColumn("Optional");
 		pluginTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-		pluginTable.addMouseMotionListener(new MouseMotionAdapter() {
-			public void mouseMoved(MouseEvent e) {
-			}
-		});
 
 		TableColumnModel columnModel = pluginTable.getColumnModel();
 		columnModel.getColumn(0).setPreferredWidth(120);
@@ -107,20 +90,18 @@ public class InfoPlugins extends JScrollPane {
 		columnModel.getColumn(3).setPreferredWidth(50);
 		columnModel.getColumn(4).setPreferredWidth(40);
 		columnModel.getColumn(5).setPreferredWidth(520);
-		columnModel.getColumn(6).setPreferredWidth(620);
 
 
 		pluginTableModel.addTableModelListener(new TableModelListener() {
+			@Override
 			public void tableChanged(TableModelEvent e) {
 				if (e.getType() != TableModelEvent.UPDATE)
 					return;
 				TableModel model = ((TableModel) e.getSource());
 				String plugin = StringUtils.trimToNull((String) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 0));
-				PluginType curPlugin = Controller.instance.findPlugin(plugin);
+				Command curPlugin = CommandManager.getCommand(plugin);
 				curPlugin.setEnabled((Boolean) model.getValueAt(e.getFirstRow(), 1));
 				curPlugin.setAdmin((Boolean) model.getValueAt(e.getFirstRow(), 2));
-				curPlugin.setService((Boolean) model.getValueAt(e.getFirstRow(), 3));
-				curPlugin.setUtil((Boolean) model.getValueAt(e.getFirstRow(), 4));
 				log.debug("Set plugin " + curPlugin.getName() + " to " + pluginToString(curPlugin));
 			}
 		});
@@ -130,7 +111,7 @@ public class InfoPlugins extends JScrollPane {
 		public void run() {
 		while (true) {
 		for (int i = 0; i < pluginTableModel.getRowCount(); i++) {
-		Boolean isIgnored = Controller.instance.findPlugin(pluginTableModel.getValueAt(i, 0).toString()).isIgnore();
+		Boolean isIgnored = Controller.instance.findCommand(pluginTableModel.getValueAt(i, 0).toString()).isIgnore();
 		if (isIgnored == ((Boolean) pluginTableModel.getValueAt(i, 1)))
 		pluginTableModel.setValueAt(isIgnored, i, 1);
 		}
@@ -145,10 +126,8 @@ public class InfoPlugins extends JScrollPane {
 		}).start();**/
 	}
 
-	public String pluginToString(PluginType plug) {
-		return "[enabled=" + plug.isEnabled() + "] "
-				+ " [admin=" + plug.isAdmin() + "] "
-				+ " [service=" + plug.isService() + "] "
-				+ " [util=" + plug.isUtil() + "] ";
+	public String pluginToString(Command cmd) {
+		return "[enabled=" + cmd.isEnabled() + "] "
+				+ " [admin=" + cmd.isAdmin() + "] ";
 	}
 }

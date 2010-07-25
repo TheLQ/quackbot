@@ -37,20 +37,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Parameters {
+	int value() default 0;
 
-    /**
-     * String array (just use {"value1","value2"}) of names of all
-     * required parameters
-     * @return String array (default is empty array)
-     */
-    String[] value() default {};
-	int requiredCount() default -1;
-
-    /**
-     * String array (just use {"value1","value2"}) of names of all
-     * <u>optional</u> parameters (default is empty array)
-     * @return String array of all optional parameters
-     */
-    String[] optional() default {};
-	int optionalCount() default -1;
+	int optional() default 0;
 }

@@ -4,15 +4,12 @@
  */
 package Quackbot.plugins.core;
 
-import Quackbot.Bot;
+import Quackbot.Command;
+import Quackbot.CommandManager;
 import Quackbot.Controller;
-import Quackbot.PluginType;
 import Quackbot.err.InvalidCMDException;
-import Quackbot.info.BotEvent;
-import Quackbot.info.BotMessage;
 import Quackbot.plugins.java.AdminOnly;
 import Quackbot.plugins.java.HelpDoc;
-import Quackbot.plugins.java.JavaBase;
 import Quackbot.plugins.java.Parameters;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,36 +21,36 @@ import org.slf4j.LoggerFactory;
  *
  * @author LordQuackstar
  */
-@Parameters(optional = {"pluginName"})
+@Parameters(optional = 1)
 @HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 @AdminOnly
-public class AdminHelp implements JavaBase {
-	private static Logger log = LoggerFactory.getLogger(Help.class);
+public class AdminHelp extends Command {
+	private static Logger log = LoggerFactory.getLogger(AdminHelp.class);
 	Controller ctrl = Controller.instance;
-	String pluginName;
 
-	public void invoke(Bot qb, BotEvent msgInfo) throws Exception {
+	@Override
+	public void onCommand(String channel, String sender, String login, String hostname, String[] args) throws Exception {
 		//Does user want command list
-		if (pluginName == null) {
+		if (args[0] == null) {
 			List<String> cmdList = new ArrayList<String>();
 
 			//Add Java Plugins
-			for (PluginType curPlugin : ctrl.plugins)
-				if (Controller.isPluginUsable(curPlugin, false))
-					cmdList.add(curPlugin.getName());
+			for (Command curCmd :CommandManager.getCommands())
+				if (curCmd.isEnabled() && curCmd.isAdmin())
+					cmdList.add(curCmd.getName());
 
 			//Send to user
-			qb.sendMsg(new BotMessage(msgInfo, "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ")));
+			getBot().sendMessage(channel, "Possible commands: " + StringUtils.join(cmdList.toArray(), ", "));
 		} else {
-			PluginType result = ctrl.findPlugin(pluginName);
-			if (result != null && Controller.throwIsPluginUsable(result, false, qb, msgInfo)) {
-				if(StringUtils.isBlank(result.getHelp()))
-					qb.sendMsg(new BotMessage(msgInfo, "No help avalible"));
-				else
-					qb.sendMsg(new BotMessage(msgInfo, result.getHelp()));
-			}
+			Command result = CommandManager.getCommand(args[0]);
+			if (result == null)
+				throw new InvalidCMDException(args[0]);
+			else if (!result.isEnabled())
+				throw new InvalidCMDException(args[0], "(disabled)");
+			else if(StringUtils.isBlank(result.getHelp()))
+				getBot().sendMessage(channel, sender, "No help avalible");
 			else
-				throw new InvalidCMDException(pluginName);
+				getBot().sendMessage(channel, sender, result.getHelp());
 		}
 	}
 }
