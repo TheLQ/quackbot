@@ -16,10 +16,12 @@
  */
 package Quackbot;
 
+import Quackbot.gui.GUI;
 import Quackbot.hook.HookManager;
 import Quackbot.info.Admin;
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
+import ch.qos.logback.classic.Level;
 import java.io.File;
 
 import java.util.ArrayList;
@@ -70,6 +72,14 @@ import org.slf4j.LoggerFactory;
  * @author Lord.Quackstar
  */
 public class Controller {
+	static {
+		//Add appenders to root logger
+		final ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
+		rootLog.getLoggerContext().reset();
+		rootLog.setLevel(Level.ALL);
+		rootLog.detachAndStopAllAppenders();
+		rootLog.addAppender(new ControlAppender(rootLog.getLoggerContext()));
+	}
 	/**
 	 * Singleton instance.
 	 */
@@ -102,6 +112,7 @@ public class Controller {
 	 * Has JPersist had its level set?
 	 */
 	private java.util.logging.Level setLevel = java.util.logging.Level.OFF;
+	public static boolean guiStarted = false;
 	/**
 	 * ThreadPool that all non-bot threads are executed in
 	 */
@@ -152,22 +163,21 @@ public class Controller {
 		});
 
 		//Do we need to make a GUI?
-		if (makeGui) {
-			//This can't run in EDT, end if it is
-			if (SwingUtilities.isEventDispatchThread()) {
-				String errormsg = "Controller cannot be started from EDT. Please start from seperate thread";
-				log.error(errormsg);
-				System.err.println(errormsg);
-				return;
-			}
-
-			//Attempt to dynamically load GUI since it might not exist in packages
+		if (makeGui)
 			try {
-				getClass().getClassLoader().loadClass("Quackbot.GUI").newInstance();
+				//This can't run in EDT, end if it is
+				if (SwingUtilities.isEventDispatchThread()) {
+					log.error("Controller cannot be started from EDT. Please start from seperate thread");
+					return;
+				}
+
+				//Attempt to dynamically load GUI since it might not exist in packages
+				new GUI();
 			} catch (Exception e) {
-				log.error("Unable to start GUI", e);
+				log.error("Unkown error occured in GUI initialzation", e);
+			} finally {
+				guiStarted = true;
 			}
-		}
 
 		//Blindly load plugin defaults
 		try {

@@ -18,9 +18,20 @@ package Quackbot.impl;
 
 public class SandBox {
 	public static void main(String[] args) {
-		try {
-		} catch (Exception e) {
-			e.printStackTrace();
+		new Something() {
+			{
+				System.out.println("Inline consstrctor");
+			}
+		};
+	}
+
+	public static class Something {
+		static {
+			System.out.println("Static initializer");
+		}
+
+		public Something() {
+			System.out.println("Constructor");
 		}
 	}
 }

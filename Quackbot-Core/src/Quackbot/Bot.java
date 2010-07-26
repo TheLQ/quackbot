@@ -125,31 +125,32 @@ public class Bot extends PircBot implements Comparable<Bot> {
 			@Override
 			public void onMessage(String channel, String sender, String login, String hostname, String message) {
 				int cmdNum = Controller.instance.addCmdNum();
-				log.info("-----------Begin execution of command #" + cmdNum + ",  from channel " + channel + " using message" + message + "-----------");
-				String command = "";
-				try {
-					if (getBot().isLocked(channel, sender, true)) {
-						log.warn("Bot locked");
-						return;
-					}
 
-					//Look for a prefix
-					log.info("Prefixes: " + StringUtils.join(getBot().getPrefixes(), " | "));
-					for (String curPrefix : getBot().getPrefixes())
-						if (curPrefix.length() < message.length() && message.substring(0, curPrefix.length()).equals(curPrefix)) {
+				String command = "";
+
+				if (getBot().isLocked(channel, sender, true)) {
+					log.warn("Bot locked");
+					return;
+				}
+
+				//Look for a prefix
+				for (String curPrefix : getBot().getPrefixes())
+					if (curPrefix.length() < message.length() && message.substring(0, curPrefix.length()).equalsIgnoreCase(curPrefix))
+						try {
+							log.info("-----------Begin execution of command #" + cmdNum + ",  from channel " + channel + " using message " + message + "-----------");
 							message = message.substring(curPrefix.length(), message.length()).trim();
 							command = message.split(" ", 2)[0];
 							Command cmd = setupCommand(command, channel, sender, login, hostname, message);
 							cmd.onCommand(channel, sender, login, hostname, getArgs(message));
 							cmd.onCommandChannel(channel, sender, login, hostname, getArgs(message));
 							break;
+						} catch (Exception e) {
+							log.error("Error encountered when running command " + command, e);
+							getBot().sendMessage(channel, sender, "ERROR: " + e.getMessage());
+						} finally {
+							log.info("-----------End execution of command #" + cmdNum + ",  from channel " + channel + " using message " + message + "-----------");
 						}
-				} catch (Exception e) {
-					log.error("Error encountered when running command " + command, e);
-					getBot().sendMessage(channel, sender, "ERROR: " + e.getMessage());
-				} finally {
-					log.info("-----------End execution of command #" + cmdNum + ",  from channel " + channel + " using message" + message + "-----------");
-				}
+
 			}
 
 			@Override

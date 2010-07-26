@@ -36,7 +36,7 @@ public class Main {
 	 * @param args Passed parameters (ignored)
 	 */
 	public static void main(String[] args) {
-		Controller ctrl = new Controller();
+		Controller ctrl = new Controller(false);
 
 		String[] dbInfo = getDBInfo();
 		//This implementation uses the Commons DBCP for Connection managment.

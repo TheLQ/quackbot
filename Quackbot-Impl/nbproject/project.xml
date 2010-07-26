@@ -24,14 +24,6 @@
                 <id>jar</id>
             </reference>
             <reference>
-                <foreign-project>Quackbot-GUI</foreign-project>
-                <artifact-type>jar</artifact-type>
-                <script>build.xml</script>
-                <target>jar</target>
-                <clean-target>clean</clean-target>
-                <id>jar</id>
-            </reference>
-            <reference>
                 <foreign-project>Quackbot-Plugins</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>
