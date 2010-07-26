@@ -45,7 +45,7 @@ public class CommandManager {
 	}
 
 	public static void addCommand(Command cmd) {
-		System.out.println("Adding command " + cmd.getName());
+		log.info("Adding command " + cmd.getName());
 		cmds.add(cmd);
 		for (Method curMethod : cmd.getClass().getDeclaredMethods())
 			curMethod.setAccessible(true);
@@ -66,7 +66,7 @@ public class CommandManager {
 	}
 
 	public static void addPermanentCommand(Command cmd) {
-		System.out.println("Adding command " + cmd.getName());
+		log.info("Adding command " + cmd.getName());
 		permanentCmds.add(cmd);
 		for (Method curMethod : cmd.getClass().getDeclaredMethods())
 			curMethod.setAccessible(true);

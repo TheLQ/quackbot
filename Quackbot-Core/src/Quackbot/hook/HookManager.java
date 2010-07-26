@@ -77,7 +77,7 @@ public class HookManager {
 	}
 
 	public static void addPluginHook(BaseHook hook) {
-		System.out.println("Adding hook " + hook.getName());
+		log.info("Adding hook " + hook.getName());
 		for (Method curMethod : hook.getClass().getDeclaredMethods())
 			if (hooks.containsKey(curMethod.getName())) {
 				curMethod.setAccessible(true);
