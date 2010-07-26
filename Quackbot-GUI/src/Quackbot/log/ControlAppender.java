@@ -18,6 +18,9 @@ package Quackbot.log;
 
 import Quackbot.Bot;
 import Quackbot.GUI;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.spi.StackTraceElementProxy;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import javax.swing.JTextPane;
@@ -27,20 +30,24 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import org.apache.commons.lang.StringUtils;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
-import org.apache.log4j.PatternLayout;
-
-import org.apache.log4j.spi.LoggingEvent;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.core.UnsynchronizedAppenderBase;
 
 /**
  * Appender for everything thats not bot. All events from Bot are ignored
  *
  * @author Lord.Quackstar
  */
-public class ControlAppender extends AppenderSkeleton {
+public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
+	PatternLayout exceptionGen = new PatternLayout();
+	PatternLayout normalGen = new PatternLayout();
+
+
 	public ControlAppender() {
 		setName("ControlAppender");
+		exceptionGen.setPattern("%d{MM/dd/yyy hh:mm:ss a}  %-5p %c - %ex{full}");
+		normalGen.setPattern("%d{MM/dd/yyy hh:mm:ss a}  %-5p %c - %m");
 	}
 
 	/**
@@ -49,52 +56,35 @@ public class ControlAppender extends AppenderSkeleton {
 	 * @param event
 	 */
 	@Override
-	public void append(LoggingEvent event) {
-		if (Bot.getPoolLocal() != null) {
-			if (GUIExists())
-				SwingUtilities.invokeLater(new WriteOutput(GUI.instance.BerrorLog, this, event, Bot.getPoolLocal().getServer()));
-			else
+	public void append(ILoggingEvent event) {
+		//System.out.println("New job: " + event);
+		if (Bot.getPoolLocal() != null)
+			if (GUIExists()) {
+				//System.out.println("Submitting to Swing with server");
+				SwingUtilities.invokeLater(new WriteOutput(GUI.instance.BerrorLog, event, Bot.getPoolLocal().getServer()));
+			} else {
+				//System.out.println("writingstd with server");
 				writeStd(event);
-			return;
+			}
+		else if (GUIExists()) {
+			//System.out.println("Submitting to Swings");
+			SwingUtilities.invokeLater(new WriteOutput(GUI.instance.CerrorLog, event));
+		} else {
+			//System.out.println("writingstd");
+			writeStd(event);
 		}
 
-		if (GUIExists())
-			SwingUtilities.invokeLater(new WriteOutput(GUI.instance.CerrorLog, this, event));
-		else
-			writeStd(event);
-	}
-
-	/**
-	 * Used by Log4j to determine if this requires a layout. Since all the dirty work is
-	 * done by {@link WriteOutput}, this returns false;
-	 * @return False, since this is a custom layout
-	 */
-	@Override
-	public boolean requiresLayout() {
-		return false;
-	}
-
-	/**
-	 * Used by Log4j to close anything that this Appender needs to close. Since this just
-	 * writes to a JTextPane, this just does nothing
-	 */
-	@Override
-	public void close() {
-		//nothing to close
 	}
 
 	public boolean GUIExists() {
 		return (GUI.instance != null);
 	}
 
-	public void writeStd(LoggingEvent event) {
-		PatternLayout pl = new PatternLayout("%d{MM/dd/yyy hh:mm:ss a}  %-5p %c - %m");
-		if (event.getThrowableInformation() == null)
-			System.out.println(pl.format(event));
-		else {
-			System.out.println(pl.format(event));
-			System.out.println(StringUtils.join(event.getThrowableStrRep(), " \n"));
-		}
+	public void writeStd(ILoggingEvent event) {
+		if (event.getThrowableProxy() == null)
+			System.out.println(normalGen.doLayout(event));
+		else
+			System.out.println(exceptionGen.doLayout(event));
 	}
 
 	/**
@@ -116,23 +106,18 @@ public class ControlAppender extends AppenderSkeleton {
 		 * Date formatter, used to get same date format
 		 */
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("hh:mm:ss a");
-		/**
-		 * Appender that is using this
-		 */
-		AppenderSkeleton appender;
-		LoggingEvent event;
+		ILoggingEvent event;
 		String address;
 
-		public WriteOutput(JTextPane appendTo, AppenderSkeleton appender, LoggingEvent event) {
-			this(appendTo, appender, event, null);
+		public WriteOutput(JTextPane appendTo, ILoggingEvent event) {
+			this(appendTo, event, null);
 		}
 
 		/**
 		 * Simple constructor to init
 		 * @param appendTo JTextPane to append to
 		 */
-		public WriteOutput(JTextPane appendTo, AppenderSkeleton appender, LoggingEvent event, String address) {
-			this.appender = appender;
+		public WriteOutput(JTextPane appendTo, ILoggingEvent event, String address) {
 			this.pane = appendTo;
 			this.doc = appendTo.getStyledDocument();
 			this.address = address;
@@ -160,7 +145,7 @@ public class ControlAppender extends AppenderSkeleton {
 		public void run() {
 			try {
 				//get string version
-				String aString = event.getRenderedMessage();
+				String aString = event.getMessage();
 
 				//don't print empty strings
 				if (aString == null || aString.length() <= 2)
@@ -184,7 +169,7 @@ public class ControlAppender extends AppenderSkeleton {
 
 				doc.insertString(doc.getLength(), "\n", doc.getStyle("Normal"));
 				int prevLength = doc.getLength();
-				doc.insertString(doc.getLength(), "[" + dateFormatter.format(event.timeStamp) + "] ", doc.getStyle("Normal")); //time
+				doc.insertString(doc.getLength(), "[" + dateFormatter.format(event.getTimeStamp()) + "] ", doc.getStyle("Normal")); //time
 				//doc.insertString(doc.getLength(), "["+event.getThreadName()+"] ", doc.getStyle("Thread")); //thread name
 				doc.insertString(doc.getLength(), event.getLevel().toString() + " ", doc.getStyle("Level")); //Logging level
 				doc.insertString(doc.getLength(), event.getLoggerName() + " ", doc.getStyle("Class"));
@@ -198,11 +183,16 @@ public class ControlAppender extends AppenderSkeleton {
 			}
 		}
 
-		public String formatMsg(LoggingEvent event, String address, String message) {
-			String[] throwArr = event.getThrowableStrRep();
+		public String formatMsg(ILoggingEvent event, String address, String message) {
+			IThrowableProxy throwArr = event.getThrowableProxy();
 			if (throwArr == null)
-				return message.toString();
-			return message.toString() + "\n" + StringUtils.join(throwArr, " \n");
+				return message;
+			StringBuilder builder = new StringBuilder(message);
+
+			for (StackTraceElementProxy curElem : throwArr.getStackTraceElementProxyArray())
+				builder.append(curElem.toString());
+			return builder.toString();
+			//return message.toString() + "\n" + StringUtils.join(throwArr, " \n");
 		}
 	}
 }

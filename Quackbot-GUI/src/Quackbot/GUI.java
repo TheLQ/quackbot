@@ -31,11 +31,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 
-import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Quackbot.log.ControlAppender;
+import ch.qos.logback.classic.Level;
 import javax.swing.JComboBox;
 import javax.swing.JTabbedPane;
 
@@ -71,9 +71,15 @@ public class GUI extends JFrame implements ActionListener {
 		CerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		//Add appenders to root logger
-		org.apache.log4j.Logger rootLog = org.apache.log4j.Logger.getRootLogger();
+		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
 		rootLog.setLevel(Level.ALL);
-		rootLog.addAppender(new ControlAppender());
+		rootLog.detachAndStopAllAppenders();
+		rootLog.addAppender(new ControlAppender() {
+			{
+				start();
+			}
+		});
+
 
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
@@ -134,7 +140,7 @@ public class GUI extends JFrame implements ActionListener {
 		if (e.getSource() instanceof JComboBox) {
 			Level level = (Level) ((JComboBox) e.getSource()).getSelectedItem();
 			log.info("Setting log level to " + level);
-			org.apache.log4j.Logger.getRootLogger().setLevel(level);
+			((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root")).setLevel(level);
 			return;
 		}
 
@@ -149,12 +155,14 @@ public class GUI extends JFrame implements ActionListener {
 	}
 
 	public class JTextPaneNW extends JTextPane {
+		@Override
 		public void setSize(Dimension d) {
 			if (d.width < getParent().getSize().width)
 				d.width = getParent().getSize().width;
 			super.setSize(d);
 		}
 
+		@Override
 		public boolean getScrollableTracksViewportWidth() {
 			return false;
 		}
