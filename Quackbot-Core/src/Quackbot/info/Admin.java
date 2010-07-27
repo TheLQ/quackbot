@@ -17,9 +17,7 @@
 package Quackbot.info;
 
 import Quackbot.Controller;
-import jpersist.Entity;
-import jpersist.JPersistException;
-import jpersist.annotations.ConcreteTableInheritance;
+import ejp.DatabaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +29,7 @@ import org.slf4j.LoggerFactory;
  * If this needs to be changed in database, call {@link #updateDB()}
  * @author admins
  */
-@ConcreteTableInheritance
-public class Admin extends Entity {
+public class Admin {
 	/**
 	 * The ID of the admin
 	 */
@@ -105,7 +102,7 @@ public class Admin extends Entity {
 	 */
 	public Admin updateDB() {
 		try {
-			save(Controller.instance.dbm);
+			Controller.instance.dbm.saveObject(this);
 			return Controller.instance.dbm.loadObject(this);
 		} catch (Exception e) {
 			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
@@ -201,7 +198,7 @@ public class Admin extends Entity {
 	public Channel getChannel() {
 		try {
 			return Controller.instance.dbm.loadObject(new Channel(getChannelID()));
-		} catch (JPersistException e) {
+		} catch (DatabaseException e) {
 			log.error("Could not fetch channel", e);
 		}
 		return null;
@@ -219,7 +216,7 @@ public class Admin extends Entity {
 	public Server getServer() {
 		try {
 			return Controller.instance.dbm.loadObject(new Server(getChannelID()));
-		} catch (JPersistException e) {
+		} catch (DatabaseException e) {
 			log.error("Could not fetch Server", e);
 		}
 		return null;

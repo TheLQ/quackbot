@@ -16,22 +16,16 @@
  */
 package Quackbot.impl;
 
+import Quackbot.info.Server;
+import ejp.DatabaseManager;
+
 public class SandBox {
 	public static void main(String[] args) {
-		new Something() {
-			{
-				System.out.println("Inline consstrctor");
-			}
-		};
-	}
-
-	public static class Something {
-		static {
-			System.out.println("Static initializer");
-		}
-
-		public Something() {
-			System.out.println("Constructor");
+		DatabaseManager dbm = DatabaseManager.getDatabaseManager("evilxproductions", 10, "com.mysql.jdbc.Driver", "jdbc:mysql://evilxproductions.db.3734136.hostedresource.com/evilxproductions", "evilxproductions", "vZsY3MN2g4vJqo");
+		try {
+			dbm.loadObject(new Server());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

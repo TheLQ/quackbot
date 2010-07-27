@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * @author LordQuackstar
  */
 public abstract class Hook implements BaseHook {
-	private Bot bot;
 	private String name;
 	private Logger log = LoggerFactory.getLogger(Hook.class);
 
