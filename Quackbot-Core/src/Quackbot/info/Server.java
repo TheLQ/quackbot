@@ -17,13 +17,10 @@
 package Quackbot.info;
 
 import Quackbot.Controller;
+import ejp.DatabaseException;
 
 import java.util.ArrayList;
 import java.util.List;
-import jpersist.JPersistException;
-
-import jpersist.PersistentObject;
-import jpersist.annotations.UpdateNullValues;
 
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +30,7 @@ import org.slf4j.LoggerFactory;
  * This is usually configured by JPersist
  * @author Lord.Quackstar
  */
-@UpdateNullValues
-public class Server extends PersistentObject {
+public class Server {
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
@@ -168,7 +164,7 @@ public class Server extends PersistentObject {
 	}
 
 	/**
-	 * Gets channel ojbect by name
+	 * Gets channel object by name
 	 * @param channel Channel name (must include prefix)
 	 * @return        Channel object
 	 */
@@ -205,7 +201,7 @@ public class Server extends PersistentObject {
 	 */
 	public Server updateDB() {
 		try {
-			save(Controller.instance.dbm);
+			Controller.instance.dbm.saveObject(this);
 			return Controller.instance.dbm.loadObject(this);
 		} catch (Exception e) {
 			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
@@ -213,48 +209,11 @@ public class Server extends PersistentObject {
 		return null;
 	}
 
-	public int delete() throws JPersistException {
-		return delete(Controller.instance.dbm);
+	public int delete() throws DatabaseException {
+		return Controller.instance.dbm.deleteObject(this);
 	}
 
-	/*******************************************ASSOSIATIONS*************************/
-	/**
-	 * Note: This is only for JPersist framework. DO NOT CALL THIS
-	 * @param c Channel object
-	 * @return  List of channel objects
-	 */
-	public List<Channel> getDbAssociation(Channel c) {
-		return getChannels();
-	}
-
-	/**
-	 * Note: This is only for JPersist framework. DO NOT CALL THIS
-	 * @param c
-	 * @param s
-	 */
-	public void setDbAssociation(Channel c, List<Channel> s) {
-		setChannels(s);
-	}
-
-	/**
-	 * Note: This is only for JPersist framework. DO NOT CALL THIS
-	 * @param c
-	 * @return DB associations
-	 */
-	public List<Admin> getDbAssociation(Admin c) {
-		return getAdmins();
-	}
-
-	/**
-	 *
-	 * Note: This is only for JPersist framework. DO NOT CALL THIS
-	 * @param c
-	 * @param o
-	 */
-	public void setDbAssociation(Admin c, List<Admin> o) {
-		setAdmins(o);
-	}
-
+	/*******************************************JAVABEAN*************************/
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @return the address
@@ -351,3 +310,4 @@ public class Server extends PersistentObject {
 		this.admins = admins;
 	}
 }
+

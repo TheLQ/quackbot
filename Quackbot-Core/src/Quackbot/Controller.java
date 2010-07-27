@@ -22,6 +22,8 @@ import Quackbot.info.Admin;
 import Quackbot.info.Channel;
 import Quackbot.info.Server;
 import ch.qos.logback.classic.Level;
+import ejp.DatabaseException;
+import ejp.DatabaseManager;
 import java.io.File;
 
 import java.util.ArrayList;
@@ -35,8 +37,6 @@ import java.util.concurrent.ThreadFactory;
 import javax.sql.DataSource;
 import javax.swing.SwingUtilities;
 
-import jpersist.DatabaseManager;
-import jpersist.JPersistException;
 import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
@@ -72,13 +72,15 @@ import org.slf4j.LoggerFactory;
  * @author Lord.Quackstar
  */
 public class Controller {
+	protected static ControlAppender appender;
+	
 	static {
 		//Add appenders to root logger
 		final ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
 		rootLog.getLoggerContext().reset();
 		rootLog.setLevel(Level.ALL);
 		rootLog.detachAndStopAllAppenders();
-		rootLog.addAppender(new ControlAppender(rootLog.getLoggerContext()));
+		rootLog.addAppender(appender = new ControlAppender(rootLog.getLoggerContext()));
 	}
 	/**
 	 * Singleton instance.
@@ -100,6 +102,7 @@ public class Controller {
 	 * DatabaseManager instance of JPersist database
 	 */
 	public DatabaseManager dbm = null;
+
 	/**
 	 * Number of Commands executed, used by logging
 	 */
@@ -109,22 +112,18 @@ public class Controller {
 	 */
 	private Logger log = LoggerFactory.getLogger(Controller.class);
 	/**
-	 * Has JPersist had its level set?
-	 */
-	private java.util.logging.Level setLevel = java.util.logging.Level.OFF;
-	public static boolean guiStarted = false;
-	/**
 	 * ThreadPool that all non-bot threads are executed in
 	 */
-	public static final ExecutorService mainPool = Executors.newCachedThreadPool(new ThreadFactory() {
+	public static final ExecutorService mainPool = Executors.newCachedThreadPool(/*new ThreadFactory() {
 		public int count = 0;
 		public ThreadGroup threadGroup = new ThreadGroup("mainPool");
 
 		@Override
 		public Thread newThread(Runnable r) {
+			System.out.println("New thread for runnable "+r.toString());
 			return new Thread(threadGroup, "mainPool-" + (++count));
 		}
-	});
+	}*/);
 	/**
 	 * Wait between sending messages
 	 */
@@ -175,8 +174,6 @@ public class Controller {
 				new GUI();
 			} catch (Exception e) {
 				log.error("Unkown error occured in GUI initialzation", e);
-			} finally {
-				guiStarted = true;
 			}
 
 		//Blindly load plugin defaults
@@ -185,6 +182,7 @@ public class Controller {
 		} catch (Exception e) {
 			log.trace("Loading JavaPluginLoader for setup has silently failed", e);
 		}
+
 	}
 
 	/**
@@ -197,9 +195,6 @@ public class Controller {
 			return;
 		}
 
-		//Logging level of JPersist
-		DatabaseManager.setLogLevel(setLevel);
-
 		//Call list of commands
 		HookManager.getList("onInit").execute();
 
@@ -211,13 +206,13 @@ public class Controller {
 
 		//Connect to all servers
 		try {
-			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class, true);
+			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class);
 			if (c.isEmpty())
 				log.error("Server list is empty!");
 			for (Server curServer : c)
 				initBot(curServer);
 		} catch (Exception e) {
-			if (e instanceof JPersistException)
+			if (e instanceof DatabaseException)
 				if (StringUtils.contains(e.getMessage(), "Communications link failure"))
 					log.error("Error in connecting to database. Please check database connectivity and restart application", e);
 				else
@@ -309,6 +304,7 @@ public class Controller {
 		mainPool.submit(new Runnable() {
 			@Override
 			public void run() {
+				System.out.println("In main pool runnable");
 				try {
 					//Load all permanent commands
 					reloadPlugins(new File("plugins"));
@@ -325,6 +321,7 @@ public class Controller {
 	 * @param file
 	 */
 	private void reloadPlugins(File file) {
+		System.out.println("Current file: "+file.getAbsolutePath());
 		String[] extArr = null;
 		//Load using appropiate type
 		try {
@@ -381,8 +378,8 @@ public class Controller {
 	 * Set the log level of JPersist. By default its OFF, but can be changed for debugging
 	 * @param level JUT logging level
 	 */
-	public void setDatabaseLogLevel(java.util.logging.Level level) {
-		setLevel = level;
+	public void setDatabaseLogLevel(Level level) {
+		ControlAppender.databaseLogLevel = level;
 	}
 
 	/**
@@ -430,7 +427,7 @@ public class Controller {
 	 */
 	public boolean isAdmin(String name, String server, String channel) {
 		try {
-			Collection<Admin> c = dbm.loadObjects(new ArrayList<Admin>(), Admin.class, true);
+			Collection<Admin> c = dbm.loadObjects(new ArrayList<Admin>(), Admin.class);
 			for (Admin curAdmin : c) {
 				//Is this even a match?
 				if (!curAdmin.getUser().equalsIgnoreCase(name))
@@ -450,7 +447,7 @@ public class Controller {
 				if (serv != null && chan != null)
 					return true;
 			}
-		} catch (JPersistException e) {
+		} catch (DatabaseException e) {
 			log.error("Couldn't finish finding admin", e);
 		}
 		return false;
@@ -465,11 +462,10 @@ public class Controller {
 	 * @param databaseName the name to associate with the DatabaseManager instance
 	 * @param poolSize the number of instances to manage
 	 * @param dataSource the data source that supplies connections
-	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
-	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
 	 */
-	public void connectDB(String databaseName, int poolSize, DataSource dataSource, String catalogPattern, String schemaPattern) {
-		dbm = new DatabaseManager(databaseName, poolSize, dataSource, catalogPattern, schemaPattern);
+	public void connectDB(String databaseName, int poolSize, DataSource dataSource) {
+		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, dataSource);
+
 	}
 
 	/**
@@ -481,29 +477,11 @@ public class Controller {
 	 * @param databaseName the name to associate with the DatabaseManager instance
 	 * @param poolSize the number of instances to manage
 	 * @param jndiUri the JNDI URI
-	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
-	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
+	 * @param username The username to use
+	 * @param password The password to use
 	 */
-	public void connectDB(String databaseName, int poolSize, String jndiUri, String catalogPattern, String schemaPattern) {
-		dbm = new DatabaseManager(databaseName, poolSize, jndiUri, catalogPattern, schemaPattern);
-	}
-
-	/**
-	 * Create a DatabaseManager instance using JNDI.
-	 * <p>
-	 * This simply calls
-	 * <code>dbm = new DatabaseManager(databaseName, poolSize, jndiUri, catalogPattern, schemaPattern, username, password);</code>
-	 *
-	 * @param databaseName the name to associate with the DatabaseManager instance
-	 * @param poolSize the number of instances to manage
-	 * @param jndiUri the JNDI URI
-	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
-	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
-	 * @param username the username to use for signon
-	 * @param password the password to use for signon
-	 */
-	public void connectDB(String databaseName, int poolSize, String jndiUri, String catalogPattern, String schemaPattern, String username, String password) {
-		dbm = new DatabaseManager(databaseName, poolSize, jndiUri, catalogPattern, schemaPattern, username, password);
+	public void connectDB(String databaseName, int poolSize, String jndiUri, String username, String password) {
+		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, jndiUri, username, password);
 	}
 
 	/**
@@ -516,29 +494,10 @@ public class Controller {
 	 * @param poolSize the number of instances to manage
 	 * @param driver the database driver class name
 	 * @param url the driver oriented database url
-	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
-	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
+	 * @param username The username to use
+	 * @param password The password to use
 	 */
-	public void connectDB(String databaseName, int poolSize, String driver, String url, String catalogPattern, String schemaPattern) {
-		dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern);
-	}
-
-	/**
-	 * Create a DatabaseManager instance using a supplied database driver.
-	 * <p>
-	 * This simply calls
-	 * <code>dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern, username, password);</code>
-	 *
-	 * @param databaseName the name to associate with the DatabaseManager instance
-	 * @param poolSize the number of instances to manage
-	 * @param driver the database driver class name
-	 * @param url the driver oriented database url
-	 * @param catalogPattern the catalogPattern (can contain SQL wildcards)
-	 * @param schemaPattern the schemaPattern (can contain SQL wildcards)
-	 * @param username the username to use for signon
-	 * @param password the password to use for signon
-	 */
-	public void connectDB(String databaseName, int poolSize, String driver, String url, String catalogPattern, String schemaPattern, String username, String password) {
-		dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern, username, password);
+	public void connectDB(String databaseName, int poolSize, String driver, String url, String username, String password) {
+		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, driver, url, username, password);
 	}
 }

@@ -84,13 +84,11 @@ public class JSPluginLoader implements PluginLoader {
 			return;
 		}
 
-
 		//Add the QuackUtils js utility class
 		Object quackUtils = scope.get("QuackUtils");
 
-		//Get metho
-
 		//Is this a hook?
+
 		for (String curFunction : scope.keySet())
 			if (StringUtils.startsWithAny(curFunction, new String[]{"get", "set", "is"}) && HookManager.getNames().contains(curFunction)) {
 				//It contains a hook method, assume that the whole thing is a hook
@@ -108,10 +106,8 @@ public class JSPluginLoader implements PluginLoader {
 		String help = (String) scope.get("help");
 		String src = fileContents.toString();
 
-
 		int optionalParams = ((Double) inv.invokeMethod(quackUtils, "getOptionalParams")).intValue();
 		int requiredParams = ((Double) inv.invokeMethod(quackUtils, "getRequiredParams")).intValue();
-
 
 		scope.put("log", LoggerFactory.getLogger("Quackbot.plugins.js." + name));
 		scope.put("file", file);

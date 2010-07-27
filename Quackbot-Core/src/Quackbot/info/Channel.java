@@ -17,7 +17,6 @@
 package Quackbot.info;
 
 import Quackbot.Controller;
-import jpersist.Entity;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -28,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * If this needs to be changed in database, call {@link #updateDB()}
  * @author Lord.Quackstar
  */
-public class Channel extends Entity {
+public class Channel  {
 	/**
 	 * ID of the server Channel is attached to
 	 */
@@ -109,7 +108,7 @@ public class Channel extends Entity {
 	 */
 	public Channel updateDB() {
 		try {
-			save(Controller.instance.dbm);
+			Controller.instance.dbm.saveObject(this);
 			return Controller.instance.dbm.loadObject(this);
 		} catch (Exception e) {
 			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);

@@ -36,7 +36,7 @@ public class Main {
 	 * @param args Passed parameters (ignored)
 	 */
 	public static void main(String[] args) {
-		Controller ctrl = new Controller(false);
+		Controller ctrl = new Controller();
 
 		String[] dbInfo = getDBInfo();
 		//This implementation uses the Commons DBCP for Connection managment.
@@ -49,8 +49,9 @@ public class Main {
 		ds.setValidationQuery("SELECT * FROM quackbot_server");
 		ds.setTestOnBorrow(true);
 
-		ctrl.connectDB(dbInfo[0], 10, ds, null, null);
-		ctrl.setDatabaseLogLevel(java.util.logging.Level.OFF);
+		//ctrl.connectDB(dbInfo[0], 10, ds);
+		ctrl.connectDB("someCompletlyRandomThing", 10, ds);
+		//ctrl.setDatabaseLogLevel(java.util.logging.Level.OFF);
 		JavaPluginLoader.load(new JavaTest());
 		//ctrl.addCommand(new JavaPluginLoader(HookTest.class.getName()));
 		ctrl.addPrefix("?");
