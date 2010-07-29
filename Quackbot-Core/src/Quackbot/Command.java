@@ -33,21 +33,10 @@ public abstract class Command {
 	private File file;
 	private int requiredParams;
 	private int optionalParams;
-	private Bot bot;
 	private boolean setup = false;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	public Command() {
-	}
-
-	public Command(String name, String help, boolean admin, boolean enabled, File file, int optionalParams, int requiredParams) {
-		this.name = name;
-		this.help = help;
-		this.admin = admin;
-		this.enabled = enabled;
-		this.file = file;
-		this.requiredParams = requiredParams;
-		this.optionalParams = optionalParams;
 	}
 
 	public Command setup(String name, String help, boolean admin, boolean enabled, File file, int optionalParams, int requiredParams) throws QuackbotException {
@@ -64,6 +53,18 @@ public abstract class Command {
 		return this;
 	}
 
+	@Override
+	public String toString() {
+		return "Name=" + name + ","
+				+ "Enabled=" + enabled + ","
+				+ "Admin=" + admin + ","
+				+ "RequiredParams=" + requiredParams + ","
+				+ "OptionalParams=" + optionalParams + ","
+				+ "Help=" + help + ","
+				+ "Setup=" + setup + ","
+				+ "File=" + file;
+	}
+
 	public Bot getBot() {
 		return Bot.getPoolLocal();
 	}
@@ -73,17 +74,8 @@ public abstract class Command {
 	 * Verbosity should be kept to a minimum, as by default you get one line.
 	 * @return And help provided
 	 */
-	/**
-	 * Should return an explanation of the command and its syntax.
-	 * Verbosity should be kept to a minimum, as by default you get one line.
-	 * @return And help provided
-	 */
 	public String getHelp() {
 		return help;
-	}
-
-	public void setHelp(String help) {
-		this.help = help;
 	}
 
 	/**
@@ -137,7 +129,11 @@ public abstract class Command {
 		return optionalParams;
 	}
 
-	public void onCommand(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+	public String onCommand() {
+		return null;
+	}
+
+	public void onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
 	}
 
 	public void onCommandPM(String sender, String login, String hostname, String[] args) throws Exception {

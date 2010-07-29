@@ -25,9 +25,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HookList extends ArrayList<BaseHook> {
+public class HookList extends ArrayList<Hook> {
 	public boolean interupted, needsSuper;
-	public List<BaseHook> ignored = new ArrayList<BaseHook>(), skipped;
+	public List<Hook> ignored = new ArrayList<Hook>(), skipped;
 	private Logger log = LoggerFactory.getLogger(HookList.class);
 	public String event;
 
@@ -63,10 +63,10 @@ public class HookList extends ArrayList<BaseHook> {
 	public void executeThread(Object... args) {
 		//Reset all class vars
 		interupted = needsSuper = false;
-		skipped = new ArrayList<BaseHook>();
+		skipped = new ArrayList<Hook>();
 
 		//Execute stack
-		for (BaseHook hook : this)
+		for (Hook hook : this)
 			if (!ignored.contains(hook) && !skipped.contains(hook)) {
 
 				Method curMethod = null;

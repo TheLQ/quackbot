@@ -14,20 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.plugins.impl;
 
-import Quackbot.Command;
-import Quackbot.plugins.java.HelpDoc;
-import Quackbot.plugins.java.Parameters;
-import org.apache.commons.lang.StringUtils;
+package Quackbot.plugins.java;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Simple Java cmd test
- * @author Lord.Quackstar
+ *
+ * @author Owner
  */
-@HelpDoc("This is JavaTest Help")
-public class JavaTest extends Command {
-	public String onCommand(String youSaid) throws Exception {
-		return "You said "+youSaid;
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface Optional {
 }

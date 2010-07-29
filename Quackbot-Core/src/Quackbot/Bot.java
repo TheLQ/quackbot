@@ -25,8 +25,11 @@ import Quackbot.hook.HookManager;
 import Quackbot.hook.Hook;
 import Quackbot.info.Server;
 import java.awt.Event;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -141,8 +144,12 @@ public class Bot extends PircBot implements Comparable<Bot> {
 							message = message.substring(curPrefix.length(), message.length()).trim();
 							command = message.split(" ", 2)[0];
 							Command cmd = setupCommand(command, channel, sender, login, hostname, message);
-							cmd.onCommand(channel, sender, login, hostname, getArgs(message));
+							cmd.onCommandGiven(channel, sender, login, hostname, getArgs(message));
 							cmd.onCommandChannel(channel, sender, login, hostname, getArgs(message));
+
+							String response = executeOnCommand(cmd, getArgs(message));
+							if (response != null)
+								getBot().sendMessage(channel, sender, response);
 							break;
 						} catch (Exception e) {
 							log.error("Error encountered when running command " + command, e);
@@ -156,7 +163,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 			@Override
 			public void onPrivateMessage(String sender, String login, String hostname, String message) {
 				int cmdNum = Controller.instance.addCmdNum();
-				log.info("-----------Begin execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
+				log.debug("-----------Begin execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
 				String command = "";
 
 				try {
@@ -168,27 +175,49 @@ public class Bot extends PircBot implements Comparable<Bot> {
 					//Look for a prefix
 					command = message.split(" ", 2)[0];
 					Command cmd = setupCommand(command, null, sender, login, hostname, message);
-					cmd.onCommand(sender, sender, login, hostname, getArgs(message));
+					cmd.onCommandGiven(sender, sender, login, hostname, getArgs(message));
 					cmd.onCommandPM(sender, login, hostname, getArgs(message));
+					String response = executeOnCommand(cmd, getArgs(message));
+					if (response != null)
+						getBot().sendMessage(sender, response);
 				} catch (Exception e) {
 					log.error("Error encountered when running command " + command, e);
 					getBot().sendMessage(sender, "ERROR: " + e.getMessage());
 				} finally {
-					log.info("-----------End execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
+					log.debug("-----------End execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
 				}
 			}
 
+			public String executeOnCommand(Command cmd, String[] args) throws Exception {
+				try {
+					Class clazz = cmd.getClass();
+					for (Method curMethod : clazz.getMethods())
+						if (curMethod.getName().equalsIgnoreCase("onCommand") && curMethod.getReturnType().equals(String.class)) {
+							//Pad the args with null values
+							args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
+							return (String)curMethod.invoke(cmd, (Object[]) args);
+						}
+				} catch (InvocationTargetException e) {
+					//Unrwap if nessesary
+					Throwable cause = e.getCause();
+					if (cause != null && cause instanceof Exception)
+						throw (Exception) e.getCause();
+					throw e;
+				}
+				return null;
+			}
+
 			public String[] getArgs(String message) {
+				message = message.trim();
 				String[] args;
-				if (message.indexOf(" ") > -1)
-					args = (String[]) ArrayUtils.remove(message.split(" "), 1);
+				if (message.contains(" "))
+					args = (String[]) ArrayUtils.remove(message.split(" "), 0);
 				else
 					args = new String[0];
 				return args;
 			}
 
 			public Command setupCommand(String command, String channel, String sender, String login, String hostname, String message) throws Exception {
-				Controller ctrl = Controller.instance;
 				//Parse message to get cmd and args
 				String[] args = getArgs(message);
 
@@ -201,15 +230,14 @@ public class Bot extends PircBot implements Comparable<Bot> {
 					throw new AdminException();
 
 				//Does the required number of args exist?
-				int paramLen = args.length;
-				int paramNum = plugin.getRequiredParams();
-				int reqParamNum = plugin.getOptionalParams();
-				log.debug("User Args: " + paramLen + " | Req Args: " + reqParamNum + " | Optional: " + paramNum);
-				if (paramLen > paramNum + reqParamNum) //Do we have too many?
-					throw new NumArgException(paramLen, reqParamNum, paramNum - reqParamNum);
-				else if (paramLen < reqParamNum) //Do we not have enough?
-					throw new NumArgException(paramLen, reqParamNum);
-
+				int given = args.length;
+				int required = plugin.getRequiredParams();
+				int optional = plugin.getOptionalParams();
+				log.debug("User Args: " + given + " | Req Args: " + required + " | Optional: " + optional);
+				if (given > required + optional) //Do we have too many?
+					throw new NumArgException(given, required, optional);
+				else if (given < required) //Do we not have enough?
+					throw new NumArgException(given, required);
 				return plugin;
 			}
 		});
@@ -348,7 +376,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	}
 
 	public void sendMessage(String channel, String user, String message) {
-		sendMessage(channel, user + message);
+		sendMessage(channel, user + ": " + message);
 	}
 
 	public boolean isBot(String name) {
@@ -919,7 +947,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onFileTransferFinished(DccFileTransfer transfer, Exception e) {
-		HookManager.getList("").execute(transfer, e);
+		HookManager.getList("onFileTransferFinished").execute(transfer, e);
 	}
 
 	/**
@@ -946,18 +974,6 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	@Override
 	public void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
 		HookManager.getList("onVersion").execute(sourceNick, sourceLogin, sourceHostname, target);
-	}
-
-	/**
-	 * Calls super implementation for default behavior
-	 * 
-	 * @param sourceNick The nick of the user that sent the VERSION request.
-	 * @param sourceLogin The login of the user that sent the VERSION request.
-	 * @param sourceHostname The hostname of the user that sent the VERSION request.
-	 * @param target The target of the VERSION request, be it our nick or a channel name.
-	 */
-	public void onVersionSuper(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		super.onVersion(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
 	/**
@@ -994,7 +1010,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		HookManager.getList("").execute(sourceNick, sourceLogin, sourceHostname, target);
+		HookManager.getList("onTime").execute(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
 	/**

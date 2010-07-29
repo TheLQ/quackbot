@@ -73,7 +73,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Controller {
 	protected static ControlAppender appender;
-	
+
 	static {
 		//Add appenders to root logger
 		final ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
@@ -102,7 +102,6 @@ public class Controller {
 	 * DatabaseManager instance of JPersist database
 	 */
 	public DatabaseManager dbm = null;
-
 	/**
 	 * Number of Commands executed, used by logging
 	 */
@@ -115,15 +114,15 @@ public class Controller {
 	 * ThreadPool that all non-bot threads are executed in
 	 */
 	public static final ExecutorService mainPool = Executors.newCachedThreadPool(/*new ThreadFactory() {
-		public int count = 0;
-		public ThreadGroup threadGroup = new ThreadGroup("mainPool");
+			public int count = 0;
+			public ThreadGroup threadGroup = new ThreadGroup("mainPool");
 
-		@Override
-		public Thread newThread(Runnable r) {
+			@Override
+			public Thread newThread(Runnable r) {
 			System.out.println("New thread for runnable "+r.toString());
 			return new Thread(threadGroup, "mainPool-" + (++count));
-		}
-	}*/);
+			}
+			}*/);
 	/**
 	 * Wait between sending messages
 	 */
@@ -321,7 +320,7 @@ public class Controller {
 	 * @param file
 	 */
 	private void reloadPlugins(File file) {
-		System.out.println("Current file: "+file.getAbsolutePath());
+		System.out.println("Current file: " + file.getAbsolutePath());
 		String[] extArr = null;
 		//Load using appropiate type
 		try {
@@ -341,7 +340,9 @@ public class Controller {
 			String ext = extArr[1];
 
 			//Load with pluginType
-			pluginLoaders.get(ext).load(file);
+			PluginLoader loader = pluginLoaders.get(ext);
+			if (loader != null)
+				loader.load(file);
 		} catch (Exception e) {
 			log.error("Could not load plugin " + extArr[0], e);
 		}
