@@ -23,14 +23,15 @@ import Quackbot.Controller;
 import Quackbot.PluginLoader;
 import Quackbot.err.QuackbotException;
 import Quackbot.plugins.java.HelpDoc;
-import Quackbot.hook.HookManager;
-import Quackbot.hook.Hook;
 import Quackbot.plugins.core.AdminHelp;
 import Quackbot.plugins.core.Help;
 import Quackbot.plugins.java.AdminOnly;
 import Quackbot.plugins.java.Disabled;
+import Quackbot.plugins.java.Optional;
 import Quackbot.plugins.java.Parameters;
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class JavaPluginLoader implements PluginLoader {
 	private static Logger log = LoggerFactory.getLogger(JavaPluginLoader.class);
 
 	static {
-		Controller.addPluginLoader(new JSPluginLoader(), "js");
+		//Controller.addPluginLoader(new JSPluginLoader(), "js");
 		JavaPluginLoader.load(new Help());
 		JavaPluginLoader.load(new AdminHelp());
 	}
@@ -67,10 +68,31 @@ public class JavaPluginLoader implements PluginLoader {
 			boolean admin = clazz.isAnnotationPresent(AdminOnly.class);
 			boolean enabled = !clazz.isAnnotationPresent(Disabled.class);
 			//Param and syntax generation
-			int requiredCount = (clazz.isAnnotationPresent(Parameters.class)) ? clazz.getAnnotation(Parameters.class).value() : 0;
-			int optionalCount = (clazz.isAnnotationPresent(Parameters.class)) ? clazz.getAnnotation(Parameters.class).optional() : 0;
+			int requiredCount = 0;
+			int optionalCount = 0;
+			for (Method curMethod : clazz.getDeclaredMethods())
+				if (curMethod.getName().equalsIgnoreCase("onCommand")) {
+					//number of optionals
+					requiredCount = curMethod.getParameterTypes().length;
+					for (Annotation[] annotations : curMethod.getParameterAnnotations())
+						for (Annotation annotation : annotations)
+							if (annotation instanceof Optional) {
+								if (clazz.isAnnotationPresent(Parameters.class))
+									throw new QuackbotException("Java plugin " + name + " cannot have both optional annotation(s) and the Parameter Annotation");
+								optionalCount++;
+								requiredCount--;
+							}
+				}
+			if (clazz.isAnnotationPresent(Parameters.class)) {
+				
+				if (clazz.getAnnotation(Parameters.class).value() != -1)
+					requiredCount = clazz.getAnnotation(Parameters.class).value();
+				if (clazz.getAnnotation(Parameters.class).optional() != -1)
+					requiredCount = clazz.getAnnotation(Parameters.class).optional();
+			}
+
 			String help = (clazz.isAnnotationPresent(HelpDoc.class)) ? clazz.getAnnotation(HelpDoc.class).value() : "";
-			cmd.setup(name, help, admin, enabled, null, requiredCount, optionalCount);
+			cmd.setup(name, help, admin, enabled, null, optionalCount, requiredCount);
 			CommandManager.addPermanentCommand(cmd);
 		} catch (QuackbotException e) {
 			log.error("Unable to load Java plugin " + cmd.getName(), e);

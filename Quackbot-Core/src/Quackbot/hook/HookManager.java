@@ -61,8 +61,9 @@ public class HookManager {
 	 */
 	private static final Map<String, HookList> hooks = Collections.synchronizedMap(new TreeMap<String, HookList>() {
 		{
-			for (Method curMethod : BaseHook.class.getDeclaredMethods())
-				put(curMethod.getName(), new HookList(curMethod.getName()));
+			for (Method curMethod : Hook.class.getDeclaredMethods())
+				if (curMethod.getName().startsWith("on"))
+					put(curMethod.getName(), new HookList(curMethod.getName()));
 		}
 	});
 	/**
@@ -76,7 +77,7 @@ public class HookManager {
 	private HookManager() {
 	}
 
-	public static void addPluginHook(BaseHook hook) {
+	public static void addPluginHook(Hook hook) {
 		log.info("Adding hook " + hook.getName());
 		for (Method curMethod : hook.getClass().getDeclaredMethods())
 			if (hooks.containsKey(curMethod.getName())) {
@@ -87,12 +88,12 @@ public class HookManager {
 
 	public static void removePluginHook(String hookName) {
 		for (HookList curList : hooks.values())
-			for (BaseHook curHook : curList)
+			for (Hook curHook : curList)
 				if (curHook.getName().equals(hookName))
 					curList.remove(curHook);
 	}
 
-	public static void removePluginHook(BaseHook hook) {
+	public static void removePluginHook(Hook hook) {
 		for (HookList curList : hooks.values())
 			curList.remove(hook);
 	}

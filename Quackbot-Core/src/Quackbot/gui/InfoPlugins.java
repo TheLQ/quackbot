@@ -60,25 +60,27 @@ public class InfoPlugins extends JScrollPane {
 	private Logger log = LoggerFactory.getLogger(InfoPlugins.class);
 
 	static {
-		/*HookManager.addPluginHook(new Hook("QBGuiPluginPanel") {
+		HookManager.addPluginHook(new Hook("QBGuiPluginPanel") {
 			private Logger log = LoggerFactory.getLogger(getClass());
 
 			@Override
-			public void onCommandLoad(Command command) throws Exception {
-				log.info("Whoo, called on " + command.getName());
-				pluginTableModel.addRow(new Object[]{command.getName(),
-							command.isEnabled(),
-							command.isAdmin(),
-							command.getHelp(),
-							command.getRequiredParams(),
-							command.getOptionalParams()});
+			public void onPluginLoadComplete() throws Exception {
+				for (Command command : CommandManager.getCommands()) {
+					log.info("Whoo, called on " + command.getName());
+					pluginTableModel.addRow(new Object[]{command.getName(),
+								command.isEnabled(),
+								command.isAdmin(),
+								command.getRequiredParams(),
+								command.getOptionalParams(),
+								command.getHelp()});
+				}
 			}
 
 			@Override
 			public void onPluginLoadStart() throws Exception {
 				pluginTableModel.setRowCount(0);
 			}
-		});*/
+		});
 	}
 
 	public InfoPlugins() {
@@ -91,9 +93,9 @@ public class InfoPlugins extends JScrollPane {
 		pluginTableModel.addColumn("Name");
 		pluginTableModel.addColumn("Enabled");
 		pluginTableModel.addColumn("Admin Only");
-		pluginTableModel.addColumn("Help");
 		pluginTableModel.addColumn("Required");
 		pluginTableModel.addColumn("Optional");
+		pluginTableModel.addColumn("Help");
 		pluginTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 

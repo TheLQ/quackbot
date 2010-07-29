@@ -80,7 +80,7 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 		if (event.getThrowableProxy() == null)
 			output.println(normalGen.doLayout(event).trim() + event.getFormattedMessage());
 		else
-			output.println(ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
+			output.println(event.getFormattedMessage()+"\n"+ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
 	}
 
 	/**0
@@ -179,7 +179,7 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 			ThrowableProxy throwArr = (ThrowableProxy) event.getThrowableProxy();
 			if (throwArr == null)
 				return message;
-			return ExceptionUtils.getFullStackTrace(((ThrowableProxy) throwArr).getThrowable()).trim();
+			return message+"\n"+ExceptionUtils.getFullStackTrace(((ThrowableProxy) throwArr).getThrowable()).trim();
 		}
 	}
 }
