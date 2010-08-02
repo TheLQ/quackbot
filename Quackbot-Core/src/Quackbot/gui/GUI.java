@@ -16,7 +16,6 @@
  */
 package Quackbot.gui;
 
-import Quackbot.ControlAppender;
 import Quackbot.Controller;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import javax.swing.JComboBox;
+import javax.swing.JScrollBar;
 import javax.swing.JTabbedPane;
 
 /**
@@ -54,17 +54,23 @@ public class GUI extends JFrame implements ActionListener {
 	 * GUI log pane's
 	 */
 	public JTextPane BerrorLog, CerrorLog;
+	public JScrollPane BerrorScroll, CerrorScroll;
 	/**
 	 * Log4j logger
 	 */
 	private Logger log = LoggerFactory.getLogger(GUI.class);
-	public boolean autoScrollEnabled = true;
 
 	/**
 	 * Recall's this in AWT event queue
 	 */
 	public GUI() {
-		/***Pre init, setup error log**/
+		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("Quackbot GUI Control Panel");
+		setMinimumSize(new Dimension(1000, 700));
+
+		//Configure TextPanes
 		BerrorLog = new JTextPaneNW();
 		BerrorLog.setEditable(false);
 		BerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -72,19 +78,13 @@ public class GUI extends JFrame implements ActionListener {
 		CerrorLog.setEditable(false);
 		CerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
-
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("Quackbot GUI Control Panel");
-		setMinimumSize(new Dimension(1000, 700));
-
 		//Configuration of body
 		JPanel msgPanel = new JPanel(new BorderLayout());
-		JScrollPane BerrorScroll = new JScrollPane(BerrorLog);
+		BerrorScroll = new JScrollPane(BerrorLog);
 		BerrorScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		BerrorScroll.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		BerrorScroll.setBorder(BorderFactory.createTitledBorder("Bots"));
-		JScrollPane CerrorScroll = new JScrollPane(CerrorLog);
+		CerrorScroll = new JScrollPane(CerrorLog);
 		CerrorScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		CerrorScroll.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		CerrorScroll.setBorder(BorderFactory.createTitledBorder("Controller"));
