@@ -32,6 +32,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import java.io.PrintStream;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -43,6 +45,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 	private PatternLayout normalGen = new PatternLayout();
 	public static Level databaseLogLevel = Level.OFF;
+	public GUI gui = GUI.instance;
 
 	public ControlAppender(LoggerContext context) {
 		setName("ControlAppender");
@@ -61,13 +64,15 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 	@Override
 	public void append(ILoggingEvent event) {
 		//Drop anything from the EJP package, since we don't care about debug messages, and exceptions are bubbled up to us
-		if(event.getLoggerName().startsWith("ejp") && !event.getLevel().isGreaterOrEqual(databaseLogLevel))
+		if (event.getLoggerName().startsWith("ejp") && !event.getLevel().isGreaterOrEqual(databaseLogLevel))
 			return;
 
 		String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
-		if (GUIExists())
-			SwingUtilities.invokeLater(new WriteOutput((Bot.getPoolLocal() != null) ? GUI.instance.BerrorLog : GUI.instance.CerrorLog, event, server));
-		else
+		if (GUIExists()) {
+			JTextPane textPane = (Bot.getPoolLocal() != null) ? gui.BerrorLog : gui.CerrorLog;
+			JScrollPane scrollPane = (Bot.getPoolLocal() != null) ? gui.BerrorScroll : gui.CerrorScroll;
+			SwingUtilities.invokeLater(new WriteOutput(textPane, scrollPane, event, server));
+		} else
 			writeStd(server, event);
 	}
 
@@ -80,7 +85,7 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 		if (event.getThrowableProxy() == null)
 			output.println(normalGen.doLayout(event).trim() + event.getFormattedMessage());
 		else
-			output.println(event.getFormattedMessage()+"\n"+ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
+			output.println(event.getFormattedMessage() + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
 	}
 
 	/**0
@@ -104,16 +109,18 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("hh:mm:ss a");
 		ILoggingEvent event;
 		String address;
+		JScrollPane scroll;
 
 		/**
 		 * Simple constructor to init
 		 * @param appendTo JTextPane to append to
 		 */
-		public WriteOutput(JTextPane appendTo, ILoggingEvent event, String address) {
+		public WriteOutput(JTextPane appendTo, JScrollPane scroll, ILoggingEvent event, String address) {
 			this.pane = appendTo;
 			this.doc = appendTo.getStyledDocument();
 			this.address = address;
 			this.event = event;
+			this.scroll = scroll;
 
 			//Only add styles if they don't already exist
 			if (doc.getStyle("Class") == null) {
@@ -168,7 +175,9 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 					doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
 				doc.insertString(doc.getLength(), formatMsg(event, address, message), msgStyle);
 
-				if (GUI.instance.autoScrollEnabled)
+				//Only autoscroll if the scrollbar is at the bottom
+				JScrollBar scrollBar = scroll.getVerticalScrollBar();
+				if (scrollBar.getValue()+scrollBar.getVisibleAmount() != scrollBar.getMaximum())
 					pane.setCaretPosition(prevLength);
 			} catch (Exception e) {
 				e.printStackTrace(); //Don't use log.error because this is how stuff is outputed
@@ -179,7 +188,7 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 			ThrowableProxy throwArr = (ThrowableProxy) event.getThrowableProxy();
 			if (throwArr == null)
 				return message;
-			return message+"\n"+ExceptionUtils.getFullStackTrace(((ThrowableProxy) throwArr).getThrowable()).trim();
+			return message + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) throwArr).getThrowable()).trim();
 		}
 	}
 }

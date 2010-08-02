@@ -38,6 +38,7 @@ class JSplitPaneDivid extends JSplitPane {
 		setDividerSize(6);
 	}
 
+	@Override
 	public void paint(Graphics g) {
 		if (!isPainted) {
 			super.setDividerLocation(0.5);
@@ -48,11 +49,11 @@ class JSplitPaneDivid extends JSplitPane {
 }
 
 public class InfoStats extends JSplitPaneDivid {
-	static LayoutManager panelLayout = new GridLayout(0, 2, 5, 5);
-	static JPanel topLeft = new JPanel(panelLayout);
-	static JPanel topRight = new JPanel(panelLayout);
-	static JPanel bottom = new JPanel(panelLayout);
-	JLabel uptime, totalServers, totalChan, totalUsers, totalMessages, totalCommands;
+	protected static final LayoutManager panelLayout = new GridLayout(0, 2, 5, 5);
+	protected static JPanel topLeft = new JPanel(panelLayout);
+	protected static JPanel topRight = new JPanel(panelLayout);
+	protected static JPanel bottom = new JPanel(panelLayout);
+	protected JLabel uptime, totalServers, totalChan, totalUsers, totalMessages, totalCommands;
 
 	public InfoStats() {
 		super(VERTICAL_SPLIT, new JSplitPaneDivid(HORIZONTAL_SPLIT, topLeft, topRight), bottom);

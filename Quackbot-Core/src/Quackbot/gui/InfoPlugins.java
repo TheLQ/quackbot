@@ -16,6 +16,7 @@
  */
 package Quackbot.gui;
 
+import Quackbot.BaseCommand;
 import Quackbot.Command;
 import Quackbot.CommandManager;
 import Quackbot.hook.HookManager;
@@ -39,13 +40,13 @@ import org.slf4j.LoggerFactory;
  * @author LordQuackstar
  */
 public class InfoPlugins extends JScrollPane {
-	final static DefaultTableModel pluginTableModel = new DefaultTableModel() {
+	protected final static DefaultTableModel pluginTableModel = new DefaultTableModel() {
 		@Override
 		public Class getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 	};
-	final static JTable pluginTable = new JTable(pluginTableModel) {
+	protected final static JTable pluginTable = new JTable(pluginTableModel) {
 		@Override
 		public String getToolTipText(MouseEvent e) {
 			Point p = e.getPoint();
@@ -65,8 +66,7 @@ public class InfoPlugins extends JScrollPane {
 
 			@Override
 			public void onPluginLoadComplete() throws Exception {
-				for (Command command : CommandManager.getCommands()) {
-					log.info("Whoo, called on " + command.getName());
+				for (BaseCommand command : CommandManager.getCommands()) {
 					pluginTableModel.addRow(new Object[]{command.getName(),
 								command.isEnabled(),
 								command.isAdmin(),
@@ -115,7 +115,7 @@ public class InfoPlugins extends JScrollPane {
 					return;
 				TableModel model = ((TableModel) e.getSource());
 				String plugin = StringUtils.trimToNull((String) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 0));
-				Command curPlugin = CommandManager.getCommand(plugin);
+				BaseCommand curPlugin = CommandManager.getCommand(plugin);
 				curPlugin.setEnabled((Boolean) model.getValueAt(e.getFirstRow(), 1));
 				curPlugin.setAdmin((Boolean) model.getValueAt(e.getFirstRow(), 2));
 				log.debug("Set plugin " + curPlugin.getName() + " to " + pluginToString(curPlugin));
@@ -142,7 +142,7 @@ public class InfoPlugins extends JScrollPane {
 		}).start();**/
 	}
 
-	public String pluginToString(Command cmd) {
+	public String pluginToString(BaseCommand cmd) {
 		return "[enabled=" + cmd.isEnabled() + "] "
 				+ " [admin=" + cmd.isAdmin() + "] ";
 	}
