@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  *		ctrl.start(); //Execute Quackbot
  * </code>
  * <br>
- * All of those calls are absolutly nessesary. Leaving out connectDB will yeild a QuackbotException, leaving out start will just not do anything
+ * All of those calls are absolutely nessesary. Leaving out connectDB will yield a QuackbotException, leaving out start will just not do anything
  * <p>
  * Other methods of intrest include {@link #addCommand(Quackbot.PluginLoader)}, {@link #addPrefix(java.lang.String) },
  * {@link #addServer(java.lang.String, int, java.lang.String[]) }, and {@link #initHooks}
@@ -70,20 +70,6 @@ import org.slf4j.LoggerFactory;
  * @author Lord.Quackstar
  */
 public class Controller {
-	protected static ControlAppender appender;
-
-	static {
-		//Add appenders to root logger
-		final ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
-		rootLog.getLoggerContext().reset();
-		rootLog.setLevel(Level.ALL);
-		rootLog.detachAndStopAllAppenders();
-		rootLog.addAppender(appender = new ControlAppender(rootLog.getLoggerContext()));
-	}
-	/**
-	 * Singleton instance.
-	 */
-	public static Controller instance;
 	/**
 	 * Set of all Bot instances
 	 */
@@ -91,7 +77,7 @@ public class Controller {
 	/**
 	 * Number of Commands executed, used by logging
 	 */
-	public int cmdNum = 0;
+	protected int cmdNum = 0;
 	/**
 	 * Log4j Logger
 	 */
@@ -109,18 +95,30 @@ public class Controller {
 			return new Thread(threadGroup, "mainPool-" + (++count));
 			}
 			}*/);
-	public DatabaseManager dbm = null;
+	/**
+	 * The full configuration avaliable to us
+	 */
+	public QuackbotConfig config;
+	/**
+	 * The Logger
+	 */
+	protected ControlAppender appender;
+	public GUI gui;
 
-	public QuackbotConfig config = null;
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
 	public Controller(QuackbotConfig config) {
-		instance = this;
 		this.config = config;
-		dbm = config.dbm;
+
+		//Setup logger
+		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
+		rootLog.getLoggerContext().reset();
+		rootLog.setLevel(Level.ALL);
+		rootLog.detachAndStopAllAppenders();
+		rootLog.addAppender(appender = new ControlAppender(this,rootLog.getLoggerContext()));
 
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -128,11 +126,11 @@ public class Controller {
 			public void run() {
 				Logger log = LoggerFactory.getLogger(this.getClass());
 				log.info("Closing all IRC and db connections gracefully");
-				Controller ctrl = Controller.instance;
-				ctrl.stopAll();
+
+				Controller.this.stopAll();
 				try {
-					if (ctrl.dbm != null)
-						ctrl.dbm.close();
+					if (Controller.this.getDatabase() != null)
+						Controller.this.getDatabase().close();
 				} catch (Exception e) {
 					e.printStackTrace(); //send to standard output because window is closing
 				}
@@ -149,7 +147,7 @@ public class Controller {
 				}
 
 				//Attempt to dynamically load GUI since it might not exist in packages
-				new GUI();
+				gui = new GUI(this);
 			} catch (Exception e) {
 				log.error("Unkown error occured in GUI initialzation", e);
 			}
@@ -168,23 +166,23 @@ public class Controller {
 	 * If this isn't called, then the bot does nothing
 	 */
 	public void start() {
-		if (dbm == null) {
+		if (config.getDatabase() == null) {
 			log.error("Not configured to use database! Must run connectDB ");
 			return;
 		}
 
 		//Call list of commands
-		HookManager.getHookMap("onInit").execute();
+		HookManager.getHookMap("onInit").execute(this);
 
 		//Load current CMD classes
 		reloadPlugins();
 
-		//if(true)
-		//return;
+		if(true)
+		return;
 
 		//Connect to all servers
 		try {
-			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class);
+			Collection<Server> c = getDatabase().loadObjects(new ArrayList<Server>(), Server.class);
 			if (c.isEmpty())
 				log.error("Server list is empty!");
 			for (Server curServer : c)
@@ -211,7 +209,7 @@ public class Controller {
 			public void run() {
 				try {
 					log.info("Initiating IRC connection to server " + curServer);
-					Bot qb = new Bot(curServer, threadPool);
+					Bot qb = new Bot(Controller.this, curServer, threadPool);
 					qb.setVerbose(true);
 					bots.put(curServer.getAddress(), qb);
 				} catch (Exception ex) {
@@ -243,7 +241,7 @@ public class Controller {
 		Server srv = new Server(address, port);
 		for (String curChan : channels)
 			srv.addChannel(new Channel(curChan));
-		initBot(srv.updateDB());
+		initBot(srv.updateDB(this));
 	}
 
 	/**
@@ -253,10 +251,10 @@ public class Controller {
 	 */
 	public void removeServer(String address) {
 		try {
-			Collection<Server> c = dbm.loadObjects(new ArrayList<Server>(), Server.class);
+			Collection<Server> c = getDatabase().loadObjects(new ArrayList<Server>(), Server.class);
 			for (Server curServ : c)
 				if (curServ.getAddress().equals(address))
-					curServ.delete();
+					curServ.delete(this);
 		} catch (Exception e) {
 			log.error("Can't remove server", e);
 		}
@@ -302,7 +300,7 @@ public class Controller {
 					reloadPlugins(child);
 				return;
 			} //Is this in the .svn directory?
-			else if (file.getAbsolutePath().indexOf(".svn") != -1 || file.getName().equals("JS_Template.js"))
+			else if (file.getAbsolutePath().indexOf(".svn") != -1)
 				return;
 
 			//Get extension of file
@@ -365,19 +363,19 @@ public class Controller {
 	 */
 	public boolean isAdmin(String name, String server, String channel) {
 		try {
-			Collection<Admin> c = dbm.loadObjects(new ArrayList<Admin>(), Admin.class);
+			Collection<Admin> c = getDatabase().loadObjects(new ArrayList<Admin>(), Admin.class);
 			for (Admin curAdmin : c) {
 				//Is this even a match?
 				if (!curAdmin.getUser().equalsIgnoreCase(name))
 					continue;
 
 				//Is this person an admin of this channel?
-				Channel chan = curAdmin.getChannel();
+				Channel chan = curAdmin.getChannel(this);
 				if (chan != null && chan.getName().equals(channel))
 					return true;
 
 				//Is this person an admin of the server?
-				Server serv = curAdmin.getServer();
+				Server serv = curAdmin.getServer(this);
 				if (serv != null && serv.getAddress().equalsIgnoreCase(server))
 					return true;
 
@@ -391,5 +389,7 @@ public class Controller {
 		return false;
 	}
 
-	
+	public DatabaseManager getDatabase() {
+		return config.getDatabase();
+	}
 }

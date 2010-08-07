@@ -50,6 +50,8 @@ public class SandBox {
 	public SandBox() {
 
 		try {
+
+			new FileReader(new File(getClass().getResource("JSPluginResources/QuackUtils.js").toURI()));
 			final JTextPane textPane = new JTextPane();
 			textPane.setEditable(false);
 			textPane.setAlignmentX(Component.CENTER_ALIGNMENT);

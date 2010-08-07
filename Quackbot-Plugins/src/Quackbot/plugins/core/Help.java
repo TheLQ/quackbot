@@ -37,9 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 public class Help extends Command {
-	private static Logger log = LoggerFactory.getLogger(Help.class);
-	Controller ctrl = Controller.instance;
-
+	private Logger log = LoggerFactory.getLogger(Help.class);
 	@Override
 	public String onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
 		return super.onCommandGiven(channel, sender, login, hostname, args);

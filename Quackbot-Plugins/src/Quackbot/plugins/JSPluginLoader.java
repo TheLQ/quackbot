@@ -48,12 +48,16 @@ public class JSPluginLoader implements PluginLoader {
 
 	@Override
 	public void load(File file) throws Exception {
+		if(file.getName().equals("JS_Template.js") || file.getName().equals("QuackUtils.js"))
+			//Ignore this
+			return;
+
 		String name = StringUtils.split(file.getName(), ".")[0];
 		log.info("New JavaScript Plugin: " + name);
 
 		//Make an Engine and a context to use for this plugin
 		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
-		jsEngine.eval(new FileReader("plugins/QuackUtils.js"));
+		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/QuackUtils.js").toURI())));
 		jsEngine.eval(new FileReader(file));
 
 		//Should we just ignore this?
@@ -76,8 +80,8 @@ public class JSPluginLoader implements PluginLoader {
 		//Must be a Command
 		jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		jsEngine.put("log", LoggerFactory.getLogger("JSPlugins." + name));
-		jsEngine.eval(new FileReader("plugins/QuackUtils.js"));
-		jsEngine.eval(new FileReader("plugins/JSPlugin.js"));
+		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/QuackUtils.js").toURI())));
+		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/JSPlugin.js").toURI())));
 		jsEngine.eval(new FileReader(file));
 		if (jsEngine.get("onCommand") == null)
 			jsEngine.eval("function onCommand() {return null;}");
@@ -91,94 +95,6 @@ public class JSPluginLoader implements PluginLoader {
 		if (obj == null || !(obj instanceof Boolean))
 			return false;
 		return (Boolean) obj;
-	}
-
-	public String genQuackUtils() {
-		return "var util = false;\n"
-				+ "var hook = null;\n"
-				+ "var ignore = false;\n"
-				+ "var parameters = 0;\n"
-				+ "var admin = false;\n"
-				+ "var enabled = true;\n"
-				+ "var help = '';\n"
-				+ "var QuackUtils = {\n"
-				+ "	toJavaArray: function(type, arr) {\n"
-				+ "		var jArr;\n"
-				+ "		if(arr.length) {\n"
-				+ "			jArr = java.lang.reflect.Array.newInstance(type, arr.length);\n"
-				+ "			for(var i=0;i<arr.length;i++)\n"
-				+ "				jArr[i] = arr[i];\n"
-				+ "		}\n"
-				+ "		else {\n"
-				+ "			jArr = java.lang.reflect.Array.newInstance(type, 1);\n"
-				+ "			jArr[0] = arr;\n"
-				+ "		}\n"
-				+ "		return jArr;\n"
-				+ "	},\n"
-				+ "	getRequiredParams: function() {\n"
-				+ "		//Is it even set?\n"
-				+ "		if(typeof parameters == 'undefined')\n"
-				+ "			return 0;\n"
-				+ "		else if(typeof(parameters) == 'object')\n"
-				+ "			if(QuackUtils.isArray(parameters))\n"
-				+ "				return parameters[0]\n"
-				+ "			else if(typeof parameters.required == 'undefined')\n"
-				+ "				return 0;\n"
-				+ "			else //Required field must be a number\n"
-				+ "				return parameters.required;\n"
-				+ "		//Must be a number\n"
-				+ "		else\n"
-				+ "			return parameters;\n"
-				+ "	},\n"
-				+ "	getOptionalParams: function() {\n"
-				+ "		if(typeof parameters == 'undefined')\n"
-				+ "			return 0;\n"
-				+ "		else if(typeof(parameters) == 'object')\n"
-				+ "			if(QuackUtils.isArray(parameters))\n"
-				+ "				return parameters[1]\n"
-				+ "			else if(typeof parameters.optional== 'undefined')\n"
-				+ "				return 0;\n"
-				+ "			else //Required field must be a string or a number\n"
-				+ "				return parameters.optional;\n"
-				+ "		//Must be a number, but only for required\n"
-				+ "		else\n"
-				+ "			return 0;\n"
-				+ "	},\n"
-				+ "	isArray: function(object) {\n"
-				+ "		return object.length && typeof object != 'string';\n"
-				+ "	},\n"
-				+ "	pickBest: function(param, defult) {\n"
-				+ "		if(typeof param == 'undefined')\n"
-				+ "			return defult;\n"
-				+ "		else\n"
-				+ "			return param;\n"
-				+ "	},\n"
-				+ "	stringClass: new java.lang.String().getClass()\n"
-				+ "}\n"
-				+ "function getEnabled() {\n"
-				+ "	return command.getEnabled();\n"
-				+ "}\n"
-				+ "function getBot() {\n"
-				+ "	return Bot.getThreadLocal();\n"
-				+ "}\n"
-				+ "function setEnabled(value) {\n"
-				+ "	return command.setEnabled(value);\n"
-				+ "}\n"
-				+ "function getAdmin() {\n"
-				+ "	return command.getAdmin();\n"
-				+ "}\n"
-				+ "function setAdmin(value) {\n"
-				+ "	return command.setAdmin(value);\n"
-				+ "}\n"
-				+ "function getHelp() {\n"
-				+ "	return command.getHelp();\n"
-				+ "}\n"
-				+ "function setHelp(value) {\n"
-				+ "	return command.setHelp(value);\n"
-				+ "}\n"
-				+ "function getEnabled() {\n"
-				+ "	return command.getEnabled();\n"
-				+ "}";
 	}
 
 	public static class JSPluginProxy implements InvocationHandler {

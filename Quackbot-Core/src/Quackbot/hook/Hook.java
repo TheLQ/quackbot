@@ -18,6 +18,7 @@ package Quackbot.hook;
 
 import Quackbot.Bot;
 import Quackbot.Command;
+import Quackbot.Controller;
 import java.util.List;
 import org.pircbotx.DccChat;
 import org.pircbotx.DccFileTransfer;
@@ -52,6 +53,10 @@ public abstract class Hook {
 
 	public String getName() {
 		return name;
+	}
+
+	public Controller getController() {
+		return getBot().controller;
 	}
 
 	public Hook setup(String name) {
@@ -104,7 +109,7 @@ public abstract class Hook {
 	public void onIncomingFileTransfer(DccFileTransfer transfer) throws Exception {
 	}
 
-	public void onInit() throws Exception {
+	public void onInit(Controller controller) throws Exception {
 	}
 
 	public void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel) throws Exception {

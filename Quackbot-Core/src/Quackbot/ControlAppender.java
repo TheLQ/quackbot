@@ -44,9 +44,10 @@ import org.apache.commons.lang.exception.ExceptionUtils;
  */
 public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 	private PatternLayout normalGen = new PatternLayout();
-	public static Level databaseLogLevel = Level.OFF;
+	public Controller controller;
 
-	public ControlAppender(LoggerContext context) {
+	public ControlAppender(Controller controller, LoggerContext context) {
+		this.controller = controller;
 		setName("ControlAppender");
 		setContext(context);
 		normalGen.setContext(context);
@@ -63,12 +64,12 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 	@Override
 	public void append(ILoggingEvent event) {
 		//Drop anything from the EJP package, since we don't care about debug messages, and exceptions are bubbled up to us
-		if (event.getLoggerName().startsWith("ejp") && !event.getLevel().isGreaterOrEqual(databaseLogLevel))
+		if (event.getLoggerName().startsWith("ejp") && !event.getLevel().isGreaterOrEqual(controller.config.getDatabaseLogLevel()))
 			return;
 
 		String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
-		if (GUI.instance != null) {
-			GUI gui = GUI.instance;
+		if (controller.gui != null) {
+			GUI gui = controller.gui;
 			JTextPane textPane = (Bot.getPoolLocal() != null) ? gui.BerrorLog : gui.CerrorLog;
 			JScrollPane scrollPane = (Bot.getPoolLocal() != null) ? gui.BerrorScroll : gui.CerrorScroll;
 			SwingUtilities.invokeLater(new WriteOutput(textPane, scrollPane, event, server));
@@ -85,7 +86,7 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 	 * Utility for writing to output TextFields on GUI using standard format.
 	 * <p>
 	 * This should ONLY be executed in AWT Event Queue
-	 * @author Lord.Quackstar
+	 * @author Lord.Quackstar 
 	 */
 	public class WriteOutput implements Runnable {
 		/**

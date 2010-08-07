@@ -85,17 +85,18 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 */
 	private Logger log = LoggerFactory.getLogger(Bot.class);
 	public UUID unique;
-	private Controller controller = Controller.instance;
+	public Controller controller;
 
 	/**
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(final Server serverDB, ExecutorService threadPool) {
+	public Bot(Controller controller, final Server serverDB, ExecutorService threadPool) {
 		this.serverDB = serverDB;
 		this.threadPool = threadPool;
 		poolLocal.set(this);
 		unique = UUID.randomUUID();
+		this.controller = controller;
 
 		setName(controller.config.getName());
 		setAutoNickChange(true);
@@ -150,7 +151,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 			@Override
 			public void onMessage(String channel, String sender, String login, String hostname, String message) {
-				int cmdNum = Controller.instance.addCmdNum();
+				int cmdNum = getController().addCmdNum();
 
 				String command = "";
 
@@ -181,7 +182,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 			@Override
 			public void onPrivateMessage(String sender, String login, String hostname, String message) {
-				int cmdNum = Controller.instance.addCmdNum();
+				int cmdNum = getController().addCmdNum();
 				log.debug("-----------Begin execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
 				String command = "";
 
@@ -245,7 +246,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 				if (plugin == null || !plugin.isEnabled())
 					throw new InvalidCMDException(command);
 				//Is this an admin function? If so, is the person an admin?
-				if (plugin.isAdmin() && !Controller.instance.isAdmin(sender, getBot(), channel))
+				if (plugin.isAdmin() && !getController().isAdmin(sender, getBot(), channel))
 					throw new AdminException();
 
 				//Does the required number of args exist?
@@ -300,14 +301,14 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 	public boolean isLocked(String channel, String sender, boolean sayError) {
 		//Is bot locked?
-		if (botLocked == true && !Controller.instance.isAdmin(getServer(), channel, sender)) {
+		if (botLocked == true && !controller.isAdmin(getServer(), channel, sender)) {
 			if (sayError)
 				log.info("Command ignored due to global lock in effect");
 			return true;
 		}
 
 		//Is channel locked?
-		if (channel != null && chanLockList.contains(channel) && !Controller.instance.isAdmin(getServer(), channel, sender)) {
+		if (channel != null && chanLockList.contains(channel) && !controller.isAdmin(getServer(), channel, sender)) {
 			if (sayError)
 				log.info("Command ignored due to channel lock in effect");
 			return true;
