@@ -1,6 +1,7 @@
-var help = "Reloads all commands. Syntax: ?reload";
+var help = "Reloads all commands.  Syntax: ?reload";
 var admin = true;
 
-function invoke() {
+function onCommand() {
 	Controller.instance.reloadPlugins();
+	return "Plugins reloaded successuflly";
 }

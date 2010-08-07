@@ -1,5 +1,5 @@
-var help = "Reports what VLC is currently playing";
+var help = "Returned the LF download topic";
  
 function invoke() {
-	qb.sendMsg(new BotMessage(event,"Downloads avalible at: http:// lyokofreak. net/forum/viewtopic.php?t=6896"))
+	return "Downloads avalible at: http:// lyokofreak. net/forum/viewtopic.php?t=6896";
 }

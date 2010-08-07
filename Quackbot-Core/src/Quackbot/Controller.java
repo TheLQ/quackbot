@@ -28,13 +28,11 @@ import java.io.File;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import javax.sql.DataSource;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
@@ -87,21 +85,9 @@ public class Controller {
 	 */
 	public static Controller instance;
 	/**
-	 * Global Prefixes.
-	 */
-	public List<String> globPrefixes = Collections.synchronizedList(new ArrayList<String>());
-	/**
-	 * All registered plugin types
-	 */
-	public static TreeMap<String, PluginLoader> pluginLoaders = new TreeMap<String, PluginLoader>();
-	/**
 	 * Set of all Bot instances
 	 */
 	public TreeMap<String, Bot> bots = new TreeMap<String, Bot>();
-	/**
-	 * DatabaseManager instance of JPersist database
-	 */
-	public DatabaseManager dbm = null;
 	/**
 	 * Number of Commands executed, used by logging
 	 */
@@ -123,25 +109,18 @@ public class Controller {
 			return new Thread(threadGroup, "mainPool-" + (++count));
 			}
 			}*/);
-	/**
-	 * Wait between sending messages
-	 */
-	public static int msgWait = 1750;
+	public DatabaseManager dbm = null;
 
-	/**
-	 * Convience method for <code>new Controller(true)</code>
-	 */
-	public Controller() {
-		this(true);
-	}
-
+	public QuackbotConfig config = null;
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
-	public Controller(boolean makeGui) {
+	public Controller(QuackbotConfig config) {
 		instance = this;
+		this.config = config;
+		dbm = config.dbm;
 
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -161,7 +140,7 @@ public class Controller {
 		});
 
 		//Do we need to make a GUI?
-		if (makeGui)
+		if (config.isGuiEnabled())
 			try {
 				//This can't run in EDT, end if it is
 				if (SwingUtilities.isEventDispatchThread()) {
@@ -195,7 +174,7 @@ public class Controller {
 		}
 
 		//Call list of commands
-		HookManager.getList("onInit").execute();
+		HookManager.getHookMap("onInit").execute();
 
 		//Load current CMD classes
 		reloadPlugins();
@@ -297,30 +276,23 @@ public class Controller {
 	 * @param clean Clear list of commands?
 	 */
 	public void reloadPlugins() {
-		HookManager.getList("onPluginLoadStart").execute();
+		HookManager.getHookMap("onPluginLoadStart").execute();
 		CommandManager.removeAll();
 
-		mainPool.submit(new Runnable() {
-			@Override
-			public void run() {
-				System.out.println("In main pool runnable");
-				try {
-					//Load all permanent commands
-					reloadPlugins(new File("plugins"));
-					HookManager.getList("onPluginLoadComplete").execute();
-				} catch (Exception e) {
-					log.error("Error in plugin loading!!!", e);
-				}
-			}
-		});
+		try {
+			//Load all permanent commands
+			reloadPlugins(new File("plugins"));
+			HookManager.getHookMap("onPluginLoadComplete").execute();
+		} catch (Exception e) {
+			log.error("Error in plugin loading!!!", e);
+		}
 	}
 
 	/**
 	 * Recusrivly load commands from current file. Use
 	 * @param file
 	 */
-	private void reloadPlugins(File file) {
-		System.out.println("Current file: " + file.getAbsolutePath());
+	protected void reloadPlugins(File file) {
 		String[] extArr = null;
 		//Load using appropiate type
 		try {
@@ -340,47 +312,12 @@ public class Controller {
 			String ext = extArr[1];
 
 			//Load with pluginType
-			PluginLoader loader = pluginLoaders.get(ext);
+			PluginLoader loader = config.getPluginLoaders().get(ext);
 			if (loader != null)
 				loader.load(file);
 		} catch (Exception e) {
 			log.error("Could not load plugin " + extArr[0], e);
 		}
-	}
-
-	/**
-	 * Register a custom plugin type with Quackbot, associating with the specified extention
-	 * @param ext     Exentsion to associate Command Type with
-	 * @param newType Class of Command Type
-	 */
-	public static void addPluginLoader(PluginLoader loader, String ext) {
-		addPluginLoader(loader, new String[]{ext});
-	}
-
-	/**
-	 * Register a custom plugin type with Quackbot, associating with the specified extentions
-	 * @param exts     Extention to associate Command Type with
-	 * @param newType Class of Command Type
-	 */
-	public static void addPluginLoader(PluginLoader loader, String[] exts) {
-		for (String curExt : exts)
-			pluginLoaders.put(curExt, loader);
-	}
-
-	/**
-	 * Register a prefix that will activate bot
-	 * @param prefix
-	 */
-	public void addPrefix(String prefix) {
-		globPrefixes.add(prefix);
-	}
-
-	/**
-	 * Set the log level of JPersist. By default its OFF, but can be changed for debugging
-	 * @param level JUT logging level
-	 */
-	public void setDatabaseLogLevel(Level level) {
-		ControlAppender.databaseLogLevel = level;
 	}
 
 	/**
@@ -454,51 +391,5 @@ public class Controller {
 		return false;
 	}
 
-	/**
-	 * Create a DatabaseManager instance using a supplied DataSource.
-	 * <p>
-	 * This simply calls
-	 * <code>dbm = new DatabaseManager(databaseName, poolSize, dataSource, catalogPattern, schemaPattern);</code>
-	 *
-	 * @param databaseName the name to associate with the DatabaseManager instance
-	 * @param poolSize the number of instances to manage
-	 * @param dataSource the data source that supplies connections
-	 */
-	public void connectDB(String databaseName, int poolSize, DataSource dataSource) {
-		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, dataSource);
-
-	}
-
-	/**
-	 * Connect to Database using using JNDI.
-	 * <p>
-	 * This simply calls
-	 * <code>dbm = new DatabaseManager(databaseName, poolSize,jndiUri, catalogPattern, schemaPattern);</code>
-	 *
-	 * @param databaseName the name to associate with the DatabaseManager instance
-	 * @param poolSize the number of instances to manage
-	 * @param jndiUri the JNDI URI
-	 * @param username The username to use
-	 * @param password The password to use
-	 */
-	public void connectDB(String databaseName, int poolSize, String jndiUri, String username, String password) {
-		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, jndiUri, username, password);
-	}
-
-	/**
-	 * Create a DatabaseManager instance using a supplied database driver.
-	 * <p>
-	 * This simply calls
-	 * <code>dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern);</code>
-	 *
-	 * @param databaseName the name to associate with the DatabaseManager instance
-	 * @param poolSize the number of instances to manage
-	 * @param driver the database driver class name
-	 * @param url the driver oriented database url
-	 * @param username The username to use
-	 * @param password The password to use
-	 */
-	public void connectDB(String databaseName, int poolSize, String driver, String url, String username, String password) {
-		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, driver, url, username, password);
-	}
+	
 }

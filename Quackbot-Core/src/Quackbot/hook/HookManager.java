@@ -18,9 +18,10 @@ package Quackbot.hook;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * own way.
  * <p>
  * Internally, Event types are kept on an enum map while hooks are kept on their
- * corresponding {@link HookList}. Please see {@link HookList} for more
+ * corresponding {@link HookMap}. Please see {@link HookMap} for more
  * information. The the avalible events are defined in the enum.
  * <p>
  * HookManager is a singleton handling all Event operations. It holds the above
@@ -59,11 +60,11 @@ public class HookManager {
 	 * ArrayList - All Hooks for that method
 	 *		BaseHook - Hook
 	 */
-	private static final Map<String, HookList> hooks = Collections.synchronizedMap(new TreeMap<String, HookList>() {
+	private static final Map<String, HookMap> hooks = Collections.synchronizedMap(new HashMap<String, HookMap>() {
 		{
 			for (Method curMethod : Hook.class.getDeclaredMethods())
 				if (curMethod.getName().startsWith("on"))
-					put(curMethod.getName(), new HookList(curMethod.getName()));
+					put(curMethod.getName(), new HookMap(curMethod.getName()));
 		}
 	});
 	/**
@@ -78,33 +79,43 @@ public class HookManager {
 	}
 
 	public static void addPluginHook(Hook hook) {
-		log.info("Adding hook " + hook.getName());
+		log.debug("Adding hook " + hook.getName());
 		for (Method curMethod : hook.getClass().getDeclaredMethods())
 			if (hooks.containsKey(curMethod.getName())) {
 				curMethod.setAccessible(true);
-				getHookList(curMethod.getName()).add(hook);
+				HookMap curHookMap = getHookMap(curMethod.getName());
+				synchronized (curHookMap) {
+					curHookMap.put(hook.getName(), hook);
+				}
 			}
 	}
 
 	public static void removePluginHook(String hookName) {
-		for (HookList curList : hooks.values())
-			for (Hook curHook : curList)
-				if (curHook.getName().equals(hookName))
-					curList.remove(curHook);
+		log.debug("Removing hook " + hookName);
+		for (HookMap curList : hooks.values())
+			synchronized (curList) {
+				curList.remove(hookName);
+			}
 	}
 
 	public static void removePluginHook(Hook hook) {
-		for (HookList curList : hooks.values())
-			curList.remove(hook);
+		for (HookMap curList : hooks.values())
+			for (Map.Entry<String, Hook> curEntry : curList.entrySet())
+				if (curEntry.getValue() == hook) {
+					synchronized (curList) {
+						log.debug("Removing command " + hook.getName());
+						curList.remove(curEntry.getKey());
+					}
+					break;
+				}
 	}
 
-	public static HookList getHookList(String event) {
+	public static HookMap getHookMap(String event) {
 		return hooks.get(event);
 	}
 
-	public static HookList getList(String name) {
-		//Create new entry if bot does not exist
-		return hooks.get(name);
+	public static Collection<Hook> getList(String name) {
+		return hooks.get(name).values();
 	}
 
 	public static ArrayList<String> getNames() {

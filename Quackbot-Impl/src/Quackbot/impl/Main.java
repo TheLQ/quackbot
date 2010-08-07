@@ -17,8 +17,11 @@
 package Quackbot.impl;
 
 import Quackbot.Controller;
+import Quackbot.QuackbotConfig;
+import Quackbot.hook.HookManager;
 import Quackbot.plugins.JavaPluginLoader;
 import Quackbot.plugins.impl.JavaTest;
+import Quackbot.plugins.impl.TestPlugin;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -36,8 +39,6 @@ public class Main {
 	 * @param args Passed parameters (ignored)
 	 */
 	public static void main(String[] args) {
-		Controller ctrl = new Controller();
-
 		String[] dbInfo = getDBInfo();
 		//This implementation uses the Commons DBCP for Connection managment.
 		//This is not nessesary for most applications
@@ -49,13 +50,16 @@ public class Main {
 		ds.setValidationQuery("SELECT * FROM quackbot_server");
 		ds.setTestOnBorrow(true);
 
-		//ctrl.connectDB(dbInfo[0], 10, ds);
-		ctrl.connectDB("someCompletlyRandomThing", 10, ds);
-		//ctrl.setDatabaseLogLevel(java.util.logging.Level.OFF);
+		QuackbotConfig config = new QuackbotConfig();
+		config.setName("Quackbot");
+		config.setFinger("LQ's Impl");
+		config.connectDB(null, 10, ds);
+		config.addPrefix("?");
+
 		JavaPluginLoader.load(new JavaTest());
-		//ctrl.addCommand(new JavaPluginLoader(HookTest.class.getName()));
-		ctrl.addPrefix("?");
-		ctrl.start();
+		HookManager.addPluginHook(new TestPlugin());
+
+		new Controller(config).start();
 	}
 
 	/**

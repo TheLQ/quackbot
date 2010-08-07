@@ -16,6 +16,7 @@
  */
 package Quackbot.plugins.core;
 
+import Quackbot.BaseCommand;
 import Quackbot.Command;
 import Quackbot.CommandManager;
 import Quackbot.Controller;
@@ -23,7 +24,6 @@ import Quackbot.err.InvalidCMDException;
 import Quackbot.plugins.java.AdminOnly;
 import Quackbot.plugins.java.HelpDoc;
 import Quackbot.plugins.java.Optional;
-import Quackbot.plugins.java.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -46,14 +46,14 @@ public class AdminHelp extends Command {
 			List<String> cmdList = new ArrayList<String>();
 
 			//Add Java Plugins
-			for (Command curCmd : CommandManager.getCommands())
+			for (BaseCommand curCmd : CommandManager.getCommands())
 				if (curCmd.isEnabled() && curCmd.isAdmin())
 					cmdList.add(curCmd.getName());
 
 			//Send to user
 			return "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ");
 		}
-		Command result = CommandManager.getCommand(command);
+		BaseCommand result = CommandManager.getCommand(command);
 		if (result == null)
 			throw new InvalidCMDException(command);
 		else if (!result.isEnabled())

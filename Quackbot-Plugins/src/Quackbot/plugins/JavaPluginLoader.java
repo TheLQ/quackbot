@@ -22,6 +22,8 @@ import Quackbot.Controller;
 
 import Quackbot.PluginLoader;
 import Quackbot.err.QuackbotException;
+import Quackbot.hook.Hook;
+import Quackbot.hook.HookManager;
 import Quackbot.plugins.java.HelpDoc;
 import Quackbot.plugins.core.AdminHelp;
 import Quackbot.plugins.core.Help;
@@ -47,9 +49,15 @@ public class JavaPluginLoader implements PluginLoader {
 	private static Logger log = LoggerFactory.getLogger(JavaPluginLoader.class);
 
 	static {
-		//Controller.addPluginLoader(new JSPluginLoader(), "js");
-		JavaPluginLoader.load(new Help());
-		JavaPluginLoader.load(new AdminHelp());
+		HookManager.addPluginHook(new Hook("QBInit") {
+			@Override
+			public void onInit() throws Exception {
+				Controller.instance.config.addPluginLoader(new JSPluginLoader(), "js");
+				JavaPluginLoader.load(new Help());
+				JavaPluginLoader.load(new AdminHelp());
+			}
+		});
+
 	}
 
 	@Override
@@ -84,7 +92,7 @@ public class JavaPluginLoader implements PluginLoader {
 							}
 				}
 			if (clazz.isAnnotationPresent(Parameters.class)) {
-				
+
 				if (clazz.getAnnotation(Parameters.class).value() != -1)
 					requiredCount = clazz.getAnnotation(Parameters.class).value();
 				if (clazz.getAnnotation(Parameters.class).optional() != -1)

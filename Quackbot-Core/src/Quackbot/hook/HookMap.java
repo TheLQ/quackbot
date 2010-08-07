@@ -20,18 +20,19 @@ import Quackbot.Bot;
 import Quackbot.Controller;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HookList extends ArrayList<Hook> {
+public class HookMap extends HashMap<String,Hook> {
 	public boolean interupted, needsSuper;
 	public List<Hook> ignored = new ArrayList<Hook>(), skipped;
-	private Logger log = LoggerFactory.getLogger(HookList.class);
+	private Logger log = LoggerFactory.getLogger(HookMap.class);
 	public String event;
 
-	public HookList(String event) {
+	public HookMap(String event) {
 		this.event = event;
 	}
 
@@ -66,7 +67,7 @@ public class HookList extends ArrayList<Hook> {
 		skipped = new ArrayList<Hook>();
 
 		//Execute stack
-		for (Hook hook : this)
+		for (Hook hook : values())
 			if (!ignored.contains(hook) && !skipped.contains(hook)) {
 
 				Method curMethod = null;
@@ -89,13 +90,13 @@ public class HookList extends ArrayList<Hook> {
 
 	public int getPosition(Hook myHook) {
 		for (int i = 0; i <= size(); i++)
-			if (toArray()[i].equals(myHook))
+			if (values().toArray()[i].equals(myHook))
 				return i;
-		return -50;
+		return -1;
 	}
 
 	public Hook getHookAt(int position) {
-		return toArray(new Hook[0])[position];
+		return values().toArray(new Hook[0])[position];
 	}
 
 	public void skip(int position) {

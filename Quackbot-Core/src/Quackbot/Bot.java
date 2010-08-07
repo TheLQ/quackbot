@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -41,12 +42,12 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
-import org.jibble.pircbot.DccChat;
-import org.jibble.pircbot.DccFileTransfer;
-import org.jibble.pircbot.PircBot;
-import org.jibble.pircbot.ReplyConstants;
 
-import org.jibble.pircbot.User;
+import org.pircbotx.DccChat;
+import org.pircbotx.DccFileTransfer;
+import org.pircbotx.PircBotX;
+import org.pircbotx.ReplyConstants;
+import org.pircbotx.User;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -58,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * @version 3.0
  * @author Lord.Quackstar
  */
-public class Bot extends PircBot implements Comparable<Bot> {
+public class Bot extends PircBotX implements Comparable<Bot> {
 	/**
 	 * Says weather bot is globally locked or not
 	 */
@@ -84,6 +85,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	private Logger log = LoggerFactory.getLogger(Bot.class);
 	public UUID unique;
+	private Controller controller = Controller.instance;
 
 	/**
 	 * Init bot by setting all information
@@ -95,11 +97,12 @@ public class Bot extends PircBot implements Comparable<Bot> {
 		poolLocal.set(this);
 		unique = UUID.randomUUID();
 
-		setName("Quackbot");
+		setName(controller.config.getName());
 		setAutoNickChange(true);
-		setFinger("Quackbot IRC bot by Lord.Quackstar. Source: http://quackbot.googlecode.com/");
-		setMessageDelay(0);
-		setVersion("Quackbot 3.3");
+		setFinger(controller.config.getFinger());
+		setVersion(controller.config.getVersion());
+		setMessageDelay(controller.config.getMsgWait());
+
 
 		//Some debug
 		StringBuilder serverDebug = new StringBuilder("Attempting to connect to " + serverDB.getAddress() + " on port " + serverDB.getPort());
@@ -126,6 +129,26 @@ public class Bot extends PircBot implements Comparable<Bot> {
 			private Logger log = LoggerFactory.getLogger(Bot.class);
 
 			@Override
+			public void onConnect() throws Exception {
+				getBot().sendRawLine("NICKSERV identify manganip");
+				getBot().joinChannel("#quackbot");
+				getBot().joinChannel("##c++");
+				getBot().joinChannel("##linux");
+				getBot().joinChannel("#archlinux");
+				getBot().joinChannel("#debian");
+				getBot().joinChannel("#gentoo");
+				getBot().joinChannel("#git");
+				getBot().joinChannel("#jquery");
+				getBot().joinChannel("#python");
+				getBot().joinChannel("#ubuntu");
+				getBot().joinChannel("#maemo");
+				getBot().joinChannel("#mysql");
+				getBot().joinChannel("#vim");
+				getBot().joinChannel("#perl");
+				getBot().joinChannel("#freenode");
+			}
+
+			@Override
 			public void onMessage(String channel, String sender, String login, String hostname, String message) {
 				int cmdNum = Controller.instance.addCmdNum();
 
@@ -143,13 +166,10 @@ public class Bot extends PircBot implements Comparable<Bot> {
 							log.info("-----------Begin execution of command #" + cmdNum + ",  from channel " + channel + " using message " + message + "-----------");
 							message = message.substring(curPrefix.length(), message.length()).trim();
 							command = message.split(" ", 2)[0];
-							Command cmd = setupCommand(command, channel, sender, login, hostname, message);
-							cmd.onCommandGiven(channel, sender, login, hostname, getArgs(message));
-							cmd.onCommandChannel(channel, sender, login, hostname, getArgs(message));
-
-							String response = executeOnCommand(cmd, getArgs(message));
-							if (response != null)
-								getBot().sendMessage(channel, sender, response);
+							BaseCommand cmd = setupCommand(command, channel, sender, login, hostname, message);
+							getBot().sendMessage(channel, sender, cmd.onCommandGiven(channel, sender, login, hostname, getArgs(message)));
+							getBot().sendMessage(channel, sender, cmd.onCommandChannel(channel, sender, login, hostname, getArgs(message)));
+							getBot().sendMessage(channel, sender, executeOnCommand(cmd, getArgs(message)));
 							break;
 						} catch (Exception e) {
 							log.error("Error encountered when running command " + command, e);
@@ -157,7 +177,6 @@ public class Bot extends PircBot implements Comparable<Bot> {
 						} finally {
 							log.info("-----------End execution of command #" + cmdNum + ",  from channel " + channel + " using message " + message + "-----------");
 						}
-
 			}
 
 			@Override
@@ -174,12 +193,10 @@ public class Bot extends PircBot implements Comparable<Bot> {
 
 					//Look for a prefix
 					command = message.split(" ", 2)[0];
-					Command cmd = setupCommand(command, null, sender, login, hostname, message);
-					cmd.onCommandGiven(sender, sender, login, hostname, getArgs(message));
-					cmd.onCommandPM(sender, login, hostname, getArgs(message));
-					String response = executeOnCommand(cmd, getArgs(message));
-					if (response != null)
-						getBot().sendMessage(sender, response);
+					BaseCommand cmd = setupCommand(command, null, sender, login, hostname, message);
+					getBot().sendMessage(sender, cmd.onCommandGiven(sender, sender, login, hostname, getArgs(message)));
+					getBot().sendMessage(sender, cmd.onCommandPM(sender, login, hostname, getArgs(message)));
+					getBot().sendMessage(sender, executeOnCommand(cmd, getArgs(message)));
 				} catch (Exception e) {
 					log.error("Error encountered when running command " + command, e);
 					getBot().sendMessage(sender, "ERROR: " + e.getMessage());
@@ -188,14 +205,16 @@ public class Bot extends PircBot implements Comparable<Bot> {
 				}
 			}
 
-			public String executeOnCommand(Command cmd, String[] args) throws Exception {
+			public String executeOnCommand(BaseCommand cmd, String[] args) throws Exception {
 				try {
 					Class clazz = cmd.getClass();
 					for (Method curMethod : clazz.getMethods())
 						if (curMethod.getName().equalsIgnoreCase("onCommand") && curMethod.getReturnType().equals(String.class)) {
 							//Pad the args with null values
 							args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
-							return (String)curMethod.invoke(cmd, (Object[]) args);
+							log.trace("Args: " + StringUtils.join(args, ","));
+
+							return (String) curMethod.invoke(cmd, (Object[]) args);
 						}
 				} catch (InvocationTargetException e) {
 					//Unrwap if nessesary
@@ -217,11 +236,11 @@ public class Bot extends PircBot implements Comparable<Bot> {
 				return args;
 			}
 
-			public Command setupCommand(String command, String channel, String sender, String login, String hostname, String message) throws Exception {
+			public BaseCommand setupCommand(String command, String channel, String sender, String login, String hostname, String message) throws Exception {
 				//Parse message to get cmd and args
 				String[] args = getArgs(message);
 
-				Command plugin = CommandManager.getCommand(command);
+				BaseCommand plugin = CommandManager.getCommand(command);
 				//Is this a valid plugin?
 				if (plugin == null || !plugin.isEnabled())
 					throw new InvalidCMDException(command);
@@ -271,7 +290,8 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	}
 
 	public static Bot getPoolLocal() {
-		return poolLocal.get();
+		Bot bot = poolLocal.get();
+		return bot;
 	}
 
 	public boolean isLocked(String channel, String sender) {
@@ -327,7 +347,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onConnect() {
-		HookManager.getList("onConnect").execute();
+		HookManager.getHookMap("onConnect").execute();
 
 		List<Channel> channels = serverDB.getChannels();
 		for (Channel curChannel : channels) {
@@ -337,32 +357,14 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	}
 
 	@Override
+	protected void onMotdFinished() {
+		sendRawLine("NICKSERV identify manganip");
+	}
+
+	@Override
 	public synchronized void dispose() {
 		threadPool.shutdown();
 		super.dispose();
-	}
-
-	/**
-	 * Executes command
-	 *
-	 * Command handling takes place here purely for nice output for console. If returned, end tag still shown
-	 * @param msgInfo                The BotEvent bean
-	 * @throws InvalidCMDException   If command does not exist
-	 * @throws AdminException        If command is admin only and user is not admin
-	 * @throws NumArgException       If improper amount of arguments were given
-	 */
-	/**
-	 * Utility method to get a specific user from channel
-	 * @param channel  Channel to search in
-	 * @param reqUser  User to search for
-	 * @return         User object of user, null if not found
-	 */
-	public User getUser(String channel, String reqUser) {
-		User[] listUsers = getUsers(channel);
-		for (User curUser : listUsers)
-			if (curUser.getNick().equalsIgnoreCase(reqUser))
-				return curUser;
-		return null;
 	}
 
 	/**
@@ -370,13 +372,14 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 * @param msg   Message to send
 	 */
 	public void sendAllMessage(String msg) {
-		String[] channels = getChannels();
-		for (String curChan : channels)
-			sendMessage(curChan, msg);
+		if (msg != null)
+			for (String curChan : getChannelsNames())
+				sendMessage(curChan, msg);
 	}
 
 	public void sendMessage(String channel, String user, String message) {
-		sendMessage(channel, user + ": " + message);
+		if (message != null)
+			sendMessage(channel, user + ": " + message);
 	}
 
 	public boolean isBot(String name) {
@@ -385,7 +388,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 
 	public List<String> getPrefixes() {
 		//Merge the global list and the Bot specific list
-		ArrayList<String> list = new ArrayList<String>(Controller.instance.globPrefixes);
+		ArrayList<String> list = new ArrayList<String>(controller.config.getPrefixes());
 		list.add(getNick() + ":");
 		list.add(getNick());
 		return list;
@@ -408,7 +411,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onMessage(String channel, String sender, String login, String hostname, String message) {
-		HookManager.getList("onMessage").execute(channel, sender, login, hostname, message);
+		HookManager.getHookMap("onMessage").execute(channel, sender, login, hostname, message);
 	}
 
 	/**
@@ -421,7 +424,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onPrivateMessage(String sender, String login, String hostname, String message) {
-		HookManager.getList("onPrivateMessage").execute(sender, login, hostname, message);
+		HookManager.getHookMap("onPrivateMessage").execute(sender, login, hostname, message);
 	}
 
 	/**
@@ -429,7 +432,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onDisconnect() {
-		HookManager.getList("onDisconnect").execute();
+		HookManager.getHookMap("onDisconnect").execute();
 	}
 
 	/**
@@ -442,7 +445,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onServerResponse(int code, String response) {
-		HookManager.getList("onServerResponse").execute(code, response);
+		HookManager.getHookMap("onServerResponse").execute(code, response);
 	}
 
 	/**
@@ -454,8 +457,8 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 * @see User
 	 */
 	@Override
-	public void onUserList(String channel, User[] users) {
-		HookManager.getList("onUserList").execute(channel, users);
+	public void onUserList(String channel, Collection<User> users) {
+		HookManager.getHookMap("onUserList").execute(channel, users);
 	}
 
 	/**
@@ -469,7 +472,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onAction(String sender, String login, String hostname, String target, String action) {
-		HookManager.getList("onAction").execute(sender, login, hostname, target, action);
+		HookManager.getHookMap("onAction").execute(sender, login, hostname, target, action);
 	}
 
 	/**
@@ -483,7 +486,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice) {
-		HookManager.getList("onNotice").execute(sourceNick, sourceLogin, sourceHostname, target, notice);
+		HookManager.getHookMap("onNotice").execute(sourceNick, sourceLogin, sourceHostname, target, notice);
 	}
 
 	/**
@@ -496,7 +499,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onJoin(String channel, String sender, String login, String hostname) {
-		HookManager.getList("onJoin").execute(channel, sender, login, hostname);
+		HookManager.getHookMap("onJoin").execute(channel, sender, login, hostname);
 	}
 
 	/**
@@ -509,7 +512,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onPart(String channel, String sender, String login, String hostname) {
-		HookManager.getList("onPart").execute(channel, sender, login, hostname);
+		HookManager.getHookMap("onPart").execute(channel, sender, login, hostname);
 	}
 
 	/**
@@ -522,7 +525,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onNickChange(String oldNick, String login, String hostname, String newNick) {
-		HookManager.getList("onNickChange").execute(oldNick, login, hostname, newNick);
+		HookManager.getHookMap("onNickChange").execute(oldNick, login, hostname, newNick);
 	}
 
 	/**
@@ -537,7 +540,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
-		HookManager.getList("onKick").execute(channel, kickerNick, kickerLogin, kickerHostname, recipientNick, reason);
+		HookManager.getHookMap("onKick").execute(channel, kickerNick, kickerLogin, kickerHostname, recipientNick, reason);
 	}
 
 	/**
@@ -550,7 +553,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
-		HookManager.getList("onQuit").execute(sourceNick, sourceLogin, sourceHostname, reason);
+		HookManager.getHookMap("onQuit").execute(sourceNick, sourceLogin, sourceHostname, reason);
 	}
 
 	/**
@@ -558,15 +561,15 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 *
 	 * @param channel The channel that the topic belongs to.
 	 * @param topic The topic for the channel. Stored as BotEvent.rawmsg
-	 * @param setBy The nick of the user that set the topic. Stored as BotEvent.sender
-	 * @param date When the topic was set (milliseconds since the epoch). Stored as BotEvent.extra
+	 * @param setBy The nick of the user that setMessageDelay the topic. Stored as BotEvent.sender
+	 * @param date When the topic was setMessageDelay (milliseconds since the epoch). Stored as BotEvent.extra
 	 * @param changed True if the topic has just been changed, false if
 	 *                the topic was already there. Stored as BotEvent.extra1
 	 *
 	 */
 	@Override
 	public void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
-		HookManager.getList("onTopic").execute(channel, topic, setBy, date, changed);
+		HookManager.getHookMap("onTopic").execute(channel, topic, setBy, date, changed);
 	}
 
 	/**
@@ -580,37 +583,37 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onChannelInfo(String channel, int userCount, String topic) {
-		HookManager.getList("onChannelInfo").execute(channel, userCount, topic);
+		HookManager.getHookMap("onChannelInfo").execute(channel, userCount, topic);
 	}
 
 	/**
 	 * See {@link Event#onMode}
 	 *
 	 * @param channel The channel that the mode operation applies to.
-	 * @param sourceNick The nick of the user that set the mode.
-	 * @param sourceLogin The login of the user that set the mode.
-	 * @param sourceHostname The hostname of the user that set the mode.
-	 * @param mode The mode that has been set. Stored as BotEvent.rawmsg
+	 * @param sourceNick The nick of the user that setMessageDelay the mode.
+	 * @param sourceLogin The login of the user that setMessageDelay the mode.
+	 * @param sourceHostname The hostname of the user that setMessageDelay the mode.
+	 * @param mode The mode that has been setMessageDelay. Stored as BotEvent.rawmsg
 	 *
 	 */
 	@Override
 	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		HookManager.getList("onMode").execute(channel, sourceNick, sourceLogin, sourceHostname, mode);
+		HookManager.getHookMap("onMode").execute(channel, sourceNick, sourceLogin, sourceHostname, mode);
 	}
 
 	/**
 	 * See {@link Event#onUserMode}
 	 *
 	 * @param targetNick The nick that the mode operation applies to.
-	 * @param sourceNick The nick of the user that set the mode.
-	 * @param sourceLogin The login of the user that set the mode.
-	 * @param sourceHostname The hostname of the user that set the mode.
-	 * @param mode The mode that has been set. Stored as BotEvent.rawmsg
+	 * @param sourceNick The nick of the user that setMessageDelay the mode.
+	 * @param sourceLogin The login of the user that setMessageDelay the mode.
+	 * @param sourceHostname The hostname of the user that setMessageDelay the mode.
+	 * @param mode The mode that has been setMessageDelay. Stored as BotEvent.rawmsg
 	 *
 	 */
 	@Override
 	public void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		HookManager.getList("onUserMode").execute(targetNick, sourceNick, sourceLogin, sourceHostname, mode);
+		HookManager.getHookMap("onUserMode").execute(targetNick, sourceNick, sourceLogin, sourceHostname, mode);
 	}
 
 	/**
@@ -624,7 +627,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		HookManager.getList("onOp").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
+		HookManager.getHookMap("onOp").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
 	}
 
 	/**
@@ -638,7 +641,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		HookManager.getList("onDeop").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
+		HookManager.getHookMap("onDeop").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
 	}
 
 	/**
@@ -652,7 +655,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		HookManager.getList("onVoice").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
+		HookManager.getHookMap("onVoice").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
 	}
 
 	/**
@@ -666,7 +669,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		HookManager.getList("onDeVoice").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
+		HookManager.getHookMap("onDeVoice").execute(channel, sourceNick, sourceLogin, sourceHostname, recipient);
 	}
 
 	/**
@@ -680,7 +683,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {
-		HookManager.getList("onSetChannelKey").execute(channel, sourceNick, sourceLogin, sourceHostname, key);
+		HookManager.getHookMap("onSetChannelKey").execute(channel, sourceNick, sourceLogin, sourceHostname, key);
 	}
 
 	/**
@@ -694,7 +697,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemoveChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {
-		HookManager.getList("onRemoveChannelKey").execute(channel, sourceNick, sourceLogin, sourceHostname, key);
+		HookManager.getHookMap("onRemoveChannelKey").execute(channel, sourceNick, sourceLogin, sourceHostname, key);
 	}
 
 	/**
@@ -708,7 +711,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname, int limit) {
-		HookManager.getList("onSetChannelLimit").execute(channel, sourceNick, sourceLogin, sourceHostname, limit);
+		HookManager.getHookMap("onSetChannelLimit").execute(channel, sourceNick, sourceLogin, sourceHostname, limit);
 	}
 
 	/**
@@ -721,7 +724,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemoveChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onRemoveChannelLimit").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onRemoveChannelLimit").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -735,7 +738,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {
-		HookManager.getList("onSetChannelBan").execute(channel, sourceNick, sourceLogin, sourceHostname, hostmask);
+		HookManager.getHookMap("onSetChannelBan").execute(channel, sourceNick, sourceLogin, sourceHostname, hostmask);
 	}
 
 	/**
@@ -749,7 +752,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemoveChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {
-		HookManager.getList("onRemoveChannelBan").execute(channel, sourceNick, sourceLogin, sourceHostname, hostmask);
+		HookManager.getHookMap("onRemoveChannelBan").execute(channel, sourceNick, sourceLogin, sourceHostname, hostmask);
 	}
 
 	/**
@@ -762,7 +765,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onSetTopicProtection").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onSetTopicProtection").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -775,7 +778,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemoveTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onRemoveTopicProtection").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onRemoveTopicProtection").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -788,7 +791,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onSetNoExternalMessages").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onSetNoExternalMessages").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -801,7 +804,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemoveNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onRemoveNoExternalMessages").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onRemoveNoExternalMessages").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -814,7 +817,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onSetInviteOnly").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onSetInviteOnly").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -827,7 +830,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemoveInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onRemoveInviteOnly").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onRemoveInviteOnly").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -840,7 +843,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onSetModerated").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onSetModerated").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -853,7 +856,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemoveModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onRemoveModerated").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onRemoveModerated").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -866,7 +869,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetPrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onSetPrivate").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onSetPrivate").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -879,7 +882,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemovePrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onRemovePrivate").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onRemovePrivate").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -892,7 +895,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onSetSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onSetSecret").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onSetSecret").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -905,7 +908,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onRemoveSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {
-		HookManager.getList("onRemoveSecret").execute(channel, sourceNick, sourceLogin, sourceHostname);
+		HookManager.getHookMap("onRemoveSecret").execute(channel, sourceNick, sourceLogin, sourceHostname);
 	}
 
 	/**
@@ -919,7 +922,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel) {
-		HookManager.getList("onInvite").execute(targetNick, sourceNick, sourceLogin, sourceHostname, channel);
+		HookManager.getHookMap("onInvite").execute(targetNick, sourceNick, sourceLogin, sourceHostname, channel);
 	}
 
 	/**
@@ -932,7 +935,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onIncomingFileTransfer(DccFileTransfer transfer) {
-		HookManager.getList("onIncomingFileTransfer").execute(transfer);
+		HookManager.getHookMap("onIncomingFileTransfer").execute(transfer);
 	}
 
 	/**
@@ -947,7 +950,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onFileTransferFinished(DccFileTransfer transfer, Exception e) {
-		HookManager.getList("onFileTransferFinished").execute(transfer, e);
+		HookManager.getHookMap("onFileTransferFinished").execute(transfer, e);
 	}
 
 	/**
@@ -960,7 +963,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onIncomingChatRequest(DccChat chat) {
-		HookManager.getList("onIncomingChatRequest").execute(chat);
+		HookManager.getHookMap("onIncomingChatRequest").execute(chat);
 	}
 
 	/**
@@ -973,7 +976,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		HookManager.getList("onVersion").execute(sourceNick, sourceLogin, sourceHostname, target);
+		HookManager.getHookMap("onVersion").execute(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
 	/**
@@ -987,7 +990,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
-		HookManager.getList("onPing").execute(sourceNick, sourceLogin, sourceHostname, target, pingValue);
+		HookManager.getHookMap("onPing").execute(sourceNick, sourceLogin, sourceHostname, target, pingValue);
 	}
 
 	/**
@@ -997,7 +1000,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onServerPing(String response) {
-		HookManager.getList("onServerPing").execute(response);
+		HookManager.getHookMap("onServerPing").execute(response);
 	}
 
 	/**
@@ -1010,7 +1013,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		HookManager.getList("onTime").execute(sourceNick, sourceLogin, sourceHostname, target);
+		HookManager.getHookMap("onTime").execute(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
 	/**
@@ -1023,7 +1026,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onFinger(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		HookManager.getList("onFinger").execute(sourceNick, sourceLogin, sourceHostname, target);
+		HookManager.getHookMap("onFinger").execute(sourceNick, sourceLogin, sourceHostname, target);
 	}
 
 	/**
@@ -1033,7 +1036,7 @@ public class Bot extends PircBot implements Comparable<Bot> {
 	 */
 	@Override
 	public void onUnknown(String line) {
-		HookManager.getList("onUnknown").execute(line);
+		HookManager.getHookMap("onUnknown").execute(line);
 	}
 	//And then it was done :-)
 

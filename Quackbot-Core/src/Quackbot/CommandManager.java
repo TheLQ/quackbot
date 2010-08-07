@@ -18,6 +18,11 @@ package Quackbot;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +36,8 @@ public class CommandManager {
 	 * ArrayList - All Hooks for that method
 	 *		BaseHook - Hook
 	 */
-	private static final ArrayList<Command> cmds = new ArrayList<Command>();
-	private static final ArrayList<Command> permanentCmds = new ArrayList<Command>();
+	private static final Map<String, BaseCommand> cmds = Collections.synchronizedMap(new HashMap<String, BaseCommand>());
+	private static final Map<String, BaseCommand> permanentCmds = Collections.synchronizedMap(new HashMap<String, BaseCommand>());
 	/**
 	 * TODO
 	 */
@@ -44,61 +49,82 @@ public class CommandManager {
 	private CommandManager() {
 	}
 
-	public static void addCommand(Command cmd) {
-		log.info("Adding command " + cmd.getName());
-		cmds.add(cmd);
-		for (Method curMethod : cmd.getClass().getDeclaredMethods())
-			curMethod.setAccessible(true);
-
+	public static void addCommand(BaseCommand command) {
+		if (StringUtils.isBlank(command.getName()))
+			throw new IllegalArgumentException("Command names cannot be null. File: " + command.getFile());
+		synchronized (cmds) {
+			log.debug("Adding command " + command.getName());
+			cmds.put(command.getName(), command);
+			for (Method curMethod : command.getClass().getDeclaredMethods())
+				curMethod.setAccessible(true);
+		}
 	}
 
-	public static void removeCommand(String hookName) {
-		for (Command curCmd : cmds)
-			if (curCmd.getName().equalsIgnoreCase(hookName))
-				cmds.remove(curCmd);
-
+	public static void removeCommand(String commandName) {
+		synchronized (cmds) {
+			log.debug("Attempting to remove command " + commandName);
+			cmds.remove(commandName);
+		}
 	}
 
-	public static void removeCommand(Command hook) {
-		for (Command curCmds : cmds)
-			if (curCmds == hook)
-				cmds.remove(curCmds);
+	public static void removeCommand(BaseCommand command) {
+		for (Map.Entry<String, BaseCommand> curEntry : cmds.entrySet())
+			if (curEntry.getValue() == command) {
+				synchronized (cmds) {
+					log.debug("Attempting to remove command " + command.getName());
+					cmds.remove(curEntry.getKey());
+				}
+				break;
+			}
 	}
 
-	public static void addPermanentCommand(Command cmd) {
-		log.info("Adding command " + cmd.getName());
-		permanentCmds.add(cmd);
-		for (Method curMethod : cmd.getClass().getDeclaredMethods())
-			curMethod.setAccessible(true);
+	public static void addPermanentCommand(BaseCommand command) {
+		if (StringUtils.isBlank(command.getName()))
+			throw new IllegalArgumentException("Command names cannot be null. File: " + command.getFile());
+		synchronized (permanentCmds) {
+			log.debug("Adding command " + command.getName());
+			permanentCmds.put(command.getName(), command);
+			for (Method curMethod : command.getClass().getDeclaredMethods())
+				curMethod.setAccessible(true);
+		}
 	}
 
-	public static void removePermanentCommand(String hookName) {
-		for (Command curCmd : permanentCmds)
-			if (curCmd.getName().equalsIgnoreCase(hookName))
-				permanentCmds.remove(curCmd);
+	public static void removePermanentCommand(String commandName) {
+		synchronized (permanentCmds) {
+			log.debug("Attempting to remove command " + commandName);
+			permanentCmds.remove(commandName);
+		}
 	}
 
-	public static void removePermanentCommand(Command hook) {
-		for (Command curCmds : permanentCmds)
-			if (curCmds == hook)
-				permanentCmds.remove(curCmds);
+	public static void removePermanentCommand(BaseCommand cmd) {
+		for (Map.Entry<String, BaseCommand> curEntry : permanentCmds.entrySet())
+			if (curEntry.getValue() == cmd) {
+				synchronized (permanentCmds) {
+					log.debug("Removing command " + cmd.getName());
+					permanentCmds.remove(curEntry.getKey());
+				}
+				break;
+			}
 	}
 
 	public static void removeAll() {
-		cmds.clear();
+		synchronized (cmds) {
+			log.debug("Removing all non-permanent commands");
+			cmds.clear();
+		}
 	}
 
-	public static Command getCommand(String name) {
-		for (Command cmd : getCommands())
-			if (cmd.getName().equalsIgnoreCase(name))
-				return cmd;
-		return null;
+	public static BaseCommand getCommand(String name) {
+		BaseCommand cmd = cmds.get(name);
+		if (cmd == null)
+			cmd = permanentCmds.get(name);
+		return cmd;
 	}
 
-	public static ArrayList<Command> getCommands() {
-		return new ArrayList<Command>(cmds) {
+	public static List<BaseCommand> getCommands() {
+		return new ArrayList<BaseCommand>(cmds.values()) {
 			{
-				addAll(permanentCmds);
+				addAll(permanentCmds.values());
 			}
 		};
 	}

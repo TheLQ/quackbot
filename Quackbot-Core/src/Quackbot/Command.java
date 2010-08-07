@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author LordQuackstar
  */
-public abstract class Command {
+public abstract class Command implements BaseCommand {
 	private String name;
 	private String help;
 	private boolean admin;
@@ -39,6 +39,7 @@ public abstract class Command {
 	public Command() {
 	}
 
+	@Override
 	public Command setup(String name, String help, boolean admin, boolean enabled, File file, int optionalParams, int requiredParams) throws QuackbotException {
 		if (setup)
 			throw new QuackbotException("Command " + getName() + " has already been setup");
@@ -65,6 +66,7 @@ public abstract class Command {
 				+ "File=" + file;
 	}
 
+	@Override
 	public Bot getBot() {
 		return Bot.getPoolLocal();
 	}
@@ -74,6 +76,7 @@ public abstract class Command {
 	 * Verbosity should be kept to a minimum, as by default you get one line.
 	 * @return And help provided
 	 */
+	@Override
 	public String getHelp() {
 		return help;
 	}
@@ -83,10 +86,12 @@ public abstract class Command {
 	 * An Admin is a privileged user able to things most can't.
 	 * @return the admin
 	 */
+	@Override
 	public boolean isAdmin() {
 		return admin;
 	}
 
+	@Override
 	public void setAdmin(boolean admin) {
 		this.admin = admin;
 	}
@@ -97,10 +102,12 @@ public abstract class Command {
 	 * in help.
 	 * @return the ignore
 	 */
+	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	@Override
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
@@ -109,6 +116,7 @@ public abstract class Command {
 	 * Name of command
 	 * @return the name
 	 */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -117,28 +125,38 @@ public abstract class Command {
 	 * The file that this command parsed
 	 * @return The file
 	 */
+	@Override
 	public File getFile() {
 		return file;
 	}
 
+	@Override
 	public int getRequiredParams() {
 		return requiredParams;
 	}
 
+	@Override
 	public int getOptionalParams() {
 		return optionalParams;
 	}
 
+	@Override
 	public String onCommand() {
 		return null;
 	}
 
-	public void onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+	@Override
+	public String onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+		return null;
 	}
 
-	public void onCommandPM(String sender, String login, String hostname, String[] args) throws Exception {
+	@Override
+	public String onCommandPM(String sender, String login, String hostname, String[] args) throws Exception {
+		return null;
 	}
 
-	public void onCommandChannel(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+	@Override
+	public String onCommandChannel(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+		return null;
 	}
 }

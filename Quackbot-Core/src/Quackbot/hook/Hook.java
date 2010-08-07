@@ -18,9 +18,10 @@ package Quackbot.hook;
 
 import Quackbot.Bot;
 import Quackbot.Command;
-import org.jibble.pircbot.DccChat;
-import org.jibble.pircbot.DccFileTransfer;
-import org.jibble.pircbot.User;
+import java.util.List;
+import org.pircbotx.DccChat;
+import org.pircbotx.DccFileTransfer;
+import org.pircbotx.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -217,7 +218,7 @@ public abstract class Hook {
 	public void onUnknown(String line) throws Exception {
 	}
 
-	public void onUserList(String channel, User[] users) throws Exception {
+	public void onUserList(String channel, List<User> users) throws Exception {
 	}
 
 	public void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) throws Exception {
