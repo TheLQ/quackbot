@@ -18,8 +18,7 @@ package Quackbot.plugins.impl;
 
 import Quackbot.Command;
 import Quackbot.plugins.java.HelpDoc;
-import Quackbot.plugins.java.Parameters;
-import org.apache.commons.lang.StringUtils;
+import org.pircbotx.User;
 
 /**
  * Simple Java cmd test
@@ -27,7 +26,13 @@ import org.apache.commons.lang.StringUtils;
  */
 @HelpDoc("This is JavaTest Help")
 public class JavaTest extends Command {
-	public String onCommand(String youSaid) throws Exception {
-		return "You said "+youSaid;
+
+	@Override
+	public String onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+		StringBuilder users = new StringBuilder();
+		for(User curUser : getBot().getUsers(channel))
+			users.append("[Nick="+curUser.getNick()+",Login="+curUser.getLogin()+",HostMask="+curUser.getHostmask()+",Op="+curUser.isOp(channel)+",Voice="+curUser.hasVoice(channel)+"]");
+
+		return users.toString()+getBot().getUsers(channel).size();
 	}
 }

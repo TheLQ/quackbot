@@ -1,5 +1,4 @@
 var help = "Starts countdown of specified length. Syntax: ?simpleCountdown <seconds>";
-var parameter = 1;
 
 var futureMs = 0;
 var msRemain = 0;
@@ -7,21 +6,21 @@ var closestMin = 0;
 
 importClass(java.lang.System);
 
-function invoke(seconds) {
+function onCommand(seconds) {
 	futureMs = System.currentTimeMillis()+(seconds*1000);
 	try{
 		recalculate();
 		while(msRemain > 60000) {
-			qb.sendMsg(new BotMessage(event,timeRemaining(futureMs)+" remaining! (min countdows)"));
+			getBot().sendMessage(timeRemaining(futureMs)+" remaining! (min countdows)");
 			if(closestMin < 900)
 				continue;
-			qb.log("sleeping for "+closestMin+" | msremain: "+msRemain)
+			log.debug("sleeping for "+closestMin+" | msremain: "+msRemain)
 			Thread.sleep(closestMin)
 			recalculate();
 		}
 
 		//Now at 1 min
-		qb.sendMsg(new BotMessage(event,"1 minuite remaining! (hard coded)"));
+		getBot().sendMessage(channel, "1 minuite remaining! (hard coded)");
 
 		//Wait for 30 sec
 		Thread.sleep(30000)

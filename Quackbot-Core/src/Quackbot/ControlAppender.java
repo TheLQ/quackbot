@@ -45,7 +45,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 	private PatternLayout normalGen = new PatternLayout();
 	public static Level databaseLogLevel = Level.OFF;
-	public GUI gui = GUI.instance;
 
 	public ControlAppender(LoggerContext context) {
 		setName("ControlAppender");
@@ -68,24 +67,18 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 			return;
 
 		String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
-		if (GUIExists()) {
+		if (GUI.instance != null) {
+			GUI gui = GUI.instance;
 			JTextPane textPane = (Bot.getPoolLocal() != null) ? gui.BerrorLog : gui.CerrorLog;
 			JScrollPane scrollPane = (Bot.getPoolLocal() != null) ? gui.BerrorScroll : gui.CerrorScroll;
 			SwingUtilities.invokeLater(new WriteOutput(textPane, scrollPane, event, server));
-		} else
-			writeStd(server, event);
-	}
-
-	public boolean GUIExists() {
-		return (GUI.instance != null);
-	}
-
-	public void writeStd(String server, ILoggingEvent event) {
-		PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
-		if (event.getThrowableProxy() == null)
-			output.println(normalGen.doLayout(event).trim() + event.getFormattedMessage());
-		else
-			output.println(event.getFormattedMessage() + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
+		} else {
+			PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
+			if (event.getThrowableProxy() == null)
+				output.println(normalGen.doLayout(event).trim() + event.getFormattedMessage());
+			else
+				output.println(event.getFormattedMessage() + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
+		}
 	}
 
 	/**0
@@ -176,8 +169,8 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 				doc.insertString(doc.getLength(), formatMsg(event, address, message), msgStyle);
 
 				//Only autoscroll if the scrollbar is at the bottom
-				JScrollBar scrollBar = scroll.getVerticalScrollBar();
-				if (scrollBar.getValue()+scrollBar.getVisibleAmount() != scrollBar.getMaximum())
+				//JScrollBar scrollBar = scroll.getVerticalScrollBar();
+				//if (scrollBar.getVisibleAmount() != scrollBar.getMaximum() && scrollBar.getValue() + scrollBar.getVisibleAmount() == scrollBar.getMaximum())
 					pane.setCaretPosition(prevLength);
 			} catch (Exception e) {
 				e.printStackTrace(); //Don't use log.error because this is how stuff is outputed
