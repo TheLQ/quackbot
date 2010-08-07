@@ -106,10 +106,10 @@ public class Channel  {
 	 *	}</code>
 	 * @return Channel object with database generated info set
 	 */
-	public Channel updateDB() {
+	public Channel updateDB(Controller controller) {
 		try {
-			Controller.instance.dbm.saveObject(this);
-			return Controller.instance.dbm.loadObject(this);
+			controller.getDatabase().saveObject(this);
+			return controller.getDatabase().loadObject(this);
 		} catch (Exception e) {
 			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
 		}

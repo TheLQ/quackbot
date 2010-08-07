@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
  * @author Owner
  */
 public class QuackbotConfig {
-	DatabaseManager dbm = null;
+	private DatabaseManager dbm = null;
 	/**
 	 * Global Prefixes.
 	 */
@@ -49,6 +49,7 @@ public class QuackbotConfig {
 	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
 	private String nick = "Quackbot";
 	private String name = "Quackbot";
+	private Level databaseLogLevel = Level.OFF;
 	
 
 	/**
@@ -62,7 +63,11 @@ public class QuackbotConfig {
 	 * @param level JUT logging level
 	 */
 	public void setDatabaseLogLevel(Level level) {
-		ControlAppender.databaseLogLevel = level;
+		databaseLogLevel = level;
+	}
+
+	public Level getDatabaseLogLevel() {
+		return databaseLogLevel;
 	}
 
 	/**
@@ -130,6 +135,10 @@ public class QuackbotConfig {
 	 */
 	public void connectDB(String databaseName, int poolSize, String driver, String url, String username, String password) {
 		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, driver, url, username, password);
+	}
+
+	public DatabaseManager getDatabase() {
+		return dbm;
 	}
 
 	/**

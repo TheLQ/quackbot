@@ -100,10 +100,10 @@ public class Admin {
 	 *	}</code>
 	 * @return Admin object with database generated info set
 	 */
-	public Admin updateDB() {
+	public Admin updateDB(Controller controller) {
 		try {
-			Controller.instance.dbm.saveObject(this);
-			return Controller.instance.dbm.loadObject(this);
+			controller.config.getDatabase().saveObject(this);
+			return controller.config.getDatabase().loadObject(this);
 		} catch (Exception e) {
 			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
 		}
@@ -195,9 +195,9 @@ public class Admin {
 	 * Note that this isn't mapped by JPersist, it is simply a convience method
 	 * @return the channel
 	 */
-	public Channel getChannel() {
+	public Channel getChannel(Controller controller) {
 		try {
-			return Controller.instance.dbm.loadObject(new Channel(getChannelID()));
+			return controller.getDatabase().loadObject(new Channel(getChannelID()));
 		} catch (DatabaseException e) {
 			log.error("Could not fetch channel", e);
 		}
@@ -213,9 +213,9 @@ public class Admin {
 	 * Note that this isn't mapped by JPersist, it is simply a convience method
 	 * @return the server
 	 */
-	public Server getServer() {
+	public Server getServer(Controller controller) {
 		try {
-			return Controller.instance.dbm.loadObject(new Server(getChannelID()));
+			return controller.getDatabase().loadObject(new Server(getChannelID()));
 		} catch (DatabaseException e) {
 			log.error("Could not fetch Server", e);
 		}

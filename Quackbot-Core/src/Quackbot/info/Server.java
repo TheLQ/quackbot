@@ -199,18 +199,18 @@ public class Server {
 	 * <p>
 	 * @return Server object with database generated info set
 	 */
-	public Server updateDB() {
+	public Server updateDB(Controller controller) {
 		try {
-			Controller.instance.dbm.saveObject(this);
-			return Controller.instance.dbm.loadObject(this);
+			controller.getDatabase().saveObject(this);
+			return controller.getDatabase().loadObject(this);
 		} catch (Exception e) {
 			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
 		}
 		return null;
 	}
 
-	public int delete() throws DatabaseException {
-		return Controller.instance.dbm.deleteObject(this);
+	public int delete(Controller controller) throws DatabaseException {
+		return controller.getDatabase().deleteObject(this);
 	}
 
 	/*******************************************JAVABEAN*************************/

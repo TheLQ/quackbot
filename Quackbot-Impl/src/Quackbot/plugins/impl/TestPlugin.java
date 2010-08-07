@@ -6,6 +6,7 @@
 package Quackbot.plugins.impl;
 
 import Quackbot.Command;
+import Quackbot.Controller;
 import Quackbot.hook.Hook;
 import java.util.List;
 import org.pircbotx.DccChat;
@@ -96,7 +97,7 @@ public class TestPlugin extends Hook {
 	}
 
 	@Override
-	public void onInit() throws Exception {
+	public void onInit(Controller controller) throws Exception {
 		log.trace("Running ineficcient");
 	}
 

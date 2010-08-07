@@ -49,7 +49,6 @@ import javax.swing.JTabbedPane;
  * @author Lord.Quackstar
  */
 public class GUI extends JFrame implements ActionListener {
-	public static GUI instance;
 	/**
 	 * GUI log pane's
 	 */
@@ -59,11 +58,12 @@ public class GUI extends JFrame implements ActionListener {
 	 * Log4j logger
 	 */
 	private Logger log = LoggerFactory.getLogger(GUI.class);
-
+	public Controller controller;
 	/**
 	 * Recall's this in AWT event queue
 	 */
-	public GUI() {
+	public GUI(Controller controller) {
+		this.controller = controller;
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -118,8 +118,6 @@ public class GUI extends JFrame implements ActionListener {
 		setVisible(true); //make JFrame visible
 
 		mainSplit.setDividerLocation(0.50);
-
-		instance = this;
 	}
 
 	/**
@@ -138,7 +136,7 @@ public class GUI extends JFrame implements ActionListener {
 		String cmd = e.getActionCommand();
 
 		if (cmd.equals("Reload"))
-			Controller.instance.reloadPlugins();
+			controller.reloadPlugins();
 		if (cmd.equals("Clear")) {
 			CerrorLog.setText("");
 			BerrorLog.setText("");

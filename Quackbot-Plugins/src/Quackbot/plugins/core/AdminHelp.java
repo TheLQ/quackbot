@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 @AdminOnly
 public class AdminHelp extends Command {
 	private static Logger log = LoggerFactory.getLogger(AdminHelp.class);
-	Controller ctrl = Controller.instance;
 
 	public String onCommand(@Optional String command) throws Exception {
 		//Does user want command list

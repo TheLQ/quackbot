@@ -51,8 +51,8 @@ public class JavaPluginLoader implements PluginLoader {
 	static {
 		HookManager.addPluginHook(new Hook("QBInit") {
 			@Override
-			public void onInit() throws Exception {
-				Controller.instance.config.addPluginLoader(new JSPluginLoader(), "js");
+			public void onInit(Controller controller) throws Exception {
+				controller.config.addPluginLoader(new JSPluginLoader(), "js");
 				JavaPluginLoader.load(new Help());
 				JavaPluginLoader.load(new AdminHelp());
 			}
@@ -105,6 +105,5 @@ public class JavaPluginLoader implements PluginLoader {
 		} catch (QuackbotException e) {
 			log.error("Unable to load Java plugin " + cmd.getName(), e);
 		}
-
 	}
 }
