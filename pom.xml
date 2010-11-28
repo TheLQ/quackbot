@@ -1,0 +1,134 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>quackbot</groupId>
+	<artifactId>quackbot</artifactId>
+	<packaging>pom</packaging>
+	<version>3.5-SNAPSHOT</version>
+	<name>Quackbot</name>
+	<url>http://quackbot.googlecode.com</url>
+
+	<modules>
+		<module>core</module>
+		<module>plugins</module>
+		<module>impl</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<!--Specifically target 1.5-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<!--JRebel, for live class reloading-->
+			<plugin>
+				<groupId>org.zeroturnaround</groupId>
+				<artifactId>javarebel-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-rebel-xml</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.5</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>ejp</groupId>
+			<artifactId>ejp</artifactId>
+			<version>2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>PircBotX</groupId>
+			<artifactId>PircBotX</artifactId>
+			<version>3.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<reporting>
+		<plugins>
+			<!--Exclude the entire Quackbot.impl package in JavaDoc-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<excludePackageNames>Quackbot.impl.*</excludePackageNames>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+	
+	<repositories>
+		<repository>
+			<id>jrebel</id>
+			<url>http://repos.zeroturnaround.com/maven2/</url>
+		</repository>
+		<repository>
+			<id>general-maven-repo-release</id>
+			<name>Google Code General Maven Repo - Releases</name>
+			<url>http://general-maven-repo.googlecode.com/svn/maven2/releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>general-maven-repo-snapshot</id>
+			<name>Google Code General Maven Repo - Snapshots</name>
+			<url>http://general-maven-repo.googlecode.com/svn/maven2/snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
+<!--
+	<pluginRepositories>
+		<pluginRepository>
+			<id>onejar-maven-plugin.googlecode.com</id>
+			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+		</pluginRepository>
+	</pluginRepositories>
+-->
+
+	<properties>
+		<!--Source code file encoding-->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+</project>
