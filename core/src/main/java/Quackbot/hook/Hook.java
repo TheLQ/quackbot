@@ -17,14 +17,8 @@
 package Quackbot.hook;
 
 import Quackbot.Bot;
-import Quackbot.Command;
 import Quackbot.Controller;
-import java.util.List;
-import org.pircbotx.DccChat;
-import org.pircbotx.DccFileTransfer;
-import org.pircbotx.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.pircbotx.hooks.Listener;
 
 /**
  * The Hook interface is what all Hooks must implement to be added to the stack.
@@ -36,9 +30,8 @@ import org.slf4j.LoggerFactory;
  * treated and executed.
  * @author LordQuackstar
  */
-public abstract class Hook {
+public abstract class Hook implements Listener {
 	private String name;
-	private Logger log = LoggerFactory.getLogger(Hook.class);
 
 	public Hook(String name) {
 		this.name = name;
@@ -62,176 +55,5 @@ public abstract class Hook {
 	public Hook setup(String name) {
 		this.name = name;
 		return this;
-	}
-
-	public void onAction(String sender, String login, String hostname, String target, String action) throws Exception {
-	}
-
-	public void onChannelInfo(String channel, int userCount, String topic) throws Exception {
-	}
-
-	public void onCommandFail(Exception e) throws Exception {
-	}
-
-	public void onCommandFinish() throws Exception {
-	}
-
-	public void onCommandGiven() throws Exception {
-	}
-
-	public void onCommandInvoke() throws Exception {
-	}
-
-	public void onCommandLoad(Command command) throws Exception {
-	}
-
-	public void onConnect() throws Exception {
-	}
-
-	public void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) throws Exception {
-	}
-
-	public void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) throws Exception {
-	}
-
-	public void onDisconnect() throws Exception {
-	}
-
-	public void onFileTransferFinished(DccFileTransfer transfer, Exception e) throws Exception {
-	}
-
-	public void onFinger(String sourceNick, String sourceLogin, String sourceHostname, String target) throws Exception {
-	}
-
-	public void onIncomingChatRequest(DccChat chat) throws Exception {
-	}
-
-	public void onIncomingFileTransfer(DccFileTransfer transfer) throws Exception {
-	}
-
-	public void onInit(Controller controller) throws Exception {
-	}
-
-	public void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel) throws Exception {
-	}
-
-	public void onJoin(String channel, String sender, String login, String hostname) throws Exception {
-	}
-
-	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) throws Exception {
-	}
-
-	public void onMessage(String channel, String sender, String login, String hostname, String message) throws Exception {
-	}
-
-	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) throws Exception {
-	}
-
-	public void onNickChange(String oldNick, String login, String hostname, String newNick) throws Exception {
-	}
-
-	public void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice) throws Exception {
-	}
-
-	public void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) throws Exception {
-	}
-
-	public void onPart(String channel, String sender, String login, String hostname) throws Exception {
-	}
-
-	public void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) throws Exception {
-	}
-
-	public void onPluginLoadComplete() throws Exception {
-	}
-
-	public void onPluginLoadStart() throws Exception {
-	}
-
-	public void onPrivateMessage(String sender, String login, String hostname, String message) throws Exception {
-	}
-
-	public void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) throws Exception {
-	}
-
-	public void onRemoveChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) throws Exception {
-	}
-
-	public void onRemoveChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) throws Exception {
-	}
-
-	public void onRemoveChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onRemoveInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onRemoveModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onRemoveNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onRemovePrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onRemoveSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onRemoveTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onServerPing(String response) throws Exception {
-	}
-
-	public void onServerResponse(int code, String response) throws Exception {
-	}
-
-	public void onSetChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) throws Exception {
-	}
-
-	public void onSetChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) throws Exception {
-	}
-
-	public void onSetChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname, int limit) throws Exception {
-	}
-
-	public void onSetInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onSetModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onSetNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onSetPrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onSetSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onSetTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) throws Exception {
-	}
-
-	public void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) throws Exception {
-	}
-
-	public void onTopic(String channel, String topic, String setBy, long date, boolean changed) throws Exception {
-	}
-
-	public void onUnknown(String line) throws Exception {
-	}
-
-	public void onUserList(String channel, List<User> users) throws Exception {
-	}
-
-	public void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) throws Exception {
-	}
-
-	public void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) throws Exception {
-	}
-
-	public void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) throws Exception {
 	}
 }
