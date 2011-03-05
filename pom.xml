@@ -157,12 +157,6 @@
 			<id>general-maven-repo-release</id>
 			<name>Google Code General Maven Repo - Releases</name>
 			<url>http://general-maven-repo.googlecode.com/svn/maven2/releases</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
 		</repository>
 		<repository>
 			<id>general-maven-repo-snapshot</id>
