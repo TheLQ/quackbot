@@ -15,6 +15,9 @@
 	-->
 	<name>Quackbot</name>
 	<url>http://quackbot.googlecode.com</url>
+	<description>Java based IRC bot framework/program designed to be a simple, easy to use, and easy 
+	to write for bot.</description>
+	<inceptionYear>2010</inceptionYear>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,7 +28,6 @@
 		<module>plugins</module>
 		<module>impl</module>
 	</modules>
-
 	
 	<!--
 		Dependancies and Plugins
