@@ -1,11 +1,18 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<!--
+		Maven information
+	-->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>quackbot</groupId>
 	<artifactId>quackbot</artifactId>
 	<packaging>pom</packaging>
 	<version>3.5-SNAPSHOT</version>
+	
+	<!--
+		Project information
+	-->
 	<name>Quackbot</name>
 	<url>http://quackbot.googlecode.com</url>
 	
@@ -19,6 +26,10 @@
 		<module>impl</module>
 	</modules>
 
+	
+	<!--
+		Dependancies and Plugins
+	-->
 	<build>
 		<plugins>
 			<!--Specifically target 1.5-->
