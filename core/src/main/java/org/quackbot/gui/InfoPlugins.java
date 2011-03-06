@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.gui;
+package org.quackbot.gui;
 
-import Quackbot.BaseCommand;
-import Quackbot.Command;
-import Quackbot.CommandManager;
-import Quackbot.hook.HookManager;
-import Quackbot.hook.Hook;
+import org.quackbot.BaseCommand;
+import org.quackbot.Command;
+import org.quackbot.CommandManager;
+import org.quackbot.hook.HookManager;
+import org.quackbot.hook.Hook;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;

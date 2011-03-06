@@ -14,23 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.err;
+package org.quackbot.err;
 
 /**
- * Exception that command does not exist with message "Command *command* does not exist"
- * 
- * @author Lord.Quackstar
+ * Generic Quackbot exception, used when another exception does not exist. Seperate exception
+ * purly for semantics
+ *
+ * @author admins
  */
-public class InvalidCMDException extends Exception {
+public class QuackbotException extends Exception {
 	/**
-	 * Generates exception with message "Command *command* does not exist"
-	 * @param cmd   Name of non-existant command
+	 * Generates exception with specified message
+	 * @param msg the detail message.
 	 */
-	public InvalidCMDException(String cmd) {
-		super("Command " + cmd + " does not exist");
-	}
-
-	public InvalidCMDException(String cmd, String reason) {
-		super("Command " + cmd + " does not exist (" + reason + ")");
+	public QuackbotException(String msg) {
+		super(msg);
 	}
 }

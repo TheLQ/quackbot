@@ -14,18 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.err;
+package org.quackbot.err;
 
 /**
- * Notify user that command is admin. Exception message is "Admin Only Command"
- *
+ * Exception that command does not exist with message "Command *command* does not exist"
+ * 
  * @author Lord.Quackstar
  */
-public class AdminException extends Exception {
+public class InvalidCMDException extends Exception {
 	/**
-	 * Generates exception with message "Admin Only Command".
+	 * Generates exception with message "Command *command* does not exist"
+	 * @param cmd   Name of non-existant command
 	 */
-	public AdminException() {
-		super("Admin Only Command");
+	public InvalidCMDException(String cmd) {
+		super("Command " + cmd + " does not exist");
+	}
+
+	public InvalidCMDException(String cmd, String reason) {
+		super("Command " + cmd + " does not exist (" + reason + ")");
 	}
 }

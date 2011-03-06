@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot;
+package org.quackbot;
 
-import Quackbot.gui.GUI;
-import Quackbot.hook.HookManager;
-import Quackbot.info.Admin;
-import Quackbot.info.Channel;
-import Quackbot.info.Server;
+import org.quackbot.gui.GUI;
+import org.quackbot.hook.HookManager;
+import org.quackbot.info.Admin;
+import org.quackbot.info.Channel;
+import org.quackbot.info.Server;
 import ch.qos.logback.classic.Level;
 import ejp.DatabaseException;
 import ejp.DatabaseManager;

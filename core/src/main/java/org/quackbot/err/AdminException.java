@@ -14,20 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.err;
+package org.quackbot.err;
 
 /**
- * Generic Quackbot exception, used when another exception does not exist. Seperate exception
- * purly for semantics
+ * Notify user that command is admin. Exception message is "Admin Only Command"
  *
- * @author admins
+ * @author Lord.Quackstar
  */
-public class QuackbotException extends Exception {
+public class AdminException extends Exception {
 	/**
-	 * Generates exception with specified message
-	 * @param msg the detail message.
+	 * Generates exception with message "Admin Only Command".
 	 */
-	public QuackbotException(String msg) {
-		super(msg);
+	public AdminException() {
+		super("Admin Only Command");
 	}
 }

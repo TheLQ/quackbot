@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package Quackbot;
+package org.quackbot;
 
-import Quackbot.err.QuackbotException;
+import org.quackbot.err.QuackbotException;
 import java.io.File;
 
 /**
