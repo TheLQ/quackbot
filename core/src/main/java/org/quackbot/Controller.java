@@ -228,10 +228,11 @@ public class Controller {
 	 * @param channels Vararg of channels to join
 	 */
 	public void addServer(String address, int port, String... channels) {
-		ServerStore srv = new ServerStore(address, port);
+		ServerStore server = config.getStorage().newServerStore(address);
+		server.setPort(port);
 		for (String curChan : channels)
-			srv.addChannel(new ChannelStore(curChan));
-		initBot(srv.updateDB(this));
+			server.addChannel(config.getStorage().newChannelStore(address));
+		initBot(server);
 	}
 
 	/**
