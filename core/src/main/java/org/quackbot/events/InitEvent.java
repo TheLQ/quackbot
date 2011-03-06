@@ -16,7 +16,7 @@ import org.quackbot.hook.HookManager;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class InitEvent extends Event {
-	public <T extends PircBotX> InitEvent(T bot) {
-		super(bot);
+	public <T extends PircBotX> InitEvent() {
+		super(null);
 	}
 }
