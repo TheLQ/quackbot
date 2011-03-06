@@ -26,7 +26,7 @@ import org.quackbot.hook.HookManager;
 public class InitEvent extends Event {
 	private final Controller controller;
 	
-	public <T extends PircBotX> InitEvent(Controller ctrl) {
+	public InitEvent(Controller ctrl) {
 		super(null);
 		this.controller = ctrl;
 	}
