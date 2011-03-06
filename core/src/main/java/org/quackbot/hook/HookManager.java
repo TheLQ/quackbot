@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.pircbotx.hooks.Event;
+import org.quackbot.Bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,5 +104,9 @@ public class HookManager {
 
 	public static boolean hookExists(Hook hook) {
 		return hooks.contains(hook);
+	}
+	
+	public static void dispatchEvent(Event<Bot> bot) {
+		//TODO
 	}
 }
