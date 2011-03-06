@@ -49,13 +49,13 @@ public interface AdminStore {
 	 * The username of the admin
 	 * @return the user
 	 */
-	public String getUser();
+	public String getName();
 
 	/**
 	 * The username of the admin
 	 * @param user the user to set
 	 */
-	public void setUser(String user);
+	public void setName(String name);
 
 	/**
 	 * The Channel object that the admin might be attached to. Can be null

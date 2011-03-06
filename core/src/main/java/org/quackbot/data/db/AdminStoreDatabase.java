@@ -22,7 +22,7 @@ public class AdminStoreDatabase implements AdminStore {
 	/**
 	 * The username of the admin
 	 */
-	private String user;
+	private String name;
 	private Set<ChannelStore> channels;
 	private Set<ServerStore> servers;
 	protected final DatabaseStore store;
@@ -36,7 +36,7 @@ public class AdminStoreDatabase implements AdminStore {
 	 * @param name  Name of admin
 	 */
 	public AdminStoreDatabase(DatabaseStore store, String name) {
-		this.user = name;
+		this.name = name;
 		this.store = store;
 	}
 
