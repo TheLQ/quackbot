@@ -70,12 +70,12 @@ public class HookManager {
 	private HookManager() {
 	}
 
-	public static void addPluginHook(Hook hook) {
+	public static void addHook(Hook hook) {
 		log.debug("Adding hook " + hook.getName());
 		hooks.add(hook);
 	}
 
-	public static void removePluginHook(String hookName) {
+	public static void removeHook(String hookName) {
 		log.debug("Removing hook " + hookName);
 		synchronized (hooks) {
 			Iterator<Hook> i = hooks.iterator();
@@ -87,7 +87,7 @@ public class HookManager {
 		}
 	}
 
-	public static void removePluginHook(Hook hook) {
+	public static void removeHook(Hook hook) {
 		log.debug("Removing command " + hook.getName());
 		hooks.remove(hook);
 	}
