@@ -16,8 +16,7 @@
  */
 package org.quackbot.data;
 
-import org.quackbot.Controller;
-import org.slf4j.LoggerFactory;
+import java.util.Set;
 
 /**
  * Bean that holds all known Channel information. This is meant to be integrated with
@@ -25,158 +24,80 @@ import org.slf4j.LoggerFactory;
  * JPersist configure it.
  * <p>
  * If this needs to be changed in database, call {@link #updateDB()}
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class ChannelStore  {
+public interface ChannelStore  {
 	/**
-	 * ID of the server Channel is attached to
+	 * Delete this Channel
 	 */
-	private Integer serverID;
+	public boolean delete();
+	
+	/*********** Admin Management ***********/
+	
 	/**
-	 * ID of channel in Database
+	 * Adds admin
+	 * @param admin An admin object
 	 */
-	private Integer channelID;
-	/**
-	 * Name of the channel
-	 */
-	private String name;
-	/**
-	 * Password of the channel. Can be null.
-	 */
-	private String password;
+	public void addAdmin(AdminStore admin);
 
 	/**
-	 * Empty Constructor
+	 * Remove an admin from this channel
 	 */
-	public ChannelStore() {
-	}
-
+	public void removeAdmin(AdminStore admin);
+	
 	/**
-	 * From channel ID
-	 * @param channelID
+	 * Gets admin by name
+	 * @param name Name of admin
+	 * @return     Admin object
 	 */
-	public ChannelStore(Integer channelID) {
-		this.channelID = channelID;
-	}
-
-	/**
-	 * Create from string
-	 * @param name
-	 */
-	public ChannelStore(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * Create from string and password
-	 * @param name The channel that this object should represent
-	 * @param password The password of the channel
-	 */
-	public ChannelStore(String name, String password) {
-		this.name = name;
-		this.password = password;
-	}
-
-	/**
-	 * Convert to String
-	 * @return String representation of Channel
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("[").append("Channel=").append(getName()).append(",").
-				append("Password=").append(getPassword()).append(",").
-				append("ChannelID=").append(getChannelID()).append(",").
-				append("ServerID=").append(getServerID()).append("]").
-				toString();
-	}
-
-	/**
-	 * Utility to update the database with the current Admin object.
-	 * <p>
-	 * WARNING: Passing an empty or null server object might destroy the
-	 * database's knowledge of the server. Only JPersist generated Server
-	 * objects should be passed
-	 * <p>
-	 * This is a convience method for
-	 * <br>
-	 * <code>try {
-	 *		save(Controller.instance.dbm);
-	 * catch (Exception e) {
-	 * updating database", e);
-	 *	}</code>
-	 * @return Channel object with database generated info set
-	 */
-	public ChannelStore updateDB(Controller controller) {
-		try {
-			controller.getDatabase().saveObject(this);
-			return controller.getDatabase().loadObject(this);
-		} catch (Exception e) {
-			LoggerFactory.getLogger(ServerStore.class).error("Error updating or fetching database", e);
-		}
-		return null;
-	}
-
+	public Set<AdminStore> getAdmins();
+	
+	/************ Channel Info ***************/
+	
 	/**
 	 * ID of the server Channel is attached to
 	 * @return the serverID
 	 */
-	public Integer getServerID() {
-		return serverID;
-	}
+	public Integer getServerID();
 
 	/**
 	 * ID of the server Channel is attached to
 	 * @param serverID the serverID to set
 	 */
-	public void setServerID(Integer serverID) {
-		this.serverID = serverID;
-	}
-
+	public void setServerID(Integer serverID);
 	/**
 	 * ID of channel in Database
 	 * @return the channelID
 	 */
-	public Integer getChannelID() {
-		return channelID;
-	}
+	public Integer getChannelID();
 
 	/**
 	 * ID of channel in Database
 	 * @param channelID the channelID to set
 	 */
-	public void setChannelID(Integer channelID) {
-		this.channelID = channelID;
-	}
+	public void setChannelID(Integer channelID);
 
 	/**
 	 * Name of the channel
 	 * @return the channel
 	 */
-	public String getName() {
-		return name;
-	}
+	public String getName();
 
 	/**
 	 * Name of the channel
 	 * @param name the channel to set
 	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+	public void setName(String name);
 
 	/**
 	 * Password of the channel. Can be null.
 	 * @return the password
 	 */
-	public String getPassword() {
-		return password;
-	}
+	public String getPassword();
 
 	/**
 	 * Password of the channel. Can be null.
 	 * @param password the password to set
 	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
+	public void setPassword(String password);
 }

@@ -16,13 +16,9 @@
  */
 package org.quackbot.data;
 
-import org.quackbot.Controller;
-import ejp.DatabaseException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the Server bean mapped to the Database by JPersist. Used by {@link Quackbot.Bot}
@@ -30,284 +26,95 @@ import org.slf4j.LoggerFactory;
  * This is usually configured by JPersist
  * @author Lord.Quackstar
  */
-public class ServerStore {
+public interface ServerStore {
 	/**
-	 * Value mapped to column in DB or manually provided
+	 * Delete the server
+	 * @return True if delete was successful, false if not
 	 */
-	private String address, password;
-	/**
-	 * Value mapped to column in DB or manually provided
-	 */
-	private Integer serverId, port;
-	/**
-	 * List of all Channels, refrenced by common serverID
-	 */
-	private List<ChannelStore> channels = new ArrayList<ChannelStore>();
-	/**
-	 * List of all Admins, refrenced by common serverID
-	 */
-	private List<AdminStore> admins = new ArrayList<AdminStore>();
-
-	/**
-	 * Empty constructor
-	 */
-	public ServerStore() {
-	}
-
-	/**
-	 * Constructor specified by Server ID. Usually used to get all servers from db
-	 * @param serverID
-	 */
-	public ServerStore(Integer serverID) {
-		this.serverId = serverID;
-	}
-
-	/**
-	 * Creates Server
-	 * @param address Address of server
-	 */
-	public ServerStore(String address) {
-		this.address = address;
-	}
-
-	/**
-	 * Creates server
-	 * @param address Address of server
-	 * @param port    Custom port of server
-	 */
-	public ServerStore(String address, Integer port) {
-		this.address = address;
-		this.port = port;
-	}
-
-	/**
-	 * Creates server
-	 * Creates server
-	 * @param address  Address of server
-	 * @param port     Custom port of server
-	 * @param password Password of server
-	 */
-	public ServerStore(String address, Integer port, String password) {
-		this.address = address;
-		this.port = port;
-		this.password = password;
-	}
-
-	/**
-	 * Creates server (<b>Warning</b> A custom ID should only be given in special circumstances
-	 * @param serverId Custom server ID
-	 * @param address  Address of server
-	 * @param port     Custom port of server
-	 * @param password Password of server
-	 */
-	public ServerStore(Integer serverId, String address, Integer port, String password) {
-		this.serverId = serverId;
-		this.address = address;
-		this.port = port;
-		this.password = password;
-	}
-
-	/*******************************************UTILS*********************************/
+	public boolean delete();
+	
+	/*********** Admin and Channel Management **************************/
 	/**
 	 * Adds admin
 	 * @param admin An admin object
 	 */
-	public void addAdmin(AdminStore admin) {
-		getAdmins().add(admin);
-	}
+	public void addAdmin(AdminStore admin);
 
 	/**
-	 * Removes admin
-	 * @param name Name of admin
+	 * Remove an admin from this server
+	 * @param admin 
 	 */
-	public void removeAdmin(String name) {
-		getAdmins().remove(getAdmin(name));
-	}
-
+	public void removeAdmin(AdminStore admin);
+	
 	/**
 	 * Gets admin by name
 	 * @param name Name of admin
 	 * @return     Admin object
 	 */
-	public AdminStore getAdmin(String name) {
-		for (AdminStore curAdmin : getAdmins())
-			if (curAdmin.getUser().equalsIgnoreCase(name))
-				return curAdmin;
-		return null;
-	}
+	public Set<AdminStore> getAdmins();
 
 	/**
 	 * Add channel
 	 * @param channel Channel name (must include prefix)
 	 */
-	public void addChannel(ChannelStore channel) {
-		getChannels().add(channel);
-	}
+	public void addChannel(ChannelStore channel);
 
-	/**
-	 * Removes channel
-	 * @param channel Channel name (must include prefix)
-	 */
-	public void removeChannel(String channel) {
-		getChannels().remove(getChannel(channel));
-	}
-
-	/**
-	 * Checks if channel exists
-	 * @param channel Channel name (must include prefix)
-	 * @return        True if found, false otherwise
-	 */
-	public boolean channelExists(String channel) {
-		if (getChannel(channel) == null)
-			return false;
-		return true;
-	}
-
+	public void removeChannel(ChannelStore channel);
+	
 	/**
 	 * Gets channel object by name
 	 * @param channel Channel name (must include prefix)
 	 * @return        Channel object
 	 */
-	public ChannelStore getChannel(String channel) {
-		for (ChannelStore curChannel : getChannels())
-			if (curChannel.getName().equalsIgnoreCase(channel))
-				return curChannel;
-		return null;
-	}
+	public Set<ChannelStore> getChannels();
 
-	/**
-	 * Converts object to string
-	 * @return String representation
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("[").append("Address=").append(getAddress()).append(",").
-				append("Password=").append(getPassword()).append(",").
-				append("Port=").append(getPort()).append(",").
-				append("ServerID=").append(getServerId()).append(",").
-				append("Admins=").append(getAdmins().toString()).append(",").
-				append("Channels=").append(getChannels().toString()).append("]").
-				toString();
-	}
-
-	/**
-	 * Utility to update the database with the current Server object.
-	 * <p>
-	 * WARNING: Passing an empty or null server object might destroy the
-	 * database's knowledge of the server. Only JPersist generated Server
-	 * objects should be passed
-	 * <p>
-	 * @return Server object with database generated info set
-	 */
-	public ServerStore updateDB(Controller controller) {
-		try {
-			controller.getDatabase().saveObject(this);
-			return controller.getDatabase().loadObject(this);
-		} catch (Exception e) {
-			LoggerFactory.getLogger(ServerStore.class).error("Error updating or fetching database", e);
-		}
-		return null;
-	}
-
-	public int delete(Controller controller) throws DatabaseException {
-		return controller.getDatabase().deleteObject(this);
-	}
-
-	/*******************************************JAVABEAN*************************/
+	/******************************* Server Info *************************/
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @return the address
 	 */
-	public String getAddress() {
-		return address;
-	}
+	public String getAddress();
 
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @param address the address to set
 	 */
-	public void setAddress(String address) {
-		this.address = address;
-	}
+	public void setAddress(String address);
 
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @return the password
 	 */
-	public String getPassword() {
-		return password;
-	}
+	public String getPassword();
 
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @param password the password to set
 	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
+	public void setPassword(String password);
 
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @return the port
 	 */
-	public Integer getPort() {
-		return port;
-	}
+	public Integer getPort();
 
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @param port the port to set
 	 */
-	public void setPort(Integer port) {
-		this.port = port;
-	}
+	public void setPort(Integer port);
 
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @return the serverId
 	 */
-	public Integer getServerId() {
-		return serverId;
-	}
+	public Integer getServerId();
 
 	/**
 	 * Value mapped to column in DB or manually provided
 	 * @param serverId the serverId to set
 	 */
-	public void setServerId(Integer serverId) {
-		this.serverId = serverId;
-	}
-
-	/**
-	 * List of all Channels, refrenced by common serverID
-	 * @return the channels
-	 */
-	public List<ChannelStore> getChannels() {
-		return channels;
-	}
-
-	/**
-	 * List of all Channels, refrenced by common serverID
-	 * @param channels the channels to set
-	 */
-	public void setChannels(List<ChannelStore> channels) {
-		this.channels = channels;
-	}
-
-	/**
-	 * List of all Admins, refrenced by common serverID
-	 * @return the admins
-	 */
-	public List<AdminStore> getAdmins() {
-		return admins;
-	}
-
-	/**
-	 * List of all Admins, refrenced by common serverID
-	 * @param admins the admins to set
-	 */
-	public void setAdmins(List<AdminStore> admins) {
-		this.admins = admins;
-	}
+	public void setServerId(Integer serverId);
 }
 

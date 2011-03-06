@@ -16,10 +16,8 @@
  */
 package org.quackbot.data;
 
+import java.util.Set;
 import org.quackbot.Controller;
-import ejp.DatabaseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Bean that holds all known Admin information. This is meant to be integrated with
@@ -27,104 +25,25 @@ import org.slf4j.LoggerFactory;
  * JPersist configure it.
  * <p>
  * If this needs to be changed in database, call {@link #updateDB()}
- * @author admins
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class AdminStore {
+public interface AdminStore {
 	/**
-	 * The ID of the admin
+	 * Delete this admin
 	 */
-	private Integer adminId;
-	/**
-	 * The ID of the channel the admin might be attached to. Can be null
-	 * <p>
-	 * A null value indicates this isn't attached to a channel. The admin can
-	 * either be server admin or global admin
-	 */
-	private Integer channelID;
-	/**
-	 * The ID of the server the admin might be attached to. Can be null
-	 * <p>
-	 * A null value indicates the admin isn't attached to a server. They must
-	 * be a global admin.
-	 */
-	private Integer serverID;
-	/**
-	 * The username of the admin
-	 */
-	private String user;
-	/**
-	 * Logging system
-	 */
-	private static Logger log = LoggerFactory.getLogger(AdminStore.class);
-
-	/**
-	 * Empty constructor
-	 */
-	public AdminStore() {
-	}
-
-	/**
-	 * Generate from name
-	 * @param name  Name of admin
-	 */
-	public AdminStore(String name) {
-		this.user = name;
-	}
-
-	/**
-	 * Converts admin to String representation
-	 * @return String representation
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("[").append("UserName=").append(getUser()).append(",").
-				append("AdminID=").append(getAdminId()).append(",").
-				append("ChannelID=").append(getChannelID()).append(",").
-				append("ServerID=").append(getServerID()).append("]").
-				toString();
-	}
-
-	/**
-	 * Utility to update the database with the current Admin object.
-	 * <p>
-	 * WARNING: Passing an empty or null server object might destroy the
-	 * database's knowledge of the server. Only JPersist generated Server
-	 * objects should be passed
-	 * <p>
-	 * This is a convience method for
-	 * <br>
-	 * <code>try {
-	 *		save(Controller.instance.dbm);
-	 * catch (Exception e) {
-	 * updating database", e);
-	 *	}</code>
-	 * @return Admin object with database generated info set
-	 */
-	public AdminStore updateDB(Controller controller) {
-		try {
-			controller.config.getDatabase().saveObject(this);
-			return controller.config.getDatabase().loadObject(this);
-		} catch (Exception e) {
-			LoggerFactory.getLogger(ServerStore.class).error("Error updating or fetching database", e);
-		}
-		return null;
-	}
-
+	public boolean delete();
+	
 	/**
 	 * The ID of the admin
 	 * @return the adminId
 	 */
-	public Integer getAdminId() {
-		return adminId;
-	}
+	public Integer getAdminId();
 
 	/**
 	 * The ID of the admin
 	 * @param adminId the adminId to set
 	 */
-	public void setAdminId(Integer adminId) {
-		this.adminId = adminId;
-	}
+	public void setAdminId(Integer adminId);
 
 	/**
 	 * The ID of the channel the admin might be attached to. Can be null
@@ -133,9 +52,7 @@ public class AdminStore {
 	 * either be server admin or global admin
 	 * @return the channelID
 	 */
-	public Integer getChannelID() {
-		return channelID;
-	}
+	public Integer getChannelID();
 
 	/**
 	 * The ID of the channel the admin might be attached to. Can be null
@@ -144,9 +61,7 @@ public class AdminStore {
 	 * either be server admin or global admin
 	 * @param channelID the channelID to set
 	 */
-	public void setChannelID(Integer channelID) {
-		this.channelID = channelID;
-	}
+	public void setChannelID(Integer channelID);
 
 	/**
 	 * The ID of the server the admin might be attached to. Can be null
@@ -155,9 +70,7 @@ public class AdminStore {
 	 * be a global admin.
 	 * @return the serverID
 	 */
-	public Integer getServerID() {
-		return serverID;
-	}
+	public Integer getServerID();
 
 	/**
 	 * The ID of the server the admin might be attached to. Can be null
@@ -166,25 +79,19 @@ public class AdminStore {
 	 * be a global admin.
 	 * @param serverID the serverID to set
 	 */
-	public void setServerID(Integer serverID) {
-		this.serverID = serverID;
-	}
+	public void setServerID(Integer serverID);
 
 	/**
 	 * The username of the admin
 	 * @return the user
 	 */
-	public String getUser() {
-		return user;
-	}
+	public String getUser();
 
 	/**
 	 * The username of the admin
 	 * @param user the user to set
 	 */
-	public void setUser(String user) {
-		this.user = user;
-	}
+	public void setUser(String user);
 
 	/**
 	 * The Channel object that the admin might be attached to. Can be null
@@ -195,14 +102,7 @@ public class AdminStore {
 	 * Note that this isn't mapped by JPersist, it is simply a convience method
 	 * @return the channel
 	 */
-	public ChannelStore getChannel(Controller controller) {
-		try {
-			return controller.getDatabase().loadObject(new ChannelStore(getChannelID()));
-		} catch (DatabaseException e) {
-			log.error("Could not fetch channel", e);
-		}
-		return null;
-	}
+	public Set<ChannelStore> getChannels();
 
 	/**
 	 * The Server object that the admin might be attached to. Can be null
@@ -213,12 +113,5 @@ public class AdminStore {
 	 * Note that this isn't mapped by JPersist, it is simply a convience method
 	 * @return the server
 	 */
-	public ServerStore getServer(Controller controller) {
-		try {
-			return controller.getDatabase().loadObject(new ServerStore(getChannelID()));
-		} catch (DatabaseException e) {
-			log.error("Could not fetch Server", e);
-		}
-		return null;
-	}
+	public Set<ServerStore> getServers();
 }
