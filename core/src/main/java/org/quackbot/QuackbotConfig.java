@@ -44,7 +44,7 @@ public class QuackbotConfig {
 	 * Wait between sending messages
 	 */
 	private int outputThrottleMs = 1750;
-	private boolean makeGui = true;
+	private boolean startGui = true;
 	private String version = "";
 	private String finger = "";
 	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
