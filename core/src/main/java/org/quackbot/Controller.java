@@ -37,6 +37,7 @@ import java.util.concurrent.ThreadFactory;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
+import org.quackbot.events.InitEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +168,7 @@ public class Controller {
 	 */
 	public void start() {
 		//Call list of commands
-		HookManager.getHookMap("onInit").execute(this);
+		HookManager.dispatchEvent(new InitEvent());
 
 		//Load current CMD classes
 		reloadPlugins();
