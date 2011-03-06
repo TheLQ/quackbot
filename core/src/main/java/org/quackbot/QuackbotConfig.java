@@ -48,25 +48,12 @@ public class QuackbotConfig {
 	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
 	private String nick = "Quackbot";
 	private String name = "Quackbot";
-	private Level databaseLogLevel = Level.OFF;
 	
 
 	/**
 	 * Creates a blank configuration
 	 */
 	public QuackbotConfig() {
-	}
-
-	/**
-	 * Set the log level of JPersist. By default its OFF, but can be changed for debugging
-	 * @param level JUT logging level
-	 */
-	public void setDatabaseLogLevel(Level level) {
-		databaseLogLevel = level;
-	}
-
-	public Level getDatabaseLogLevel() {
-		return databaseLogLevel;
 	}
 
 	/**
