@@ -102,6 +102,8 @@ public class QuackbotConfig {
 	 * @return The Quackbot Controller
 	 */
 	public Controller start() {
-		return new Controller(this);
+		Controller controller = new Controller(this);
+		controller.start();
+		return controller;
 	}
 }
