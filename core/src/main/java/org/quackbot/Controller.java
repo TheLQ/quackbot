@@ -385,8 +385,4 @@ public class Controller {
 		}
 		return false;
 	}
-
-	public DatabaseManager getDatabase() {
-		return config.getDatabase();
-	}
 }
