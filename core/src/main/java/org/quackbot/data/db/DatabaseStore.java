@@ -17,13 +17,7 @@ import org.quackbot.data.ServerStore;
  */
 @Data
 public class DatabaseStore implements DataStore {
-	protected final Controller controller;
 	protected DatabaseManager databaseManager = null;
-	
-	public DatabaseStore(Controller controller) {
-		this.controller = controller;
-		//TODO: Setup Database from Config file
-	}
 	
 	/**
 	 * Create a DatabaseManager instance using a supplied DataSource.
