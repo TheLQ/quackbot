@@ -91,4 +91,12 @@ public class HookManager {
 		log.debug("Removing command " + hook.getName());
 		hooks.remove(hook);
 	}
+	
+	public static Set<Hook> getHooks() {
+		return Collections.unmodifiableSet(hooks);
+	}
+	
+	public static boolean hookExists(Hook hook) {
+		return hooks.contains(hook);
+	}
 }
