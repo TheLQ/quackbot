@@ -16,6 +16,8 @@
  */
 package org.quackbot.hook;
 
+import org.pircbotx.hooks.Event;
+import org.pircbotx.hooks.Listener;
 import org.quackbot.Bot;
 import org.quackbot.Controller;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -34,12 +36,17 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Hook extends ListenerAdapter {
 	private String name;
+	protected Listener listener = null;
 
 	public Hook(String name) {
 		this.name = name;
 	}
 
 	public Hook() {
+	}
+
+	public Hook(Listener listener) {
+		this.listener = listener;
 	}
 
 	public Bot getBot() {
@@ -57,5 +64,13 @@ public abstract class Hook extends ListenerAdapter {
 	public Hook setup(String name) {
 		this.name = name;
 		return this;
+	}
+
+	@Override
+	public void onEvent(Event event) throws Exception {
+		if (listener != null)
+			listener.onEvent(event);
+		else
+			super.onEvent(event);
 	}
 }
