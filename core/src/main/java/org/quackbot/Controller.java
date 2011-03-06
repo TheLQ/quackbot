@@ -250,6 +250,13 @@ public class Controller {
 			log.error("Can't remove server", e);
 		}
 	}
+	
+	/**
+	 * Gets all servers, regardless if they are connected or not
+	 */
+	public Set<ServerStore> getServers() {
+		return config.getStorage().getServers();
+	}
 
 	/**
 	 * Send a message to every channel on every server Quackbot is connected to. Use carefully!
