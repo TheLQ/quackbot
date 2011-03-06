@@ -46,42 +46,6 @@ public interface AdminStore {
 	public void setAdminId(Integer adminId);
 
 	/**
-	 * The ID of the channel the admin might be attached to. Can be null
-	 * <p>
-	 * A null value indicates this isn't attached to a channel. The admin can
-	 * either be server admin or global admin
-	 * @return the channelID
-	 */
-	public Integer getChannelID();
-
-	/**
-	 * The ID of the channel the admin might be attached to. Can be null
-	 * <p>
-	 * A null value indicates this isn't attached to a channel. The admin can
-	 * either be server admin or global admin
-	 * @param channelID the channelID to set
-	 */
-	public void setChannelID(Integer channelID);
-
-	/**
-	 * The ID of the server the admin might be attached to. Can be null
-	 * <p>
-	 * A null value indicates the admin isn't attached to a server. They must
-	 * be a global admin.
-	 * @return the serverID
-	 */
-	public Integer getServerID();
-
-	/**
-	 * The ID of the server the admin might be attached to. Can be null
-	 * <p>
-	 * A null value indicates the admin isn't attached to a server. They must
-	 * be a global admin.
-	 * @param serverID the serverID to set
-	 */
-	public void setServerID(Integer serverID);
-
-	/**
 	 * The username of the admin
 	 * @return the user
 	 */
