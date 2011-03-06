@@ -23,12 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 import javax.sql.DataSource;
+import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 
 /**
  *
  * @author Owner
  */
+@Data
 public class QuackbotConfig {
 	/**
 	 * Global Prefixes.
@@ -76,47 +78,6 @@ public class QuackbotConfig {
 	}
 
 	/**
-	 * @return the msgWait
-	 */
-	public int getMsgWait() {
-		return msgWait;
-	}
-
-	/**
-	 * @param msgDelay the msgWait to setMessageDelay
-	 */
-	public void setMessageDelay(int msgDelay) {
-		msgWait = msgDelay;
-	}
-
-	public void addPrefix(String prefix) {
-		globPrefixes.add(prefix);
-	}
-
-	public void removePrefix(String prefix) {
-		globPrefixes.remove(prefix);
-	}
-
-	public List<String> getPrefixes() {
-		return globPrefixes;
-	}
-
-	public void disableGui(boolean disable) {
-		makeGui = disable;
-	}
-
-	public boolean isGuiEnabled() {
-		return makeGui;
-	}
-
-	/**
-	 * @return the pluginLoaders
-	 */
-	public TreeMap<String, PluginLoader> getPluginLoaders() {
-		return pluginLoaders;
-	}
-
-	/**
 	 * @return the version
 	 */
 	public String getVersion() {
@@ -127,48 +88,6 @@ public class QuackbotConfig {
 	}
 
 	/**
-	 * @param version the version to setMessageDelay
-	 */
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	/**
-	 * @return the versionSuffix
-	 */
-	public String getSuffix() {
-		return suffix;
-	}
-
-	/**
-	 * @return the nick
-	 */
-	public String getNick() {
-		return nick;
-	}
-
-	/**
-	 * @param nick the nick to setMessageDelay
-	 */
-	public void setNick(String nick) {
-		this.nick = nick;
-	}
-
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name the name to setMessageDelay
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
 	 * @return the finger
 	 */
 	public String getFinger() {
@@ -176,12 +95,5 @@ public class QuackbotConfig {
 		if (StringUtils.isNotBlank(finger))
 			output = finger + " - ";
 		return output + suffix;
-	}
-
-	/**
-	 * @param finger the finger to setMessageDelay
-	 */
-	public void setFinger(String finger) {
-		this.finger = finger;
 	}
 }
