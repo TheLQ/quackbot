@@ -168,7 +168,7 @@ public class Controller {
 	 */
 	public void start() {
 		//Call list of commands
-		HookManager.dispatchEvent(new InitEvent());
+		HookManager.dispatchEvent(new InitEvent(this));
 
 		//Load current CMD classes
 		reloadPlugins();
