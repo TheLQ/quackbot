@@ -133,26 +133,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 			private Logger log = LoggerFactory.getLogger(Bot.class);
 
 			@Override
-			public void onConnect() throws Exception {
-				getBot().sendRawLine("NICKSERV identify manganip");
-				getBot().joinChannel("#quackbot");
-				getBot().joinChannel("##c++");
-				getBot().joinChannel("##linux");
-				getBot().joinChannel("#archlinux");
-				getBot().joinChannel("#debian");
-				getBot().joinChannel("#gentoo");
-				getBot().joinChannel("#git");
-				getBot().joinChannel("#jquery");
-				getBot().joinChannel("#python");
-				getBot().joinChannel("#ubuntu");
-				getBot().joinChannel("#maemo");
-				getBot().joinChannel("#mysql");
-				getBot().joinChannel("#vim");
-				getBot().joinChannel("#perl");
-				getBot().joinChannel("#freenode");
-			}
-
-			@Override
 			public void onMessage(String channel, String sender, String login, String hostname, String message) {
 				int cmdNum = getController().addCmdNum();
 
