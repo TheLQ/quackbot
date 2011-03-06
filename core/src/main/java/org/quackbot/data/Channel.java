@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.info;
+package org.quackbot.data;
 
 import org.quackbot.Controller;
 import org.slf4j.LoggerFactory;
