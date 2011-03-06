@@ -138,15 +138,14 @@ public class Controller {
 		});
 
 		//Do we need to make a GUI?
-		if (config.isGuiEnabled())
+		if (config.isStartGui())
 			try {
 				//This can't run in EDT, end if it is
 				if (SwingUtilities.isEventDispatchThread()) {
 					log.error("Controller cannot be started from EDT. Please start from seperate thread");
 					return;
 				}
-
-				//Attempt to dynamically load GUI since it might not exist in packages
+				
 				gui = new GUI(this);
 			} catch (Exception e) {
 				log.error("Unkown error occured in GUI initialzation", e);
