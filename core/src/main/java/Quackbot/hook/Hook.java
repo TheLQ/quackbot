@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Hook extends ListenerAdapter {
 	private String name;
-	private Logger log = LoggerFactory.getLogger(Hook.class);
 
 	public Hook(String name) {
 		this.name = name;
