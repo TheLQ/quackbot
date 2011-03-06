@@ -16,15 +16,13 @@
  */
 package org.quackbot;
 
-import ch.qos.logback.classic.Level;
-import ejp.DatabaseManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
-import javax.sql.DataSource;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
+import org.quackbot.data.DataStore;
 
 /**
  *
@@ -50,7 +48,7 @@ public class QuackbotConfig {
 	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
 	private String nick = "Quackbot";
 	private String name = "Quackbot";
-	
+	private DataStore storage;
 
 	/**
 	 * Creates a blank configuration
