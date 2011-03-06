@@ -47,6 +47,7 @@ public abstract class Hook extends ListenerAdapter {
 
 	public Hook(Listener listener) {
 		this.listener = listener;
+		this.name = listener.getClass().getSimpleName();
 	}
 
 	public Bot getBot() {
