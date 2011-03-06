@@ -176,9 +176,6 @@ public class Controller {
 		//Load current CMD classes
 		reloadPlugins();
 
-		if(true)
-		return;
-
 		//Connect to all servers
 		try {
 			Collection<ServerStore> c = getDatabase().loadObjects(new ArrayList<ServerStore>(), ServerStore.class);
