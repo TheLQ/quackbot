@@ -79,9 +79,9 @@ public class HookManager {
 		log.debug("Removing hook " + hookName);
 		synchronized (hooks) {
 			Iterator<Hook> i = hooks.iterator();
-			while(i.hasNext()) {
+			while (i.hasNext()) {
 				Hook curHook = i.next();
-				if(curHook.getName().equals(hookName))
+				if (curHook.getName().equals(hookName))
 					i.remove();
 			}
 		}
@@ -91,11 +91,11 @@ public class HookManager {
 		log.debug("Removing command " + hook.getName());
 		hooks.remove(hook);
 	}
-	
+
 	public static Set<Hook> getHooks() {
 		return Collections.unmodifiableSet(hooks);
 	}
-	
+
 	public static boolean hookExists(Hook hook) {
 		return hooks.contains(hook);
 	}
