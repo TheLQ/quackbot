@@ -264,33 +264,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 				return plugin;
 			}
 		});
-
-		HookManager.addPluginHook(new Hook("IRCNative") {
-			@Override
-			public void onFinger(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-				getBot().sendRawLine("NOTICE " + sourceNick + " :\u0001FINGER " + getBot().getFinger() + "\u0001");
-			}
-
-			@Override
-			public void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
-				getBot().sendRawLine("NOTICE " + sourceNick + " :\u0001PING " + pingValue + "\u0001");
-			}
-
-			@Override
-			public void onServerPing(String response) throws Exception {
-				getBot().sendRawLine("PONG " + response);
-			}
-
-			@Override
-			public void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-				getBot().sendRawLine("NOTICE " + sourceNick + " :\u0001TIME " + new Date().toString() + "\u0001");
-			}
-
-			@Override
-			public void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-				getBot().sendRawLine("NOTICE " + sourceNick + " :\u0001VERSION " + getBot().getVersion() + "\u0001");
-			}
-		});
 	}
 
 	public static Bot getPoolLocal() {
