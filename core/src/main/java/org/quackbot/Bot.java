@@ -130,7 +130,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 */
 	static {
 		//Default onPrivateMessage handling
-		HookManager.addPluginHook(new Hook("QuackbotCore") {
+		HookManager.addHook(new Hook("QuackbotCore") {
 			private Logger log = LoggerFactory.getLogger(Bot.class);
 
 			@Override
