@@ -24,7 +24,6 @@ import org.quackbot.data.ChannelStore;
 import org.quackbot.data.ServerStore;
 import ch.qos.logback.classic.Level;
 import ejp.DatabaseException;
-import ejp.DatabaseManager;
 import java.io.File;
 
 import java.util.ArrayList;
@@ -37,6 +36,8 @@ import java.util.concurrent.ThreadFactory;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
 import org.quackbot.events.InitEvent;
 
 import org.slf4j.Logger;
@@ -349,41 +350,26 @@ public class Controller {
 		});
 	}
 
-	public boolean isAdmin(String name, Bot bot, String channel) {
-		return isAdmin(name, bot.getServer(), channel);
-	}
-
-	/**
-	 * Utility to check if an admin exists in either the global scope,
-	 * server scope, or channel scope
-	 * @param bot
-	 * @return True if admin exists, false otherwise
-	 */
-	public boolean isAdmin(String name, String server, String channel) {
-		try {
-			Collection<AdminStore> c = getDatabase().loadObjects(new ArrayList<AdminStore>(), AdminStore.class);
-			for (AdminStore curAdmin : c) {
-				//Is this even a match?
-				if (!curAdmin.getUser().equalsIgnoreCase(name))
-					continue;
-
-				//Is this person an admin of this channel?
-				ChannelStore chan = curAdmin.getChannel(this);
-				if (chan != null && chan.getName().equals(channel))
+	public boolean isAdmin(Bot bot, User user, Channel chan) {
+		for(AdminStore curAdmin : config.getStorage().getAllAdmins()) {
+			//Is this even the right user?
+			if(!curAdmin.getName().equalsIgnoreCase(user.getNick()))
+				continue;
+			
+			//Got our user; are they an admin on this server?
+			if(curAdmin.getServers().contains(bot.serverDB))
+				return true;
+			
+			//Are they an admin on the channel?
+			for(ChannelStore curChan : curAdmin.getChannels())
+				if(curChan.getName().equalsIgnoreCase(chan.getName()))
 					return true;
-
-				//Is this person an admin of the server?
-				ServerStore serv = curAdmin.getServer(this);
-				if (serv != null && serv.getAddress().equalsIgnoreCase(server))
-					return true;
-
-				//Is this person a global admin?
-				if (serv != null && chan != null)
-					return true;
-			}
-		} catch (DatabaseException e) {
-			log.error("Couldn't finish finding admin", e);
+			
+			//They aren't an admin, end
+			break;
 		}
+		
+		//Loop failed, they aren't an admin
 		return false;
 	}
 }
