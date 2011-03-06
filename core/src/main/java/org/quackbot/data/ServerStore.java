@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * This is usually configured by JPersist
  * @author Lord.Quackstar
  */
-public class Server {
+public class ServerStore {
 	/**
 	 * Value mapped to column in DB or manually provided
 	 */
@@ -42,23 +42,23 @@ public class Server {
 	/**
 	 * List of all Channels, refrenced by common serverID
 	 */
-	private List<Channel> channels = new ArrayList<Channel>();
+	private List<ChannelStore> channels = new ArrayList<ChannelStore>();
 	/**
 	 * List of all Admins, refrenced by common serverID
 	 */
-	private List<Admin> admins = new ArrayList<Admin>();
+	private List<AdminStore> admins = new ArrayList<AdminStore>();
 
 	/**
 	 * Empty constructor
 	 */
-	public Server() {
+	public ServerStore() {
 	}
 
 	/**
 	 * Constructor specified by Server ID. Usually used to get all servers from db
 	 * @param serverID
 	 */
-	public Server(Integer serverID) {
+	public ServerStore(Integer serverID) {
 		this.serverId = serverID;
 	}
 
@@ -66,7 +66,7 @@ public class Server {
 	 * Creates Server
 	 * @param address Address of server
 	 */
-	public Server(String address) {
+	public ServerStore(String address) {
 		this.address = address;
 	}
 
@@ -75,7 +75,7 @@ public class Server {
 	 * @param address Address of server
 	 * @param port    Custom port of server
 	 */
-	public Server(String address, Integer port) {
+	public ServerStore(String address, Integer port) {
 		this.address = address;
 		this.port = port;
 	}
@@ -87,7 +87,7 @@ public class Server {
 	 * @param port     Custom port of server
 	 * @param password Password of server
 	 */
-	public Server(String address, Integer port, String password) {
+	public ServerStore(String address, Integer port, String password) {
 		this.address = address;
 		this.port = port;
 		this.password = password;
@@ -100,7 +100,7 @@ public class Server {
 	 * @param port     Custom port of server
 	 * @param password Password of server
 	 */
-	public Server(Integer serverId, String address, Integer port, String password) {
+	public ServerStore(Integer serverId, String address, Integer port, String password) {
 		this.serverId = serverId;
 		this.address = address;
 		this.port = port;
@@ -112,7 +112,7 @@ public class Server {
 	 * Adds admin
 	 * @param admin An admin object
 	 */
-	public void addAdmin(Admin admin) {
+	public void addAdmin(AdminStore admin) {
 		getAdmins().add(admin);
 	}
 
@@ -129,8 +129,8 @@ public class Server {
 	 * @param name Name of admin
 	 * @return     Admin object
 	 */
-	public Admin getAdmin(String name) {
-		for (Admin curAdmin : getAdmins())
+	public AdminStore getAdmin(String name) {
+		for (AdminStore curAdmin : getAdmins())
 			if (curAdmin.getUser().equalsIgnoreCase(name))
 				return curAdmin;
 		return null;
@@ -140,7 +140,7 @@ public class Server {
 	 * Add channel
 	 * @param channel Channel name (must include prefix)
 	 */
-	public void addChannel(Channel channel) {
+	public void addChannel(ChannelStore channel) {
 		getChannels().add(channel);
 	}
 
@@ -168,8 +168,8 @@ public class Server {
 	 * @param channel Channel name (must include prefix)
 	 * @return        Channel object
 	 */
-	public Channel getChannel(String channel) {
-		for (Channel curChannel : getChannels())
+	public ChannelStore getChannel(String channel) {
+		for (ChannelStore curChannel : getChannels())
 			if (curChannel.getName().equalsIgnoreCase(channel))
 				return curChannel;
 		return null;
@@ -199,12 +199,12 @@ public class Server {
 	 * <p>
 	 * @return Server object with database generated info set
 	 */
-	public Server updateDB(Controller controller) {
+	public ServerStore updateDB(Controller controller) {
 		try {
 			controller.getDatabase().saveObject(this);
 			return controller.getDatabase().loadObject(this);
 		} catch (Exception e) {
-			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
+			LoggerFactory.getLogger(ServerStore.class).error("Error updating or fetching database", e);
 		}
 		return null;
 	}
@@ -282,7 +282,7 @@ public class Server {
 	 * List of all Channels, refrenced by common serverID
 	 * @return the channels
 	 */
-	public List<Channel> getChannels() {
+	public List<ChannelStore> getChannels() {
 		return channels;
 	}
 
@@ -290,7 +290,7 @@ public class Server {
 	 * List of all Channels, refrenced by common serverID
 	 * @param channels the channels to set
 	 */
-	public void setChannels(List<Channel> channels) {
+	public void setChannels(List<ChannelStore> channels) {
 		this.channels = channels;
 	}
 
@@ -298,7 +298,7 @@ public class Server {
 	 * List of all Admins, refrenced by common serverID
 	 * @return the admins
 	 */
-	public List<Admin> getAdmins() {
+	public List<AdminStore> getAdmins() {
 		return admins;
 	}
 
@@ -306,7 +306,7 @@ public class Server {
 	 * List of all Admins, refrenced by common serverID
 	 * @param admins the admins to set
 	 */
-	public void setAdmins(List<Admin> admins) {
+	public void setAdmins(List<AdminStore> admins) {
 		this.admins = admins;
 	}
 }
