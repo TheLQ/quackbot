@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.hook;
+package org.quackbot.hook;
 
-import Quackbot.Bot;
-import Quackbot.Controller;
+import org.quackbot.Bot;
+import org.quackbot.Controller;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

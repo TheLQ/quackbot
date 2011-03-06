@@ -14,16 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot;
+package org.quackbot;
 
-import Quackbot.err.AdminException;
-import Quackbot.err.InvalidCMDException;
-import Quackbot.err.NumArgException;
+import org.quackbot.err.AdminException;
+import org.quackbot.err.InvalidCMDException;
+import org.quackbot.err.NumArgException;
 
-import Quackbot.info.Channel;
-import Quackbot.hook.HookManager;
-import Quackbot.hook.Hook;
-import Quackbot.info.Server;
+import org.quackbot.info.Channel;
+import org.quackbot.hook.HookManager;
+import org.quackbot.hook.Hook;
+import org.quackbot.info.Server;
 import java.awt.Event;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
