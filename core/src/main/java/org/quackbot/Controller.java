@@ -217,6 +217,10 @@ public class Controller {
 		log.info("Killed all bots");
 	}
 
+	public void addServer(String address, String... channels) {
+		addServer(address, config.getDefaultPort(), channels);
+	}
+	
 	/**
 	 * Creates a new server, adds to database, and connects
 	 * @param address  Address of server
