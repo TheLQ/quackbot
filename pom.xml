@@ -16,7 +16,8 @@
 	<name>Quackbot</name>
 	<url>http://quackbot.googlecode.com</url>
 	<description>Java based IRC bot framework/program designed to be a simple, easy to use, and easy 
-	to write for bot.</description>
+	to write for bot.
+	</description>
 	<inceptionYear>2010</inceptionYear>
 	
 	<licenses>
@@ -95,44 +96,42 @@
 		</plugins>
 	</build>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.testng</groupId>
-				<artifactId>testng</artifactId>
-				<version>5.14.2</version>
-				<scope>test</scope>
-				<exclusions>
-					<exclusion>
-						<artifactId>junit</artifactId>
-						<groupId>junit</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>1.6.1</version>
-				<type>jar</type>
-			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>2.5</version>
-				<type>jar</type>
-			</dependency>
-			<dependency>
-				<groupId>ejp</groupId>
-				<artifactId>ejp</artifactId>
-				<version>2.2</version>
-			</dependency>
-			<dependency>
-				<groupId>org</groupId>
-				<artifactId>pircbotx</artifactId>
-				<version>1.3-SNAPSHOT</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>5.14.2</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>junit</artifactId>
+					<groupId>junit</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.5</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>ejp</groupId>
+			<artifactId>ejp</artifactId>
+			<version>2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org</groupId>
+			<artifactId>pircbotx</artifactId>
+			<version>1.3-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 
 	<reporting>
 		<plugins>
