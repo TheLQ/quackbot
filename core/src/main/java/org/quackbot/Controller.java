@@ -237,15 +237,15 @@ public class Controller {
 
 	/**
 	 * Deletes a server by address name, removing from database. This will NOT disconnect
-	 * the associated bot.
+	 * the associated bot. <b>Warning:</b> If you have multiple bots on one server
+	 * this will delete <u>all</u> of them. 
 	 * @param address  The address of the server to be deleted
 	 */
 	public void removeServer(String address) {
 		try {
-			Collection<ServerStore> c = getDatabase().loadObjects(new ArrayList<ServerStore>(), ServerStore.class);
-			for (ServerStore curServ : c)
+			for (ServerStore curServ : config.getStorage().getServers())
 				if (curServ.getAddress().equals(address))
-					curServ.delete(this);
+					curServ.delete();
 		} catch (Exception e) {
 			log.error("Can't remove server", e);
 		}
