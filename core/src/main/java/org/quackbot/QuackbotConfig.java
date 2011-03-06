@@ -30,7 +30,6 @@ import org.apache.commons.lang.StringUtils;
  * @author Owner
  */
 public class QuackbotConfig {
-	private DatabaseManager dbm = null;
 	/**
 	 * Global Prefixes.
 	 */
@@ -87,58 +86,6 @@ public class QuackbotConfig {
 	public void addPluginLoader(PluginLoader loader, String[] exts) {
 		for (String curExt : exts)
 			getPluginLoaders().put(curExt, loader);
-	}
-
-	/**
-	 * Create a DatabaseManager instance using a supplied DataSource.
-	 * <p>
-	 * This simply calls
-	 * <code>dbm = new DatabaseManager(databaseName, poolSize, dataSource, catalogPattern, schemaPattern);</code>
-	 *
-	 * @param databaseName the name to associate with the DatabaseManager instance
-	 * @param poolSize the number of instances to manage
-	 * @param dataSource the data source that supplies connections
-	 */
-	public void connectDB(String databaseName, int poolSize, DataSource dataSource) {
-		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, dataSource);
-
-	}
-
-	/**
-	 * Connect to Database using using JNDI.
-	 * <p>
-	 * This simply calls
-	 * <code>dbm = new DatabaseManager(databaseName, poolSize,jndiUri, catalogPattern, schemaPattern);</code>
-	 *
-	 * @param databaseName the name to associate with the DatabaseManager instance
-	 * @param poolSize the number of instances to manage
-	 * @param jndiUri the JNDI URI
-	 * @param username The username to use
-	 * @param password The password to use
-	 */
-	public void connectDB(String databaseName, int poolSize, String jndiUri, String username, String password) {
-		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, jndiUri, username, password);
-	}
-
-	/**
-	 * Create a DatabaseManager instance using a supplied database driver.
-	 * <p>
-	 * This simply calls
-	 * <code>dbm = new DatabaseManager(databaseName, poolSize, driver, url, catalogPattern, schemaPattern);</code>
-	 *
-	 * @param databaseName the name to associate with the DatabaseManager instance
-	 * @param poolSize the number of instances to manage
-	 * @param driver the database driver class name
-	 * @param url the driver oriented database url
-	 * @param username The username to use
-	 * @param password The password to use
-	 */
-	public void connectDB(String databaseName, int poolSize, String driver, String url, String username, String password) {
-		dbm = DatabaseManager.getDatabaseManager(databaseName, poolSize, driver, url, username, password);
-	}
-
-	public DatabaseManager getDatabase() {
-		return dbm;
 	}
 
 	/**
