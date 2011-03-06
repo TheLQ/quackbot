@@ -272,7 +272,6 @@ public class Controller {
 	 * @param clean Clear list of commands?
 	 */
 	public void reloadPlugins() {
-		HookManager.getHookMap("onPluginLoadStart").execute();
 		CommandManager.removeAll();
 
 		try {
