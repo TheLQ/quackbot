@@ -16,6 +16,8 @@
  */
 package org.quackbot;
 
+import java.util.Set;
+import org.pircbotx.hooks.Listener;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
@@ -24,7 +26,6 @@ import org.quackbot.info.Channel;
 import org.quackbot.hook.HookManager;
 import org.quackbot.hook.Hook;
 import org.quackbot.info.Server;
-import java.awt.Event;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -48,6 +49,8 @@ import org.pircbotx.DccFileTransfer;
 import org.pircbotx.PircBotX;
 import org.pircbotx.ReplyConstants;
 import org.pircbotx.User;
+import org.pircbotx.hooks.Event;
+import org.pircbotx.hooks.managers.ListenerManager;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -445,5 +448,36 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		public void set(T obj) {
 			map.put(Thread.currentThread().getThreadGroup(), obj);
 		}
+	}
+	
+	public class WrapperListenerManager implements ListenerManager<Bot> {
+		protected HashMap<Listener,Hook> listenerTracker = new HashMap();
+		
+		public void dispatchEvent(Event<Bot> event) {
+			HookManager.dispatchEvent(event);
+		}
+
+		public boolean addListener(Listener listener) {
+			Hook genHook = new Hook(listener) {};
+			listenerTracker.put(listener, genHook);
+			return HookManager.addHook(genHook);
+		}
+
+		public boolean removeListener(Listener listener) {
+			if(listenerTracker.containsKey(listener)) {
+				if(HookManager.removeHook(listenerTracker.get(listener))) {
+					return listenerTracker.remove(listener) != null;
+				}
+			}
+			return false;
+		}
+
+		public boolean listenerExists(Listener listener) {
+			return listenerTracker.containsKey(listener);
+		}
+
+		public Set<Listener> getListeners() {
+			return listenerTracker.keySet();
+		}	
 	}
 }
