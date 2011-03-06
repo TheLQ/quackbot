@@ -20,20 +20,6 @@ public class AdminStoreDatabase implements AdminStore {
 	 */
 	private Integer adminId;
 	/**
-	 * The ID of the channel the admin might be attached to. Can be null
-	 * <p>
-	 * A null value indicates this isn't attached to a channel. The admin can
-	 * either be server admin or global admin
-	 */
-	private Integer channelID;
-	/**
-	 * The ID of the server the admin might be attached to. Can be null
-	 * <p>
-	 * A null value indicates the admin isn't attached to a server. They must
-	 * be a global admin.
-	 */
-	private Integer serverID;
-	/**
 	 * The username of the admin
 	 */
 	private String user;
@@ -77,7 +63,7 @@ public class AdminStoreDatabase implements AdminStore {
 		//Update ourselves with the admin ID
 		try {
 			AdminStore dbVersion = store.getDatabaseManager().loadObject(this);
-			setChannelID(dbVersion.getChannelID());
+			setAdminId(dbVersion.getAdminId());
 		} catch (DatabaseException ex) {
 			log.error("Can't load AdminStore from database", ex);
 		}
