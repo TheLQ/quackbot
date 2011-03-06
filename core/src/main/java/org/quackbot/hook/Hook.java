@@ -21,8 +21,6 @@ import org.pircbotx.hooks.Listener;
 import org.quackbot.Bot;
 import org.quackbot.Controller;
 import org.pircbotx.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The Hook interface is what all Hooks must implement to be added to the stack.
