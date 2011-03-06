@@ -49,6 +49,7 @@ public class QuackbotConfig {
 	private String nick = "Quackbot";
 	private String name = "Quackbot";
 	private DataStore storage;
+	private int defaultPort = 6667;
 
 	/**
 	 * Creates a blank configuration
