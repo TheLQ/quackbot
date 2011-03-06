@@ -18,9 +18,9 @@ package org.quackbot;
 
 import org.quackbot.gui.GUI;
 import org.quackbot.hook.HookManager;
-import org.quackbot.data.Admin;
-import org.quackbot.data.Channel;
-import org.quackbot.data.Server;
+import org.quackbot.data.AdminStore;
+import org.quackbot.data.ChannelStore;
+import org.quackbot.data.ServerStore;
 import ch.qos.logback.classic.Level;
 import ejp.DatabaseException;
 import ejp.DatabaseManager;
@@ -182,10 +182,10 @@ public class Controller {
 
 		//Connect to all servers
 		try {
-			Collection<Server> c = getDatabase().loadObjects(new ArrayList<Server>(), Server.class);
+			Collection<ServerStore> c = getDatabase().loadObjects(new ArrayList<ServerStore>(), ServerStore.class);
 			if (c.isEmpty())
 				log.error("Server list is empty!");
-			for (Server curServer : c)
+			for (ServerStore curServer : c)
 				initBot(curServer);
 		} catch (Exception e) {
 			if (e instanceof DatabaseException)
@@ -202,7 +202,7 @@ public class Controller {
 	 * Starts bot using server object
 	 * @param curServer
 	 */
-	public void initBot(final Server curServer) {
+	public void initBot(final ServerStore curServer) {
 		final ExecutorService threadPool = newBotPool(curServer.getAddress());
 		threadPool.execute(new Runnable() {
 			@Override
@@ -238,9 +238,9 @@ public class Controller {
 	 * @param channels Vararg of channels to join
 	 */
 	public void addServer(String address, int port, String... channels) {
-		Server srv = new Server(address, port);
+		ServerStore srv = new ServerStore(address, port);
 		for (String curChan : channels)
-			srv.addChannel(new Channel(curChan));
+			srv.addChannel(new ChannelStore(curChan));
 		initBot(srv.updateDB(this));
 	}
 
@@ -251,8 +251,8 @@ public class Controller {
 	 */
 	public void removeServer(String address) {
 		try {
-			Collection<Server> c = getDatabase().loadObjects(new ArrayList<Server>(), Server.class);
-			for (Server curServ : c)
+			Collection<ServerStore> c = getDatabase().loadObjects(new ArrayList<ServerStore>(), ServerStore.class);
+			for (ServerStore curServ : c)
 				if (curServ.getAddress().equals(address))
 					curServ.delete(this);
 		} catch (Exception e) {
@@ -363,19 +363,19 @@ public class Controller {
 	 */
 	public boolean isAdmin(String name, String server, String channel) {
 		try {
-			Collection<Admin> c = getDatabase().loadObjects(new ArrayList<Admin>(), Admin.class);
-			for (Admin curAdmin : c) {
+			Collection<AdminStore> c = getDatabase().loadObjects(new ArrayList<AdminStore>(), AdminStore.class);
+			for (AdminStore curAdmin : c) {
 				//Is this even a match?
 				if (!curAdmin.getUser().equalsIgnoreCase(name))
 					continue;
 
 				//Is this person an admin of this channel?
-				Channel chan = curAdmin.getChannel(this);
+				ChannelStore chan = curAdmin.getChannel(this);
 				if (chan != null && chan.getName().equals(channel))
 					return true;
 
 				//Is this person an admin of the server?
-				Server serv = curAdmin.getServer(this);
+				ServerStore serv = curAdmin.getServer(this);
 				if (serv != null && serv.getAddress().equalsIgnoreCase(server))
 					return true;
 

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * If this needs to be changed in database, call {@link #updateDB()}
  * @author Lord.Quackstar
  */
-public class Channel  {
+public class ChannelStore  {
 	/**
 	 * ID of the server Channel is attached to
 	 */
@@ -48,14 +48,14 @@ public class Channel  {
 	/**
 	 * Empty Constructor
 	 */
-	public Channel() {
+	public ChannelStore() {
 	}
 
 	/**
 	 * From channel ID
 	 * @param channelID
 	 */
-	public Channel(Integer channelID) {
+	public ChannelStore(Integer channelID) {
 		this.channelID = channelID;
 	}
 
@@ -63,7 +63,7 @@ public class Channel  {
 	 * Create from string
 	 * @param name
 	 */
-	public Channel(String name) {
+	public ChannelStore(String name) {
 		this.name = name;
 	}
 
@@ -72,7 +72,7 @@ public class Channel  {
 	 * @param name The channel that this object should represent
 	 * @param password The password of the channel
 	 */
-	public Channel(String name, String password) {
+	public ChannelStore(String name, String password) {
 		this.name = name;
 		this.password = password;
 	}
@@ -106,12 +106,12 @@ public class Channel  {
 	 *	}</code>
 	 * @return Channel object with database generated info set
 	 */
-	public Channel updateDB(Controller controller) {
+	public ChannelStore updateDB(Controller controller) {
 		try {
 			controller.getDatabase().saveObject(this);
 			return controller.getDatabase().loadObject(this);
 		} catch (Exception e) {
-			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
+			LoggerFactory.getLogger(ServerStore.class).error("Error updating or fetching database", e);
 		}
 		return null;
 	}

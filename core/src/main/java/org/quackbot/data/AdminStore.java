@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * If this needs to be changed in database, call {@link #updateDB()}
  * @author admins
  */
-public class Admin {
+public class AdminStore {
 	/**
 	 * The ID of the admin
 	 */
@@ -55,19 +55,19 @@ public class Admin {
 	/**
 	 * Logging system
 	 */
-	private static Logger log = LoggerFactory.getLogger(Admin.class);
+	private static Logger log = LoggerFactory.getLogger(AdminStore.class);
 
 	/**
 	 * Empty constructor
 	 */
-	public Admin() {
+	public AdminStore() {
 	}
 
 	/**
 	 * Generate from name
 	 * @param name  Name of admin
 	 */
-	public Admin(String name) {
+	public AdminStore(String name) {
 		this.user = name;
 	}
 
@@ -100,12 +100,12 @@ public class Admin {
 	 *	}</code>
 	 * @return Admin object with database generated info set
 	 */
-	public Admin updateDB(Controller controller) {
+	public AdminStore updateDB(Controller controller) {
 		try {
 			controller.config.getDatabase().saveObject(this);
 			return controller.config.getDatabase().loadObject(this);
 		} catch (Exception e) {
-			LoggerFactory.getLogger(Server.class).error("Error updating or fetching database", e);
+			LoggerFactory.getLogger(ServerStore.class).error("Error updating or fetching database", e);
 		}
 		return null;
 	}
@@ -195,9 +195,9 @@ public class Admin {
 	 * Note that this isn't mapped by JPersist, it is simply a convience method
 	 * @return the channel
 	 */
-	public Channel getChannel(Controller controller) {
+	public ChannelStore getChannel(Controller controller) {
 		try {
-			return controller.getDatabase().loadObject(new Channel(getChannelID()));
+			return controller.getDatabase().loadObject(new ChannelStore(getChannelID()));
 		} catch (DatabaseException e) {
 			log.error("Could not fetch channel", e);
 		}
@@ -213,9 +213,9 @@ public class Admin {
 	 * Note that this isn't mapped by JPersist, it is simply a convience method
 	 * @return the server
 	 */
-	public Server getServer(Controller controller) {
+	public ServerStore getServer(Controller controller) {
 		try {
-			return controller.getDatabase().loadObject(new Server(getChannelID()));
+			return controller.getDatabase().loadObject(new ServerStore(getChannelID()));
 		} catch (DatabaseException e) {
 			log.error("Could not fetch Server", e);
 		}

@@ -24,7 +24,7 @@ import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
 import org.quackbot.hook.HookManager;
 import org.quackbot.hook.Hook;
-import org.quackbot.data.Server;
+import org.quackbot.data.ServerStore;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	/**
 	 * Current Server database object
 	 */
-	public Server serverDB;
+	public ServerStore serverDB;
 	/**
 	 * Local threadpool
 	 */
@@ -84,7 +84,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(Controller controller, final Server serverDB, ExecutorService threadPool) {
+	public Bot(Controller controller, final ServerStore serverDB, ExecutorService threadPool) {
 		this.serverDB = serverDB;
 		this.threadPool = threadPool;
 		poolLocal.set(this);
@@ -124,8 +124,8 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 			@Override
 			public void onConnect(ConnectEvent event) {
-				List<org.quackbot.data.Channel> channels = getBot().serverDB.getChannels();
-				for (org.quackbot.data.Channel curChannel : channels) {
+				List<org.quackbot.data.ChannelStore> channels = getBot().serverDB.getChannels();
+				for (org.quackbot.data.ChannelStore curChannel : channels) {
 					getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 					log.debug("Trying to join channel using " + curChannel);
 				}
