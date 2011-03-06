@@ -18,9 +18,9 @@ package org.quackbot;
 
 import org.quackbot.gui.GUI;
 import org.quackbot.hook.HookManager;
-import org.quackbot.info.Admin;
-import org.quackbot.info.Channel;
-import org.quackbot.info.Server;
+import org.quackbot.data.Admin;
+import org.quackbot.data.Channel;
+import org.quackbot.data.Server;
 import ch.qos.logback.classic.Level;
 import ejp.DatabaseException;
 import ejp.DatabaseManager;

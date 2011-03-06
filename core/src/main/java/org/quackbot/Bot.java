@@ -24,7 +24,7 @@ import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
 import org.quackbot.hook.HookManager;
 import org.quackbot.hook.Hook;
-import org.quackbot.info.Server;
+import org.quackbot.data.Server;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -124,8 +124,8 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 			@Override
 			public void onConnect(ConnectEvent event) {
-				List<org.quackbot.info.Channel> channels = getBot().serverDB.getChannels();
-				for (org.quackbot.info.Channel curChannel : channels) {
+				List<org.quackbot.data.Channel> channels = getBot().serverDB.getChannels();
+				for (org.quackbot.data.Channel curChannel : channels) {
 					getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 					log.debug("Trying to join channel using " + curChannel);
 				}
