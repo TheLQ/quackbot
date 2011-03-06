@@ -2,14 +2,19 @@
 
 package org.quackbot.data.db;
 
+import ejp.DatabaseException;
 import ejp.DatabaseManager;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import javax.sql.DataSource;
 import lombok.Data;
-import org.quackbot.Controller;
 import org.quackbot.data.AdminStore;
 import org.quackbot.data.ChannelStore;
 import org.quackbot.data.DataStore;
 import org.quackbot.data.ServerStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -18,6 +23,7 @@ import org.quackbot.data.ServerStore;
 @Data
 public class DatabaseStore implements DataStore {
 	protected DatabaseManager databaseManager = null;
+	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Create a DatabaseManager instance using a supplied DataSource.
@@ -77,6 +83,15 @@ public class DatabaseStore implements DataStore {
 
 	public ServerStore newServerStore(String address) {
 		return new ServerStoreDatabase(this, address);
+	}
+
+	public Set<ServerStore> getServers() {
+		try {
+			return new HashSet(databaseManager.loadObjects(new ArrayList<ServerStoreDatabase>(), ServerStoreDatabase.class));
+		} catch (DatabaseException ex) {
+			log.error("Can't load Server's from database", ex);
+		}
+		return null;
 	}
 	
 }
