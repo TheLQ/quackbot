@@ -43,7 +43,7 @@ public class QuackbotConfig {
 	/**
 	 * Wait between sending messages
 	 */
-	private int msgWait = 1750;
+	private int outputThrottleMs = 1750;
 	private boolean makeGui = true;
 	private String version = "";
 	private String finger = "";
