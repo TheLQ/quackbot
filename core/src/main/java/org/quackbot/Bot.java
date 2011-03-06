@@ -22,7 +22,6 @@ import org.pircbotx.hooks.events.ConnectEvent;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
-import org.quackbot.info.Channel;
 import org.quackbot.hook.HookManager;
 import org.quackbot.hook.Hook;
 import org.quackbot.info.Server;
@@ -31,14 +30,17 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.pircbotx.Channel;
 import org.slf4j.Logger;
 import org.pircbotx.PircBotX;
+import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
 import org.slf4j.LoggerFactory;
@@ -58,10 +60,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 */
 	public boolean botLocked = false;
 	/**
-	 * List of channels bot is locked on. Is NOT persistent!!
-	 */
-	public TreeSet<String> chanLockList = new TreeSet<String>();
-	/**
 	 * Current Server database object
 	 */
 	public Server serverDB;
@@ -79,6 +77,8 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	private Logger log = LoggerFactory.getLogger(Bot.class);
 	public UUID unique;
 	public Controller controller;
+	public Set<User> lockedUsers = new HashSet();
+	public Set<Channel> lockedChannels = new HashSet();
 
 	/**
 	 * Init bot by setting all information
@@ -124,13 +124,13 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 			@Override
 			public void onConnect(ConnectEvent event) {
-				List<Channel> channels = getBot().serverDB.getChannels();
-				for (Channel curChannel : channels) {
+				List<org.quackbot.info.Channel> channels = getBot().serverDB.getChannels();
+				for (org.quackbot.info.Channel curChannel : channels) {
 					getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 					log.debug("Trying to join channel using " + curChannel);
 				}
 			}
-
+		
 			@Override
 			public void onMessage(String channel, String sender, String login, String hostname, String message) {
 				int cmdNum = getController().addCmdNum();
@@ -250,22 +250,29 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		return bot;
 	}
 
-	public boolean isLocked(String channel, String sender) {
-		return isLocked(channel, sender, false);
+	/**
+	 * Checks if the bot is locked on the server
+	 * @return True if the bot is locked, false if not
+	 */
+	public boolean isLocked() {
+		return botLocked;
 	}
 
-	public boolean isLocked(String channel, String sender, boolean sayError) {
+	public boolean isLocked(Channel chan, User user) {
+		//If the user is an admin, let them through
+		//TODO: Use channel and user objects
+		if(controller.isAdmin(getServer(), chan.getName(), user.getNick()))
+			return false;
+		
 		//Is bot locked?
-		if (botLocked == true && !controller.isAdmin(getServer(), channel, sender)) {
-			if (sayError)
-				log.info("Command ignored due to global lock in effect");
+		if (isLocked()) {
+			log.info("Command ignored due to server lock in effect");
 			return true;
 		}
 
 		//Is channel locked?
-		if (channel != null && chanLockList.contains(channel) && !controller.isAdmin(getServer(), channel, sender)) {
-			if (sayError)
-				log.info("Command ignored due to channel lock in effect");
+		if (chan != null && lockedChannels.contains(chan)) {
+			log.info("Command ignored due to channel lock in effect");
 			return true;
 		}
 		return false;
