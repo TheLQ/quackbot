@@ -70,26 +70,30 @@ public class HookManager {
 	private HookManager() {
 	}
 
-	public static void addHook(Hook hook) {
+	public static boolean addHook(Hook hook) {
 		log.debug("Adding hook " + hook.getName());
-		hooks.add(hook);
+		return hooks.add(hook);
 	}
 
-	public static void removeHook(String hookName) {
+	public static boolean removeHook(String hookName) {
 		log.debug("Removing hook " + hookName);
+		boolean removed = false;
 		synchronized (hooks) {
 			Iterator<Hook> i = hooks.iterator();
 			while (i.hasNext()) {
 				Hook curHook = i.next();
-				if (curHook.getName().equals(hookName))
+				if (curHook.getName().equals(hookName)) {
 					i.remove();
+					removed = true;
+				}
 			}
 		}
+		return removed;
 	}
 
-	public static void removeHook(Hook hook) {
+	public static boolean removeHook(Hook hook) {
 		log.debug("Removing command " + hook.getName());
-		hooks.remove(hook);
+		return hooks.remove(hook);
 	}
 
 	public static Set<Hook> getHooks() {
