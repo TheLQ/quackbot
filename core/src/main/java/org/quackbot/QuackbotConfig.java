@@ -96,4 +96,12 @@ public class QuackbotConfig {
 			output = finger + " - ";
 		return output + suffix;
 	}
+	
+	/**
+	 * Start the bot
+	 * @return The Quackbot Controller
+	 */
+	public Controller start() {
+		return new Controller(this);
+	}
 }
