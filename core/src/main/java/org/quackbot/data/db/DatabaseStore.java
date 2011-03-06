@@ -7,6 +7,7 @@ import ejp.DatabaseManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import javax.sql.DataSource;
 import lombok.Data;
 import org.quackbot.data.AdminStore;
@@ -90,6 +91,15 @@ public class DatabaseStore implements DataStore {
 			return new HashSet(databaseManager.loadObjects(new ArrayList<ServerStoreDatabase>(), ServerStoreDatabase.class));
 		} catch (DatabaseException ex) {
 			log.error("Can't load Server's from database", ex);
+		}
+		return null;
+	}
+
+	public Set<AdminStore> getAllAdmins() {
+		try {
+			return (HashSet<AdminStore>)databaseManager.loadObjects(new HashSet<AdminStore>(), AdminStore.class);
+		} catch (DatabaseException ex) {
+			log.error("Can't load Admin's from database", ex);
 		}
 		return null;
 	}
