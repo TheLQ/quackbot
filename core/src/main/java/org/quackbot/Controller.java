@@ -16,6 +16,7 @@
  */
 package org.quackbot;
 
+import java.util.Set;
 import org.quackbot.gui.GUI;
 import org.quackbot.hook.HookManager;
 import org.quackbot.data.AdminStore;
@@ -165,11 +166,6 @@ public class Controller {
 	 * If this isn't called, then the bot does nothing
 	 */
 	public void start() {
-		if (config.getDatabase() == null) {
-			log.error("Not configured to use database! Must run connectDB ");
-			return;
-		}
-
 		//Call list of commands
 		HookManager.getHookMap("onInit").execute(this);
 
@@ -178,19 +174,13 @@ public class Controller {
 
 		//Connect to all servers
 		try {
-			Collection<ServerStore> c = getDatabase().loadObjects(new ArrayList<ServerStore>(), ServerStore.class);
-			if (c.isEmpty())
+			Set<ServerStore> servers = config.getStorage().getServers();
+			if (servers.isEmpty())
 				log.error("Server list is empty!");
-			for (ServerStore curServer : c)
+			for (ServerStore curServer : servers)
 				initBot(curServer);
 		} catch (Exception e) {
-			if (e instanceof DatabaseException)
-				if (StringUtils.contains(e.getMessage(), "Communications link failure"))
-					log.error("Error in connecting to database. Please check database connectivity and restart application", e);
-				else
-					log.error("Database error", e);
-			else
-				log.error("Error encountered while attempting to join servers", e);
+			log.error("Error encountered while attempting to join servers", e);
 		}
 	}
 
