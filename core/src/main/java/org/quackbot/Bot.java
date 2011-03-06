@@ -18,6 +18,7 @@ package org.quackbot;
 
 import java.util.Set;
 import org.pircbotx.hooks.Listener;
+import org.pircbotx.hooks.events.ConnectEvent;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
@@ -132,6 +133,15 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		HookManager.addPluginHook(new Hook("QuackbotCore") {
 			private Logger log = LoggerFactory.getLogger(Bot.class);
 
+			@Override
+			public void onConnect(ConnectEvent event) {
+				List<Channel> channels = getBot().serverDB.getChannels();
+				for (Channel curChannel : channels) {
+					getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
+					log.debug("Trying to join channel using " + curChannel);
+				}
+			}
+			
 			@Override
 			public void onMessage(String channel, String sender, String login, String hostname, String message) {
 				int cmdNum = getController().addCmdNum();
@@ -294,28 +304,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		if (!line.startsWith(">>>") && !line.startsWith("###") && !line.startsWith("+++"))
 			line = "@@@" + line;
 		log.info(line);
-	}
-
-	/**
-	 * This method is called once the PircBot has successfully connected to
-	 * the IRC server.
-	 *
-	 * @since PircBot 0.9.6 & Quackbot 3.0
-	 */
-	@Override
-	public void onConnect() {
-		HookManager.getHookMap("onConnect").execute();
-
-		List<Channel> channels = serverDB.getChannels();
-		for (Channel curChannel : channels) {
-			joinChannel(curChannel.getName(), curChannel.getPassword());
-			log.debug("Trying to join channel using " + curChannel);
-		}
-	}
-
-	@Override
-	protected void onMotdFinished() {
-		sendRawLine("NICKSERV identify manganip");
 	}
 
 	@Override
