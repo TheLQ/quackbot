@@ -17,8 +17,11 @@
 package org.quackbot;
 
 import java.io.File;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.hook.Hook;
@@ -37,7 +40,8 @@ public abstract class Command extends Hook {
 	private boolean enabled = true;
 	private final int requiredParams = 0;
 	private final int optionalParams = 0;
-	private Logger log = LoggerFactory.getLogger(getClass());
+	@Getter(AccessLevel.NONE)
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Create a Command with the given name. File is null
