@@ -22,5 +22,5 @@ public interface DataStore {
 	 * Called when shutting down. Useful for closing any open connections and/or
 	 * files
 	 */
-	public void close();
+	public void close() throws Exception;
 }
