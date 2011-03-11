@@ -1,5 +1,3 @@
-
-
 package org.quackbot.data.db;
 
 import ejp.DatabaseException;
@@ -7,7 +5,6 @@ import ejp.DatabaseManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import javax.sql.DataSource;
 import lombok.Data;
 import org.quackbot.data.AdminStore;
@@ -25,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class DatabaseStore implements DataStore {
 	protected DatabaseManager databaseManager = null;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
-	
+
 	/**
 	 * Create a DatabaseManager instance using a supplied DataSource.
 	 * <p>
@@ -73,7 +70,7 @@ public class DatabaseStore implements DataStore {
 	public void connectDB(String databaseName, int poolSize, String driver, String url, String username, String password) {
 		databaseManager = DatabaseManager.getDatabaseManager(databaseName, poolSize, driver, url, username, password);
 	}
-	
+
 	public AdminStore newAdminStore(String name) {
 		return new AdminStoreDatabase(this, name);
 	}
@@ -97,11 +94,14 @@ public class DatabaseStore implements DataStore {
 
 	public Set<AdminStore> getAllAdmins() {
 		try {
-			return (HashSet<AdminStore>)databaseManager.loadObjects(new HashSet<AdminStore>(), AdminStore.class);
+			return (HashSet<AdminStore>) databaseManager.loadObjects(new HashSet<AdminStore>(), AdminStore.class);
 		} catch (DatabaseException ex) {
 			log.error("Can't load Admin's from database", ex);
 		}
 		return null;
 	}
-	
+
+	public void close() throws Exception {
+		databaseManager.close();
+	}
 }
