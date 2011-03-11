@@ -32,11 +32,11 @@ import org.slf4j.LoggerFactory;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public abstract class Command extends Hook {
-	private final String help;
-	private final boolean admin;
-	private boolean enabled;
-	private final int requiredParams;
-	private final int optionalParams;
+	private final String help = "No help available";
+	private final boolean admin = false;
+	private boolean enabled = true;
+	private final int requiredParams = 0;
+	private final int optionalParams = 0;
 	private boolean setup = false;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
