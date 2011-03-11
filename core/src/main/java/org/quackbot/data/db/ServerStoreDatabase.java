@@ -5,7 +5,6 @@ import ejp.DatabaseException;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
-import org.quackbot.Controller;
 import org.quackbot.data.AdminStore;
 import org.quackbot.data.ChannelStore;
 import org.quackbot.data.ServerStore;
@@ -47,12 +46,14 @@ public class ServerStoreDatabase implements ServerStore {
 	}
 
 	/*******************************************UTILS*********************************/
+	@Override
 	public void addAdmin(AdminStore admin) {
 		loadAssociations();
 		admins.add(admin);
 		update();
 	}
 
+	@Override
 	public void removeAdmin(AdminStore admin) {
 		loadAssociations();
 		admins.remove(admin);
@@ -63,6 +64,7 @@ public class ServerStoreDatabase implements ServerStore {
 	 * Add channel
 	 * @param channel Channel name (must include prefix)
 	 */
+	@Override
 	public void addChannel(ChannelStore channel) {
 		loadAssociations();
 		channels.add(channel);
@@ -73,6 +75,7 @@ public class ServerStoreDatabase implements ServerStore {
 	 * Removes channel
 	 * @param channel Channel name (must include prefix)
 	 */
+	@Override
 	public void removeChannel(ChannelStore channel) {
 		loadAssociations();
 		getChannels().remove(channel);

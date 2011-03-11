@@ -76,6 +76,7 @@ public class ChannelStoreDatabase implements ChannelStore {
 		}
 	}
 
+	@Override
 	public boolean delete() {
 		try {
 			store.getDatabaseManager().deleteObject(this);
@@ -86,12 +87,14 @@ public class ChannelStoreDatabase implements ChannelStore {
 		return false;
 	}
 
+	@Override
 	public void addAdmin(AdminStore admin) {
 		loadAssociations();
 		admins.add(admin);
 		update();
 	}
 
+	@Override
 	public void removeAdmin(AdminStore admin) {
 		loadAssociations();
 		admins.remove(admin);

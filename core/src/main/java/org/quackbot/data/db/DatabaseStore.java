@@ -70,18 +70,22 @@ public class DatabaseStore implements DataStore {
 		databaseManager = DatabaseManager.getDatabaseManager(databaseName, poolSize, driver, url, username, password);
 	}
 
+	@Override
 	public AdminStore newAdminStore(String name) {
 		return new AdminStoreDatabase(this, name);
 	}
 
+	@Override
 	public ChannelStore newChannelStore(String name) {
 		return new ChannelStoreDatabase(this, name);
 	}
 
+	@Override
 	public ServerStore newServerStore(String address) {
 		return new ServerStoreDatabase(this, address);
 	}
 
+	@Override
 	public Set<ServerStore> getServers() {
 		try {
 			return new HashSet(databaseManager.loadObjects(new ArrayList<ServerStoreDatabase>(), ServerStoreDatabase.class));
@@ -91,6 +95,7 @@ public class DatabaseStore implements DataStore {
 		return null;
 	}
 
+	@Override
 	public Set<AdminStore> getAllAdmins() {
 		try {
 			return (HashSet<AdminStore>) databaseManager.loadObjects(new HashSet<AdminStore>(), AdminStore.class);
@@ -100,6 +105,7 @@ public class DatabaseStore implements DataStore {
 		return null;
 	}
 
+	@Override
 	public void close() throws Exception {
 		databaseManager.close();
 	}
