@@ -38,6 +38,7 @@ import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
+import org.quackbot.data.DataStore;
 import org.quackbot.events.InitEvent;
 import org.quackbot.events.PluginLoadEndEvent;
 import org.quackbot.events.PluginLoadStartEvent;
@@ -75,6 +76,7 @@ import org.slf4j.LoggerFactory;
  */
 @Data
 public class Controller {
+	protected final DataStore storage;
 	/**
 	 * Set of all Bot instances
 	 */
@@ -118,6 +120,7 @@ public class Controller {
 	 */
 	public Controller(QuackbotConfig config) {
 		this.config = config;
+		this.storage = config.getStorage();
 
 		//Setup logger
 		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
