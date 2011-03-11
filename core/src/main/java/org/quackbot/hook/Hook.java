@@ -17,7 +17,6 @@
 package org.quackbot.hook;
 
 import org.pircbotx.hooks.Event;
-import Quackbot.Controller;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.Bot;
 import org.quackbot.Controller;
@@ -65,10 +64,12 @@ public abstract class Hook extends ListenerAdapter {
 		this.name = name;
 		return this;
 	}
+
 	@Override
 	public void onEvent(Event event) throws Exception {
 		if (listener != null)
 			listener.onEvent(event);
 		else
 			super.onEvent(event);
+	}
 }
