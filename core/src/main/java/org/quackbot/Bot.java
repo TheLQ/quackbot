@@ -92,11 +92,11 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		unique = UUID.randomUUID();
 		this.controller = controller;
 
-		setName(controller.config.getName());
+		setName(controller.getConfig().getName());
 		setAutoNickChange(true);
-		setFinger(controller.config.getFinger());
-		setVersion(controller.config.getVersion());
-		setMessageDelay(controller.config.getMsgWait());
+		setFinger(controller.getConfig().getFinger());
+		setVersion(controller.getConfig().getVersion());
+		setMessageDelay(controller.getConfig().getOutputThrottleMs());
 
 
 		//Some debug
