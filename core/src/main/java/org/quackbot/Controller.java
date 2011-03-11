@@ -39,6 +39,8 @@ import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.events.InitEvent;
+import org.quackbot.events.PluginLoadEndEvent;
+import org.quackbot.events.PluginLoadStartEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,12 +276,13 @@ public class Controller {
 	 * @param clean Clear list of commands?
 	 */
 	public void reloadPlugins() {
+		HookManager.dispatchEvent(new PluginLoadStartEvent(this));
 		CommandManager.removeAll();
 
 		try {
 			//Load all permanent commands
 			reloadPlugins(new File("plugins"));
-			HookManager.getHookMap("onPluginLoadComplete").execute();
+			HookManager.dispatchEvent(new PluginLoadEndEvent(this));
 		} catch (Exception e) {
 			log.error("Error in plugin loading!!!", e);
 		}
