@@ -16,8 +16,8 @@
  */
 package org.quackbot;
 
-import org.quackbot.err.QuackbotException;
 import java.io.File;
+import org.quackbot.hook.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,50 +25,30 @@ import org.slf4j.LoggerFactory;
  *
  * @author LordQuackstar
  */
-public abstract class Command implements BaseCommand {
-	private String name;
+public abstract class Command extends Hook {
 	private String help;
 	private boolean admin;
 	private boolean enabled;
-	private File file;
 	private int requiredParams;
 	private int optionalParams;
 	private boolean setup = false;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public Command() {
+	/**
+	 * Create a Command with the given name. File is null
+	 * @param name The name to use for this Command
+	 */
+	public Command(String name) {
+		super(name);
 	}
 
-	@Override
-	public Command setup(String name, String help, boolean admin, boolean enabled, File file, int optionalParams, int requiredParams) throws QuackbotException {
-		if (setup)
-			throw new QuackbotException("Command " + getName() + " has already been setup");
-		this.name = name;
-		this.help = help;
-		this.admin = admin;
-		this.enabled = enabled;
-		this.file = file;
-		this.requiredParams = requiredParams;
-		this.optionalParams = optionalParams;
-		setup = true;
-		return this;
-	}
-
-	@Override
-	public String toString() {
-		return "Name=" + name + ","
-				+ "Enabled=" + enabled + ","
-				+ "Admin=" + admin + ","
-				+ "RequiredParams=" + requiredParams + ","
-				+ "OptionalParams=" + optionalParams + ","
-				+ "Help=" + help + ","
-				+ "Setup=" + setup + ","
-				+ "File=" + file;
-	}
-
-	@Override
-	public Bot getBot() {
-		return Bot.getPoolLocal();
+	/**
+	 * Create a Command with the given file and name
+	 * @param file The file that this Command came from
+	 * @param name The name to use for this Command
+	 */
+	public Command(File file, String name) {
+		super(file, name);
 	}
 
 	/**
@@ -110,24 +90,6 @@ public abstract class Command implements BaseCommand {
 	@Override
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-	}
-
-	/**
-	 * Name of command
-	 * @return the name
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * The file that this command parsed
-	 * @return The file
-	 */
-	@Override
-	public File getFile() {
-		return file;
 	}
 
 	@Override
