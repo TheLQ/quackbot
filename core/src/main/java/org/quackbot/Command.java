@@ -64,14 +64,44 @@ public abstract class Command extends Hook {
 		super(file, name);
 	}
 
+	/**
+	 * Called when invoked in a channel or private message
+	 * @param chan The channel the command may of taken place in. <b>Null means
+	 *             this command was invoked in a PM</b>
+	 * @param user The user that invoked this command
+	 * @param args Any arguments the user gave, presented as an array for ease
+	 *             of use
+	 * @return A response to the user's command. Can be null
+	 * @throws Exception Any exception you encountered <i>needs</i> to be thrown
+	 *                   and not handled internally
+	 */
 	public String onCommand(Channel chan, User user, String[] args) throws Exception {
 		return null;
 	}
 
+	/**
+	 * Called when command is invoked in a private message
+	 * @param user The user that invoked this command
+	 * @param args Any arguments the user gave, presented as an array for ease
+	 *             of use
+	 * @return A response to the user's command. Can be null
+	 * @throws Exception Any exception you encountered <i>needs</i> to be thrown
+	 *                   and not handled internally
+	 */
 	public String onCommandPM(User user, String[] args) throws Exception {
 		return null;
 	}
 
+	/**
+	 * Called when command is invoked in a channel
+	 * @param chan The channel the command may of taken place in.
+	 * @param user The user that invoked this command
+	 * @param args Any arguments the user gave, presented as an array for ease
+	 *             of use
+	 * @return A response to the user's command. Can be null
+	 * @throws Exception Any exception you encountered <i>needs</i> to be thrown
+	 *                   and not handled internally
+	 */
 	public String onCommandChannel(Channel chan, User user, String[] args) throws Exception {
 		return null;
 	}
