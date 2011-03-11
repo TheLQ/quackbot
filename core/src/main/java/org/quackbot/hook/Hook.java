@@ -17,10 +17,8 @@
 package org.quackbot.hook;
 
 import java.io.File;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.Bot;
