@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.gui;
+package org.quackbot.gui;
 
-import Quackbot.Controller;
+import org.quackbot.Controller;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;

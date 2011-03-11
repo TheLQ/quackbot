@@ -1,20 +1,73 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<!--
+		Maven information
+	-->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>quackbot</groupId>
 	<artifactId>quackbot</artifactId>
 	<packaging>pom</packaging>
 	<version>3.5-SNAPSHOT</version>
+	
+	<!--
+		Project information
+	-->
 	<name>Quackbot</name>
 	<url>http://quackbot.googlecode.com</url>
+	<description>Java based IRC bot framework/program designed to be a simple, easy to use, and easy 
+	to write for bot.
+	</description>
+	<inceptionYear>2010</inceptionYear>
+	
+	<licenses>
+		<license>
+			<name>GPL v3</name>
+			<url>www.gnu.org/licenses/</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<organization>
+		<name>Leon Blakey</name>
+	</organization>
+
+	<developers>
+		<developer>
+			<id>TheLQ</id>
+			<name>Leon Blakey</name>
+			<email>lord.quackstar@gmail.com</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>-5</timezone>
+		</developer>
+	</developers>
+
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/quackbot/issues/list</url>
+	</issueManagement>
+
+	<scm>
+		<connection>scm:hg:http://quackbot.googlecode.com</connection>
+		<developerConnection>scm:hg:https://quackbot.googlecode.com/hg</developerConnection>
+		<url>https://quackbot.googlecode.com/hg</url>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 	<modules>
 		<module>core</module>
 		<module>plugins</module>
 		<module>impl</module>
 	</modules>
-
+	
+	<!--
+		Dependancies and Plugins
+	-->
 	<build>
 		<plugins>
 			<!--Specifically target 1.5-->
@@ -78,6 +131,13 @@
 			<artifactId>pircbotx</artifactId>
 			<version>1.3-SNAPSHOT</version>
 		</dependency>
+		<!--Project Lombok for annotation processing-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>0.9.3</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<reporting>
@@ -103,12 +163,6 @@
 			<id>general-maven-repo-release</id>
 			<name>Google Code General Maven Repo - Releases</name>
 			<url>http://general-maven-repo.googlecode.com/svn/maven2/releases</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
 		</repository>
 		<repository>
 			<id>general-maven-repo-snapshot</id>
@@ -121,20 +175,10 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
+		<!--Project Lombok repository-->
+		<repository>
+			<id>projectlombok.org</id>
+			<url>http://projectlombok.org/mavenrepo</url>
+		</repository>
 	</repositories>
-
-<!--
-	<pluginRepositories>
-		<pluginRepository>
-			<id>onejar-maven-plugin.googlecode.com</id>
-			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-		</pluginRepository>
-	</pluginRepositories>
--->
-
-	<properties>
-		<!--Source code file encoding-->
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-
 </project>

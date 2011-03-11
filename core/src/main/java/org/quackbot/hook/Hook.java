@@ -14,11 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.hook;
+package org.quackbot.hook;
 
-import Quackbot.Bot;
+import org.pircbotx.hooks.Event;
 import Quackbot.Controller;
 import org.pircbotx.hooks.Listener;
+import org.quackbot.Bot;
+import org.quackbot.Controller;
+import org.pircbotx.hooks.ListenerAdapter;
 
 /**
  * The Hook interface is what all Hooks must implement to be added to the stack.
@@ -30,14 +33,20 @@ import org.pircbotx.hooks.Listener;
  * treated and executed.
  * @author LordQuackstar
  */
-public abstract class Hook implements Listener {
+public abstract class Hook extends ListenerAdapter {
 	private String name;
+	protected Listener listener = null;
 
 	public Hook(String name) {
 		this.name = name;
 	}
 
 	public Hook() {
+	}
+
+	public Hook(Listener listener) {
+		this.listener = listener;
+		this.name = listener.getClass().getSimpleName();
 	}
 
 	public Bot getBot() {
@@ -56,4 +65,10 @@ public abstract class Hook implements Listener {
 		this.name = name;
 		return this;
 	}
+	@Override
+	public void onEvent(Event event) throws Exception {
+		if (listener != null)
+			listener.onEvent(event);
+		else
+			super.onEvent(event);
 }
