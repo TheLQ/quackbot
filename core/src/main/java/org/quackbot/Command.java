@@ -56,11 +56,6 @@ public abstract class Command extends Hook {
 	}
 
 	@Override
-	public String onCommand() {
-		return null;
-	}
-
-	@Override
 	public String onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
 		return null;
 	}
