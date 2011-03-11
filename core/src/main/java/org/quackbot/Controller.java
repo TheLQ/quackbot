@@ -14,16 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot;
+package org.quackbot;
 
-import Quackbot.gui.GUI;
-import Quackbot.hook.HookManager;
-import Quackbot.info.Admin;
-import Quackbot.info.Channel;
-import Quackbot.info.Server;
+import java.util.Set;
+import org.quackbot.gui.GUI;
+import org.quackbot.hook.HookManager;
+import org.quackbot.data.AdminStore;
+import org.quackbot.data.ChannelStore;
+import org.quackbot.data.ServerStore;
 import ch.qos.logback.classic.Level;
 import ejp.DatabaseException;
-import ejp.DatabaseManager;
 import java.io.File;
 
 import java.util.ArrayList;
@@ -36,6 +36,9 @@ import java.util.concurrent.ThreadFactory;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
+import org.quackbot.events.InitEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,15 +141,14 @@ public class Controller {
 		});
 
 		//Do we need to make a GUI?
-		if (config.isGuiEnabled())
+		if (config.isStartGui())
 			try {
 				//This can't run in EDT, end if it is
 				if (SwingUtilities.isEventDispatchThread()) {
 					log.error("Controller cannot be started from EDT. Please start from seperate thread");
 					return;
 				}
-
-				//Attempt to dynamically load GUI since it might not exist in packages
+				
 				gui = new GUI(this);
 			} catch (Exception e) {
 				log.error("Unkown error occured in GUI initialzation", e);
@@ -166,35 +168,21 @@ public class Controller {
 	 * If this isn't called, then the bot does nothing
 	 */
 	public void start() {
-		if (config.getDatabase() == null) {
-			log.error("Not configured to use database! Must run connectDB ");
-			return;
-		}
-
 		//Call list of commands
-		HookManager.getHookMap("onInit").execute(this);
+		HookManager.dispatchEvent(new InitEvent(this));
 
 		//Load current CMD classes
 		reloadPlugins();
 
-		if(true)
-		return;
-
 		//Connect to all servers
 		try {
-			Collection<Server> c = getDatabase().loadObjects(new ArrayList<Server>(), Server.class);
-			if (c.isEmpty())
+			Set<ServerStore> servers = config.getStorage().getServers();
+			if (servers.isEmpty())
 				log.error("Server list is empty!");
-			for (Server curServer : c)
+			for (ServerStore curServer : servers)
 				initBot(curServer);
 		} catch (Exception e) {
-			if (e instanceof DatabaseException)
-				if (StringUtils.contains(e.getMessage(), "Communications link failure"))
-					log.error("Error in connecting to database. Please check database connectivity and restart application", e);
-				else
-					log.error("Database error", e);
-			else
-				log.error("Error encountered while attempting to join servers", e);
+			log.error("Error encountered while attempting to join servers", e);
 		}
 	}
 
@@ -202,7 +190,7 @@ public class Controller {
 	 * Starts bot using server object
 	 * @param curServer
 	 */
-	public void initBot(final Server curServer) {
+	public void initBot(final ServerStore curServer) {
 		final ExecutorService threadPool = newBotPool(curServer.getAddress());
 		threadPool.execute(new Runnable() {
 			@Override
@@ -231,6 +219,10 @@ public class Controller {
 		log.info("Killed all bots");
 	}
 
+	public void addServer(String address, String... channels) {
+		addServer(address, config.getDefaultPort(), channels);
+	}
+	
 	/**
 	 * Creates a new server, adds to database, and connects
 	 * @param address  Address of server
@@ -238,26 +230,34 @@ public class Controller {
 	 * @param channels Vararg of channels to join
 	 */
 	public void addServer(String address, int port, String... channels) {
-		Server srv = new Server(address, port);
+		ServerStore server = config.getStorage().newServerStore(address);
+		server.setPort(port);
 		for (String curChan : channels)
-			srv.addChannel(new Channel(curChan));
-		initBot(srv.updateDB(this));
+			server.addChannel(config.getStorage().newChannelStore(address));
+		initBot(server);
 	}
 
 	/**
 	 * Deletes a server by address name, removing from database. This will NOT disconnect
-	 * the associated bot.
+	 * the associated bot. <b>Warning:</b> If you have multiple bots on one server
+	 * this will delete <u>all</u> of them. 
 	 * @param address  The address of the server to be deleted
 	 */
 	public void removeServer(String address) {
 		try {
-			Collection<Server> c = getDatabase().loadObjects(new ArrayList<Server>(), Server.class);
-			for (Server curServ : c)
+			for (ServerStore curServ : config.getStorage().getServers())
 				if (curServ.getAddress().equals(address))
-					curServ.delete(this);
+					curServ.delete();
 		} catch (Exception e) {
 			log.error("Can't remove server", e);
 		}
+	}
+	
+	/**
+	 * Gets all servers, regardless if they are connected or not
+	 */
+	public Set<ServerStore> getServers() {
+		return config.getStorage().getServers();
 	}
 
 	/**
@@ -274,7 +274,6 @@ public class Controller {
 	 * @param clean Clear list of commands?
 	 */
 	public void reloadPlugins() {
-		HookManager.getHookMap("onPluginLoadStart").execute();
 		CommandManager.removeAll();
 
 		try {
@@ -351,45 +350,26 @@ public class Controller {
 		});
 	}
 
-	public boolean isAdmin(String name, Bot bot, String channel) {
-		return isAdmin(name, bot.getServer(), channel);
-	}
-
-	/**
-	 * Utility to check if an admin exists in either the global scope,
-	 * server scope, or channel scope
-	 * @param bot
-	 * @return True if admin exists, false otherwise
-	 */
-	public boolean isAdmin(String name, String server, String channel) {
-		try {
-			Collection<Admin> c = getDatabase().loadObjects(new ArrayList<Admin>(), Admin.class);
-			for (Admin curAdmin : c) {
-				//Is this even a match?
-				if (!curAdmin.getUser().equalsIgnoreCase(name))
-					continue;
-
-				//Is this person an admin of this channel?
-				Channel chan = curAdmin.getChannel(this);
-				if (chan != null && chan.getName().equals(channel))
+	public boolean isAdmin(Bot bot, User user, Channel chan) {
+		for(AdminStore curAdmin : config.getStorage().getAllAdmins()) {
+			//Is this even the right user?
+			if(!curAdmin.getName().equalsIgnoreCase(user.getNick()))
+				continue;
+			
+			//Got our user; are they an admin on this server?
+			if(curAdmin.getServers().contains(bot.serverDB))
+				return true;
+			
+			//Are they an admin on the channel?
+			for(ChannelStore curChan : curAdmin.getChannels())
+				if(curChan.getName().equalsIgnoreCase(chan.getName()))
 					return true;
-
-				//Is this person an admin of the server?
-				Server serv = curAdmin.getServer(this);
-				if (serv != null && serv.getAddress().equalsIgnoreCase(server))
-					return true;
-
-				//Is this person a global admin?
-				if (serv != null && chan != null)
-					return true;
-			}
-		} catch (DatabaseException e) {
-			log.error("Couldn't finish finding admin", e);
+			
+			//They aren't an admin, end
+			break;
 		}
+		
+		//Loop failed, they aren't an admin
 		return false;
-	}
-
-	public DatabaseManager getDatabase() {
-		return config.getDatabase();
 	}
 }

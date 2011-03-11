@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.hook;
+package org.quackbot.hook;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import org.pircbotx.hooks.Event;
+import org.quackbot.Bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +60,7 @@ public class HookManager {
 	 * ArrayList - All Hooks for that method
 	 *		BaseHook - Hook
 	 */
-	private static final Map<String, HookMap> hooks = Collections.synchronizedMap(new HashMap<String, HookMap>() {
-		{
-			for (Method curMethod : Hook.class.getDeclaredMethods())
-				if (curMethod.getName().startsWith("on"))
-					put(curMethod.getName(), new HookMap(curMethod.getName()));
-		}
-	});
+	private static final Set<Hook> hooks = Collections.synchronizedSet(new HashSet());
 	/**
 	 * TODO
 	 */
@@ -78,47 +72,41 @@ public class HookManager {
 	private HookManager() {
 	}
 
-	public static void addPluginHook(Hook hook) {
+	public static boolean addHook(Hook hook) {
 		log.debug("Adding hook " + hook.getName());
-		for (Method curMethod : hook.getClass().getDeclaredMethods())
-			if (hooks.containsKey(curMethod.getName())) {
-				curMethod.setAccessible(true);
-				HookMap curHookMap = getHookMap(curMethod.getName());
-				synchronized (curHookMap) {
-					curHookMap.put(hook.getName(), hook);
-				}
-			}
+		return hooks.add(hook);
 	}
 
-	public static void removePluginHook(String hookName) {
+	public static boolean removeHook(String hookName) {
 		log.debug("Removing hook " + hookName);
-		for (HookMap curList : hooks.values())
-			synchronized (curList) {
-				curList.remove(hookName);
-			}
-	}
-
-	public static void removePluginHook(Hook hook) {
-		for (HookMap curList : hooks.values())
-			for (Map.Entry<String, Hook> curEntry : curList.entrySet())
-				if (curEntry.getValue() == hook) {
-					synchronized (curList) {
-						log.debug("Removing command " + hook.getName());
-						curList.remove(curEntry.getKey());
-					}
-					break;
+		boolean removed = false;
+		synchronized (hooks) {
+			Iterator<Hook> i = hooks.iterator();
+			while (i.hasNext()) {
+				Hook curHook = i.next();
+				if (curHook.getName().equals(hookName)) {
+					i.remove();
+					removed = true;
 				}
+			}
+		}
+		return removed;
 	}
 
-	public static HookMap getHookMap(String event) {
-		return hooks.get(event);
+	public static boolean removeHook(Hook hook) {
+		log.debug("Removing command " + hook.getName());
+		return hooks.remove(hook);
 	}
 
-	public static Collection<Hook> getList(String name) {
-		return hooks.get(name).values();
+	public static Set<Hook> getHooks() {
+		return Collections.unmodifiableSet(hooks);
 	}
 
-	public static ArrayList<String> getNames() {
-		return new ArrayList<String>(hooks.keySet());
+	public static boolean hookExists(Hook hook) {
+		return hooks.contains(hook);
+	}
+	
+	public static void dispatchEvent(Event<Bot> bot) {
+		//TODO
 	}
 }
