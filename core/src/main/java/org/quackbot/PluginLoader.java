@@ -17,6 +17,7 @@
 package org.quackbot;
 
 import java.io.File;
+import org.quackbot.hook.Hook;
 
 /**
  * The core of any PluginLoader abstract class. All plugin types need to implement this
@@ -38,5 +39,5 @@ public interface PluginLoader {
 	 * @param file         The file that contains the script
 	 * @throws Exception   Any exception encountered while parsing. The command will not be added
 	 */
-	public void load(File file) throws Exception;
+	public Hook load(File file) throws Exception;
 }
