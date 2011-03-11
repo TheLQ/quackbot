@@ -18,6 +18,8 @@ package org.quackbot.hook;
 
 import java.io.File;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.Listener;
@@ -36,6 +38,8 @@ import org.pircbotx.hooks.ListenerAdapter;
  * @author LordQuackstar
  */
 @RequiredArgsConstructor
+@Data
+@EqualsAndHashCode(callSuper=true)
 public abstract class Hook extends ListenerAdapter {
 	private final String name;
 	private final File file;
@@ -57,10 +61,6 @@ public abstract class Hook extends ListenerAdapter {
 
 	public Bot getBot() {
 		return Bot.getPoolLocal();
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public Controller getController() {
