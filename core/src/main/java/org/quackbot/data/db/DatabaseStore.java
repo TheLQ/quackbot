@@ -35,7 +35,6 @@ public class DatabaseStore implements DataStore {
 	 */
 	public void connectDB(String databaseName, int poolSize, DataSource dataSource) {
 		databaseManager = DatabaseManager.getDatabaseManager(databaseName, poolSize, dataSource);
-
 	}
 
 	/**
