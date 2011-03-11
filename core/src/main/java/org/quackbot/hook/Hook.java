@@ -37,26 +37,42 @@ import org.pircbotx.hooks.ListenerAdapter;
  * treated and executed.
  * @author LordQuackstar
  */
-@RequiredArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 public abstract class Hook extends ListenerAdapter {
 	private final String name;
 	private final File file;
-	protected Listener listener = null;
+	private final Listener listener;
 
+	/**
+	 * Create a hook with the given name. File is null
+	 * @param name The name to use for this Hook
+	 */
+	public Hook(String name) {
+		this.name = name;
+		this.file = null;
+		this.listener = null;
+	}
+
+	/**
+	 * Create an hook with the given file and name
+	 * @param file The file that this Hook came from
+	 * @param name The name to use for this Hook
+	 */
+	public Hook(File file, String name) {
+		this.name = name;
+		this.file = file;
+		this.listener = null;
+	}
+
+	/**
+	 * Wrap an {@link Listener}, allowing it to be easily used in Quackbot
+	 * @param listener The listener to wrap
+	 */
 	public Hook(Listener listener) {
 		this.listener = listener;
 		this.name = listener.getClass().getSimpleName();
 		this.file = null;
-	}
-	
-	/**
-	 * Create a hook with the given name. File is null
-	 * @param name 
-	 */
-	public Hook(String name) {
-		this(name, null);
 	}
 
 	public Bot getBot() {
