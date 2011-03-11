@@ -60,11 +60,6 @@ public abstract class Hook extends ListenerAdapter {
 		return getBot().controller;
 	}
 
-	public Hook setup(String name) {
-		this.name = name;
-		return this;
-	}
-
 	@Override
 	public void onEvent(Event event) throws Exception {
 		if (listener != null)
