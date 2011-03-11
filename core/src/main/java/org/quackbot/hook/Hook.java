@@ -16,6 +16,9 @@
  */
 package org.quackbot.hook;
 
+import java.io.File;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.Bot;
@@ -32,17 +35,24 @@ import org.pircbotx.hooks.ListenerAdapter;
  * treated and executed.
  * @author LordQuackstar
  */
+@RequiredArgsConstructor
 public abstract class Hook extends ListenerAdapter {
 	private final String name;
+	private final File file;
 	protected Listener listener = null;
-
-	public Hook(String name) {
-		this.name = name;
-	}
 
 	public Hook(Listener listener) {
 		this.listener = listener;
 		this.name = listener.getClass().getSimpleName();
+		this.file = null;
+	}
+	
+	/**
+	 * Create a hook with the given name. File is null
+	 * @param name 
+	 */
+	public Hook(String name) {
+		this(name, null);
 	}
 
 	public Bot getBot() {
