@@ -37,7 +37,6 @@ public abstract class Command extends Hook {
 	private boolean enabled = true;
 	private final int requiredParams = 0;
 	private final int optionalParams = 0;
-	private boolean setup = false;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
