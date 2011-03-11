@@ -57,7 +57,7 @@ public abstract class Command extends Hook {
 		super(file, name);
 	}
 
-	public String onCommandGiven(Channel chan, User user, String[] args) throws Exception {
+	public String onCommand(Channel chan, User user, String[] args) throws Exception {
 		return null;
 	}
 
