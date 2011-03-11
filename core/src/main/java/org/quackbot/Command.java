@@ -17,6 +17,8 @@
 package org.quackbot;
 
 import java.io.File;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.quackbot.hook.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author LordQuackstar
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public abstract class Command extends Hook {
 	private String help;
 	private boolean admin;
@@ -49,57 +53,6 @@ public abstract class Command extends Hook {
 	 */
 	public Command(File file, String name) {
 		super(file, name);
-	}
-
-	/**
-	 * Should return an explanation of the command and its syntax.
-	 * Verbosity should be kept to a minimum, as by default you get one line.
-	 * @return And help provided
-	 */
-	@Override
-	public String getHelp() {
-		return help;
-	}
-
-	/**
-	 * Should return true if the command is usable by Admins, false otherwise.
-	 * An Admin is a privileged user able to things most can't.
-	 * @return the admin
-	 */
-	@Override
-	public boolean isAdmin() {
-		return admin;
-	}
-
-	@Override
-	public void setAdmin(boolean admin) {
-		this.admin = admin;
-	}
-
-	/**
-	 * Should return true if the command should be ignored, false otherwise. An
-	 * ignored plugin is one that cannot be used by users and does not show up
-	 * in help.
-	 * @return the ignore
-	 */
-	@Override
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	@Override
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-
-	@Override
-	public int getRequiredParams() {
-		return requiredParams;
-	}
-
-	@Override
-	public int getOptionalParams() {
-		return optionalParams;
 	}
 
 	@Override
