@@ -33,14 +33,11 @@ import org.pircbotx.hooks.ListenerAdapter;
  * @author LordQuackstar
  */
 public abstract class Hook extends ListenerAdapter {
-	private String name;
+	private final String name;
 	protected Listener listener = null;
 
 	public Hook(String name) {
 		this.name = name;
-	}
-
-	public Hook() {
 	}
 
 	public Hook(Listener listener) {
