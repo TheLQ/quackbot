@@ -140,8 +140,7 @@ public class Controller {
 
 				Controller.this.stopAll();
 				try {
-					if (Controller.this.getDatabase() != null)
-						Controller.this.getDatabase().close();
+					Controller.this.getConfig().getStorage().close();
 				} catch (Exception e) {
 					e.printStackTrace(); //send to standard output because window is closing
 				}
