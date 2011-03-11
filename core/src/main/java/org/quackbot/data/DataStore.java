@@ -18,4 +18,9 @@ public interface DataStore {
 	 * @return 
 	 */
 	public Set<AdminStore> getAllAdmins();
+	/**
+	 * Called when shutting down. Useful for closing any open connections and/or
+	 * files
+	 */
+	public void close();
 }
