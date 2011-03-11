@@ -19,6 +19,8 @@ package org.quackbot;
 import java.io.File;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
 import org.quackbot.hook.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,18 +57,15 @@ public abstract class Command extends Hook {
 		super(file, name);
 	}
 
-	@Override
-	public String onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+	public String onCommandGiven(Channel chan, User user, String[] args) throws Exception {
 		return null;
 	}
 
-	@Override
-	public String onCommandPM(String sender, String login, String hostname, String[] args) throws Exception {
+	public String onCommandPM(User user, String[] args) throws Exception {
 		return null;
 	}
 
-	@Override
-	public String onCommandChannel(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+	public String onCommandChannel(Channel chan, User user, String[] args) throws Exception {
 		return null;
 	}
 }
