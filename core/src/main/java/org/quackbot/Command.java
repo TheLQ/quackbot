@@ -40,8 +40,12 @@ public abstract class Command extends Hook {
 	private boolean enabled = true;
 	private final int requiredParams = 0;
 	private final int optionalParams = 0;
+	/**
+	 * General logger available to all subclasses. This is provided as convenience
+	 * as almost all subclasses should be using a log
+	 */
 	@Getter(AccessLevel.NONE)
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Create a Command with the given name. File is null
