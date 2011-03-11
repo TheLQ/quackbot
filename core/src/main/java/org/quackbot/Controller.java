@@ -34,6 +34,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import javax.swing.SwingUtilities;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
@@ -74,11 +78,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Lord.Quackstar
  */
+@Data
 public class Controller {
 	/**
 	 * Set of all Bot instances
 	 */
-	public TreeMap<String, Bot> bots = new TreeMap<String, Bot>();
+	protected TreeMap<String, Bot> bots = new TreeMap<String, Bot>();
 	/**
 	 * Number of Commands executed, used by logging
 	 */
@@ -86,11 +91,12 @@ public class Controller {
 	/**
 	 * Log4j Logger
 	 */
-	private Logger log = LoggerFactory.getLogger(Controller.class);
+	@Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
+	private final Logger log = LoggerFactory.getLogger(Controller.class);
 	/**
 	 * ThreadPool that all non-bot threads are executed in
 	 */
-	public static final ExecutorService mainPool = Executors.newCachedThreadPool(/*new ThreadFactory() {
+	protected final ExecutorService mainPool = Executors.newCachedThreadPool(/*new ThreadFactory() {
 			public int count = 0;
 			public ThreadGroup threadGroup = new ThreadGroup("mainPool");
 
@@ -103,12 +109,12 @@ public class Controller {
 	/**
 	 * The full configuration avaliable to us
 	 */
-	public QuackbotConfig config;
+	protected QuackbotConfig config;
 	/**
 	 * The Logger
 	 */
 	protected ControlAppender appender;
-	public GUI gui;
+	protected GUI gui;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
