@@ -164,7 +164,7 @@ public class Controller {
 			}
 
 		//Setup default Plugin Loaders
-		.addPluginLoader(new JSPluginLoader(), "js");
+		config.addPluginLoader(new JSPluginLoader(), "js");
 	}
 
 	/**
@@ -188,9 +188,6 @@ public class Controller {
 		} catch (Exception e) {
 			log.error("Error encountered while attempting to join servers", e);
 		}
-		
-		//Add default pluginLoader
-		config.addPluginLoader(new JSPluginLoader(), "js");
 	}
 
 	/**
