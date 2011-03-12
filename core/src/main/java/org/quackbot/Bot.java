@@ -217,7 +217,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 	@Override
 	public int compareTo(Bot bot) {
-		return unique.compareTo(bot.unique);
+		return uniqueId.compareTo(bot.getUniqueId());
 	}
 
 	/**
