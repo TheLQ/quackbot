@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Set;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
+import org.quackbot.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,8 +106,27 @@ public class HookManager {
 	public static boolean hookExists(Hook hook) {
 		return hooks.contains(hook);
 	}
-	
-	public static void dispatchEvent(Event<Bot> bot) {
-		//TODO
+
+	public static void dispatchEvent(final Event<Bot> event) {
+		for (final Hook curHook : hooks) {
+			//Make a runnable that can be passed to any thread pool
+			Runnable run = new Runnable() {
+				public void run() {
+					try {
+						curHook.onEvent(event);
+					} catch (Exception ex) {
+						LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
+					}
+				}
+			};
+
+			//Dispatch to appropiate thread pool
+			if (event.getBot() != null)
+				//Use bot's thread pool
+				event.getBot().getThreadPool().execute(run);
+			else
+				//No bot, use global thread pool
+				Controller.getGlobalPool().submit(run);
+		}
 	}
 }
