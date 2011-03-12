@@ -17,6 +17,7 @@
  */
 package org.quackbot;
 
+import org.quackbot.plugins.core.CoreQuackbotHook;
 import java.util.Set;
 import java.util.logging.Level;
 import org.pircbotx.hooks.Listener;
