@@ -55,6 +55,10 @@ public abstract class Command extends Hook {
 	 */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
+	public Command() {
+		super();
+	}
+	
 	/**
 	 * Create a Command with the given name. File is null
 	 * @param name The name to use for this Command
