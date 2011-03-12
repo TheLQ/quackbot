@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Set;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
+import org.quackbot.Command;
 import org.quackbot.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,5 +129,31 @@ public class HookManager {
 				//No bot, use global thread pool
 				Controller.getGlobalPool().submit(run);
 		}
+	}
+	
+	/**
+	 * Get all stored Commands, sifting out the plain Hooks
+	 * @return An Unmodifiable set of Commands
+	 */
+	public static Set<Command> getCommands() {
+		//Get all Commands from Hook list
+		Set<Command> commands = new HashSet<Command>();
+		for(Hook curHook : hooks)
+			if(curHook instanceof Command)
+				commands.add((Command)curHook);
+		
+		return Collections.unmodifiableSet(commands);
+	}
+	
+	/**
+	 * Gets a command by name
+	 * @param command The command name
+	 * @return 
+	 */
+	public static Command getCommand(String command) {
+		for(Hook curHook : hooks)
+			if(curHook instanceof Command && curHook.getName().equalsIgnoreCase(command))
+				return (Command)curHook;
+		return null;
 	}
 }
