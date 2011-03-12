@@ -43,6 +43,17 @@ public abstract class Hook extends ListenerAdapter {
 	private final Listener listener;
 
 	/**
+	 * Create a hook with the class name as the hook name. In some cases this
+	 * is not desirable, eg plugins that wrap the underlying plugin in a customized
+	 * hook class or an anonymous class
+	 */
+	public Hook() {
+		this.name = getClass().getSimpleName();
+		this.file = null;
+		this.listener = null;
+	}
+	
+	/**
 	 * Create a hook with the given name. File is null
 	 * @param name The name to use for this Hook
 	 */
