@@ -11,6 +11,7 @@ import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.data.ChannelStore;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
@@ -74,28 +75,30 @@ public class CoreQuackbotHook extends Hook {
 	}
 
 	@Override
-	public void onPrivateMessage(String sender, String login, String hostname, String message) {
-		int cmdNum = getController().addCmdNum();
-		log.debug("-----------Begin execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
+	public void onPrivateMessage(PrivateMessageEvent event) {
+		if (getBot().isLocked(null, event.getUser())) {
+			log.warn("Bot locked");
+			return;
+		}
+		
+		//Assume command
+		int commandNumber = getController().addCommandNumber();
+		String message = event.getMessage();
 		String command = "";
-
+		String debugSuffix = "execution of command #" + commandNumber + ",  from a PM from " + event.getUser() + " using message " + message;
+		
 		try {
-			if (getBot().isLocked(null, sender, true)) {
-				log.warn("Bot locked");
-				return;
-			}
-
-			//Look for a prefix
+			log.debug("-----------Begin "+debugSuffix+"-----------");
 			command = message.split(" ", 2)[0];
-			BaseCommand cmd = setupCommand(command, null, sender, login, hostname, message);
-			getBot().sendMessage(sender, cmd.onCommandGiven(sender, sender, login, hostname, getArgs(message)));
-			getBot().sendMessage(sender, cmd.onCommandPM(sender, login, hostname, getArgs(message)));
-			getBot().sendMessage(sender, executeOnCommand(cmd, getArgs(message)));
+			Command cmd = setupCommand(message, command, null, event.getUser());
+			getBot().sendMessage(event.getUser(), cmd.onCommand(null, event.getUser(), getArgs(message)));
+			getBot().sendMessage(event.getUser(), cmd.onCommandPM(event.getUser(), getArgs(message)));
+			getBot().sendMessage(event.getUser(), executeOnCommand(cmd, getArgs(message)));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
-			getBot().sendMessage(sender, "ERROR: " + e.getMessage());
+			getBot().sendMessage(event.getUser(), "ERROR: " + e.getMessage());
 		} finally {
-			log.debug("-----------End execution of command #" + cmdNum + ",  from a PM from " + sender + " using message " + message + "-----------");
+			log.debug("-----------End "+debugSuffix+"-----------");
 		}
 	}
 
