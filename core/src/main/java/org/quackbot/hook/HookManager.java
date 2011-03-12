@@ -24,6 +24,7 @@ import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.quackbot.Command;
 import org.quackbot.Controller;
+import org.quackbot.err.InvalidHookException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,9 +75,12 @@ public class HookManager {
 	private HookManager() {
 	}
 
-	public static boolean addHook(Hook hook) {
+	public static boolean addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
-		if()
+		Hook potentialHook = null;
+		if((potentialHook = getHook(hook.getName())) != null)
+			//Whoa, this name has already been used before
+			throw new InvalidHookException("Hook " + hook.getClass() + " uses the same name as " + potentialHook.getClass());
 		return hooks.add(hook);
 	}
 
