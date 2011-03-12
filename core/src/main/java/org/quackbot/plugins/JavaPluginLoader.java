@@ -51,9 +51,9 @@ public class JavaPluginLoader implements PluginLoader {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + file.getAbsolutePath());
 	}
 
-	public static void load(Command cmd) throws Exception {
+	public static Command load(Command cmd) throws Exception {
 		if (cmd == null)
-			return;
+			return null;
 		Class<? extends Command> clazz = cmd.getClass();
 		String name = clazz.getSimpleName();
 		log.info("New Java Plugin " + name);
@@ -139,6 +139,6 @@ public class JavaPluginLoader implements PluginLoader {
 
 		//Setup and send to the HookManager
 		cmd.setup(help, admin, enabled, requiredCount, optionalCount);
-		HookManager.addHook(cmd);
+		return cmd;
 	}
 }
