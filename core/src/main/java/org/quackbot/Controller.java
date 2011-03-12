@@ -363,7 +363,7 @@ public class Controller {
 				continue;
 			
 			//Got our user; are they an admin on this server?
-			if(curAdmin.getServers().contains(bot.serverDB))
+			if(curAdmin.getServers().contains(bot.getServerStore()))
 				return true;
 			
 			//Are they an admin on the channel?
