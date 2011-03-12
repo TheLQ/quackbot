@@ -281,7 +281,6 @@ public class Controller {
 	 */
 	public void reloadPlugins() {
 		HookManager.dispatchEvent(new PluginLoadStartEvent(this));
-		CommandManager.removeAll();
 
 		try {
 			//Load all permanent commands
