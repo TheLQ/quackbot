@@ -8,6 +8,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Controller;
 import org.quackbot.PluginLoader;
+import org.quackbot.hook.Hook;
 
 /**
  * Created when a plugin is loaded. Contains either the loaded plugin or the
@@ -18,15 +19,17 @@ import org.quackbot.PluginLoader;
 @EqualsAndHashCode(callSuper = true)
 public class HookLoadEvent extends Event {
 	private final Controller controller;
+	private final Hook hook;
 	private final PluginLoader pluginLoader;
 	private final File file;
 	private final Exception exception;
 
-	public HookLoadEvent(Controller controller, PluginLoader pluginLoader, File file, Exception exception) {
+	public HookLoadEvent(Controller controller, Hook hook, PluginLoader pluginLoader, File file, Exception exception) {
 		super(null);
 		this.controller = controller;
 		this.pluginLoader = pluginLoader;
 		this.file = file;
 		this.exception = exception;
+		this.hook = hook;
 	}
 }
