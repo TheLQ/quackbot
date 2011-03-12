@@ -76,6 +76,7 @@ public class HookManager {
 
 	public static boolean addHook(Hook hook) {
 		log.debug("Adding hook " + hook.getName());
+		if()
 		return hooks.add(hook);
 	}
 
@@ -103,19 +104,24 @@ public class HookManager {
 	public static Set<Hook> getHooks() {
 		return Collections.unmodifiableSet(hooks);
 	}
+	
+	public static Hook getHook(String hookName) {
+		synchronized(hooks) {
+			for(Hook curHook : hooks) {
+				if(curHook.getName().equalsIgnoreCase(hookName))
+					return curHook;
+			}
+		}
+		return null;
+	}
 
 	public static boolean hookExists(Hook hook) {
 		return hooks.contains(hook);
 	}
 	
 	public static boolean hookExists(String hookName) {
-		synchronized(hooks) {
-			for(Hook curHook : hooks) {
-				if(curHook.getName().equalsIgnoreCase(hookName))
-					return true;
-			}
-		}
-		return false;
+		//If we get a hook back, then it exists
+		return getHook(hookName) != null;
 	}
 
 	public static void dispatchEvent(final Event<Bot> event) {
