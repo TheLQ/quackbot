@@ -104,16 +104,16 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 
 		//Some debug
-		StringBuilder serverDebug = new StringBuilder("Attempting to connect to " + serverDB.getAddress() + " on port " + serverDB.getPort());
-		if (serverDB.getPassword() != null)
-			serverDebug.append(serverDB.getPassword());
+		StringBuilder serverDebug = new StringBuilder("Attempting to connect to " + this.serverStore.getAddress() + " on port " + this.serverStore.getPort());
+		if (this.serverStore.getPassword() != null)
+			serverDebug.append(this.serverStore.getPassword());
 		log.info(serverDebug.toString());
 		try {
 			//Connect to server and join all channels (fetched from db)
-			if (serverDB.getPassword() != null)
-				connect(serverDB.getAddress(), serverDB.getPort(), serverDB.getPassword());
+			if (this.serverStore.getPassword() != null)
+				connect(this.serverStore.getAddress(), this.serverStore.getPort(), this.serverStore.getPassword());
 			else
-				connect(serverDB.getAddress(), serverDB.getPort());
+				connect(this.serverStore.getAddress(), this.serverStore.getPort());
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
 		}
@@ -129,7 +129,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 			@Override
 			public void onConnect(ConnectEvent event) {
-				List<org.quackbot.data.ChannelStore> channels = getBot().serverDB.getChannels();
+				List<org.quackbot.data.ChannelStore> channels = getBot().serverStore.getChannels();
 				for (org.quackbot.data.ChannelStore curChannel : channels) {
 					getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 					log.debug("Trying to join channel using " + curChannel);
