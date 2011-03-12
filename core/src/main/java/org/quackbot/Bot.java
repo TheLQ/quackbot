@@ -18,6 +18,7 @@
 package org.quackbot;
 
 import java.util.Set;
+import java.util.logging.Level;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.hook.HookManager;
 import org.quackbot.hook.Hook;
@@ -73,17 +74,21 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 */
 	protected final static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
 	@Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
-	private final Logger log = LoggerFactory.getLogger(Bot.class);
+	private static final Logger log = LoggerFactory.getLogger(Bot.class);
 	protected final UUID uniqueId = UUID.randomUUID();
 	protected final Controller controller;
 	protected final Set<User> lockedUsers = new HashSet();
 	protected final Set<Channel> lockedChannels = new HashSet();
 
 	static {
-		//Add our default hooks
-		HookManager.addHook(new CoreQuackbotHook());
-		JavaPluginLoader.load(new Help());
-		JavaPluginLoader.load(new AdminHelp());
+		try {
+			//Add our default hooks
+			HookManager.addHook(new CoreQuackbotHook());
+			HookManager.addHook(JavaPluginLoader.load(new Help()));
+			HookManager.addHook(JavaPluginLoader.load(new AdminHelp()));
+		} catch (Exception ex) {
+			log.error("Exception encountered when loading default plugins", ex);
+		}
 	}
 	
 	/**
