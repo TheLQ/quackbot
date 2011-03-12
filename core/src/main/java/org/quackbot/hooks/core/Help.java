@@ -14,27 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.plugins.core;
+package org.quackbot.hooks.core;
 
-import org.quackbot.plugins.java.AdminOnly;
-import org.quackbot.plugins.java.HelpDoc;
-import org.quackbot.plugins.java.Optional;
+import org.quackbot.hooks.java.HelpDoc;
+import org.quackbot.hooks.java.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.quackbot.Command;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.hook.HookManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * Core plugin that provides help for a command
  *
- * @author LordQuackstar
+ * @author Lord.Quackstar
  */
-@HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?helpAdmin <OPTIONAL:command>")
-@AdminOnly
-public class AdminHelp extends Command {
+@HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
+public class Help extends Command {
 	public String onCommand(@Optional String command) throws Exception {
 		//Does user want command list
 		if (command == null) {
@@ -42,19 +39,21 @@ public class AdminHelp extends Command {
 
 			//Add Java Plugins
 			for (Command curCmd : HookManager.getCommands())
-				if (curCmd.isEnabled() && curCmd.isAdmin())
+				if (curCmd.isEnabled() && !curCmd.isAdmin())
 					cmdList.add(curCmd.getName());
 
 			//Send to user
 			return "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ");
 		}
-		
-		//Command specified, get specific help for it
+	
+		//Command specified, get specific help
 		Command result = HookManager.getCommand(command);
 		if (result == null)
 			throw new InvalidCMDException(command);
 		else if (!result.isEnabled())
-			throw new InvalidCMDException(command, "(disabled)");
+			throw new InvalidCMDException(command, "disabled");
+		else if (result.isAdmin())
+			throw new InvalidCMDException(command, "admin only");
 		else if (StringUtils.isBlank(result.getHelp()))
 			return "No help avalible";
 		return result.getHelp();

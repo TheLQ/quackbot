@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.plugins;
+package org.quackbot.hooks;
 
-import org.quackbot.plugins.java.HelpDoc;
-import org.quackbot.plugins.java.AdminOnly;
-import org.quackbot.plugins.java.Disabled;
-import org.quackbot.plugins.java.Optional;
-import org.quackbot.plugins.java.Parameters;
+import org.quackbot.hooks.java.HelpDoc;
+import org.quackbot.hooks.java.AdminOnly;
+import org.quackbot.hooks.java.Disabled;
+import org.quackbot.hooks.java.Optional;
+import org.quackbot.hooks.java.Parameters;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.Command;
-import org.quackbot.PluginLoader;
+import org.quackbot.HookLoader;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.hook.Hook;
 import org.quackbot.hook.HookManager;
@@ -40,11 +40,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author Lord.Quackstar
  */
-public class JavaPluginLoader implements PluginLoader {
+public class JavaHookLoader implements HookLoader {
 	/**
 	 * Log4j logger
 	 */
-	private static Logger log = LoggerFactory.getLogger(JavaPluginLoader.class);
+	private static Logger log = LoggerFactory.getLogger(JavaHookLoader.class);
 
 	@Override
 	public Hook load(File file) throws Exception {

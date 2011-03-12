@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.plugins;
+package org.quackbot.hooks;
 
 import java.io.File;
 import java.io.FileReader;
@@ -26,7 +26,7 @@ import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Command;
-import org.quackbot.PluginLoader;
+import org.quackbot.HookLoader;
 import org.quackbot.hook.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +35,11 @@ import org.slf4j.LoggerFactory;
  * JS utility bean, holds all information about JS plugin
  * @author Lord.Quackstar
  */
-public class JSPluginLoader implements PluginLoader {
+public class JSHookLoader implements HookLoader {
 	/**
 	 * Log4j Logger
 	 */
-	private static Logger log = LoggerFactory.getLogger(JSPluginLoader.class);
+	private static Logger log = LoggerFactory.getLogger(JSHookLoader.class);
 
 	@Override
 	public Hook load(File file) throws Exception {

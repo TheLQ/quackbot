@@ -44,7 +44,7 @@ import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.hook.Hook;
-import org.quackbot.plugins.JSPluginLoader;
+import org.quackbot.hooks.JSHookLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,7 +164,7 @@ public class Controller {
 			}
 
 		//Setup default Plugin Loaders
-		config.addPluginLoader(new JSPluginLoader(), "js");
+		config.addPluginLoader(new JSHookLoader(), "js");
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class Controller {
 	protected void reloadPlugins(File file) {
 		String[] extArr = null;
 		Exception exception = null;
-		PluginLoader loader = null;
+		HookLoader loader = null;
 		Hook hook = null;
 		//Load using appropiate type
 		try {
