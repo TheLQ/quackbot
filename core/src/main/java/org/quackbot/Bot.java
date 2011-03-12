@@ -141,8 +141,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 	public boolean isLocked(Channel chan, User user) {
 		//If the user is an admin, let them through
-		//TODO: Use channel and user objects
-		if(controller.isAdmin(getServer(), chan.getName(), user.getNick()))
+		if(controller.isAdmin(this, user, chan))
 			return false;
 		
 		//Is bot locked?
