@@ -4,7 +4,7 @@ package org.quackbot.err;
  *
  * @author Leon Blakey
  */
-public class InvalidHookException extends Exception {
+public class InvalidHookException extends RuntimeException {
 
 	/**
 	 * Creates a new instance of <code>InvalidHookException</code> without detail message.
