@@ -188,11 +188,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 				sendMessage(curChan, msg);
 	}
 
-	public void sendMessage(String channel, String user, String message) {
-		if (message != null)
-			sendMessage(channel, user + ": " + message);
-	}
-
 	public boolean isBot(String name) {
 		return getName().equals(name);
 	}
