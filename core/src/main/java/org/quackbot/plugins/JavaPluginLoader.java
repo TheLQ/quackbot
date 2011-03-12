@@ -17,8 +17,6 @@
 package org.quackbot.plugins;
 
 import org.quackbot.plugins.java.HelpDoc;
-import org.quackbot.plugins.core.AdminHelp;
-import org.quackbot.plugins.core.Help;
 import org.quackbot.plugins.java.AdminOnly;
 import org.quackbot.plugins.java.Disabled;
 import org.quackbot.plugins.java.Optional;
@@ -26,9 +24,10 @@ import org.quackbot.plugins.java.Parameters;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Set;
+import org.apache.commons.lang.StringUtils;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
 import org.quackbot.Command;
-import org.quackbot.Controller;
 import org.quackbot.PluginLoader;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.hook.Hook;
@@ -52,45 +51,94 @@ public class JavaPluginLoader implements PluginLoader {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + file.getAbsolutePath());
 	}
 
-	public static void load(Command cmd) {
+	public static void load(Command cmd) throws Exception {
 		if (cmd == null)
 			return;
-		try {
-			Class<? extends Command> clazz = cmd.getClass();
-			String name = clazz.getSimpleName();
-			log.info("New Java Plugin " + name);
-			//Command info creation
-			boolean admin = clazz.isAnnotationPresent(AdminOnly.class);
-			boolean enabled = !clazz.isAnnotationPresent(Disabled.class);
-			//Param and syntax generation
-			int requiredCount = 0;
-			int optionalCount = 0;
-			for (Method curMethod : clazz.getDeclaredMethods())
-				if (curMethod.getName().equalsIgnoreCase("onCommand")) {
-					//number of optionals
-					requiredCount = curMethod.getParameterTypes().length;
-					for (Annotation[] annotations : curMethod.getParameterAnnotations())
-						for (Annotation annotation : annotations)
-							if (annotation instanceof Optional) {
-								if (clazz.isAnnotationPresent(Parameters.class))
-									throw new QuackbotException("Java plugin " + name + " cannot have both optional annotation(s) and the Parameter Annotation");
-								optionalCount++;
-								requiredCount--;
-							}
+		Class<? extends Command> clazz = cmd.getClass();
+		String name = clazz.getSimpleName();
+		log.info("New Java Plugin " + name);
+
+		//Command info creation
+		boolean admin = clazz.isAnnotationPresent(AdminOnly.class);
+		boolean enabled = !clazz.isAnnotationPresent(Disabled.class);
+		String help = StringUtils.defaultString(clazz.getAnnotation(HelpDoc.class).value());
+
+		//Get required and optional parameters
+		int requiredCount = 0;
+		int optionalCount = 0;
+		for (Method curMethod : clazz.getMethods()) {
+			int totalParams = 0;
+			Class<?>[] parameters = curMethod.getParameterTypes();
+			if (curMethod.getName().equalsIgnoreCase("onCommand") || curMethod.getName().equalsIgnoreCase("onCommandChannel")) {
+				//Ignore if there are less than 2 parameters
+				if (parameters.length < 2) {
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - Not enough parameters");
+					continue;
 				}
-			if (clazz.isAnnotationPresent(Parameters.class)) {
 
-				if (clazz.getAnnotation(Parameters.class).value() != -1)
-					requiredCount = clazz.getAnnotation(Parameters.class).value();
-				if (clazz.getAnnotation(Parameters.class).optional() != -1)
-					requiredCount = clazz.getAnnotation(Parameters.class).optional();
+				//Ignore if the first 2 parameters aren't Channel and User
+				if (parameters[0] != Channel.class || parameters[1] != User.class) {
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - First 2 parameters aren't Channel then User");
+					continue;
+				}
+
+				//Ignore if there is a 3rd parameter and its an Array
+				if (parameters.length > 2 && parameters[3].isArray()) {
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - 3rd parameter is an Array");
+					continue;
+				}
+				totalParams = parameters.length - 2;
+			} else if (curMethod.getName().equalsIgnoreCase("onCommandPM")) {
+				//Ignore if there are 0 parameters
+				if (parameters.length == 0) {
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - Not enough parameters");
+					continue;
+				}
+
+				//Ignore if the first parameter isn't a User
+				if (parameters[1] != User.class) {
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - First parameter isn't user");
+					continue;
+				}
+
+				//Ignore if there is a 2nd parameter and its an Array
+				if (parameters.length > 1 && parameters[3].isArray()) {
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - 2nd parameter is an Array");
+					continue;
+				}
+				totalParams = parameters.length - 1;
+			} else
+				continue;
+
+			Parameters paramAnnotation = clazz.getAnnotation(Parameters.class);
+
+			//If there are 0 params, make sure @Parameter doesn't say it needs more than 0
+			if (totalParams == 0 && paramAnnotation != null && (paramAnnotation.value() + paramAnnotation.optional() != 0))
+				throw new QuackbotException("Method " + curMethod.toGenericString() + " has no parameters even though @Parameter says it should");
+
+			//Build parameter list based off of @Optional first
+			requiredCount = totalParams;
+			for (Annotation[] annotations : curMethod.getParameterAnnotations())
+				for (Annotation annotation : annotations)
+					if (annotation instanceof Optional) {
+						if (paramAnnotation != null)
+							throw new QuackbotException("Java Hook " + name + " cannot have both optional annotation(s) and Parameter Annotation");
+						optionalCount++;
+						requiredCount--;
+					}
+
+			//Must not of had any @Optional annotations, use @Parameter if it exists instead
+			if (paramAnnotation != null) {
+				//Make sure the method actually has enough params
+				if (paramAnnotation.value() + paramAnnotation.optional() != totalParams)
+					throw new QuackbotException("Method " + curMethod.toGenericString() + " has " + totalParams + " parameters while @Parameter annotation specifies " + paramAnnotation.value() + paramAnnotation.optional());
+				requiredCount = paramAnnotation.value();
+				optionalCount = paramAnnotation.optional();
 			}
-
-			String help = (clazz.isAnnotationPresent(HelpDoc.class)) ? clazz.getAnnotation(HelpDoc.class).value() : "";
-			cmd.setup(name, help, admin, enabled, null, optionalCount, requiredCount);
-			CommandManager.addPermanentCommand(cmd);
-		} catch (QuackbotException e) {
-			log.error("Unable to load Java plugin " + cmd.getName(), e);
 		}
+
+		//Setup and send to the HookManager
+		cmd.setup(help, admin, enabled, requiredCount, optionalCount);
+		HookManager.addHook(cmd);
 	}
 }
