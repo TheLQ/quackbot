@@ -39,6 +39,9 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
+import org.quackbot.plugins.JavaPluginLoader;
+import org.quackbot.plugins.core.AdminHelp;
+import org.quackbot.plugins.core.Help;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -76,11 +79,11 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	protected final Set<User> lockedUsers = new HashSet();
 	protected final Set<Channel> lockedChannels = new HashSet();
 
-	/**
-	 * This adds the default hooks for command management
-	 */
 	static {
+		//Add our default hooks
 		HookManager.addHook(new CoreQuackbotHook());
+		JavaPluginLoader.load(new Help());
+		JavaPluginLoader.load(new AdminHelp());
 	}
 	
 	/**

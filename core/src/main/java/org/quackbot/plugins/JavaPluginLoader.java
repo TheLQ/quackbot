@@ -16,14 +16,6 @@
  */
 package org.quackbot.plugins;
 
-import Quackbot.Command;
-import Quackbot.CommandManager;
-import Quackbot.Controller;
-
-import Quackbot.PluginLoader;
-import Quackbot.err.QuackbotException;
-import Quackbot.hook.Hook;
-import Quackbot.hook.HookManager;
 import org.quackbot.plugins.java.HelpDoc;
 import org.quackbot.plugins.core.AdminHelp;
 import org.quackbot.plugins.core.Help;
@@ -34,6 +26,12 @@ import org.quackbot.plugins.java.Parameters;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import org.quackbot.Command;
+import org.quackbot.Controller;
+import org.quackbot.PluginLoader;
+import org.quackbot.err.QuackbotException;
+import org.quackbot.hook.Hook;
+import org.quackbot.hook.HookManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +50,6 @@ public class JavaPluginLoader implements PluginLoader {
 		HookManager.addPluginHook(new Hook("QBInit") {
 			@Override
 			public void onInit(Controller controller) throws Exception {
-				JavaPluginLoader.load(new Help());
-				JavaPluginLoader.load(new AdminHelp());
 			}
 		});
 
