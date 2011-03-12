@@ -209,7 +209,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 	public List<String> getPrefixes() {
 		//Merge the global list and the Bot specific list
-		ArrayList<String> list = new ArrayList<String>(controller.config.getPrefixes());
+		ArrayList<String> list = new ArrayList<String>(controller.getConfig().getGlobPrefixes());
 		list.add(getNick() + ":");
 		list.add(getNick());
 		return list;
