@@ -77,6 +77,13 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	protected final Set<Channel> lockedChannels = new HashSet();
 
 	/**
+	 * This adds the default hooks for command management
+	 */
+	static {
+		HookManager.addHook(new CoreQuackbotHook());
+	}
+	
+	/**
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
@@ -107,13 +114,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
 		}
-	}
-
-	/**
-	 * This adds the default hooks for command management
-	 */
-	static {
-		HookManager.addHook(new CoreQuackbotHook());
 	}
 
 	public static Bot getPoolLocal() {
