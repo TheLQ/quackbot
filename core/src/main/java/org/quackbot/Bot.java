@@ -81,7 +81,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	protected final static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
 	@Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
 	private final Logger log = LoggerFactory.getLogger(Bot.class);
-	protected final UUID uniqueId;
+	protected final UUID uniqueId = UUID.randomUUID();
 	protected final Controller controller;
 	protected final Set<User> lockedUsers = new HashSet();
 	protected final Set<Channel> lockedChannels = new HashSet();
@@ -94,7 +94,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		this.serverStore = serverStore;
 		this.threadPool = threadPool;
 		poolLocal.set(this);
-		uniqueId = UUID.randomUUID();
 		this.controller = controller;
 
 		setName(controller.getConfig().getName());
