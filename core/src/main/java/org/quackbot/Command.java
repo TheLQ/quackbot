@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 @EqualsAndHashCode(callSuper = true)
 public abstract class Command extends Hook {
 	@Getter
-	private String help = "No help available";
+	private String help = "";
 	@Getter
 	private boolean admin = false;
 	@Getter @Setter
