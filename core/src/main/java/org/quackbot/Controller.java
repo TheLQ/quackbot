@@ -93,6 +93,7 @@ public class Controller {
 	/**
 	 * ThreadPool that all non-bot threads are executed in
 	 */
+	@Getter
 	protected static final ExecutorService globalPool = Executors.newCachedThreadPool(/*new ThreadFactory() {
 			public int count = 0;
 			public ThreadGroup threadGroup = new ThreadGroup("mainPool");
