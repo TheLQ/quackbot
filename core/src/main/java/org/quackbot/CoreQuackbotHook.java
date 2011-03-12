@@ -4,9 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.hooks.events.ConnectEvent;
+import org.quackbot.data.ChannelStore;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
@@ -26,7 +28,7 @@ public class CoreQuackbotHook extends Hook {
 
 	@Override
 	public void onConnect(ConnectEvent event) {
-		List<org.quackbot.data.ChannelStore> channels = getBot().serverStore.getChannels();
+		Set<ChannelStore> channels = getBot().getServerStore().getChannels();
 		for (org.quackbot.data.ChannelStore curChannel : channels) {
 			getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 			log.debug("Trying to join channel using " + curChannel);
