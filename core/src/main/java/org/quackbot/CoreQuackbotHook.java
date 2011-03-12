@@ -66,7 +66,7 @@ public class CoreQuackbotHook extends Hook {
 			Command cmd = setupCommand(message, command, event.getChannel(), event.getUser());
 			getBot().sendMessage(event.getChannel(), event.getUser(), cmd.onCommand(event.getChannel(), event.getUser(), getArgs(message)));
 			getBot().sendMessage(event.getChannel(), event.getUser(), cmd.onCommandChannel(event.getChannel(), event.getUser(), getArgs(message)));
-			getBot().sendMessage(event.getChannel(), event.getUser(), executeOnCommand(cmd, getArgs(message)));
+			getBot().sendMessage(event.getChannel(), event.getUser(), executeOnCommandLong(cmd, event.getChannel(), event.getUser(), getArgs(message)));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getChannel(), event.getUser(), "ERROR: " + e.getMessage());
@@ -94,7 +94,7 @@ public class CoreQuackbotHook extends Hook {
 			Command cmd = setupCommand(message, command, null, event.getUser());
 			getBot().sendMessage(event.getUser(), cmd.onCommand(null, event.getUser(), getArgs(message)));
 			getBot().sendMessage(event.getUser(), cmd.onCommandPM(event.getUser(), getArgs(message)));
-			getBot().sendMessage(event.getUser(), executeOnCommand(cmd, getArgs(message)));
+			getBot().sendMessage(event.getUser(), executeOnCommandLong(cmd, null, event.getUser(), getArgs(message)));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getUser(), "ERROR: " + e.getMessage());
@@ -103,16 +103,31 @@ public class CoreQuackbotHook extends Hook {
 		}
 	}
 
-	public String executeOnCommand(BaseCommand cmd, String[] args) throws Exception {
+	public String executeOnCommandLong(Command cmd, Channel chan, User user, Object[] args) throws Exception {
 		try {
 			Class clazz = cmd.getClass();
 			for (Method curMethod : clazz.getMethods())
-				if (curMethod.getName().equalsIgnoreCase("onCommand") && curMethod.getReturnType().equals(String.class)) {
+				if (curMethod.getName().equalsIgnoreCase("onCommand") || curMethod.getName().equalsIgnoreCase("onCommandChannel")) {
 					//Pad the args with null values
 					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
+					
+					//Prefix with user and channel values
+					args = ArrayUtils.addAll(new Object[]{chan, user}, args);
 					log.trace("Args: " + StringUtils.join(args, ","));
-
-					return (String) curMethod.invoke(cmd, (Object[]) args);
+					
+					//Execute method
+					return (String) curMethod.invoke(cmd, args);
+				}
+				else if (curMethod.getName().equalsIgnoreCase("onCommandPM")) {
+					//Pad the args with null values
+					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
+					
+					//Prefix with user values
+					args = ArrayUtils.addAll(new Object[]{user}, args);
+					log.trace("Args: " + StringUtils.join(args, ","));
+					
+					//Execute method
+					return (String) curMethod.invoke(cmd, args);
 				}
 		} catch (InvocationTargetException e) {
 			//Unrwap if nessesary
