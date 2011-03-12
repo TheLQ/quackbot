@@ -1,4 +1,4 @@
-package org.quackbot;
+package org.quackbot.plugins.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,6 +11,8 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
+import org.quackbot.Bot;
+import org.quackbot.Command;
 import org.quackbot.data.ChannelStore;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
