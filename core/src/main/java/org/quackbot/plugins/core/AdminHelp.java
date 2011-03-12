@@ -16,17 +16,15 @@
  */
 package org.quackbot.plugins.core;
 
-import Quackbot.BaseCommand;
-import Quackbot.Command;
-import Quackbot.CommandManager;
-import Quackbot.Controller;
-import Quackbot.err.InvalidCMDException;
 import org.quackbot.plugins.java.AdminOnly;
 import org.quackbot.plugins.java.HelpDoc;
 import org.quackbot.plugins.java.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.quackbot.Command;
+import org.quackbot.err.InvalidCMDException;
+import org.quackbot.hook.HookManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,22 +35,22 @@ import org.slf4j.LoggerFactory;
 @HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?helpAdmin <OPTIONAL:command>")
 @AdminOnly
 public class AdminHelp extends Command {
-	private static Logger log = LoggerFactory.getLogger(AdminHelp.class);
-
 	public String onCommand(@Optional String command) throws Exception {
 		//Does user want command list
 		if (command == null) {
 			List<String> cmdList = new ArrayList<String>();
 
 			//Add Java Plugins
-			for (BaseCommand curCmd : CommandManager.getCommands())
+			for (Command curCmd : HookManager.getCommands())
 				if (curCmd.isEnabled() && curCmd.isAdmin())
 					cmdList.add(curCmd.getName());
 
 			//Send to user
 			return "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ");
 		}
-		BaseCommand result = CommandManager.getCommand(command);
+		
+		//Command specified, get specific help for it
+		Command result = HookManager.getCommand(command);
 		if (result == null)
 			throw new InvalidCMDException(command);
 		else if (!result.isEnabled())
