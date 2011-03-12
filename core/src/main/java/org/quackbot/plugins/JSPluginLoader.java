@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.plugins;
+package org.quackbot.plugins;
 
 import Quackbot.BaseCommand;
 import Quackbot.CommandManager;

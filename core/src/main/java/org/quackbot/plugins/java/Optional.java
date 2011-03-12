@@ -14,7 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.plugins.java;
+
+package org.quackbot.plugins.java;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,18 +23,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Easy to use Java plugin parameter configurer
- * <p>
- * Passed string's correspond to field <u>names</u> in the plugin class. Passing
- * non-existant field names will throw a {@link NoSuchFieldException} and disable
- * the plugin.
  *
- * @author Lord.Quackstar
+ * @author Owner
  */
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Parameters {
-	int value() default -1;
-
-	int optional() default -1;
+@Target(ElementType.PARAMETER)
+public @interface Optional {
 }

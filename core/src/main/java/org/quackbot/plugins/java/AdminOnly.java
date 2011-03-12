@@ -14,8 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package Quackbot.plugins.java;
+package org.quackbot.plugins.java;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,10 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Denotes Java Plugin is usable only by Admins. No parameters are needed
  *
- * @author Owner
+ * @author Lord.Quackstar
  */
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Optional {
+public @interface AdminOnly {
 }
