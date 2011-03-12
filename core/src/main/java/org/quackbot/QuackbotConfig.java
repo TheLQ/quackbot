@@ -26,7 +26,7 @@ import org.quackbot.data.DataStore;
 
 /**
  *
- * @author Owner
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 public class QuackbotConfig {

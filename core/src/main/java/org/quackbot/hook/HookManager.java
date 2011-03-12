@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * HookManager is a singleton handling all Event operations. It holds the above
  * mentioned map and various methods for executing tasks.
- * @author LordQuackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class HookManager {
 	/**

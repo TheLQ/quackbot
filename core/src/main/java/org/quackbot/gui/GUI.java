@@ -46,7 +46,7 @@ import javax.swing.JTabbedPane;
  *  -Can initate Reload
  *
  * There should only be <b>1</b> instance of this. It can be refrenced by {@link #instance}
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class GUI extends JFrame implements ActionListener {
 	/**

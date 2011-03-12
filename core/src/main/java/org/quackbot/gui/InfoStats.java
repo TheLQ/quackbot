@@ -28,7 +28,7 @@ import javax.swing.JSplitPane;
 
 /**
  *
- * @author LordQuackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 class JSplitPaneDivid extends JSplitPane {
 	boolean isPainted = false;

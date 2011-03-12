@@ -2,7 +2,7 @@ package org.quackbot.err;
 
 /**
  *
- * @author Leon Blakey
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class InvalidHookException extends RuntimeException {
 

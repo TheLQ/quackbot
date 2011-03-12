@@ -19,7 +19,7 @@ package org.quackbot.err;
 /**
  * Notify user that command is admin. Exception message is "Admin Only Command"
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class AdminException extends Exception {
 	/**

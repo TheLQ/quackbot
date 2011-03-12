@@ -19,7 +19,7 @@ package org.quackbot.err;
 /**
  * Exception that command does not exist with message "Command *command* does not exist"
  * 
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class InvalidCMDException extends Exception {
 	/**

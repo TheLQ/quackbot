@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author LordQuackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class InfoPlugins extends JScrollPane {
 	protected final static DefaultTableModel pluginTableModel = new DefaultTableModel() {

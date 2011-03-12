@@ -33,7 +33,7 @@ import org.pircbotx.hooks.ListenerAdapter;
  *
  * See {@link HookManager} for an explanation on what a hook is and how hooks are
  * treated and executed.
- * @author LordQuackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -40,7 +40,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 /**
  * Appender for everything thats not bot. All events from Bot are ignored
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 	private PatternLayout normalGen = new PatternLayout();

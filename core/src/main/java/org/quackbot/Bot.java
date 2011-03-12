@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * Used by: Controller, spawned commands
  *
  * @version 3.0
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 @EqualsAndHashCode(callSuper=true)
