@@ -72,13 +72,13 @@ public class JSPluginLoader implements PluginLoader {
 		return new JSHookWrapper(jsEngine, file, name);
 	}
 
-	public static boolean castToBoolean(Object obj) {
+	public boolean castToBoolean(Object obj) {
 		if (obj == null || !(obj instanceof Boolean))
 			return false;
 		return (Boolean) obj;
 	}
 
-	public static class JSHookWrapper extends Hook {
+	public class JSHookWrapper extends Hook {
 		protected ScriptEngine jsEngine;
 
 		public JSHookWrapper(ScriptEngine jsEngine, File file, String name) {
@@ -93,7 +93,7 @@ public class JSPluginLoader implements PluginLoader {
 		}
 	}
 
-	public static class JSCommandWrapper extends Command {
+	public class JSCommandWrapper extends Command {
 		protected ScriptEngine jsEngine;
 
 		public JSCommandWrapper(ScriptEngine jsEngine, File file, String name) {
