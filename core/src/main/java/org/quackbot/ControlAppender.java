@@ -63,10 +63,6 @@ public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 	 */
 	@Override
 	public void append(ILoggingEvent event) {
-		//Drop anything from the EJP package, since we don't care about debug messages, and exceptions are bubbled up to us
-		if (event.getLoggerName().startsWith("ejp") && !event.getLevel().isGreaterOrEqual(controller.config.getDatabaseLogLevel()))
-			return;
-
 		String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
 		if (controller.gui != null) {
 			GUI gui = controller.gui;
