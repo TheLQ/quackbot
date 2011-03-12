@@ -84,7 +84,7 @@ public class Controller {
 	/**
 	 * Number of Commands executed, used by logging
 	 */
-	protected int cmdNum = 0;
+	protected int commandNumber = 0;
 	/**
 	 * Log4j Logger
 	 */
@@ -327,7 +327,7 @@ public class Controller {
 	 * Increments command number and returns new int
 	 */
 	public synchronized int addCmdNum() {
-		return ++cmdNum;
+		return ++commandNumber;
 	}
 
 	/**
