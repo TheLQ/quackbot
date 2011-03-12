@@ -44,6 +44,7 @@ import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.hook.Hook;
+import org.quackbot.plugins.JSPluginLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,13 +163,8 @@ public class Controller {
 				log.error("Unkown error occured in GUI initialzation", e);
 			}
 
-		//Blindly load plugin defaults
-		try {
-			Class.forName("Quackbot.plugins.JavaPluginLoader");
-		} catch (Exception e) {
-			log.trace("Loading JavaPluginLoader for setup has silently failed", e);
-		}
-
+		//Setup default Plugin Loaders
+		.addPluginLoader(new JSPluginLoader(), "js");
 	}
 
 	/**
@@ -192,6 +188,9 @@ public class Controller {
 		} catch (Exception e) {
 			log.error("Error encountered while attempting to join servers", e);
 		}
+		
+		//Add default pluginLoader
+		config.addPluginLoader(new JSPluginLoader(), "js");
 	}
 
 	/**

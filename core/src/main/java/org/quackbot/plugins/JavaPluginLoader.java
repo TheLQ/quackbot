@@ -52,7 +52,6 @@ public class JavaPluginLoader implements PluginLoader {
 		HookManager.addPluginHook(new Hook("QBInit") {
 			@Override
 			public void onInit(Controller controller) throws Exception {
-				controller.config.addPluginLoader(new JSPluginLoader(), "js");
 				JavaPluginLoader.load(new Help());
 				JavaPluginLoader.load(new AdminHelp());
 			}
