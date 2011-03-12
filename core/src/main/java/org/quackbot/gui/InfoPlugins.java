@@ -16,9 +16,9 @@
  */
 package org.quackbot.gui;
 
-import org.quackbot.BaseCommand;
 import org.quackbot.Command;
-import org.quackbot.CommandManager;
+import org.quackbot.events.HookLoadEvent;
+import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.hook.HookManager;
 import org.quackbot.hook.Hook;
 import java.awt.Point;
@@ -61,23 +61,36 @@ public class InfoPlugins extends JScrollPane {
 	private Logger log = LoggerFactory.getLogger(InfoPlugins.class);
 
 	static {
-		HookManager.addPluginHook(new Hook("QBGuiPluginPanel") {
+		HookManager.addHook(new Hook("QBGuiPluginPanel") {
 			private Logger log = LoggerFactory.getLogger(getClass());
 
 			@Override
-			public void onPluginLoadComplete() throws Exception {
-				for (BaseCommand command : CommandManager.getCommands()) {
+			public void onHookLoad(HookLoadEvent event) {
+				Hook hook = event.getHook();
+				//TODO: Handle exceptions
+				if(hook instanceof Command) {
+					Command command = (Command)hook;
 					pluginTableModel.addRow(new Object[]{command.getName(),
-								command.isEnabled(),
-								command.isAdmin(),
-								command.getRequiredParams(),
-								command.getOptionalParams(),
-								command.getHelp()});
+									"Command",
+									command.isEnabled(),
+									command.isAdmin(),
+									command.getRequiredParams(),
+									command.getOptionalParams(),
+									command.getHelp()});
+				}
+				else {
+					pluginTableModel.addRow(new Object[]{hook.getName(),
+									"Hook",
+									null,
+									null,
+									null,
+									null,
+									null});
 				}
 			}
 
 			@Override
-			public void onPluginLoadStart() throws Exception {
+			public void onHookLoadStart(HookLoadStartEvent event) {
 				pluginTableModel.setRowCount(0);
 			}
 		});
@@ -91,6 +104,7 @@ public class InfoPlugins extends JScrollPane {
 		pluginTable.setCellSelectionEnabled(false);
 
 		pluginTableModel.addColumn("Name");
+		pluginTableModel.addColumn("Type");
 		pluginTableModel.addColumn("Enabled");
 		pluginTableModel.addColumn("Admin Only");
 		pluginTableModel.addColumn("Required");
@@ -115,10 +129,11 @@ public class InfoPlugins extends JScrollPane {
 					return;
 				TableModel model = ((TableModel) e.getSource());
 				String plugin = StringUtils.trimToNull((String) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 0));
-				BaseCommand curPlugin = CommandManager.getCommand(plugin);
-				curPlugin.setEnabled((Boolean) model.getValueAt(e.getFirstRow(), 1));
-				curPlugin.setAdmin((Boolean) model.getValueAt(e.getFirstRow(), 2));
-				log.debug("Set plugin " + curPlugin.getName() + " to " + pluginToString(curPlugin));
+				Command command = HookManager.getCommand(plugin);
+				if(command != null) {
+					command.setEnabled((Boolean) model.getValueAt(e.getFirstRow(), 1));
+					log.debug((command.isEnabled() ? "Enabled" : "Disabled") + " command " + command.getName());
+				}
 			}
 		});
 
@@ -140,10 +155,5 @@ public class InfoPlugins extends JScrollPane {
 		}
 		}
 		}).start();**/
-	}
-
-	public String pluginToString(BaseCommand cmd) {
-		return "[enabled=" + cmd.isEnabled() + "] "
-				+ " [admin=" + cmd.isAdmin() + "] ";
 	}
 }
