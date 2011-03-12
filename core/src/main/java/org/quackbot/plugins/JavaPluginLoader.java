@@ -26,6 +26,7 @@ import org.quackbot.plugins.java.Parameters;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Set;
 import org.quackbot.Command;
 import org.quackbot.Controller;
 import org.quackbot.PluginLoader;
@@ -46,17 +47,8 @@ public class JavaPluginLoader implements PluginLoader {
 	 */
 	private static Logger log = LoggerFactory.getLogger(JavaPluginLoader.class);
 
-	static {
-		HookManager.addPluginHook(new Hook("QBInit") {
-			@Override
-			public void onInit(Controller controller) throws Exception {
-			}
-		});
-
-	}
-
 	@Override
-	public void load(File file) throws Exception {
+	public Hook load(File file) throws Exception {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + file.getAbsolutePath());
 	}
 
