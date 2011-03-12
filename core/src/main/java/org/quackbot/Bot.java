@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.ArrayUtils;
@@ -57,42 +60,41 @@ import org.slf4j.LoggerFactory;
  * @version 3.0
  * @author Lord.Quackstar
  */
+@Data
+@EqualsAndHashCode(callSuper=true)
 public class Bot extends PircBotX implements Comparable<Bot> {
 	/**
 	 * Says weather bot is globally locked or not
 	 */
-	public boolean botLocked = false;
+	protected boolean botLocked = false;
 	/**
 	 * Current Server database object
 	 */
-	public ServerStore serverDB;
+	protected final ServerStore serverStore;
 	/**
 	 * Local threadpool
 	 */
-	@Getter
 	protected final ExecutorService threadPool;
 	/**
 	 * Stores variable local to this thread group
 	 */
-	private static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
-	/**
-	 * Log4J logger
-	 */
-	private Logger log = LoggerFactory.getLogger(Bot.class);
-	public UUID unique;
-	public Controller controller;
-	public Set<User> lockedUsers = new HashSet();
-	public Set<Channel> lockedChannels = new HashSet();
+	protected final static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
+	@Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
+	private final Logger log = LoggerFactory.getLogger(Bot.class);
+	protected final UUID uniqueId;
+	protected final Controller controller;
+	protected final Set<User> lockedUsers = new HashSet();
+	protected final Set<Channel> lockedChannels = new HashSet();
 
 	/**
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(Controller controller, final ServerStore serverDB, ExecutorService threadPool) {
-		this.serverDB = serverDB;
+	public Bot(Controller controller, final ServerStore serverStore, ExecutorService threadPool) {
+		this.serverStore = serverStore;
 		this.threadPool = threadPool;
 		poolLocal.set(this);
-		unique = UUID.randomUUID();
+		uniqueId = UUID.randomUUID();
 		this.controller = controller;
 
 		setName(controller.getConfig().getName());
