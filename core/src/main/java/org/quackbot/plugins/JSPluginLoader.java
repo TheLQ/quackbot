@@ -18,16 +18,16 @@ package org.quackbot.plugins;
 
 import java.io.File;
 import java.io.FileReader;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import javax.script.Invocable;
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import org.apache.commons.lang.StringUtils;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
+import org.pircbotx.hooks.Event;
+import org.quackbot.Command;
 import org.quackbot.PluginLoader;
+import org.quackbot.hook.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,48 +42,34 @@ public class JSPluginLoader implements PluginLoader {
 	private static Logger log = LoggerFactory.getLogger(JSPluginLoader.class);
 
 	@Override
-	public void load(File file) throws Exception {
-		if(file.getName().equals("JS_Template.js") || file.getName().equals("QuackUtils.js"))
+	public Hook load(File file) throws Exception {
+		if (file.getName().equals("JS_Template.js") || file.getName().equals("QuackUtils.js"))
 			//Ignore this
-			return;
+			return null;
 
 		String name = StringUtils.split(file.getName(), ".")[0];
 		log.info("New JavaScript Plugin: " + name);
 
-		//Make an Engine and a context to use for this plugin
+		//Add utilities and wrappings
 		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+		jsEngine.put("log", LoggerFactory.getLogger("JSPlugins." + name));
 		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/QuackUtils.js").toURI())));
+		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/JSPlugin.js").toURI())));
 		jsEngine.eval(new FileReader(file));
 
 		//Should we just ignore this?
 		if (castToBoolean(jsEngine.get("ignore"))) {
 			log.debug("Ignore variable set, skipping");
-			return;
+			return null;
 		}
 
-		//Add the QuackUtils js utility class
-		//Object quackUtils = scope.get("QuackUtils");
+		//Return the appropiate hook
+		if (jsEngine.get("onCommand") != null || jsEngine.get("onCommandPM") != null || jsEngine.get("onCommandChannel") != null)
+			//Has Command functions, return command
+			return new JSCommandWrapper(jsEngine, file, name);
 
-		//Is this a hook?
-		for (String curFunction : jsEngine.getBindings(ScriptContext.ENGINE_SCOPE).keySet())
-			if (HookManager.getNames().contains(curFunction))
-				//It contains a hook method, assume that the whole thing is a hook
-				//HookManager.addPluginHook(((Invocable) jsEngine).getInterface(BaseHook.class));
-				//return;
-				throw new QuackbotException("Hooks not supported");
-
-		//Must be a Command
-		jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
-		jsEngine.put("log", LoggerFactory.getLogger("JSPlugins." + name));
-		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/QuackUtils.js").toURI())));
-		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/JSPlugin.js").toURI())));
-		jsEngine.eval(new FileReader(file));
-		if (jsEngine.get("onCommand") == null)
-			jsEngine.eval("function onCommand() {return null;}");
-
-		BaseCommand cmd = JSPluginProxy.newInstance(((Invocable) jsEngine).getInterface(BaseCommand.class), jsEngine);
-		cmd.setup(name, null, true, true, file, 0, 0);
-		CommandManager.addCommand(cmd);
+		//Assume hook
+		return new JSHookWrapper(jsEngine, file, name);
 	}
 
 	public static boolean castToBoolean(Object obj) {
@@ -92,36 +78,48 @@ public class JSPluginLoader implements PluginLoader {
 		return (Boolean) obj;
 	}
 
-	public static class JSPluginProxy implements InvocationHandler {
-		BaseCommand obj;
-		ScriptEngine jsEngine;
+	public static class JSHookWrapper extends Hook {
+		protected ScriptEngine jsEngine;
 
-		public JSPluginProxy(BaseCommand obj, ScriptEngine jsEngine) {
-			this.obj = obj;
+		public JSHookWrapper(ScriptEngine jsEngine, File file, String name) {
+			super(file, name);
 			this.jsEngine = jsEngine;
 		}
 
-		public static BaseCommand newInstance(BaseCommand obj, ScriptEngine jsEngine) {
-			return (BaseCommand) Proxy.newProxyInstance(obj.getClass().getClassLoader(), obj.getClass().getInterfaces(), new JSPluginProxy(obj, jsEngine));
+		@Override
+		public void onEvent(Event event) throws Exception {
+			String name = StringUtils.removeEnd(event.getClass().getSimpleName(), "Event");
+			((Invocable) jsEngine).invokeFunction("on" + name, new Object[]{event});
+		}
+	}
+
+	public static class JSCommandWrapper extends Command {
+		protected ScriptEngine jsEngine;
+
+		public JSCommandWrapper(ScriptEngine jsEngine, File file, String name) {
+			super(file, name);
+			this.jsEngine = jsEngine;
 		}
 
 		@Override
-		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			Object returned = null;
-			try {
-				if (method.getName().equalsIgnoreCase("onCommand"))
-					//Throw away calls since onCommand is called indirectly
-					return null;
-				if (method.getName().equalsIgnoreCase("onCommandPM"))
-					obj.getBot().sendMessage((String) args[0], (String) ((Invocable) jsEngine).invokeFunction("onCommand", (Object[]) args[3]));
-				if (method.getName().equalsIgnoreCase("onCommandChannel"))
-					obj.getBot().sendMessage((String) args[0], (String) args[1], (String) ((Invocable) jsEngine).invokeFunction("onCommand", (Object[]) args[4]));
-				returned = method.invoke(obj, args);
-			} catch (InvocationTargetException e) {
-				//Unwrap several times
-				throw e.getCause().getCause().getCause();
-			}
-			return returned;
+		public void onEvent(Event event) throws Exception {
+			String name = StringUtils.removeEnd(event.getClass().getSimpleName(), "Event");
+			((Invocable) jsEngine).invokeFunction("on" + name, new Object[]{event});
+		}
+
+		@Override
+		public String onCommand(Channel chan, User user, String[] args) throws Exception {
+			return (String) (((Invocable) jsEngine).invokeFunction("onCommand", (Object[]) args));
+		}
+
+		@Override
+		public String onCommandChannel(Channel chan, User user, String[] args) throws Exception {
+			return (String) (((Invocable) jsEngine).invokeFunction("onCommandChannel", (Object[]) args));
+		}
+
+		@Override
+		public String onCommandPM(User user, String[] args) throws Exception {
+			return (String) (((Invocable) jsEngine).invokeFunction("onCommandPM", (Object[]) args));
 		}
 	}
 }
