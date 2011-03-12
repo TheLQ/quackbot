@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.plugins;
+package org.quackbot.plugins;
 
 import Quackbot.Command;
 import Quackbot.CommandManager;
@@ -24,13 +24,13 @@ import Quackbot.PluginLoader;
 import Quackbot.err.QuackbotException;
 import Quackbot.hook.Hook;
 import Quackbot.hook.HookManager;
-import Quackbot.plugins.java.HelpDoc;
-import Quackbot.plugins.core.AdminHelp;
-import Quackbot.plugins.core.Help;
-import Quackbot.plugins.java.AdminOnly;
-import Quackbot.plugins.java.Disabled;
-import Quackbot.plugins.java.Optional;
-import Quackbot.plugins.java.Parameters;
+import org.quackbot.plugins.java.HelpDoc;
+import org.quackbot.plugins.core.AdminHelp;
+import org.quackbot.plugins.core.Help;
+import org.quackbot.plugins.java.AdminOnly;
+import org.quackbot.plugins.java.Disabled;
+import org.quackbot.plugins.java.Optional;
+import org.quackbot.plugins.java.Parameters;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

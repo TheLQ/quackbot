@@ -14,16 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.plugins.core;
+package org.quackbot.plugins.core;
 
 import Quackbot.BaseCommand;
 import Quackbot.Command;
 import Quackbot.CommandManager;
 import Quackbot.Controller;
+
+import org.quackbot.plugins.java.HelpDoc;
 import Quackbot.err.InvalidCMDException;
-import Quackbot.plugins.java.AdminOnly;
-import Quackbot.plugins.java.HelpDoc;
-import Quackbot.plugins.java.Optional;
+import org.quackbot.plugins.java.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -31,13 +31,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Core plugin that provides help for a command
  *
- * @author LordQuackstar
+ * @author Lord.Quackstar
  */
-@HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?helpAdmin <OPTIONAL:command>")
-@AdminOnly
-public class AdminHelp extends Command {
-	private static Logger log = LoggerFactory.getLogger(AdminHelp.class);
+@HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
+public class Help extends Command {
+	private Logger log = LoggerFactory.getLogger(Help.class);
+	@Override
+	public String onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+		return super.onCommandGiven(channel, sender, login, hostname, args);
+	}
+
+
 
 	public String onCommand(@Optional String command) throws Exception {
 		//Does user want command list
@@ -46,7 +52,7 @@ public class AdminHelp extends Command {
 
 			//Add Java Plugins
 			for (BaseCommand curCmd : CommandManager.getCommands())
-				if (curCmd.isEnabled() && curCmd.isAdmin())
+				if (curCmd.isEnabled() && !curCmd.isAdmin())
 					cmdList.add(curCmd.getName());
 
 			//Send to user
@@ -56,7 +62,9 @@ public class AdminHelp extends Command {
 		if (result == null)
 			throw new InvalidCMDException(command);
 		else if (!result.isEnabled())
-			throw new InvalidCMDException(command, "(disabled)");
+			throw new InvalidCMDException(command, "disabled");
+		else if (result.isAdmin())
+			throw new InvalidCMDException(command, "admin only");
 		else if (StringUtils.isBlank(result.getHelp()))
 			return "No help avalible";
 		return result.getHelp();
