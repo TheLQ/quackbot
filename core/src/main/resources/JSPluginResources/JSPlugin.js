@@ -1,62 +1,5 @@
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 
 var name, help = "", admin = false, enabled = true, file, alreadySetup = false;
-
-function setup(reqName, reqHelp, reqAdmin, reqEnabled, reqFile, reqOptionalParams, reqRequiredParams) {
-	if (alreadySetup)
-		throw "Command " + reqName + " has already been setup";
-	name = reqName;
-	file = reqFile;
-	alreadySetup = true;
-//return this;
-}
-
-function toString() {
-	return "Name=" + name + ","
-	+ "Enabled=" + enabled + ","
-	+ "Admin=" + admin + ","
-	+ "RequiredParams=" + getRequiredParams() + ","
-	+ "OptionalParams=" + getOptionalParams() + ","
-	+ "Help=" + help + ","
-	+ "Setup=" + alreadySetup + ","
-	+ "File=" + file;
-}
-
-function getBot() {
-	return Bot.getPoolLocal();
-}
-
-function getHelp() {
-	return help;
-}
-
-function isAdmin() {
-	return admin;
-}
-
-function setAdmin(reqAdmin) {
-	admin = reqAdmin;
-}
-
-function isEnabled() {
-	return enabled;
-}
-
-function setEnabled(reqEnabled) {
-	enabled = reqEnabled;
-}
-
-function getName() {
-	return name;
-}
-
-function getFile() {
-	return file;
-}
 
 function getRequiredParams() {
 	var specified = 0;
@@ -90,13 +33,4 @@ function getOptionalParams() {
 			specified = parameters.optional;
 	//You can't label individual params as optional, so it can only be specified
 	return specified;
-}
-
-function onCommandGiven(channel, sender, login, hostname, args) {
-}
-
-function onCommandPM(sender, login, hostname, args) {
-}
-
-function onCommandChannel(channel, sender, login, hostname, args) {
 }
