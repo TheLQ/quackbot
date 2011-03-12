@@ -84,6 +84,7 @@ public class Controller {
 	/**
 	 * Number of Commands executed, used by logging
 	 */
+	@Setter(AccessLevel.NONE)
 	protected int commandNumber = 0;
 	/**
 	 * Log4j Logger
