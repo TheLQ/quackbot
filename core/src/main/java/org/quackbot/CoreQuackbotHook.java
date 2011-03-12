@@ -58,9 +58,10 @@ public class CoreQuackbotHook extends Hook {
 		
 		int commandNumber = getController().addCommandNumber();
 		String command = "";
+		String debugSuffix =  "execution of command #" + commandNumber + ",  from channel " + event.getChannel().getName() + " using message " + message;
 		
 		try {
-			log.info("-----------Begin execution of command #" + commandNumber + ",  from channel " + event.getChannel().getName() + " using message " + message + "-----------");
+			log.info("-----------Begin "+debugSuffix+"-----------");
 			command = message.split(" ", 2)[0];
 			Command cmd = setupCommand(message, command, event.getChannel(), event.getUser());
 			getBot().sendMessage(event.getChannel(), event.getUser(), cmd.onCommand(event.getChannel(), event.getUser(), getArgs(message)));
@@ -70,7 +71,7 @@ public class CoreQuackbotHook extends Hook {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getChannel(), event.getUser(), "ERROR: " + e.getMessage());
 		} finally {
-			log.info("-----------End execution of command #" + commandNumber + ",  from channel " + event.getChannel() + " using message " + message + "-----------");
+			log.info("-----------End "+debugSuffix+"-----------");
 		}
 	}
 
