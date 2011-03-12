@@ -110,7 +110,7 @@ public class JSHookLoader implements HookLoader {
 		@Override
 		public int getOptionalParams() {
 			try {
-				return (int)(((Invocable) jsEngine).invokeFunction("getOptionalParams", new Object[]{}));
+				return (Integer)(((Invocable) jsEngine).invokeFunction("getOptionalParams", new Object[]{}));
 			} catch (Exception ex) {
 				throw new RuntimeException("Error encountered when executing Javascript function getOptionalParams");
 			}
@@ -119,7 +119,7 @@ public class JSHookLoader implements HookLoader {
 		@Override
 		public int getRequiredParams() {
 			try {
-				return (int)(((Invocable) jsEngine).invokeFunction("getRequiredParams", new Object[]{}));
+				return (Integer)(((Invocable) jsEngine).invokeFunction("getRequiredParams", new Object[]{}));
 			} catch (Exception ex) {
 				throw new RuntimeException("Error encountered when executing Javascript function getRequiredParams");
 			}
