@@ -40,8 +40,8 @@ import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.data.DataStore;
 import org.quackbot.events.InitEvent;
-import org.quackbot.events.PluginLoadEndEvent;
-import org.quackbot.events.PluginLoadStartEvent;
+import org.quackbot.events.HookLoadEndEvent;
+import org.quackbot.events.HookLoadStartEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,12 +280,12 @@ public class Controller {
 	 * @param clean Clear list of commands?
 	 */
 	public void reloadPlugins() {
-		HookManager.dispatchEvent(new PluginLoadStartEvent(this));
+		HookManager.dispatchEvent(new HookLoadStartEvent(this));
 
 		try {
 			//Load all permanent commands
 			reloadPlugins(new File("plugins"));
-			HookManager.dispatchEvent(new PluginLoadEndEvent(this));
+			HookManager.dispatchEvent(new HookLoadEndEvent(this));
 		} catch (Exception e) {
 			log.error("Error in plugin loading!!!", e);
 		}
