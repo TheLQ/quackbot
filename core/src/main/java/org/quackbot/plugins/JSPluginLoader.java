@@ -108,6 +108,24 @@ public class JSPluginLoader implements PluginLoader {
 		}
 
 		@Override
+		public int getOptionalParams() {
+			try {
+				return (int)(((Invocable) jsEngine).invokeFunction("getOptionalParams", new Object[]{}));
+			} catch (Exception ex) {
+				throw new RuntimeException("Error encountered when executing Javascript function getOptionalParams");
+			}
+		}
+
+		@Override
+		public int getRequiredParams() {
+			try {
+				return (int)(((Invocable) jsEngine).invokeFunction("getRequiredParams", new Object[]{}));
+			} catch (Exception ex) {
+				throw new RuntimeException("Error encountered when executing Javascript function getRequiredParams");
+			}
+		}
+
+		@Override
 		public String onCommand(Channel chan, User user, String[] args) throws Exception {
 			return (String) (((Invocable) jsEngine).invokeFunction("onCommand", (Object[]) args));
 		}
