@@ -326,7 +326,7 @@ public class Controller {
 	/**
 	 * Increments command number and returns new int
 	 */
-	public synchronized int addCmdNum() {
+	public synchronized int addCommandNumber() {
 		return ++commandNumber;
 	}
 
