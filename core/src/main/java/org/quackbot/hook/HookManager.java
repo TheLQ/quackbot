@@ -133,7 +133,8 @@ public class HookManager {
 	
 	/**
 	 * Get all stored Commands, sifting out the plain Hooks
-	 * @return An Unmodifiable set of Commands
+	 * @return An Unmodifiable set of Commands. An empty set means there are
+	 *         no commands.
 	 */
 	public static Set<Command> getCommands() {
 		//Get all Commands from Hook list
@@ -147,8 +148,8 @@ public class HookManager {
 	
 	/**
 	 * Gets a command by name
-	 * @param command The command name
-	 * @return 
+	 * @param command A command name
+	 * @return The command object, or null if it doesn't exist
 	 */
 	public static Command getCommand(String command) {
 		for(Hook curHook : hooks)
