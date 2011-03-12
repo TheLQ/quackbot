@@ -78,7 +78,7 @@ public abstract class Hook extends ListenerAdapter {
 	}
 
 	public Controller getController() {
-		return getBot().controller;
+		return getBot().getController();
 	}
 
 	@Override
