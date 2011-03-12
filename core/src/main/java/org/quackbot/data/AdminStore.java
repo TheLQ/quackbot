@@ -17,7 +17,6 @@
 package org.quackbot.data;
 
 import java.util.Set;
-import org.quackbot.Controller;
 
 /**
  * Bean that holds all known Admin information. This is meant to be integrated with

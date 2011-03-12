@@ -19,7 +19,7 @@ package org.quackbot.err;
 /**
  * Wrong number of parameters/arguments given.
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class NumArgException extends Exception {
 	/**

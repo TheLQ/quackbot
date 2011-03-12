@@ -72,7 +72,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Please read documentation for more explination
  * 
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 public class Controller {

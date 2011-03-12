@@ -24,7 +24,7 @@ import java.util.Set;
  * This is the Server bean mapped to the Database by JPersist. Used by {@link Quackbot.Bot}
  *
  * This is usually configured by JPersist
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public interface ServerStore {
 	/**

@@ -20,7 +20,7 @@ package org.quackbot.err;
  * Generic Quackbot exception, used when another exception does not exist. Seperate exception
  * purly for semantics
  *
- * @author admins
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class QuackbotException extends Exception {
 	/**

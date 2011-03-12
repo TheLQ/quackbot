@@ -26,7 +26,7 @@ import org.quackbot.hook.Hook;
  * JavaBean syntax. There only here to force you to use them.
  *
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public interface PluginLoader {
 	/**

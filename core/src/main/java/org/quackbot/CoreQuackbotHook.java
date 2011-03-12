@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Owner
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class CoreQuackbotHook extends Hook {
 	private final Logger log = LoggerFactory.getLogger(Bot.class);
