@@ -37,7 +37,7 @@ public class QuackbotConfig {
 	/**
 	 * All registered plugin types
 	 */
-	private TreeMap<String, PluginLoader> pluginLoaders = new TreeMap<String, PluginLoader>();
+	private TreeMap<String, HookLoader> pluginLoaders = new TreeMap<String, HookLoader>();
 	/**
 	 * Wait between sending messages
 	 */
@@ -62,7 +62,7 @@ public class QuackbotConfig {
 	 * @param ext     Exentsion to associate Command Type with
 	 * @param newType Class of Command Type
 	 */
-	public void addPluginLoader(PluginLoader loader, String ext) {
+	public void addPluginLoader(HookLoader loader, String ext) {
 		addPluginLoader(loader, new String[]{ext});
 	}
 
@@ -71,7 +71,7 @@ public class QuackbotConfig {
 	 * @param exts     Extention to associate Command Type with
 	 * @param newType Class of Command Type
 	 */
-	public void addPluginLoader(PluginLoader loader, String[] exts) {
+	public void addPluginLoader(HookLoader loader, String[] exts) {
 		for (String curExt : exts)
 			getPluginLoaders().put(curExt, loader);
 	}

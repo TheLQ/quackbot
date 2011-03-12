@@ -17,7 +17,7 @@
  */
 package org.quackbot;
 
-import org.quackbot.plugins.core.CoreQuackbotHook;
+import org.quackbot.hooks.core.CoreQuackbotHook;
 import java.util.Set;
 import java.util.logging.Level;
 import org.pircbotx.hooks.Listener;
@@ -41,9 +41,9 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
-import org.quackbot.plugins.JavaPluginLoader;
-import org.quackbot.plugins.core.AdminHelp;
-import org.quackbot.plugins.core.Help;
+import org.quackbot.hooks.JavaHookLoader;
+import org.quackbot.hooks.core.AdminHelp;
+import org.quackbot.hooks.core.Help;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -85,8 +85,8 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		try {
 			//Add our default hooks
 			HookManager.addHook(new CoreQuackbotHook());
-			HookManager.addHook(JavaPluginLoader.load(new Help()));
-			HookManager.addHook(JavaPluginLoader.load(new AdminHelp()));
+			HookManager.addHook(JavaHookLoader.load(new Help()));
+			HookManager.addHook(JavaHookLoader.load(new AdminHelp()));
 		} catch (Exception ex) {
 			log.error("Exception encountered when loading default plugins", ex);
 		}

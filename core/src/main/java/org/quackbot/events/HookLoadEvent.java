@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Controller;
-import org.quackbot.PluginLoader;
+import org.quackbot.HookLoader;
 import org.quackbot.hook.Hook;
 
 /**
@@ -20,11 +20,11 @@ import org.quackbot.hook.Hook;
 public class HookLoadEvent extends Event {
 	private final Controller controller;
 	private final Hook hook;
-	private final PluginLoader pluginLoader;
+	private final HookLoader pluginLoader;
 	private final File file;
 	private final Exception exception;
 
-	public HookLoadEvent(Controller controller, Hook hook, PluginLoader pluginLoader, File file, Exception exception) {
+	public HookLoadEvent(Controller controller, Hook hook, HookLoader pluginLoader, File file, Exception exception) {
 		super(null);
 		this.controller = controller;
 		this.pluginLoader = pluginLoader;

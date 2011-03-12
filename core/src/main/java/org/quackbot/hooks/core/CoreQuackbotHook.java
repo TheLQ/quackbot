@@ -1,4 +1,4 @@
-package org.quackbot.plugins.core;
+package org.quackbot.hooks.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

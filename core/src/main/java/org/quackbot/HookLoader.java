@@ -28,7 +28,7 @@ import org.quackbot.hook.Hook;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface PluginLoader {
+public interface HookLoader {
 	/**
 	 * Load method that is called when a file that matches the extension specified
 	 * is found in plugins directory. If this plugin requires manual adding (IE JavaPlugin)
