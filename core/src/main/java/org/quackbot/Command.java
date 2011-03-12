@@ -22,8 +22,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
+import org.quackbot.err.QuackbotException;
 import org.quackbot.hook.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,19 +34,25 @@ import org.slf4j.LoggerFactory;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@Data
+@ToString
 @EqualsAndHashCode(callSuper = true)
 public abstract class Command extends Hook {
-	private final String help = "No help available";
-	private final boolean admin = false;
+	@Getter
+	private String help = "No help available";
+	@Getter
+	private boolean admin = false;
+	@Getter @Setter
 	private boolean enabled = true;
-	private final int requiredParams = 0;
-	private final int optionalParams = 0;
+	@Getter
+	private int requiredParams = 0;
+	@Getter
+	private int optionalParams = 0;
+	@Getter
+	private boolean setup;
 	/**
 	 * General logger available to all subclasses. This is provided as convenience
 	 * as almost all subclasses should be using a log
 	 */
-	@Getter(AccessLevel.NONE)
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
@@ -62,6 +70,16 @@ public abstract class Command extends Hook {
 	 */
 	public Command(File file, String name) {
 		super(file, name);
+	}
+	
+	public void setup(String help, boolean admin, boolean enabled, int requiredParams, int optionalParams) throws QuackbotException {
+		if(setup)
+			throw new QuackbotException("This hook has already been setup");
+		this.help = help;
+		this.admin = admin;
+		this.enabled = enabled;
+		this.requiredParams = requiredParams;
+		this.optionalParams = optionalParams;
 	}
 
 	/**
