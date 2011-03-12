@@ -119,25 +119,27 @@ public class HookManager {
 	}
 
 	public static void dispatchEvent(final Event<Bot> event) {
-		for (final Hook curHook : hooks) {
-			//Make a runnable that can be passed to any thread pool
-			Runnable run = new Runnable() {
-				public void run() {
-					try {
-						curHook.onEvent(event);
-					} catch (Exception ex) {
-						LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
+		synchronized(hooks) {
+			for (final Hook curHook : hooks) {
+				//Make a runnable that can be passed to any thread pool
+				Runnable run = new Runnable() {
+					public void run() {
+						try {
+							curHook.onEvent(event);
+						} catch (Exception ex) {
+							LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
+						}
 					}
-				}
-			};
+				};
 
-			//Dispatch to appropiate thread pool
-			if (event.getBot() != null)
-				//Use bot's thread pool
-				event.getBot().getThreadPool().execute(run);
-			else
-				//No bot, use global thread pool
-				Controller.getGlobalPool().submit(run);
+				//Dispatch to appropiate thread pool
+				if (event.getBot() != null)
+					//Use bot's thread pool
+					event.getBot().getThreadPool().execute(run);
+				else
+					//No bot, use global thread pool
+					Controller.getGlobalPool().submit(run);
+			}
 		}
 	}
 	
@@ -149,10 +151,11 @@ public class HookManager {
 	public static Set<Command> getCommands() {
 		//Get all Commands from Hook list
 		Set<Command> commands = new HashSet<Command>();
-		for(Hook curHook : hooks)
-			if(curHook instanceof Command)
-				commands.add((Command)curHook);
-		
+		synchronized(hooks) {
+			for(Hook curHook : hooks)
+				if(curHook instanceof Command)
+					commands.add((Command)curHook);
+		}
 		return Collections.unmodifiableSet(commands);
 	}
 	
@@ -162,9 +165,11 @@ public class HookManager {
 	 * @return The command object, or null if it doesn't exist
 	 */
 	public static Command getCommand(String command) {
-		for(Hook curHook : hooks)
-			if(curHook instanceof Command && curHook.getName().equalsIgnoreCase(command))
-				return (Command)curHook;
+		synchronized(hooks) {
+			for(Hook curHook : hooks)
+				if(curHook instanceof Command && curHook.getName().equalsIgnoreCase(command))
+					return (Command)curHook;
+		}
 		return null;
 	}
 }
