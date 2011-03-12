@@ -41,7 +41,9 @@ import org.pircbotx.User;
 import org.quackbot.data.DataStore;
 import org.quackbot.events.InitEvent;
 import org.quackbot.events.HookLoadEndEvent;
+import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
+import org.quackbot.hook.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -297,6 +299,9 @@ public class Controller {
 	 */
 	protected void reloadPlugins(File file) {
 		String[] extArr = null;
+		Exception exception = null;
+		PluginLoader loader = null;
+		Hook hook = null;
 		//Load using appropiate type
 		try {
 			if (file.isDirectory()) {
@@ -315,11 +320,13 @@ public class Controller {
 			String ext = extArr[1];
 
 			//Load with pluginType
-			PluginLoader loader = config.getPluginLoaders().get(ext);
+			loader = config.getPluginLoaders().get(ext);
 			if (loader != null)
-				loader.load(file);
+				hook = loader.load(file);
 		} catch (Exception e) {
 			log.error("Could not load plugin " + extArr[0], e);
+		} finally {
+			HookManager.dispatchEvent(new HookLoadEvent(this, hook, loader, file, exception));
 		}
 	}
 
