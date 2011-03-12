@@ -83,6 +83,7 @@ public abstract class Hook extends ListenerAdapter {
 
 	@Override
 	public void onEvent(Event event) throws Exception {
+		//Capture and redirect to Listener if we are wrapping one
 		if (listener != null)
 			listener.onEvent(event);
 		else
