@@ -25,6 +25,10 @@ import org.pircbotx.hooks.Listener;
 import org.quackbot.Bot;
 import org.quackbot.Controller;
 import org.pircbotx.hooks.ListenerAdapter;
+import org.quackbot.events.HookLoadEndEvent;
+import org.quackbot.events.HookLoadEvent;
+import org.quackbot.events.HookLoadStartEvent;
+import org.quackbot.events.InitEvent;
 
 /**
  * The Hook interface is what all Hooks must implement to be added to the stack.
@@ -108,5 +112,17 @@ public abstract class Hook extends ListenerAdapter {
 			listener.onEvent(event);
 		else
 			super.onEvent(event);
+	}
+	
+	public void onHookLoadEnd(HookLoadEndEvent event) {
+	}
+	
+	public void onHookLoadStart(HookLoadStartEvent event) {
+	}
+	
+	public void onHookLoad(HookLoadEvent event) {
+	}
+	
+	public void onInit(InitEvent event) {
 	}
 }
