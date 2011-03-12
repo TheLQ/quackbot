@@ -16,12 +16,6 @@
  */
 package org.quackbot.plugins;
 
-import Quackbot.BaseCommand;
-import Quackbot.CommandManager;
-
-import Quackbot.PluginLoader;
-import Quackbot.err.QuackbotException;
-import Quackbot.hook.HookManager;
 import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.InvocationHandler;
@@ -33,6 +27,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import org.apache.commons.lang.StringUtils;
+import org.quackbot.PluginLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
