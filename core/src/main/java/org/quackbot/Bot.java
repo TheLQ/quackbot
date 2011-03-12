@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
@@ -67,7 +69,8 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	/**
 	 * Local threadpool
 	 */
-	public ExecutorService threadPool;
+	@Getter
+	protected final ExecutorService threadPool;
 	/**
 	 * Stores variable local to this thread group
 	 */
