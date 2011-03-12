@@ -3,7 +3,6 @@ package org.quackbot;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,25 +42,25 @@ public class CoreQuackbotHook extends Hook {
 			log.warn("Bot locked");
 			return;
 		}
-		
+
 		String message = event.getMessage();
-		
+
 		//Look for a prefix
 		for (String curPrefix : getBot().getPrefixes())
 			//Strip away start of message and end when the message doesn't match anymore (meaning something changed)
 			if (!(message = StringUtils.removeStartIgnoreCase(message, curPrefix)).equals(message))
 				break;
-		
-		if(message.equals(event.getMessage()))
+
+		if (message.equals(event.getMessage()))
 			//Message didn't change, meaning no prefix. Ignore
 			return;
-		
+
 		int commandNumber = getController().addCommandNumber();
 		String command = "";
-		String debugSuffix =  "execution of command #" + commandNumber + ",  from channel " + event.getChannel().getName() + " using message " + message;
-		
+		String debugSuffix = "execution of command #" + commandNumber + ",  from channel " + event.getChannel().getName() + " using message " + message;
+
 		try {
-			log.info("-----------Begin "+debugSuffix+"-----------");
+			log.info("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
 			Command cmd = setupCommand(message, command, event.getChannel(), event.getUser());
 			getBot().sendMessage(event.getChannel(), event.getUser(), cmd.onCommand(event.getChannel(), event.getUser(), getArgs(message)));
@@ -71,7 +70,7 @@ public class CoreQuackbotHook extends Hook {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getChannel(), event.getUser(), "ERROR: " + e.getMessage());
 		} finally {
-			log.info("-----------End "+debugSuffix+"-----------");
+			log.info("-----------End " + debugSuffix + "-----------");
 		}
 	}
 
@@ -81,15 +80,15 @@ public class CoreQuackbotHook extends Hook {
 			log.warn("Bot locked");
 			return;
 		}
-		
+
 		//Assume command
 		int commandNumber = getController().addCommandNumber();
 		String message = event.getMessage();
 		String command = "";
 		String debugSuffix = "execution of command #" + commandNumber + ",  from a PM from " + event.getUser() + " using message " + message;
-		
+
 		try {
-			log.debug("-----------Begin "+debugSuffix+"-----------");
+			log.debug("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
 			Command cmd = setupCommand(message, command, null, event.getUser());
 			getBot().sendMessage(event.getUser(), cmd.onCommand(null, event.getUser(), getArgs(message)));
@@ -99,7 +98,7 @@ public class CoreQuackbotHook extends Hook {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getUser(), "ERROR: " + e.getMessage());
 		} finally {
-			log.debug("-----------End "+debugSuffix+"-----------");
+			log.debug("-----------End " + debugSuffix + "-----------");
 		}
 	}
 
@@ -110,22 +109,21 @@ public class CoreQuackbotHook extends Hook {
 				if (curMethod.getName().equalsIgnoreCase("onCommand") || curMethod.getName().equalsIgnoreCase("onCommandChannel")) {
 					//Pad the args with null values
 					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
-					
+
 					//Prefix with user and channel values
 					args = ArrayUtils.addAll(new Object[]{chan, user}, args);
 					log.trace("Args: " + StringUtils.join(args, ","));
-					
+
 					//Execute method
 					return (String) curMethod.invoke(cmd, args);
-				}
-				else if (curMethod.getName().equalsIgnoreCase("onCommandPM")) {
+				} else if (curMethod.getName().equalsIgnoreCase("onCommandPM")) {
 					//Pad the args with null values
 					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
-					
+
 					//Prefix with user values
 					args = ArrayUtils.addAll(new Object[]{user}, args);
 					log.trace("Args: " + StringUtils.join(args, ","));
-					
+
 					//Execute method
 					return (String) curMethod.invoke(cmd, args);
 				}
