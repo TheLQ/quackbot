@@ -13,10 +13,10 @@ import org.quackbot.Controller;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PluginLoadEndEvent extends Event {
+public class HookLoadStartEvent extends Event {
 	private final Controller controller;
 	
-	public PluginLoadEndEvent(Controller ctrl) {
+	public HookLoadStartEvent(Controller ctrl) {
 		super(null);
 		this.controller = ctrl;
 	}

@@ -16,13 +16,13 @@ import org.quackbot.PluginLoader;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PluginLoadEvent extends Event {
+public class HookLoadEvent extends Event {
 	private final Controller controller;
 	private final PluginLoader pluginLoader;
 	private final File file;
 	private final Exception exception;
 
-	public PluginLoadEvent(Controller controller, PluginLoader pluginLoader, File file, Exception exception) {
+	public HookLoadEvent(Controller controller, PluginLoader pluginLoader, File file, Exception exception) {
 		super(null);
 		this.controller = controller;
 		this.pluginLoader = pluginLoader;
