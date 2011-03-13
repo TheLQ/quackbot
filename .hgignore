@@ -1,3 +1,4 @@
 glob:core/target
 glob:impl/target
 glob:plugins/target
+glob:impl/mysqlPasswords.txt
