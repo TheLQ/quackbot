@@ -16,16 +16,17 @@
  */
 package Quackbot.impl;
 
-import Quackbot.Controller;
-import Quackbot.QuackbotConfig;
-import Quackbot.hook.HookManager;
-import Quackbot.plugins.JavaPluginLoader;
-import Quackbot.plugins.impl.JavaTest;
-import Quackbot.plugins.impl.TestPlugin;
+import Quackbot.impl.plugins.JavaTest;
+import Quackbot.impl.plugins.TestPlugin;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.quackbot.Controller;
+import org.quackbot.QuackbotConfig;
+import org.quackbot.data.db.DatabaseStore;
+import org.quackbot.hook.HookManager;
+import org.quackbot.hooks.JavaHookLoader;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -52,12 +53,13 @@ public class Main {
 
 		QuackbotConfig config = new QuackbotConfig();
 		config.setName("Quackbot");
-		config.setFinger("LQ's Impl");
-		config.connectDB(null, 10, ds);
+		DatabaseStore store = new DatabaseStore();
+		store.connectDB(dbInfo[1], 2, ds);
+		config.setStorage(store);
 		config.addPrefix("?");
 
-		JavaPluginLoader.load(new JavaTest());
-		HookManager.addPluginHook(new TestPlugin());
+		HookManager.addHook(JavaHookLoader.load(new JavaTest()));
+		HookManager.addHook(new TestPlugin());
 
 		new Controller(config).start();
 	}
