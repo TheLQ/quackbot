@@ -90,8 +90,8 @@
 					<properties>
 						<email>lord.quackstar at gmail.com</email>
 						<name>Leon Blakey</name>
-						<year>2010</year>
-						<projectname>PircBotX</projectname>
+						<year>2011</year>
+						<projectname>Quackbot</projectname>
 					</properties>
 					<excludes>
 						<exclude>**/*.txt</exclude>
