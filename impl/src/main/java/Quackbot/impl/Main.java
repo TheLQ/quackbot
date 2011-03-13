@@ -17,7 +17,6 @@
 package Quackbot.impl;
 
 import Quackbot.impl.plugins.JavaTest;
-import Quackbot.impl.plugins.TestPlugin;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -27,6 +26,7 @@ import org.quackbot.QuackbotConfig;
 import org.quackbot.data.db.DatabaseStore;
 import org.quackbot.hook.HookManager;
 import org.quackbot.hooks.JavaHookLoader;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author LordQuackstar
  */
 public class Main {
+	private static final Logger log = LoggerFactory.getLogger(Main.class);
 	/**
 	 * Main method of Implementation
 	 * @param args Passed parameters (ignored)
@@ -57,9 +58,11 @@ public class Main {
 		store.connectDB(dbInfo[1], 2, ds);
 		config.setStorage(store);
 		config.addPrefix("?");
-
-		HookManager.addHook(JavaHookLoader.load(new JavaTest()));
-		HookManager.addHook(new TestPlugin());
+		try {
+			HookManager.addHook(JavaHookLoader.load(new JavaTest()));
+		} catch (Exception ex) {
+			log.error("Can't load hook Javatest", ex);
+		}
 
 		new Controller(config).start();
 	}
@@ -72,7 +75,7 @@ public class Main {
 		try {
 			return new BufferedReader(new FileReader("mysqlPasswords.txt")).readLine().split(",");
 		} catch (Exception e) {
-			LoggerFactory.getLogger(Main.class).error("Cannot find mysqlPasswords.txt in dir " + (new File("").getAbsolutePath()), e);
+			log.error("Cannot find mysqlPasswords.txt in dir " + (new File("").getAbsolutePath()), e);
 		}
 		return null;
 	}
