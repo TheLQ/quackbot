@@ -16,9 +16,10 @@
  */
 package Quackbot.impl.plugins;
 
-import Quackbot.Command;
-import Quackbot.plugins.java.HelpDoc;
+import org.pircbotx.Channel;
 import org.pircbotx.User;
+import org.quackbot.Command;
+import org.quackbot.hooks.java.HelpDoc;
 
 /**
  * Simple Java cmd test
@@ -27,12 +28,11 @@ import org.pircbotx.User;
 @HelpDoc("This is JavaTest Help")
 public class JavaTest extends Command {
 
-	@Override
-	public String onCommandGiven(String channel, String sender, String login, String hostname, String[] args) throws Exception {
+	public String onCommand(Channel chan, User user) throws Exception {
 		StringBuilder users = new StringBuilder();
-		for(User curUser : getBot().getUsers(channel))
-			users.append("[Nick="+curUser.getNick()+",Login="+curUser.getLogin()+",HostMask="+curUser.getHostmask()+",Op="+curUser.isOp(channel)+",Voice="+curUser.hasVoice(channel)+"]");
+		for(User curUser : getBot().getUsers(chan))
+			users.append("[Nick="+curUser.getNick()+",Login="+curUser.getLogin()+",HostMask="+curUser.getHostmask()+",Op="+curUser.isOp(chan)+",Voice="+curUser.hasVoice(chan)+"]");
 
-		return users.toString()+getBot().getUsers(channel).size();
+		return users.toString()+getBot().getUsers(chan).size();
 	}
 }
