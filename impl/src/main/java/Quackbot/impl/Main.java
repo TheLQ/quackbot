@@ -64,7 +64,8 @@ public class Main {
 			log.error("Can't load hook Javatest", ex);
 		}
 
-		new Controller(config).start();
+		//Start
+		config.start();
 	}
 
 	/**
