@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.quackbot.data.DataStore;
 
@@ -33,7 +35,8 @@ public class QuackbotConfig {
 	/**
 	 * Global Prefixes.
 	 */
-	private List<String> globPrefixes = Collections.synchronizedList(new ArrayList<String>());
+	@Setter(AccessLevel.NONE)
+	protected List<String> prefixes = Collections.synchronizedList(new ArrayList<String>());
 	/**
 	 * All registered plugin types
 	 */
@@ -94,6 +97,14 @@ public class QuackbotConfig {
 		if (StringUtils.isNotBlank(finger))
 			output = finger + " - ";
 		return output + suffix;
+	}
+	
+	public boolean addPrefix(String prefix) {
+		return prefixes.add(prefix);
+	}
+	
+	public boolean removePrefix(String prefix) {
+		return prefixes.add(prefix);
 	}
 	
 	/**
