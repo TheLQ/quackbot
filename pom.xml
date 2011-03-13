@@ -57,6 +57,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<main.basedir>${basedir}</main.basedir>
 	</properties>
 
 	<modules>
@@ -85,7 +86,7 @@
 				<artifactId>maven-license-plugin</artifactId>
 				<version>1.9.0</version>
 				<configuration>
-					<header>${project.parent.basedir}/src/etc/license-header.txt</header>
+					<header>${main.basedir}/src/etc/license-header.txt</header>
 					<properties>
 						<email>lord.quackstar at gmail.com</email>
 						<name>Leon Blakey</name>
