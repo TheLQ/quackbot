@@ -5,7 +5,7 @@
 		Maven information
 	-->
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>quackbot</groupId>
+	<groupId>org</groupId>
 	<artifactId>quackbot</artifactId>
 	<packaging>pom</packaging>
 	<version>3.5-SNAPSHOT</version>
