@@ -35,6 +35,7 @@ import java.util.concurrent.ThreadFactory;
 import javax.swing.SwingUtilities;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -80,6 +81,7 @@ import org.slf4j.LoggerFactory;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
+@EqualsAndHashCode(exclude={"bots"})
 public class Controller {
 	protected final DataStore storage;
 	/**
