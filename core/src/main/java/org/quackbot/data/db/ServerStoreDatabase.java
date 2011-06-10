@@ -53,6 +53,9 @@ public class ServerStoreDatabase implements ServerStore {
 	private Set<AdminStore> admins = new HashSet<AdminStore>();
 	protected final DatabaseManager dbm = DatabaseStore.databaseManager;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
+
+	public ServerStoreDatabase() {
+	}
 	
 	/**
 	 * Creates Server

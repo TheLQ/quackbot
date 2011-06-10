@@ -50,6 +50,9 @@ public class AdminStoreDatabase implements AdminStore {
 	 */
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
+	public AdminStoreDatabase() {
+	}
+
 	/**
 	 * Generate from name
 	 * @param name  Name of admin
