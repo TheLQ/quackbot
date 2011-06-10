@@ -19,6 +19,7 @@
 package org.quackbot.data.db;
 
 import ejp.DatabaseException;
+import ejp.DatabaseManager;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
@@ -50,16 +51,15 @@ public class ServerStoreDatabase implements ServerStore {
 	 * List of all Admins, refrenced by common serverID
 	 */
 	private Set<AdminStore> admins = new HashSet<AdminStore>();
-	protected final DatabaseStore store;
+	protected final DatabaseManager dbm = DatabaseStore.databaseManager;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Creates Server
 	 * @param address Address of server
 	 */
-	public ServerStoreDatabase(DatabaseStore store, String address) {
+	public ServerStoreDatabase(String address) {
 		this.address = address;
-		this.store = store;
 	}
 
 	/*******************************************UTILS*********************************/
@@ -112,7 +112,7 @@ public class ServerStoreDatabase implements ServerStore {
 	public void update() {
 		//Try to save the object
 		try {
-			store.getDatabaseManager().saveObject(this);
+			dbm.saveObject(this);
 		} catch (DatabaseException e) {
 			log.error("Couldn't save ServerStore to database", e);
 			return;
@@ -120,7 +120,7 @@ public class ServerStoreDatabase implements ServerStore {
 
 		//Update ourselves with the admin ID
 		try {
-			ServerStoreDatabase dbVersion = store.getDatabaseManager().loadObject(this);
+			ServerStoreDatabase dbVersion = dbm.loadObject(this);
 			setServerId(dbVersion.getServerId());
 		} catch (DatabaseException ex) {
 			log.error("Can't load ServerStore from database", ex);
@@ -130,7 +130,7 @@ public class ServerStoreDatabase implements ServerStore {
 	@Override
 	public boolean delete() {
 		try {
-			store.getDatabaseManager().deleteObject(this);
+			dbm.deleteObject(this);
 			return true;
 		} catch (DatabaseException ex) {
 			log.error("Couldn't delete ServerStore from Database", ex);
@@ -140,7 +140,7 @@ public class ServerStoreDatabase implements ServerStore {
 	
 	public void loadAssociations() {
 		try {
-			store.getDatabaseManager().loadAssociations(this);
+			dbm.loadAssociations(this);
 		} catch (DatabaseException ex) {
 			log.error("Can't load associations from database", ex);
 		}

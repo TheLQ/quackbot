@@ -19,6 +19,7 @@
 package org.quackbot.data.db;
 
 import ejp.DatabaseException;
+import ejp.DatabaseManager;
 import java.util.Set;
 import lombok.Data;
 import org.quackbot.data.AdminStore;
@@ -43,7 +44,7 @@ public class AdminStoreDatabase implements AdminStore {
 	private String name;
 	private Set<ChannelStore> channels;
 	private Set<ServerStore> servers;
-	protected final DatabaseStore store;
+	protected final DatabaseManager dbm = DatabaseStore.databaseManager;
 	/**
 	 * Logging system
 	 */
@@ -53,15 +54,14 @@ public class AdminStoreDatabase implements AdminStore {
 	 * Generate from name
 	 * @param name  Name of admin
 	 */
-	public AdminStoreDatabase(DatabaseStore store, String name) {
+	public AdminStoreDatabase(String name) {
 		this.name = name;
-		this.store = store;
 	}
 
 	@Override
 	public boolean delete() {
 		try {
-			store.getDatabaseManager().deleteObject(this);
+			dbm.deleteObject(this);
 			return true;
 		} catch (DatabaseException ex) {
 			log.error("Couldn't delete AdminStore from Database", ex);
@@ -72,7 +72,7 @@ public class AdminStoreDatabase implements AdminStore {
 	public void update() {
 		//Try to save the object
 		try {
-			store.getDatabaseManager().saveObject(this);
+			dbm.saveObject(this);
 		} catch (DatabaseException e) {
 			log.error("Couldn't save AdminStore to database", e);
 			return;
@@ -80,7 +80,7 @@ public class AdminStoreDatabase implements AdminStore {
 
 		//Update ourselves with the admin ID
 		try {
-			AdminStore dbVersion = store.getDatabaseManager().loadObject(this);
+			AdminStore dbVersion = dbm.loadObject(this);
 			setAdminId(dbVersion.getAdminId());
 		} catch (DatabaseException ex) {
 			log.error("Can't load AdminStore from database", ex);
@@ -89,7 +89,7 @@ public class AdminStoreDatabase implements AdminStore {
 	
 	public void loadAssociations() {
 		try {
-			store.getDatabaseManager().loadAssociations(this);
+			dbm.loadAssociations(this);
 		} catch (DatabaseException ex) {
 			log.error("Can't load associations from database", ex);
 		}

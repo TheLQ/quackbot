@@ -20,6 +20,7 @@
 package org.quackbot.data.db;
 
 import ejp.DatabaseException;
+import ejp.DatabaseManager;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
@@ -50,7 +51,7 @@ public class ChannelStoreDatabase implements ChannelStore {
 	 * Password of the channel. Can be null.
 	 */
 	private String password;
-	protected DatabaseStore store;
+	protected final DatabaseManager dbm = DatabaseStore.databaseManager;
 	private Set<AdminStore> admins = new HashSet<AdminStore>();
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -58,9 +59,8 @@ public class ChannelStoreDatabase implements ChannelStore {
 	 * Create from string
 	 * @param name
 	 */
-	public ChannelStoreDatabase(DatabaseStore store, String name) {
+	public ChannelStoreDatabase(String name) {
 		this.name = name;
-		this.store = store;
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class ChannelStoreDatabase implements ChannelStore {
 	public void update() {
 		//Try to save the object
 		try {
-			store.getDatabaseManager().saveObject(this);
+			dbm.saveObject(this);
 		} catch (DatabaseException e) {
 			log.error("Couldn't save ChannelStore to database", e);
 			return;
@@ -78,7 +78,7 @@ public class ChannelStoreDatabase implements ChannelStore {
 
 		//Update ourselves with the admin ID
 		try {
-			ChannelStoreDatabase dbVersion = store.getDatabaseManager().loadObject(this);
+			ChannelStoreDatabase dbVersion = dbm.loadObject(this);
 			setChannelID(dbVersion.getChannelID());
 		} catch (DatabaseException ex) {
 			log.error("Can't load ChannelStore from database", ex);
@@ -87,7 +87,7 @@ public class ChannelStoreDatabase implements ChannelStore {
 	
 	public void loadAssociations() {
 		try {
-			store.getDatabaseManager().loadAssociations(this);
+			dbm.loadAssociations(this);
 		} catch (DatabaseException ex) {
 			log.error("Can't load associations from database", ex);
 		}
@@ -96,7 +96,7 @@ public class ChannelStoreDatabase implements ChannelStore {
 	@Override
 	public boolean delete() {
 		try {
-			store.getDatabaseManager().deleteObject(this);
+			dbm.deleteObject(this);
 			return true;
 		} catch (DatabaseException ex) {
 			log.error("Couldn't delete ChannelStore from Database", ex);
