@@ -20,6 +20,8 @@ package org.quackbot.data.db;
 
 import ejp.DatabaseException;
 import ejp.DatabaseManager;
+import ejp.PersistenceManager;
+import ejp.PersistentClassManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +42,12 @@ import org.slf4j.LoggerFactory;
 public class DatabaseStore implements DataStore {
 	protected DatabaseManager databaseManager = null;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
+	
+	public DatabaseStore() {
+		PersistentClassManager.setTableMapping(ServerStoreDatabase.class, "quackbot_server");
+		PersistentClassManager.setTableMapping(ChannelStoreDatabase.class, "quackbot_channel");
+		PersistentClassManager.setTableMapping(AdminStoreDatabase.class, "quackbot_admin");
+	}
 
 	/**
 	 * Create a DatabaseManager instance using a supplied DataSource.
