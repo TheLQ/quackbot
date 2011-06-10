@@ -55,6 +55,9 @@ public class ChannelStoreDatabase implements ChannelStore {
 	private Set<AdminStore> admins = new HashSet<AdminStore>();
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
+	public ChannelStoreDatabase() {
+	}
+
 	/**
 	 * Create from string
 	 * @param name
