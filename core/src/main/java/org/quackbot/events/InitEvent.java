@@ -47,4 +47,14 @@ public class InitEvent extends Event {
 		super(null);
 		this.controller = ctrl;
 	}
+	
+	/**
+	 * Does NOT respond to the server! This will throw an {@link UnsupportedOperationException} 
+	 * since there is no bot.
+	 * @param response The response to send 
+	 */
+	@Override
+	public void respond(String response) {
+		throw new UnsupportedOperationException("Attempting to respond to an Init");
+	}
 }
