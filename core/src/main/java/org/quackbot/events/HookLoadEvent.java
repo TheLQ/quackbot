@@ -49,4 +49,14 @@ public class HookLoadEvent extends Event {
 		this.exception = exception;
 		this.hook = hook;
 	}
+	
+	/**
+	 * Does NOT respond to the server! This will throw an {@link UnsupportedOperationException} 
+	 * since there is no bot.
+	 * @param response The response to send 
+	 */
+	@Override
+	public void respond(String response) {
+		throw new UnsupportedOperationException("Attempting to respond to a HookLoad");
+	}
 }
