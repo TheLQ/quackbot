@@ -71,8 +71,10 @@ public class InfoPlugins extends JScrollPane {
 
 			@Override
 			public void onHookLoad(HookLoadEvent event) {
+				//TODO: Inform user about exception
+				if(event.getException() != null)
+					return;
 				Hook hook = event.getHook();
-				//TODO: Handle exceptions
 				if(hook instanceof Command) {
 					Command command = (Command)hook;
 					pluginTableModel.addRow(new Object[]{command.getName(),
