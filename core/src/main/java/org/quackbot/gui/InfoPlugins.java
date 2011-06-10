@@ -42,27 +42,30 @@ import org.slf4j.LoggerFactory;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class InfoPlugins extends JScrollPane {
-	protected final static DefaultTableModel pluginTableModel = new DefaultTableModel() {
-		@Override
-		public Class getColumnClass(int c) {
-			return getValueAt(0, c).getClass();
-		}
-	};
-	protected final static JTable pluginTable = new JTable(pluginTableModel) {
-		@Override
-		public String getToolTipText(MouseEvent e) {
-			Point p = e.getPoint();
-			int rowIndex = pluginTable.rowAtPoint(p);
-			int colIndex = pluginTable.columnAtPoint(p);
-			if ((colIndex == 0 || colIndex == 5 || colIndex == 6) && getValueAt(rowIndex, colIndex) != null)
-				return getValueAt(rowIndex, colIndex).toString();
-			return "";
-
-		}
-	};
+	protected final static DefaultTableModel pluginTableModel;
+	protected final static JTable pluginTable;
 	private Logger log = LoggerFactory.getLogger(InfoPlugins.class);
 
 	static {
+		pluginTableModel = new DefaultTableModel() {
+			@Override
+			public Class getColumnClass(int c) {
+				return getValueAt(0, c).getClass();
+			}
+		};
+		
+		pluginTable = new JTable(pluginTableModel) {
+			@Override
+			public String getToolTipText(MouseEvent e) {
+				Point p = e.getPoint();
+				int rowIndex = pluginTable.rowAtPoint(p);
+				int colIndex = pluginTable.columnAtPoint(p);
+				if ((colIndex == 0 || colIndex == 5 || colIndex == 6) && getValueAt(rowIndex, colIndex) != null)
+					return getValueAt(rowIndex, colIndex).toString();
+				return "";
+			}
+		};
+		
 		HookManager.addHook(new Hook("QBGuiPluginPanel") {
 			private Logger log = LoggerFactory.getLogger(getClass());
 
