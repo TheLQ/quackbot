@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.sql.DataSource;
 import lombok.Data;
+import lombok.Getter;
 import org.quackbot.data.AdminStore;
 import org.quackbot.data.ChannelStore;
 import org.quackbot.data.DataStore;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 @Data
 public class DatabaseStore implements DataStore {
-	protected DatabaseManager databaseManager = null;
+	protected static DatabaseManager databaseManager = null;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	public DatabaseStore() {
@@ -98,17 +99,17 @@ public class DatabaseStore implements DataStore {
 
 	@Override
 	public AdminStore newAdminStore(String name) {
-		return new AdminStoreDatabase(this, name);
+		return new AdminStoreDatabase(name);
 	}
 
 	@Override
 	public ChannelStore newChannelStore(String name) {
-		return new ChannelStoreDatabase(this, name);
+		return new ChannelStoreDatabase(name);
 	}
 
 	@Override
 	public ServerStore newServerStore(String address) {
-		return new ServerStoreDatabase(this, address);
+		return new ServerStoreDatabase(address);
 	}
 
 	@Override
