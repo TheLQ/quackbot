@@ -181,6 +181,9 @@ public class Controller {
 
 		//Load current CMD classes
 		reloadPlugins();
+		
+		if(true)
+			return;
 
 		//Connect to all servers
 		try {
@@ -299,7 +302,6 @@ public class Controller {
 	 */
 	protected void reloadPlugins(File file) {
 		String[] extArr = null;
-		Exception exception = null;
 		HookLoader loader = null;
 		Hook hook = null;
 		//Load using appropiate type
@@ -323,10 +325,10 @@ public class Controller {
 			loader = config.getPluginLoaders().get(ext);
 			if (loader != null)
 				hook = loader.load(file);
+			HookManager.dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
 		} catch (Exception e) {
 			log.error("Could not load plugin " + extArr[0], e);
-		} finally {
-			HookManager.dispatchEvent(new HookLoadEvent(this, hook, loader, file, exception));
+			HookManager.dispatchEvent(new HookLoadEvent(this, hook, loader, file, e));
 		}
 	}
 
