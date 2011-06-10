@@ -85,7 +85,7 @@ public class JavaHookLoader implements HookLoader {
 				}
 
 				//Ignore if there is a 3rd parameter and its an Array
-				if (parameters.length > 2 && parameters[3].isArray()) {
+				if (parameters.length >= 3 && parameters[2].isArray()) {
 					log.debug("Ignoring " + curMethod.toGenericString() + "  - 3rd parameter is an Array");
 					continue;
 				}
