@@ -26,6 +26,7 @@ import java.util.Set;
 import lombok.Data;
 import org.quackbot.data.AdminStore;
 import org.quackbot.data.ChannelStore;
+import org.quackbot.data.ServerStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class ChannelStoreDatabase implements ChannelStore {
 	/**
 	 * ID of the server Channel is attached to
 	 */
-	private Integer serverID;
+	private ServerStoreDatabase server;
 	/**
 	 * ID of channel in Database
 	 */
@@ -119,5 +120,9 @@ public class ChannelStoreDatabase implements ChannelStore {
 		loadAssociations();
 		admins.remove(admin);
 		update();
+	}
+
+	public void setServer(ServerStore server) {
+		this.server = (ServerStoreDatabase)server;
 	}
 }

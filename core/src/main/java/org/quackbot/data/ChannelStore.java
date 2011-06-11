@@ -60,13 +60,13 @@ public interface ChannelStore  {
 	 * ID of the server Channel is attached to
 	 * @return the serverID
 	 */
-	public Integer getServerID();
+	public ServerStore getServer();
 
 	/**
 	 * ID of the server Channel is attached to
 	 * @param serverID the serverID to set
 	 */
-	public void setServerID(Integer serverID);
+	public void setServer(ServerStore server);
 	/**
 	 * ID of channel in Database
 	 * @return the channelID
