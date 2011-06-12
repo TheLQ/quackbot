@@ -11,7 +11,7 @@
 	<groupId>org.quackbot</groupId>
 	<artifactId>store-hibernate</artifactId>
 	<packaging>jar</packaging>
-	<name>Quackbot-Hibernate</name>
+	<name>Quackbot-Store-Hibernate</name>
 	
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
