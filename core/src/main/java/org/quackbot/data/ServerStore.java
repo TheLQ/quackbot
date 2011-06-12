@@ -35,18 +35,6 @@ public interface ServerStore {
 	 */
 	public boolean delete();
 	
-	/*********** Admin and Channel Management **************************/
-	/**
-	 * Adds admin
-	 * @param admin An admin object
-	 */
-	public void addAdmin(AdminStore admin);
-
-	/**
-	 * Remove an admin from this server
-	 * @param admin 
-	 */
-	public void removeAdmin(AdminStore admin);
 	
 	/**
 	 * Gets admin by name
@@ -54,14 +42,6 @@ public interface ServerStore {
 	 * @return     Admin object
 	 */
 	public Set<? extends AdminStore> getAdmins();
-
-	/**
-	 * Add channel
-	 * @param channel Channel name (must include prefix)
-	 */
-	public void addChannel(ChannelStore channel);
-
-	public void removeChannel(ChannelStore channel);
 	
 	/**
 	 * Gets channel object by name

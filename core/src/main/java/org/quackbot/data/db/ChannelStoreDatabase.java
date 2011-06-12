@@ -108,20 +108,6 @@ public class ChannelStoreDatabase implements ChannelStore {
 		return false;
 	}
 
-	@Override
-	public void addAdmin(AdminStore admin) {
-		loadAssociations();
-		admins.add(admin);
-		update();
-	}
-
-	@Override
-	public void removeAdmin(AdminStore admin) {
-		loadAssociations();
-		admins.remove(admin);
-		update();
-	}
-
 	public void setServer(ServerStore server) {
 		this.server = (ServerStoreDatabase)server;
 	}

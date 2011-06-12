@@ -37,17 +37,6 @@ public interface ChannelStore  {
 	/*********** Admin Management ***********/
 	
 	/**
-	 * Adds admin
-	 * @param admin An admin object
-	 */
-	public void addAdmin(AdminStore admin);
-
-	/**
-	 * Remove an admin from this channel
-	 */
-	public void removeAdmin(AdminStore admin);
-	
-	/**
 	 * Gets admin by name
 	 * @param name Name of admin
 	 * @return     Admin object

@@ -66,42 +66,6 @@ public class ServerStoreDatabase implements ServerStore {
 	}
 
 	/*******************************************UTILS*********************************/
-	@Override
-	public void addAdmin(AdminStore admin) {
-		loadAssociations();
-		admins.add(admin);
-		update();
-	}
-
-	@Override
-	public void removeAdmin(AdminStore admin) {
-		loadAssociations();
-		admins.remove(admin);
-		update();
-	}
-
-	/**
-	 * Add channel
-	 * @param channel Channel name (must include prefix)
-	 */
-	@Override
-	public void addChannel(ChannelStore channel) {
-		loadAssociations();
-		channels.add(channel);
-		update();
-	}
-
-	/**
-	 * Removes channel
-	 * @param channel Channel name (must include prefix)
-	 */
-	@Override
-	public void removeChannel(ChannelStore channel) {
-		loadAssociations();
-		getChannels().remove(channel);
-		update();
-	}
-
 
 	/**
 	 * Utility to update the database with the current Server object.
