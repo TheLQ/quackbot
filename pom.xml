@@ -63,7 +63,7 @@
 	<modules>
 		<module>core</module>
 		<module>impl</module>
-		<module>hibernate</module>
+		<module>store-hibernate</module>
 		<module>store-ejp</module>
 	</modules>
 	
