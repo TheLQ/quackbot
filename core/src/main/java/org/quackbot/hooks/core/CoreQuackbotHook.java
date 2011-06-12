@@ -49,8 +49,7 @@ public class CoreQuackbotHook extends Hook {
 
 	@Override
 	public void onConnect(ConnectEvent event) {
-		Set<ChannelStore> channels = getBot().getServerStore().getChannels();
-		for (org.quackbot.data.ChannelStore curChannel : channels) {
+		for (org.quackbot.data.ChannelStore curChannel : getBot().getServerStore().getChannels()) {
 			getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 			log.debug("Trying to join channel using " + curChannel);
 		}
