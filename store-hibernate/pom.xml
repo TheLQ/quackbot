@@ -9,7 +9,7 @@
 	</parent>
 
 	<groupId>org.quackbot</groupId>
-	<artifactId>hibernate</artifactId>
+	<artifactId>store-hibernate</artifactId>
 	<packaging>jar</packaging>
 	<name>Quackbot-Hibernate</name>
 	
