@@ -43,12 +43,18 @@ public interface ServerStore {
 	 */
 	public Set<? extends AdminStore> getAdmins();
 	
+	public void addAdmin(AdminStore admin);
+	public void removeAdmin(AdminStore admin);
+	
 	/**
 	 * Gets channel object by name
 	 * @param channel Channel name (must include prefix)
 	 * @return        Channel object
 	 */
 	public Set<? extends ChannelStore> getChannels();
+	
+	public void addChannel(ChannelStore channel);
+	public void removeChannel(ChannelStore channel);
 
 	/******************************* Server Info *************************/
 	/**
