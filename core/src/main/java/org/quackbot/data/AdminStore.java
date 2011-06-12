@@ -67,7 +67,7 @@ public interface AdminStore {
 	 * Note that this isn't mapped by JPersist, it is simply a convience method
 	 * @return the channel
 	 */
-	public Set<ChannelStore> getChannels();
+	public Set<? extends ChannelStore> getChannels();
 
 	/**
 	 * The Server object that the admin might be attached to. Can be null
@@ -78,5 +78,5 @@ public interface AdminStore {
 	 * Note that this isn't mapped by JPersist, it is simply a convience method
 	 * @return the server
 	 */
-	public Set<ServerStore> getServers();
+	public Set<? extends ServerStore> getServers();
 }

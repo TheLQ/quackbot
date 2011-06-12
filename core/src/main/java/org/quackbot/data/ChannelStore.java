@@ -52,7 +52,7 @@ public interface ChannelStore  {
 	 * @param name Name of admin
 	 * @return     Admin object
 	 */
-	public Set<AdminStore> getAdmins();
+	public Set<? extends AdminStore> getAdmins();
 	
 	/************ Channel Info ***************/
 	
