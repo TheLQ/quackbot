@@ -42,8 +42,8 @@ public class AdminStoreDatabase implements AdminStore {
 	 * The username of the admin
 	 */
 	private String name;
-	private Set<ChannelStore> channels;
-	private Set<ServerStore> servers;
+	private Set<ChannelStoreDatabase> channels;
+	private Set<ServerStoreDatabase> servers;
 	protected final DatabaseManager dbm = DatabaseStore.databaseManager;
 	/**
 	 * Logging system
@@ -99,13 +99,13 @@ public class AdminStoreDatabase implements AdminStore {
 	}
 
 	@Override
-	public Set<ChannelStore> getChannels() {
+	public Set<ChannelStoreDatabase> getChannels() {
 		loadAssociations();
 		return channels;
 	}
 
 	@Override
-	public Set<ServerStore> getServers() {
+	public Set<ServerStoreDatabase> getServers() {
 		loadAssociations();
 		return servers;
 	}

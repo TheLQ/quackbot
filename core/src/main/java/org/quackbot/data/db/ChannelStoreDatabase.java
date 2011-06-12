@@ -53,7 +53,7 @@ public class ChannelStoreDatabase implements ChannelStore {
 	 */
 	private String password;
 	protected final DatabaseManager dbm = DatabaseStore.databaseManager;
-	private Set<AdminStore> admins = new HashSet<AdminStore>();
+	private Set<AdminStoreDatabase> admins;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public ChannelStoreDatabase() {

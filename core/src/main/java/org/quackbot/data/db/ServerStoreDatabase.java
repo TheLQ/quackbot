@@ -46,11 +46,11 @@ public class ServerStoreDatabase implements ServerStore {
 	/**
 	 * List of all Channels, refrenced by common serverID
 	 */
-	private Set<ChannelStore> channels = new HashSet<ChannelStore>();
+	private Set<ChannelStoreDatabase> channels;
 	/**
 	 * List of all Admins, refrenced by common serverID
 	 */
-	private Set<AdminStore> admins = new HashSet<AdminStore>();
+	private Set<AdminStoreDatabase> admins;
 	protected final DatabaseManager dbm = DatabaseStore.databaseManager;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
