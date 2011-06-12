@@ -53,7 +53,7 @@ public interface ServerStore {
 	 * @param name Name of admin
 	 * @return     Admin object
 	 */
-	public Set<AdminStore> getAdmins();
+	public Set<? extends AdminStore> getAdmins();
 
 	/**
 	 * Add channel
@@ -68,7 +68,7 @@ public interface ServerStore {
 	 * @param channel Channel name (must include prefix)
 	 * @return        Channel object
 	 */
-	public Set<ChannelStore> getChannels();
+	public Set<? extends ChannelStore> getChannels();
 
 	/******************************* Server Info *************************/
 	/**
