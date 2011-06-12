@@ -68,6 +68,9 @@ public interface AdminStore {
 	 * @return the channel
 	 */
 	public Set<? extends ChannelStore> getChannels();
+	
+	public void addChannel(ChannelStore channel);
+	public void removeChannel(ChannelStore channel);
 
 	/**
 	 * The Server object that the admin might be attached to. Can be null
@@ -79,4 +82,7 @@ public interface AdminStore {
 	 * @return the server
 	 */
 	public Set<? extends ServerStore> getServers();
+	
+	public void addServer(ServerStore server);
+	public void removeServer(ServerStore server);
 }
