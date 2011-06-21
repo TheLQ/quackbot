@@ -20,6 +20,8 @@ package org.quackbot.hook;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.pircbotx.hooks.Event;
@@ -51,12 +53,18 @@ public abstract class Hook extends ListenerAdapter {
 
 	static {
 		//Add our custom event methods to the super class eventToMethod
-		for(Method curMethod : Hook.class.getDeclaredMethods()) {
-			if(!curMethod.getName().equals("onEvent") && curMethod.getName().startsWith("on"))
-				eventToMethod.put((Class<? extends Event>)curMethod.getParameterTypes()[0], curMethod);
+		for (Method curMethod : Hook.class.getDeclaredMethods()) {
+			if (curMethod.getName().equals("onEvent"))
+				continue;
+			Class<?> curClass = curMethod.getParameterTypes()[0];
+			if (!curClass.isInterface()) {
+				Set methods = new HashSet();
+				methods.add(curMethod);
+				eventToMethod.put((Class<? extends Event>) curClass, methods);
+			}
 		}
 	}
-	
+
 	/**
 	 * Create a hook with the class name as the hook name. In some cases this
 	 * is not desirable, eg plugins that wrap the underlying plugin in a customized
@@ -67,7 +75,7 @@ public abstract class Hook extends ListenerAdapter {
 		this.file = null;
 		this.listener = null;
 	}
-	
+
 	/**
 	 * Create a hook with the given name. File is null
 	 * @param name The name to use for this Hook
@@ -115,16 +123,16 @@ public abstract class Hook extends ListenerAdapter {
 		else
 			super.onEvent(event);
 	}
-	
+
 	public void onHookLoadEnd(HookLoadEndEvent event) {
 	}
-	
+
 	public void onHookLoadStart(HookLoadStartEvent event) {
 	}
-	
+
 	public void onHookLoad(HookLoadEvent event) {
 	}
-	
+
 	public void onInit(InitEvent event) {
 	}
 }
