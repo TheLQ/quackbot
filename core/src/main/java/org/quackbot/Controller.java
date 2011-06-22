@@ -84,6 +84,7 @@ import org.slf4j.LoggerFactory;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
+@Setter(AccessLevel.NONE)
 @EqualsAndHashCode(exclude = {"bots"})
 @Slf4j
 public class Controller {
@@ -91,39 +92,39 @@ public class Controller {
 	/**
 	 * Set of all Bot instances
 	 */
-	@Setter(AccessLevel.NONE)
 	protected HashSet<Bot> bots = new HashSet<Bot>();
 	/**
 	 * Number of Commands executed, used by logging
 	 */
-	@Setter(AccessLevel.NONE)
 	protected int commandNumber = 0;
 	/**
 	 * The Logger
 	 */
 	protected ControlAppender appender;
 	protected GUI gui;
-	@Getter
 	protected HookManager hookManager = new HookManager();
 	/**
 	 * Global Prefixes.
 	 */
-	@Setter(AccessLevel.NONE)
 	protected List<String> prefixes = Collections.synchronizedList(new ArrayList<String>());
 	/**
 	 * All registered plugin types
 	 */
-	@Setter(AccessLevel.NONE)
 	private TreeMap<String, HookLoader> pluginLoaders = new TreeMap<String, HookLoader>();
+	@Setter(AccessLevel.PUBLIC)
 	private String version = "";
+	@Setter(AccessLevel.PUBLIC)
 	private String finger = "";
 	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
-	@Setter(AccessLevel.NONE)
 	@Getter(AccessLevel.NONE)
 	protected boolean createGui = true;
+	@Setter(AccessLevel.PUBLIC)
 	protected int defaultPort = 6667;
+	@Setter(AccessLevel.PUBLIC)
 	protected String defaultName = "QuackbotUser";
+	@Setter(AccessLevel.PUBLIC)
 	protected String defaultLogin = "QB";
+	@Setter(AccessLevel.PUBLIC)
 	protected int defaultMessageDelay = 1750;
 
 	/**
