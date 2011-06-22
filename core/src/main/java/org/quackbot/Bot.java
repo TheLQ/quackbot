@@ -110,12 +110,12 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 		//Some debug
 		ServerStore serverStore = getServerStore();
-		StringBuilder serverDebug = new StringBuilder("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
+		log.info("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
 		if (serverStore.getPassword() != null)
-			serverDebug.append(serverStore.getPassword());
-		log.info(serverDebug.toString());
+			log.info("Using password " + serverStore.getPassword() + " to connect");
+		
+		//Connect to server and join all channels (fetched from db)
 		try {
-			//Connect to server and join all channels (fetched from db)
 			if (serverStore.getPassword() != null)
 				connect(serverStore.getAddress(), serverStore.getPort(), serverStore.getPassword());
 			else
