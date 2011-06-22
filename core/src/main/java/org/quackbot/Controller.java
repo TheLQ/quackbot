@@ -91,6 +91,7 @@ public class Controller {
 	/**
 	 * Set of all Bot instances
 	 */
+	@Setter(AccessLevel.NONE)
 	protected HashSet<Bot> bots = new HashSet<Bot>();
 	/**
 	 * Number of Commands executed, used by logging
