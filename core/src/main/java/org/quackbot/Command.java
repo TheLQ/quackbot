@@ -19,19 +19,14 @@
 package org.quackbot;
 
 import java.io.File;
-import lombok.AccessLevel;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.hooks.Hook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
