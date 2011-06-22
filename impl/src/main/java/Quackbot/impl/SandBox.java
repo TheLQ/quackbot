@@ -18,20 +18,7 @@
  */
 package Quackbot.impl;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Enumeration;
-import org.quackbot.hooks.JSHookLoader;
-
 public class SandBox {
 	public static void main(String... args) {
-		try {
-			Enumeration<URL> resources = JSHookLoader.class.getClassLoader().getResources("");
-			while (resources.hasMoreElements())
-				System.out.println(resources.nextElement());
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		System.out.println("End");
 	}
 }
