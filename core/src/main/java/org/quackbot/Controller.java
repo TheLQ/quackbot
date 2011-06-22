@@ -134,6 +134,9 @@ public class Controller {
 	@Setter(AccessLevel.NONE) @Getter(AccessLevel.NONE)
 	protected boolean createGui = true;
 	protected int defaultPort = 6667;
+	protected String defaultName = "QuackbotUser";
+	protected String defaultLogin = "QB";
+	protected int defaultMessageDelay = 1750;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
