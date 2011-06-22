@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
-import org.quackbot.Command;
+import org.quackbot.hooks.Command;
 import org.quackbot.HookLoader;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.hooks.Hook;

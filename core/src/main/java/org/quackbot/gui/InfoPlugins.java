@@ -18,7 +18,7 @@
  */
 package org.quackbot.gui;
 
-import org.quackbot.Command;
+import org.quackbot.hooks.Command;
 import org.quackbot.Controller;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;

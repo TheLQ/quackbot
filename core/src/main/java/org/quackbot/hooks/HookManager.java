@@ -29,7 +29,6 @@ import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
-import org.quackbot.Command;
 import org.quackbot.err.InvalidHookException;
 import org.slf4j.LoggerFactory;
 

@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
-import org.quackbot.Command;
+import org.quackbot.hooks.Command;
 import org.quackbot.HookLoader;
 import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.Hook;

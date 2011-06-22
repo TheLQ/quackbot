@@ -23,7 +23,7 @@ import org.quackbot.hooks.java.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.quackbot.Command;
+import org.quackbot.hooks.Command;
 import org.quackbot.err.InvalidCMDException;
 
 /**
