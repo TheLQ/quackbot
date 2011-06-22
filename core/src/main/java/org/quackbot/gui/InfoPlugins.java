@@ -19,6 +19,7 @@
 package org.quackbot.gui;
 
 import org.quackbot.Command;
+import org.quackbot.Controller;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.hook.HookManager;
@@ -33,6 +34,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,19 +43,57 @@ import org.slf4j.LoggerFactory;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class InfoPlugins extends JScrollPane {
-	protected final static DefaultTableModel pluginTableModel;
-	protected final static JTable pluginTable;
-	private Logger log = LoggerFactory.getLogger(InfoPlugins.class);
-
-	static {
+	protected DefaultTableModel pluginTableModel;
+	protected JTable pluginTable;
+	
+	public InfoPlugins(final Controller controller) {
+		super();
+		setBorder(BorderFactory.createTitledBorder("Active plugins"));
+		
+		//Configure the table model
 		pluginTableModel = new DefaultTableModel() {
 			@Override
 			public Class getColumnClass(int c) {
 				return getValueAt(0, c).getClass();
 			}
 		};
+		pluginTableModel.addColumn("Name");
+		pluginTableModel.addColumn("Type");
+		pluginTableModel.addColumn("Enabled");
+		pluginTableModel.addColumn("Admin Only");
+		pluginTableModel.addColumn("Required");
+		pluginTableModel.addColumn("Optional");
+		pluginTableModel.addColumn("Help");
+		pluginTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		
+		//Configure the default column widths
+		TableColumnModel columnModel = pluginTable.getColumnModel();
+		columnModel.getColumn(0).setPreferredWidth(120);
+		columnModel.getColumn(1).setPreferredWidth(50);
+		columnModel.getColumn(2).setPreferredWidth(75);
+		columnModel.getColumn(3).setPreferredWidth(50);
+		columnModel.getColumn(4).setPreferredWidth(40);
+		columnModel.getColumn(5).setPreferredWidth(520);
+		
+		//Toggle command enabled status when changed on the table
+		pluginTableModel.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				if (e.getType() != TableModelEvent.UPDATE)
+					return;
+				TableModel model = ((TableModel) e.getSource());
+				String plugin = StringUtils.trimToNull((String) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 0));
+				Command command = controller.getHookManager().getCommand(plugin);
+				if(command != null) {
+					command.setEnabled((Boolean) model.getValueAt(e.getFirstRow(), 1));
+					log.debug((command.isEnabled() ? "Enabled" : "Disabled") + " command " + command.getName());
+				}
+			}
+		});
+		
+		//Configure the table
 		pluginTable = new JTable(pluginTableModel) {
 			@Override
 			public String getToolTipText(MouseEvent e) {
@@ -65,10 +105,15 @@ public class InfoPlugins extends JScrollPane {
 				return "";
 			}
 		};
+		pluginTable.setRowSelectionAllowed(false);
+		pluginTable.setColumnSelectionAllowed(false);
+		pluginTable.setCellSelectionEnabled(false);
 		
-		HookManager.addHook(new Hook("QBGuiPluginPanel") {
-			private Logger log = LoggerFactory.getLogger(getClass());
-
+		//Add the table to the scroll pane
+		add(pluginTable);
+		
+		//Get notified of hook changes
+		controller.getHookManager().addHook(new Hook("QBGuiPluginPanel") {
 			@Override
 			public void onHookLoad(HookLoadEvent event) {
 				//TODO: Inform user about exception
@@ -101,49 +146,7 @@ public class InfoPlugins extends JScrollPane {
 				pluginTableModel.setRowCount(0);
 			}
 		});
-	}
-
-	public InfoPlugins() {
-		super(pluginTable);
-		setBorder(BorderFactory.createTitledBorder("Active plugins"));
-		pluginTable.setRowSelectionAllowed(false);
-		pluginTable.setColumnSelectionAllowed(false);
-		pluginTable.setCellSelectionEnabled(false);
-
-		pluginTableModel.addColumn("Name");
-		pluginTableModel.addColumn("Type");
-		pluginTableModel.addColumn("Enabled");
-		pluginTableModel.addColumn("Admin Only");
-		pluginTableModel.addColumn("Required");
-		pluginTableModel.addColumn("Optional");
-		pluginTableModel.addColumn("Help");
-		pluginTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-
-		TableColumnModel columnModel = pluginTable.getColumnModel();
-		columnModel.getColumn(0).setPreferredWidth(120);
-		columnModel.getColumn(1).setPreferredWidth(50);
-		columnModel.getColumn(2).setPreferredWidth(75);
-		columnModel.getColumn(3).setPreferredWidth(50);
-		columnModel.getColumn(4).setPreferredWidth(40);
-		columnModel.getColumn(5).setPreferredWidth(520);
-
-
-		pluginTableModel.addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				if (e.getType() != TableModelEvent.UPDATE)
-					return;
-				TableModel model = ((TableModel) e.getSource());
-				String plugin = StringUtils.trimToNull((String) ((TableModel) e.getSource()).getValueAt(e.getFirstRow(), 0));
-				Command command = HookManager.getCommand(plugin);
-				if(command != null) {
-					command.setEnabled((Boolean) model.getValueAt(e.getFirstRow(), 1));
-					log.debug((command.isEnabled() ? "Enabled" : "Disabled") + " command " + command.getName());
-				}
-			}
-		});
-
+		
 		//Inefficent but only way to check if value has changed
 		/**new Thread(new Runnable() {
 		public void run() {
