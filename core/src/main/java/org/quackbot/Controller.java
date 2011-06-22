@@ -120,6 +120,8 @@ public class Controller {
 	 */
 	protected ControlAppender appender;
 	protected GUI gui;
+	@Getter
+	protected static HookManager hookManager = new HookManager();
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -177,7 +179,7 @@ public class Controller {
 	 */
 	public void start() {
 		//Call list of commands
-		HookManager.dispatchEvent(new InitEvent(this));
+		getHookManager().dispatchEvent(new InitEvent(this));
 
 		//Load current CMD classes
 		reloadPlugins();
@@ -285,12 +287,12 @@ public class Controller {
 	 * @param clean Clear list of commands?
 	 */
 	public void reloadPlugins() {
-		HookManager.dispatchEvent(new HookLoadStartEvent(this));
+		getHookManager().dispatchEvent(new HookLoadStartEvent(this));
 
 		try {
 			//Load all permanent commands
 			reloadPlugins(new File("plugins"));
-			HookManager.dispatchEvent(new HookLoadEndEvent(this));
+			getHookManager().dispatchEvent(new HookLoadEndEvent(this));
 		} catch (Exception e) {
 			log.error("Error in plugin loading!!!", e);
 		}
@@ -325,10 +327,10 @@ public class Controller {
 			loader = config.getPluginLoaders().get(ext);
 			if (loader != null)
 				hook = loader.load(file);
-			HookManager.dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
+			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
 		} catch (Exception e) {
 			log.error("Could not load plugin " + extArr[0], e);
-			HookManager.dispatchEvent(new HookLoadEvent(this, hook, loader, file, e));
+			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, e));
 		}
 	}
 
