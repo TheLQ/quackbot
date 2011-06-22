@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Controller;
-import org.quackbot.HookLoader;
+import org.quackbot.hooks.HookLoader;
 import org.quackbot.hooks.Hook;
 
 /**

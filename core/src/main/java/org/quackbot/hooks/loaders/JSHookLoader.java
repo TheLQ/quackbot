@@ -28,7 +28,7 @@ import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.hooks.Command;
-import org.quackbot.HookLoader;
+import org.quackbot.hooks.HookLoader;
 import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.Hook;
 import org.slf4j.Logger;
