@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Controller;
-import org.quackbot.hook.HookManager;
+import org.quackbot.hooks.HookManager;
 
 /**
  * Created very early just before the bot is fully initialized. Only created

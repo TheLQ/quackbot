@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.hook;
+package org.quackbot.hooks;
 
 import java.util.Collections;
 import java.util.HashSet;

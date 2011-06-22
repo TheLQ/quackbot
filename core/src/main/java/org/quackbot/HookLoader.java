@@ -19,7 +19,7 @@
 package org.quackbot;
 
 import java.io.File;
-import org.quackbot.hook.Hook;
+import org.quackbot.hooks.Hook;
 
 /**
  * The core of any PluginLoader abstract class. All plugin types need to implement this

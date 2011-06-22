@@ -35,8 +35,8 @@ import org.quackbot.data.ChannelStore;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
-import org.quackbot.hook.Hook;
-import org.quackbot.hook.HookManager;
+import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.HookManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
