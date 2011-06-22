@@ -183,40 +183,4 @@ public class HookManager {
 				return (Command) curHook;
 		return null;
 	}
-
-	public class QbListenerManager implements ListenerManager<Bot> {
-		public boolean addListener(Listener listener) {
-			return addHook(new Hook(listener) {
-			});
-		}
-
-		public boolean removeListener(Listener listener) {
-			synchronized (hooks) {
-				for (Iterator<Hook> hookItr = hooks.iterator(); hookItr.hasNext();)
-					if (hookItr.next().getListener() == listener) {
-						hookItr.remove();
-						return true;
-					}
-			}
-			return false;
-		}
-
-		public boolean listenerExists(Listener listener) {
-			synchronized (hooks) {
-				for (Hook curHook : hooks)
-					if (curHook.getListener() == listener) {
-						return true;
-					}
-			}
-			return false;
-		}
-
-		public Set<Listener> getListeners() {
-			return Collections.unmodifiableSet(new HashSet(hooks));
-		}
-
-		public void dispatchEvent(Event<Bot> event) {
-			HookManager.this.dispatchEvent(event);
-		}
-	}
 }
