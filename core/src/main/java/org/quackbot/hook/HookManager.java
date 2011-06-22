@@ -73,12 +73,6 @@ public class HookManager {
 	 */
 	private final Set<Hook> hooks = Collections.synchronizedSet(new HashSet());
 
-	/**
-	 * This class is a Singleton and should not be initialized
-	 */
-	private HookManager() {
-	}
-
 	public boolean addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
 		Hook potentialHook = null;
