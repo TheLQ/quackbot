@@ -29,12 +29,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
-import ch.qos.logback.core.UnsynchronizedAppenderBase;
+import ch.qos.logback.core.AppenderBase;
 import java.io.PrintStream;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -44,7 +42,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class ControlAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
+public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	private PatternLayout normalGen = new PatternLayout();
 	public Controller controller;
 
