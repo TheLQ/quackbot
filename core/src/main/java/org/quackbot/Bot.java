@@ -88,8 +88,8 @@ public class Bot extends PircBotX {
 		setVersion(controller.getVersion());
 		setMessageDelay(controller.getDefaultMessageDelay());
 
-		synchronized(addedListeners) {
-			if (!addedListeners) {
+		synchronized (addedListeners) {
+			if (!addedListeners)
 				try {
 					//Add our default hooks
 					controller.getHookManager().addHook(new CoreQuackbotHook());
@@ -100,7 +100,6 @@ public class Bot extends PircBotX {
 					log.error("Exception encountered when loading default plugins. Halting loading bot", ex);
 					return;
 				}
-			}
 		}
 
 		//Some debug
@@ -108,7 +107,7 @@ public class Bot extends PircBotX {
 		log.info("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
 		if (serverStore.getPassword() != null)
 			log.info("Using password " + serverStore.getPassword() + " to connect");
-		
+
 		//Connect to server and join all channels (fetched from db)
 		try {
 			if (serverStore.getPassword() != null)
@@ -158,11 +157,11 @@ public class Bot extends PircBotX {
 	 */
 	@Override
 	public void log(String line) {
-		if(line.startsWith("###"))
+		if (line.startsWith("###"))
 			log.error(line);
-		else if(line.startsWith("***"))
+		else if (line.startsWith("***"))
 			log.info(line);
-		else 
+		else
 			//This means <<<, >>>, +++, and unknown lines
 			log.debug(line);
 	}
@@ -194,10 +193,10 @@ public class Bot extends PircBotX {
 		list.add(getNick());
 		return list;
 	}
-	
+
 	public ServerStore getServerStore() {
-		for(ServerStore curServer : controller.getStorage().getServers())
-			if(curServer.getServerId().equals(serverId))
+		for (ServerStore curServer : controller.getStorage().getServers())
+			if (curServer.getServerId().equals(serverId))
 				return curServer;
 		throw new RuntimeException("Can't find server store of current bot ( " + getServer() + " ) with server id " + serverId);
 	}
