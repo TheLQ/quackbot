@@ -270,13 +270,6 @@ public class Controller {
 	}
 
 	/**
-	 * Gets all servers, regardless if they are connected or not
-	 */
-	public Set<ServerStore> getServers() {
-		return storage.getServers();
-	}
-
-	/**
 	 * Send a message to every channel on every server Quackbot is connected to. Use carefully!
 	 * @param msg   Message to send
 	 */
