@@ -76,7 +76,7 @@ public class CoreQuackbotHook extends Hook {
 		try {
 			log.info("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
-			Command cmd = setupCommand(message, command, event.getChannel(), event.getUser());
+			Command cmd = getCommand(message, command, event.getChannel(), event.getUser());
 			//Send any response back to the user
 			event.respond(cmd.onCommand(event.getChannel(), event.getUser(), getArgs(message)));
 			event.respond(cmd.onCommandChannel(event.getChannel(), event.getUser(), getArgs(message)));
@@ -105,7 +105,7 @@ public class CoreQuackbotHook extends Hook {
 		try {
 			log.debug("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
-			Command cmd = setupCommand(message, command, null, event.getUser());
+			Command cmd = getCommand(message, command, null, event.getUser());
 			event.respond(cmd.onCommand(null, event.getUser(), getArgs(message)));
 			event.respond(cmd.onCommandPM(event.getUser(), getArgs(message)));
 			event.respond(executeOnCommandLong(cmd, null, event.getUser(), getArgs(message)));
@@ -117,7 +117,7 @@ public class CoreQuackbotHook extends Hook {
 		}
 	}
 	
-	public Command setupCommand(String message, String userCommand, Channel chan, User user) throws Exception {
+	public Command getCommand(String message, String userCommand, Channel chan, User user) throws Exception {
 		//Parse message to get cmd and args
 		String[] args = getArgs(message);
 
@@ -185,4 +185,4 @@ public class CoreQuackbotHook extends Hook {
 			args = new String[0];
 		return args;
 	}
-}
+
