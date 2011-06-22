@@ -43,8 +43,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class ControlAppender extends AppenderBase<ILoggingEvent> {
-	private PatternLayout normalGen = new PatternLayout();
-	public Controller controller;
+	protected PatternLayout normalGen = new PatternLayout();
+	protected Controller controller;
 
 	public ControlAppender(Controller controller, LoggerContext context) {
 		this.controller = controller;
@@ -64,8 +64,8 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	@Override
 	public void append(ILoggingEvent event) {
 		String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
-		if (controller.gui != null) {
-			GUI gui = controller.gui;
+		if (controller.getGui() != null) {
+			GUI gui = controller.getGui();
 			JTextPane textPane = (Bot.getPoolLocal() != null) ? gui.BerrorLog : gui.CerrorLog;
 			JScrollPane scrollPane = (Bot.getPoolLocal() != null) ? gui.BerrorScroll : gui.CerrorScroll;
 			SwingUtilities.invokeLater(new WriteOutput(textPane, scrollPane, event, server));
