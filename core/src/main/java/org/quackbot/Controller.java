@@ -127,6 +127,7 @@ public class Controller {
 	/**
 	 * All registered plugin types
 	 */
+	@Setter(AccessLevel.NONE)
 	private TreeMap<String, HookLoader> pluginLoaders = new TreeMap<String, HookLoader>();
 	private String version = "";
 	private String finger = "";
