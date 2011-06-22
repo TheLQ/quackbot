@@ -80,17 +80,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	protected final Controller controller;
 	protected final Set<User> lockedUsers = new HashSet();
 	protected final Set<Channel> lockedChannels = new HashSet();
-
-	static {
-		try {
-			//Add our default hooks
-			Controller.getHookManager().addHook(new CoreQuackbotHook());
-			Controller.getHookManager().addHook(JavaHookLoader.load(new Help()));
-			Controller.getHookManager().addHook(JavaHookLoader.load(new AdminHelp()));
-		} catch (Exception ex) {
-			log.error("Exception encountered when loading default plugins", ex);
-		}
-	}
+	protected boolean addedListeners = false;
 
 	/**
 	 * Init bot by setting all information
@@ -108,6 +98,19 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		setFinger(controller.getFinger());
 		setVersion(controller.getVersion());
 		setMessageDelay(controller.getDefaultMessageDelay());
+
+		if (!addedListeners) {
+			try {
+				//Add our default hooks
+				controller.getHookManager().addHook(new CoreQuackbotHook());
+				controller.getHookManager().addHook(JavaHookLoader.load(new Help()));
+				controller.getHookManager().addHook(JavaHookLoader.load(new AdminHelp()));
+			} catch (Exception ex) {
+				log.error("Exception encountered when loading default plugins. Halting loading bot", ex);
+				return;
+			}
+			addedListeners = true;
+		}
 
 		//Some debug
 		StringBuilder serverDebug = new StringBuilder("Attempting to connect to " + this.serverStore.getAddress() + " on port " + this.serverStore.getPort());
