@@ -33,7 +33,7 @@ public class JavaTest extends Command {
 	public String onCommand(Channel chan, User user) throws Exception {
 		StringBuilder users = new StringBuilder();
 		for(User curUser : getBot().getUsers(chan))
-			users.append("[Nick="+curUser.getNick()+",Login="+curUser.getLogin()+",HostMask="+curUser.getHostmask()+",Op="+curUser.isOp(chan)+",Voice="+curUser.hasVoice(chan)+"]");
+			users.append(curUser.toString()).append("\n");
 
 		return users.toString()+getBot().getUsers(chan).size();
 	}
