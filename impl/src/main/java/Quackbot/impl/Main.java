@@ -22,17 +22,14 @@ import Quackbot.impl.plugins.JavaTest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.quackbot.Controller;
-import org.quackbot.QuackbotConfig;
-import org.quackbot.data.db.DatabaseStore;
-import org.quackbot.hook.HookManager;
-import org.quackbot.hooks.JavaHookLoader;
+import org.quackbot.data.hibernate.HbStore;
+import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Main Class for Implmentation.
+ * Main Class for implementation.
  *
  * @author LordQuackstar
  */
@@ -42,44 +39,17 @@ public class Main {
 	 * Main method of Implementation
 	 * @param args Passed parameters (ignored)
 	 */
-	public static void main(String[] args) {
-		String[] dbInfo = getDBInfo();
-		//This implementation uses the Commons DBCP for Connection managment.
-		//This is not nessesary for most applications
-		BasicDataSource ds = new BasicDataSource();
-		ds.setDriverClassName("com.mysql.jdbc.Driver");
-		ds.setUsername(dbInfo[1]);
-		ds.setPassword(dbInfo[2]);
-		ds.setUrl(dbInfo[0] + "?autoReconnect=true");
-		ds.setValidationQuery("SELECT * FROM quackbot_server");
-		ds.setTestOnBorrow(true);
-
-		QuackbotConfig config = new QuackbotConfig();
-		config.setName("Quackbot");
-		DatabaseStore store = new DatabaseStore();
-		store.connectDB(dbInfo[1], 2, ds);
-		config.setStorage(store);
-		config.addPrefix("?");
+	public static void main(String[] args) {		
+		Controller controller = new Controller(new HbStore());
+		controller.setDefaultName("Quackbot");
+		controller.addPrefix("?");
 		try {
-			HookManager.addHook(JavaHookLoader.load(new JavaTest()));
+			controller.getHookManager().addHook(JavaHookLoader.load(new JavaTest()));
 		} catch (Exception ex) {
 			log.error("Can't load hook Javatest", ex);
 		}
 
 		//Start
-		config.start();
-	}
-
-	/**
-	 * Get all DB info from uncommited file. So no, you can't get access to my database :-)
-	 * @return String array with values: databasename, db connection string, username, and password
-	 */
-	public static String[] getDBInfo() {
-		try {
-			return new BufferedReader(new FileReader("mysqlPasswords.txt")).readLine().split(",");
-		} catch (Exception e) {
-			log.error("Cannot find mysqlPasswords.txt in dir " + (new File("").getAbsolutePath()), e);
-		}
-		return null;
+		controller.start();
 	}
 }
