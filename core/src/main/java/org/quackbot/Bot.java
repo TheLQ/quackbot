@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-public class Bot extends PircBotX implements Comparable<Bot> {
+public class Bot extends PircBotX {
 	/**
 	 * Says weather bot is globally locked or not
 	 */
@@ -207,11 +207,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		list.add(getNick() + ":");
 		list.add(getNick());
 		return list;
-	}
-
-	@Override
-	public int compareTo(Bot bot) {
-		return uniqueId.compareTo(bot.getUniqueId());
 	}
 	
 	public ServerStore getServerStore() {
