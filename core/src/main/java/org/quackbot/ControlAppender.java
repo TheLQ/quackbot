@@ -84,22 +84,22 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	 * This should ONLY be executed in AWT Event Queue
 	 * @author Lord.Quackstar 
 	 */
-	public class WriteOutput implements Runnable {
+	protected class WriteOutput implements Runnable {
 		/**
 		 * Pane to write to
 		 */
-		JTextPane pane;
+		protected JTextPane pane;
 		/**
 		 * StyledDocument of pane
 		 */
-		StyledDocument doc;
+		protected StyledDocument doc;
 		/**
 		 * Date formatter, used to get same date format
 		 */
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("hh:mm:ss a");
-		ILoggingEvent event;
-		String address;
-		JScrollPane scroll;
+		protected SimpleDateFormat dateFormatter = new SimpleDateFormat("hh:mm:ss a");
+		protected ILoggingEvent event;
+		protected String address;
+		protected JScrollPane scroll;
 
 		/**
 		 * Simple constructor to init
