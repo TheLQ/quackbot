@@ -27,16 +27,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.Channel;
-import org.slf4j.Logger;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
@@ -44,7 +39,6 @@ import org.pircbotx.hooks.managers.ListenerManager;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.quackbot.hooks.core.AdminHelp;
 import org.quackbot.hooks.core.Help;
-import org.slf4j.LoggerFactory;
 
 /**
  * Bot instance that communicates with 1 server
