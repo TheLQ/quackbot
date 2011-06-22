@@ -20,7 +20,7 @@ package Quackbot.impl.plugins;
 
 import org.pircbotx.Channel;
 import org.pircbotx.User;
-import org.quackbot.Command;
+import org.quackbot.hooks.Command;
 import org.quackbot.hooks.java.HelpDoc;
 
 /**
