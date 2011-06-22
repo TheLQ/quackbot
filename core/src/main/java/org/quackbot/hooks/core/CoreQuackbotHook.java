@@ -29,14 +29,12 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
-import org.quackbot.Bot;
+import org.quackbot.data.ChannelStore;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
 import org.quackbot.hooks.Hook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -46,9 +44,9 @@ import org.slf4j.LoggerFactory;
 public class CoreQuackbotHook extends Hook {
 	@Override
 	public void onConnect(ConnectEvent event) {
-		for (org.quackbot.data.ChannelStore curChannel : getBot().getServerStore().getChannels()) {
-			getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
+		for (ChannelStore curChannel : getBot().getServerStore().getChannels()) {
 			log.debug("Trying to join channel using " + curChannel);
+			getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 		}
 	}
 
