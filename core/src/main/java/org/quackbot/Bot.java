@@ -85,9 +85,9 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	static {
 		try {
 			//Add our default hooks
-			HookManager.addHook(new CoreQuackbotHook());
-			HookManager.addHook(JavaHookLoader.load(new Help()));
-			HookManager.addHook(JavaHookLoader.load(new AdminHelp()));
+			Controller.getHookManager().addHook(new CoreQuackbotHook());
+			Controller.getHookManager().addHook(JavaHookLoader.load(new Help()));
+			Controller.getHookManager().addHook(JavaHookLoader.load(new AdminHelp()));
 		} catch (Exception ex) {
 			log.error("Exception encountered when loading default plugins", ex);
 		}
@@ -103,12 +103,12 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		poolLocal.set(this);
 		this.controller = controller;
 
-		setName(controller.getConfig().getName());
+		setName(controller.getDefaultName());
+		setLogin(controller.getDefaultLogin());
 		setAutoNickChange(true);
-		setFinger(controller.getConfig().getFinger());
-		setVersion(controller.getConfig().getVersion());
-		setMessageDelay(controller.getConfig().getOutputThrottleMs());
-
+		setFinger(controller.getFinger());
+		setVersion(controller.getVersion());
+		setMessageDelay(controller.getDefaultMessageDelay());
 
 		//Some debug
 		StringBuilder serverDebug = new StringBuilder("Attempting to connect to " + this.serverStore.getAddress() + " on port " + this.serverStore.getPort());
@@ -204,7 +204,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 	public List<String> getPrefixes() {
 		//Merge the global list and the Bot specific list
-		ArrayList<String> list = new ArrayList<String>(controller.getConfig().getPrefixes());
+		ArrayList<String> list = new ArrayList<String>(controller.getPrefixes());
 		list.add(getNick() + ":");
 		list.add(getNick());
 		return list;
@@ -264,19 +264,19 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		protected HashMap<Listener, Hook> listenerTracker = new HashMap();
 
 		public void dispatchEvent(Event<Bot> event) {
-			HookManager.dispatchEvent(event);
+			controller.getHookManager().dispatchEvent(event);
 		}
 
 		public boolean addListener(Listener listener) {
 			Hook genHook = new Hook(listener) {
 			};
 			listenerTracker.put(listener, genHook);
-			return HookManager.addHook(genHook);
+			return controller.getHookManager().addHook(genHook);
 		}
 
 		public boolean removeListener(Listener listener) {
 			if (listenerTracker.containsKey(listener))
-				if (HookManager.removeHook(listenerTracker.get(listener)))
+				if (controller.getHookManager().removeHook(listenerTracker.get(listener)))
 					return listenerTracker.remove(listener) != null;
 			return false;
 		}
