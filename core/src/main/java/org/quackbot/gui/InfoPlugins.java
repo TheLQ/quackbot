@@ -66,8 +66,7 @@ public class InfoPlugins extends JScrollPane {
 		pluginTableModel.addColumn("Required");
 		pluginTableModel.addColumn("Optional");
 		pluginTableModel.addColumn("Help");
-		pluginTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		
+				
 		//Configure the default column widths
 		TableColumnModel columnModel = pluginTable.getColumnModel();
 		columnModel.getColumn(0).setPreferredWidth(120);
@@ -108,6 +107,7 @@ public class InfoPlugins extends JScrollPane {
 		pluginTable.setRowSelectionAllowed(false);
 		pluginTable.setColumnSelectionAllowed(false);
 		pluginTable.setCellSelectionEnabled(false);
+		pluginTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		
 		//Add the table to the scroll pane
 		add(pluginTable);
