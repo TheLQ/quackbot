@@ -249,7 +249,7 @@ public class Controller {
 		ServerStore server = getStorage().newServerStore(address);
 		server.setPort(port);
 		for (String curChan : channels)
-			server.addChannel(getStorage().newChannelStore(address));
+			server.addChannel(getStorage().newChannelStore(curChan));
 		initBot(server);
 	}
 
