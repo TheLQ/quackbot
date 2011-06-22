@@ -157,27 +157,18 @@ public class Bot extends PircBotX {
 	}
 
 	/**
-	 * PircBot commands use simply redirects to Log4j. SHOULD NOT BE USED OUTSIDE OF PIRCBOT
-	 * <p>
-	 * Each line in the log begins with a number which
-	 * represents the logging time (as the number of milliseconds since the
-	 * epoch).  This timestamp and the following log entry are separated by
-	 * a single space character, " ".  Outgoing messages are distinguishable
-	 * by a log entry that has ">>>" immediately following the space character
-	 * after the timestamp.  DCC events use "+++" and warnings about unhandled
-	 * Exceptions and Errors use "###".
-	 *  <p>
-	 * This implementation of the method will only cause log entries to be
-	 * output if the PircBot has had its verbose mode turned on by calling
-	 * setVerbose(true);
-	 *
+	 * DO NOT USE THIS! Only for redirecting internal logging by PircBotX to slf4j
 	 * @param line The line to add to the log.
 	 */
 	@Override
 	public void log(String line) {
-		if (!line.startsWith(">>>") && !line.startsWith("###") && !line.startsWith("+++"))
-			line = "@@@" + line;
-		log.info(line);
+		if(line.startsWith("###"))
+			log.error(line);
+		else if(line.startsWith("***"))
+			log.info(line);
+		else 
+			//This means <<<, >>>, +++, and unknown lines
+			log.debug(line);
 	}
 
 	@Override
