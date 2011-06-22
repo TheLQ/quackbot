@@ -81,6 +81,13 @@ public class HookManager {
 			throw new InvalidHookException("Hook " + hook.getClass() + " uses the same name as " + potentialHook.getClass());
 		return hooks.add(hook);
 	}
+	
+	public boolean addHookOnce(Hook hook) {
+		log.debug("Adding hook " + hook.getName() + " once");
+		if (getHook(hook.getName()) == null)
+			return hooks.add(hook);
+		return false;
+	}
 
 	public boolean removeHook(String hookName) {
 		log.debug("Removing hook " + hookName);
