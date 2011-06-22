@@ -48,7 +48,7 @@ import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.hooks.Hook;
-import org.quackbot.hooks.JSHookLoader;
+import org.quackbot.hooks.loaders.JSHookLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

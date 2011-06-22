@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.hooks;
+package org.quackbot.hooks.loaders;
 
 import java.io.File;
 import java.io.FileReader;
@@ -29,6 +29,7 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Command;
 import org.quackbot.HookLoader;
+import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
