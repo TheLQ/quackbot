@@ -39,6 +39,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
@@ -83,6 +84,7 @@ import org.slf4j.LoggerFactory;
  */
 @Data
 @EqualsAndHashCode(exclude={"bots"})
+@Slf4j
 public class Controller {
 	protected final DataStore storage;
 	/**
@@ -94,11 +96,6 @@ public class Controller {
 	 */
 	@Setter(AccessLevel.NONE)
 	protected int commandNumber = 0;
-	/**
-	 * Log4j Logger
-	 */
-	@Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
-	private final Logger log = LoggerFactory.getLogger(Controller.class);
 	/**
 	 * ThreadPool that all non-bot threads are executed in
 	 */
