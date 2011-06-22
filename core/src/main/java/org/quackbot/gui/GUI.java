@@ -113,7 +113,7 @@ public class GUI extends JFrame implements ActionListener {
 		//Configure Plugin Sidepanel
 		JTabbedPane contentPane = new JTabbedPane();
 		contentPane.addTab("Console", msgPanel);
-		contentPane.addTab("Plugin Info", new InfoPlugins());
+		contentPane.addTab("Plugin Info", new InfoPlugins(controller));
 		contentPane.addTab("Stats", new InfoStats());
 
 		add(contentPane); //add to JFrame
