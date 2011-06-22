@@ -286,7 +286,7 @@ public class Controller {
 			public void run() {
 				try {
 					log.info("Initiating IRC connection to server " + curServer);
-					Bot bot = new Bot(Controller.this, curServer, threadPool);
+					Bot bot = new Bot(Controller.this, curServer.getServerId(), threadPool);
 					bot.setVerbose(true);
 					bots.add(bot);
 				} catch (Exception ex) {
