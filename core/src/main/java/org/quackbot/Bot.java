@@ -20,9 +20,7 @@ package org.quackbot;
 
 import org.quackbot.hooks.core.CoreQuackbotHook;
 import java.util.Set;
-import java.util.logging.Level;
 import org.pircbotx.hooks.Listener;
-import org.quackbot.hook.HookManager;
 import org.quackbot.hook.Hook;
 import org.quackbot.data.ServerStore;
 import java.util.ArrayList;
@@ -57,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 public class Bot extends PircBotX implements Comparable<Bot> {
 	/**
 	 * Says weather bot is globally locked or not
@@ -75,7 +73,8 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 * Stores variable local to this thread group
 	 */
 	protected final static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
-	@Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	private static final Logger log = LoggerFactory.getLogger(Bot.class);
 	protected final UUID uniqueId = UUID.randomUUID();
 	protected final Controller controller;
@@ -92,7 +91,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 			log.error("Exception encountered when loading default plugins", ex);
 		}
 	}
-	
+
 	/**
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
@@ -141,9 +140,9 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 	public boolean isLocked(Channel chan, User user) {
 		//If the user is an admin, let them through
-		if(controller.isAdmin(this, user, chan))
+		if (controller.isAdmin(this, user, chan))
 			return false;
-		
+
 		//Is bot locked?
 		if (isLocked()) {
 			log.info("Command ignored due to server lock in effect");
