@@ -219,7 +219,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 
 	/**
 	 * Static class that holds variable local to the entire thread group.
-	 * Used mainly for logging, but avalible for any other purpose.
+	 * Used mainly for logging, but available for any other purpose.
 	 * <p>
 	 * Thanks to the jkad open source project for providing most of the code.
 	 * Source: http://code.google.com/p/jkad/source/browse/trunk/JKad/src/jkad/controller/ThreadGroupLocal.java
