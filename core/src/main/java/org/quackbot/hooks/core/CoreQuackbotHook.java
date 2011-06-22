@@ -65,8 +65,8 @@ public class CoreQuackbotHook extends Hook {
 			if (!(message = StringUtils.removeStartIgnoreCase(message, curPrefix)).equals(message))
 				break;
 
+		//Make sure there was a prefix that got removed. No prefix = no command
 		if (message.equals(event.getMessage()))
-			//Message didn't change, meaning no prefix. Ignore
 			return;
 
 		int commandNumber = getController().addCommandNumber();
@@ -77,9 +77,10 @@ public class CoreQuackbotHook extends Hook {
 			log.info("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
 			Command cmd = setupCommand(message, command, event.getChannel(), event.getUser());
-			getBot().sendMessage(event.getChannel(), event.getUser(), cmd.onCommand(event.getChannel(), event.getUser(), getArgs(message)));
-			getBot().sendMessage(event.getChannel(), event.getUser(), cmd.onCommandChannel(event.getChannel(), event.getUser(), getArgs(message)));
-			getBot().sendMessage(event.getChannel(), event.getUser(), executeOnCommandLong(cmd, event.getChannel(), event.getUser(), getArgs(message)));
+			//Send any response back to the user
+			event.respond(cmd.onCommand(event.getChannel(), event.getUser(), getArgs(message)));
+			event.respond(cmd.onCommandChannel(event.getChannel(), event.getUser(), getArgs(message)));
+			event.respond(executeOnCommandLong(cmd, event.getChannel(), event.getUser(), getArgs(message)));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getChannel(), event.getUser(), "ERROR: " + e.getMessage());
@@ -105,15 +106,39 @@ public class CoreQuackbotHook extends Hook {
 			log.debug("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
 			Command cmd = setupCommand(message, command, null, event.getUser());
-			getBot().sendMessage(event.getUser(), cmd.onCommand(null, event.getUser(), getArgs(message)));
-			getBot().sendMessage(event.getUser(), cmd.onCommandPM(event.getUser(), getArgs(message)));
-			getBot().sendMessage(event.getUser(), executeOnCommandLong(cmd, null, event.getUser(), getArgs(message)));
+			event.respond(cmd.onCommand(null, event.getUser(), getArgs(message)));
+			event.respond(cmd.onCommandPM(event.getUser(), getArgs(message)));
+			event.respond(executeOnCommandLong(cmd, null, event.getUser(), getArgs(message)));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getUser(), "ERROR: " + e.getMessage());
 		} finally {
 			log.debug("-----------End " + debugSuffix + "-----------");
 		}
+	}
+	
+	public Command setupCommand(String message, String userCommand, Channel chan, User user) throws Exception {
+		//Parse message to get cmd and args
+		String[] args = getArgs(message);
+
+		Command command = getController().getHookManager().getCommand(userCommand);
+		//Is this a valid command?
+		if (command == null || !command.isEnabled())
+			throw new InvalidCMDException(userCommand);
+		//Is this an admin function? If so, is the person an admin?
+		if (command.isAdmin() && !getController().isAdmin(getBot(), user, chan))
+			throw new AdminException();
+
+		//Does the required number of args exist?
+		int given = args.length;
+		int required = command.getRequiredParams();
+		int optional = command.getOptionalParams();
+		log.debug("User Args: " + given + " | Req Args: " + required + " | Optional: " + optional);
+		if (given > required + optional) //Do we have too many?
+			throw new NumArgException(given, required, optional);
+		else if (given < required) //Do we not have enough?
+			throw new NumArgException(given, required);
+		return command;
 	}
 
 	public String executeOnCommandLong(Command cmd, Channel chan, User user, Object[] args) throws Exception {
@@ -159,29 +184,5 @@ public class CoreQuackbotHook extends Hook {
 		else
 			args = new String[0];
 		return args;
-	}
-
-	public Command setupCommand(String message, String userCommand, Channel chan, User user) throws Exception {
-		//Parse message to get cmd and args
-		String[] args = getArgs(message);
-
-		Command command = getController().getHookManager().getCommand(userCommand);
-		//Is this a valid command?
-		if (command == null || !command.isEnabled())
-			throw new InvalidCMDException(userCommand);
-		//Is this an admin function? If so, is the person an admin?
-		if (command.isAdmin() && !getController().isAdmin(getBot(), user, chan))
-			throw new AdminException();
-
-		//Does the required number of args exist?
-		int given = args.length;
-		int required = command.getRequiredParams();
-		int optional = command.getOptionalParams();
-		log.debug("User Args: " + given + " | Req Args: " + required + " | Optional: " + optional);
-		if (given > required + optional) //Do we have too many?
-			throw new NumArgException(given, required, optional);
-		else if (given < required) //Do we not have enough?
-			throw new NumArgException(given, required);
-		return command;
 	}
 }
