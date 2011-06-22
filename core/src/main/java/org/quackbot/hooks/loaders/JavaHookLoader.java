@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.hooks.Command;
-import org.quackbot.HookLoader;
+import org.quackbot.hooks.HookLoader;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.Hook;

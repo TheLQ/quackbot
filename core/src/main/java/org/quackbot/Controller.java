@@ -18,6 +18,7 @@
  */
 package org.quackbot;
 
+import org.quackbot.hooks.HookLoader;
 import java.util.Set;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
