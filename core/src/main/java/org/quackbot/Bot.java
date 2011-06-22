@@ -69,7 +69,7 @@ public class Bot extends PircBotX {
 	protected final Controller controller;
 	protected final Set<User> lockedUsers = new HashSet();
 	protected final Set<Channel> lockedChannels = new HashSet();
-	protected boolean addedListeners = false;
+	protected static Boolean addedListeners = false;
 
 	/**
 	 * Init bot by setting all information
@@ -88,17 +88,19 @@ public class Bot extends PircBotX {
 		setVersion(controller.getVersion());
 		setMessageDelay(controller.getDefaultMessageDelay());
 
-		if (!addedListeners) {
-			try {
-				//Add our default hooks
-				controller.getHookManager().addHook(new CoreQuackbotHook());
-				controller.getHookManager().addHook(JavaHookLoader.load(new Help()));
-				controller.getHookManager().addHook(JavaHookLoader.load(new AdminHelp()));
-			} catch (Exception ex) {
-				log.error("Exception encountered when loading default plugins. Halting loading bot", ex);
-				return;
+		synchronized(addedListeners) {
+			if (!addedListeners) {
+				try {
+					//Add our default hooks
+					controller.getHookManager().addHook(new CoreQuackbotHook());
+					controller.getHookManager().addHook(JavaHookLoader.load(new Help()));
+					controller.getHookManager().addHook(JavaHookLoader.load(new AdminHelp()));
+					addedListeners = true;
+				} catch (Exception ex) {
+					log.error("Exception encountered when loading default plugins. Halting loading bot", ex);
+					return;
+				}
 			}
-			addedListeners = true;
 		}
 
 		//Some debug
