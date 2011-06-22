@@ -83,7 +83,7 @@ import org.slf4j.LoggerFactory;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
-@EqualsAndHashCode(exclude={"bots"})
+@EqualsAndHashCode(exclude = {"bots"})
 @Slf4j
 public class Controller {
 	protected final DataStore storage;
@@ -102,7 +102,7 @@ public class Controller {
 	protected static final ExecutorService globalPool = Executors.newCachedThreadPool(/*new ThreadFactory() {
 			public int count = 0;
 			public ThreadGroup threadGroup = new ThreadGroup("mainPool");
-
+			
 			@Override
 			public Thread newThread(Runnable r) {
 			System.out.println("New thread for runnable "+r.toString());
@@ -129,7 +129,8 @@ public class Controller {
 	private String version = "";
 	private String finger = "";
 	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
-	@Setter(AccessLevel.NONE) @Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)
 	protected boolean createGui = true;
 	protected int defaultPort = 6667;
 	protected String defaultName = "QuackbotUser";
@@ -143,13 +144,13 @@ public class Controller {
 	 */
 	public Controller(DataStore storage) {
 		this.storage = storage;
-		
+
 		//Setup logger
 		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
 		rootLog.getLoggerContext().reset();
 		rootLog.setLevel(Level.ALL);
 		rootLog.detachAndStopAllAppenders();
-		rootLog.addAppender(appender = new ControlAppender(this,rootLog.getLoggerContext()));
+		rootLog.addAppender(appender = new ControlAppender(this, rootLog.getLoggerContext()));
 
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -175,7 +176,7 @@ public class Controller {
 					log.error("Controller cannot be started from EDT. Please start from seperate thread");
 					return;
 				}
-				
+
 				gui = new GUI(this);
 			} catch (Exception e) {
 				log.error("Unkown error occured in GUI initialzation", e);
@@ -195,8 +196,8 @@ public class Controller {
 
 		//Load current CMD classes
 		reloadPlugins();
-		
-		if(true)
+
+		if (true)
 			return;
 
 		//Connect to all servers
@@ -247,7 +248,7 @@ public class Controller {
 	public void addServer(String address, String... channels) {
 		addServer(address, getDefaultPort(), channels);
 	}
-	
+
 	/**
 	 * Creates a new server, adds to database, and connects
 	 * @param address  Address of server
@@ -277,7 +278,7 @@ public class Controller {
 			log.error("Can't remove server", e);
 		}
 	}
-	
+
 	/**
 	 * Gets all servers, regardless if they are connected or not
 	 */
@@ -380,28 +381,28 @@ public class Controller {
 	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
-		for(AdminStore curAdmin : storage.getAllAdmins()) {
+		for (AdminStore curAdmin : storage.getAllAdmins()) {
 			//Is this even the right user?
-			if(!curAdmin.getName().equalsIgnoreCase(user.getNick()))
+			if (!curAdmin.getName().equalsIgnoreCase(user.getNick()))
 				continue;
-			
+
 			//Got our user; are they an admin on this server?
-			if(curAdmin.getServers().contains(bot.getServerStore()))
+			if (curAdmin.getServers().contains(bot.getServerStore()))
 				return true;
-			
+
 			//Are they an admin on the channel?
-			for(ChannelStore curChan : curAdmin.getChannels())
-				if(curChan.getName().equalsIgnoreCase(chan.getName()))
+			for (ChannelStore curChan : curAdmin.getChannels())
+				if (curChan.getName().equalsIgnoreCase(chan.getName()))
 					return true;
-			
+
 			//They aren't an admin, end
 			break;
 		}
-		
+
 		//Loop failed, they aren't an admin
 		return false;
 	}
-	
+
 	/**
 	 * Register a custom plugin type with Quackbot, associating with the specified extention
 	 * @param ext     Exentsion to associate Command Type with
@@ -420,15 +421,15 @@ public class Controller {
 		for (String curExt : exts)
 			getPluginLoaders().put(curExt, loader);
 	}
-	
+
 	public boolean addPrefix(String prefix) {
 		return prefixes.add(prefix);
 	}
-	
+
 	public boolean removePrefix(String prefix) {
 		return prefixes.add(prefix);
 	}
-	
+
 	/**
 	 * @return the version
 	 */
@@ -448,15 +449,15 @@ public class Controller {
 			output = finger + " - ";
 		return output + suffix;
 	}
-	
+
 	public void createGui(boolean createGui) {
 		this.createGui = createGui;
 	}
-	
+
 	public boolean isGuiCreated() {
 		return createGui;
 	}
-	
+
 	public static ExecutorService getGlobalPool() {
 		return globalPool;
 	}
