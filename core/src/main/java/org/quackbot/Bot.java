@@ -63,10 +63,7 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 * Says weather bot is globally locked or not
 	 */
 	protected boolean botLocked = false;
-	/**
-	 * Current Server database object
-	 */
-	protected final ServerStore serverStore;
+	protected final int serverId;
 	/**
 	 * Local threadpool
 	 */
@@ -85,8 +82,8 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(Controller controller, final ServerStore serverStore, ExecutorService threadPool) {
-		this.serverStore = serverStore;
+	public Bot(Controller controller, int serverId, ExecutorService threadPool) {
+		this.serverId = serverId;
 		this.threadPool = threadPool;
 		poolLocal.set(this);
 		this.controller = controller;
@@ -112,16 +109,17 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 		}
 
 		//Some debug
-		StringBuilder serverDebug = new StringBuilder("Attempting to connect to " + this.serverStore.getAddress() + " on port " + this.serverStore.getPort());
-		if (this.serverStore.getPassword() != null)
-			serverDebug.append(this.serverStore.getPassword());
+		ServerStore serverStore = getServerStore();
+		StringBuilder serverDebug = new StringBuilder("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
+		if (serverStore.getPassword() != null)
+			serverDebug.append(serverStore.getPassword());
 		log.info(serverDebug.toString());
 		try {
 			//Connect to server and join all channels (fetched from db)
-			if (this.serverStore.getPassword() != null)
-				connect(this.serverStore.getAddress(), this.serverStore.getPort(), this.serverStore.getPassword());
+			if (serverStore.getPassword() != null)
+				connect(serverStore.getAddress(), serverStore.getPort(), serverStore.getPassword());
 			else
-				connect(this.serverStore.getAddress(), this.serverStore.getPort());
+				connect(serverStore.getAddress(), serverStore.getPort());
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
 		}
@@ -214,6 +212,13 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	@Override
 	public int compareTo(Bot bot) {
 		return uniqueId.compareTo(bot.getUniqueId());
+	}
+	
+	public ServerStore getServerStore() {
+		for(ServerStore curServer : controller.getStorage().getServers())
+			if(curServer.getServerId().equals(serverId))
+				return curServer;
+		throw new RuntimeException("Can't find server store of current bot ( " + getServer() + " ) with server id " + serverId);
 	}
 
 	/**
