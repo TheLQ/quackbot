@@ -21,7 +21,6 @@ package org.quackbot.hooks.core;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
@@ -31,12 +30,10 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Bot;
 import org.quackbot.Command;
-import org.quackbot.data.ChannelStore;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
 import org.quackbot.hooks.Hook;
-import org.quackbot.hooks.HookManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,7 +167,7 @@ public class CoreQuackbotHook extends Hook {
 		//Parse message to get cmd and args
 		String[] args = getArgs(message);
 
-		Command command = HookManager.getCommand(userCommand);
+		Command command = getController().getHookManager().getCommand(userCommand);
 		//Is this a valid command?
 		if (command == null || !command.isEnabled())
 			throw new InvalidCMDException(userCommand);

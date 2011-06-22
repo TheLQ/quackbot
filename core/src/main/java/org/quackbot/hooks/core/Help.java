@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.quackbot.Command;
 import org.quackbot.err.InvalidCMDException;
-import org.quackbot.hooks.HookManager;
 
 /**
  * Core plugin that provides help for a command
@@ -40,7 +39,7 @@ public class Help extends Command {
 			List<String> cmdList = new ArrayList<String>();
 
 			//Add Java Plugins
-			for (Command curCmd : HookManager.getCommands())
+			for (Command curCmd : getController().getHookManager().getCommands())
 				if (curCmd.isEnabled() && !curCmd.isAdmin())
 					cmdList.add(curCmd.getName());
 
@@ -49,7 +48,7 @@ public class Help extends Command {
 		}
 	
 		//Command specified, get specific help
-		Command result = HookManager.getCommand(command);
+		Command result = getController().getHookManager().getCommand(command);
 		if (result == null)
 			throw new InvalidCMDException(command);
 		else if (!result.isEnabled())
