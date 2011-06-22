@@ -28,6 +28,17 @@
 			<artifactId>hibernate-core</artifactId>
 			<version>3.6.5.Final</version>
 		</dependency>
+		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.12.1.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.16</version>
+			<scope>test</test>
+		</dependency>
 	</dependencies>
 
 	<repositories>
