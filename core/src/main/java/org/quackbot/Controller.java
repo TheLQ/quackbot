@@ -20,7 +20,7 @@ package org.quackbot;
 
 import java.util.Set;
 import org.quackbot.gui.GUI;
-import org.quackbot.hook.HookManager;
+import org.quackbot.hooks.HookManager;
 import org.quackbot.data.AdminStore;
 import org.quackbot.data.ChannelStore;
 import org.quackbot.data.ServerStore;
@@ -47,7 +47,7 @@ import org.quackbot.events.InitEvent;
 import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
-import org.quackbot.hook.Hook;
+import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.JSHookLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

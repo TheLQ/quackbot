@@ -32,8 +32,8 @@ import org.pircbotx.User;
 import org.quackbot.Command;
 import org.quackbot.HookLoader;
 import org.quackbot.err.QuackbotException;
-import org.quackbot.hook.Hook;
-import org.quackbot.hook.HookManager;
+import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.HookManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

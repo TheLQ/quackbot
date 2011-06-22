@@ -21,7 +21,7 @@ package org.quackbot;
 import org.quackbot.hooks.core.CoreQuackbotHook;
 import java.util.Set;
 import org.pircbotx.hooks.Listener;
-import org.quackbot.hook.Hook;
+import org.quackbot.hooks.Hook;
 import org.quackbot.data.ServerStore;
 import java.util.ArrayList;
 import java.util.HashMap;

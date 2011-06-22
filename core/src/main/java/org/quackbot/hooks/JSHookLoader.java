@@ -29,7 +29,7 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Command;
 import org.quackbot.HookLoader;
-import org.quackbot.hook.Hook;
+import org.quackbot.hooks.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

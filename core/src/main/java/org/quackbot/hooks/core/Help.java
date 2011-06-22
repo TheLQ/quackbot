@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.quackbot.Command;
 import org.quackbot.err.InvalidCMDException;
-import org.quackbot.hook.HookManager;
+import org.quackbot.hooks.HookManager;
 
 /**
  * Core plugin that provides help for a command

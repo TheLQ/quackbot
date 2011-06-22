@@ -25,7 +25,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Controller;
 import org.quackbot.HookLoader;
-import org.quackbot.hook.Hook;
+import org.quackbot.hooks.Hook;
 
 /**
  * Created when a plugin is loaded. Contains either the loaded plugin or the
