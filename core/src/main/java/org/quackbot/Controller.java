@@ -28,6 +28,7 @@ import ch.qos.logback.classic.Level;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -90,7 +91,7 @@ public class Controller {
 	/**
 	 * Set of all Bot instances
 	 */
-	protected TreeMap<String, Bot> bots = new TreeMap<String, Bot>();
+	protected HashSet<Bot> bots = new HashSet<Bot>();
 	/**
 	 * Number of Commands executed, used by logging
 	 */
@@ -223,9 +224,9 @@ public class Controller {
 			public void run() {
 				try {
 					log.info("Initiating IRC connection to server " + curServer);
-					Bot qb = new Bot(Controller.this, curServer, threadPool);
-					qb.setVerbose(true);
-					bots.put(curServer.getAddress(), qb);
+					Bot bot = new Bot(Controller.this, curServer, threadPool);
+					bot.setVerbose(true);
+					bots.add(bot);
 				} catch (Exception ex) {
 					log.error("Can't make bot connect to server", ex);
 				}
@@ -237,7 +238,7 @@ public class Controller {
 	 * Makes all bots quit servers
 	 */
 	public void stopAll() {
-		for (Bot curBot : bots.values()) {
+		for (Bot curBot : bots) {
 			curBot.quitServer("Killed by control panel");
 			curBot.dispose();
 		}
@@ -291,7 +292,7 @@ public class Controller {
 	 * @param msg   Message to send
 	 */
 	public void sendGlobalMessage(String msg) {
-		for (Bot curBot : bots.values())
+		for (Bot curBot : bots)
 			curBot.sendAllMessage(msg);
 	}
 
