@@ -259,7 +259,28 @@ public class Controller {
 	 * @param curServer
 	 */
 	public void initBot(final ServerStore curServer) {
-		final ExecutorService threadPool = newBotPool(curServer.getAddress());
+		//Build a thread pool for the bot
+		final ExecutorService threadPool = Executors.newCachedThreadPool(new ThreadFactory() {
+			int threadCounter = 0;
+			List<String> usedNames = new ArrayList<String>();
+			ThreadGroup threadGroup;
+
+			@Override
+			public Thread newThread(Runnable rbl) {
+				String address = curServer.getAddress();
+				String goodAddress = address;
+
+				int counter = 0;
+				while (usedNames.contains(goodAddress))
+					goodAddress = address + "-" + (counter++);
+
+				if (threadGroup == null)
+					threadGroup = new ThreadGroup("quackbot-" + goodAddress);
+				return new Thread(threadGroup, rbl, "quackbot-" + goodAddress + "-" + threadCounter++);
+			}
+		});
+		
+		//Execute bot in its thread Pool
 		threadPool.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -335,32 +356,6 @@ public class Controller {
 	 */
 	public synchronized int addCommandNumber() {
 		return ++commandNumber;
-	}
-
-	/**
-	 * Generates a ThreadPool for {@link Bot}
-	 * @param address
-	 * @return Fully configured ThreadPool
-	 */
-	public ExecutorService newBotPool(final String address) {
-		return Executors.newCachedThreadPool(new ThreadFactory() {
-			int threadCounter = 0;
-			List<String> usedNames = new ArrayList<String>();
-			ThreadGroup threadGroup;
-
-			@Override
-			public Thread newThread(Runnable rbl) {
-				String goodAddress = address;
-
-				int counter = 0;
-				while (usedNames.contains(goodAddress))
-					goodAddress = address + "-" + (counter++);
-
-				if (threadGroup == null)
-					threadGroup = new ThreadGroup("quackbot-" + goodAddress);
-				return new Thread(threadGroup, rbl, "quackbot-" + goodAddress + "-" + threadCounter++);
-			}
-		});
 	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
