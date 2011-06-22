@@ -117,7 +117,7 @@ public class CoreQuackbotHook extends Hook {
 		}
 	}
 	
-	public Command getCommand(String message, String userCommand, Channel chan, User user) throws Exception {
+	public Command getCommand(String message, String userCommand, Channel chan, User user) throws InvalidCMDException, AdminException, NumArgException {
 		//Parse message to get cmd and args
 		String[] args = getArgs(message);
 
