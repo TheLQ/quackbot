@@ -118,7 +118,7 @@ public class Controller {
 	protected ControlAppender appender;
 	protected GUI gui;
 	@Getter
-	protected static HookManager hookManager = new HookManager();
+	protected HookManager hookManager = new HookManager();
 	/**
 	 * Global Prefixes.
 	 */
