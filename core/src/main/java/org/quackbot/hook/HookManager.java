@@ -22,7 +22,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import lombok.Synchronized;
+import lombok.extern.slf4j.Slf4j;
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
+import org.pircbotx.hooks.Listener;
+import org.pircbotx.hooks.managers.ListenerManager;
 import org.quackbot.Bot;
 import org.quackbot.Command;
 import org.quackbot.Controller;
@@ -59,17 +64,14 @@ import org.slf4j.LoggerFactory;
  * mentioned map and various methods for executing tasks.
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class HookManager {
 	/**
 	 * String - Name of Hook Method
 	 * ArrayList - All Hooks for that method
 	 *		BaseHook - Hook
 	 */
-	private static final Set<Hook> hooks = Collections.synchronizedSet(new HashSet());
-	/**
-	 * TODO
-	 */
-	private static Logger log = LoggerFactory.getLogger(HookManager.class);
+	private final Set<Hook> hooks = Collections.synchronizedSet(new HashSet());
 
 	/**
 	 * This class is a Singleton and should not be initialized
@@ -77,16 +79,16 @@ public class HookManager {
 	private HookManager() {
 	}
 
-	public static boolean addHook(Hook hook) throws InvalidHookException {
+	public boolean addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
 		Hook potentialHook = null;
-		if((potentialHook = getHook(hook.getName())) != null)
+		if ((potentialHook = getHook(hook.getName())) != null)
 			//Whoa, this name has already been used before
 			throw new InvalidHookException("Hook " + hook.getClass() + " uses the same name as " + potentialHook.getClass());
 		return hooks.add(hook);
 	}
 
-	public static boolean removeHook(String hookName) {
+	public boolean removeHook(String hookName) {
 		log.debug("Removing hook " + hookName);
 		boolean removed = false;
 		synchronized (hooks) {
@@ -102,86 +104,118 @@ public class HookManager {
 		return removed;
 	}
 
-	public static boolean removeHook(Hook hook) {
+	public boolean removeHook(Hook hook) {
 		log.debug("Removing command " + hook.getName());
 		return hooks.remove(hook);
 	}
 
-	public static Set<Hook> getHooks() {
+	public Set<Hook> getHooks() {
 		return Collections.unmodifiableSet(hooks);
 	}
-	
-	public static Hook getHook(String hookName) {
-		synchronized(hooks) {
-			for(Hook curHook : hooks) {
-				if(curHook.getName().equalsIgnoreCase(hookName))
+
+	public Hook getHook(String hookName) {
+		synchronized (hooks) {
+			for (Hook curHook : hooks)
+				if (curHook.getName().equalsIgnoreCase(hookName))
 					return curHook;
-			}
 		}
 		return null;
 	}
 
-	public static boolean hookExists(Hook hook) {
+	public boolean hookExists(Hook hook) {
 		return hooks.contains(hook);
 	}
-	
-	public static boolean hookExists(String hookName) {
+
+	public boolean hookExists(String hookName) {
 		//If we get a hook back, then it exists
 		return getHook(hookName) != null;
 	}
 
-	public static void dispatchEvent(final Event<Bot> event) {
-		synchronized(hooks) {
-			for (final Hook curHook : hooks) {
-				//Make a runnable that can be passed to any thread pool
-				Runnable run = new Runnable() {
-					public void run() {
-						try {
-							curHook.onEvent(event);
-						} catch (Exception ex) {
-							LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
-						}
+	@Synchronized("hooks")
+	public void dispatchEvent(final Event<Bot> event) {
+		for (final Hook curHook : hooks) {
+			//Make a runnable that can be passed to any thread pool
+			Runnable run = new Runnable() {
+				public void run() {
+					try {
+						curHook.onEvent(event);
+					} catch (Throwable ex) {
+						LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
 					}
-				};
+				}
+			};
 
-				//Dispatch to appropiate thread pool
-				if (event.getBot() != null)
-					//Use bot's thread pool
-					event.getBot().getThreadPool().execute(run);
-				else
-					//No bot, use global thread pool
-					Controller.getGlobalPool().submit(run);
-			}
+			//Dispatch to appropiate thread pool
+			if (event.getBot() != null)
+				//Use bot's thread pool
+				event.getBot().getThreadPool().execute(run);
+			else
+				//No bot, use global thread pool
+				Controller.getGlobalPool().submit(run);
 		}
 	}
-	
+
 	/**
 	 * Get all stored Commands, sifting out the plain Hooks
 	 * @return An Unmodifiable set of Commands. An empty set means there are
 	 *         no commands.
 	 */
-	public static Set<Command> getCommands() {
+	@Synchronized("hooks")
+	public Set<Command> getCommands() {
 		//Get all Commands from Hook list
 		Set<Command> commands = new HashSet<Command>();
-		synchronized(hooks) {
-			for(Hook curHook : hooks)
-				if(curHook instanceof Command)
-					commands.add((Command)curHook);
-		}
+		for (Hook curHook : hooks)
+			if (curHook instanceof Command)
+				commands.add((Command) curHook);
 		return Collections.unmodifiableSet(commands);
 	}
-	
+
 	/**
 	 * Gets a command by name
 	 * @param command A command name
 	 * @return The command object, or null if it doesn't exist
 	 */
-	public static Command getCommand(String command) {
-		synchronized(hooks) {
-			for(Hook curHook : hooks)
-				if(curHook instanceof Command && curHook.getName().equalsIgnoreCase(command))
-					return (Command)curHook;
-		}
+	@Synchronized("hooks")
+	public Command getCommand(String command) {
+		for (Hook curHook : hooks)
+			if (curHook instanceof Command && curHook.getName().equalsIgnoreCase(command))
+				return (Command) curHook;
 		return null;
+	}
+
+	public class QbListenerManager implements ListenerManager<Bot> {
+		public boolean addListener(Listener listener) {
+			return addHook(new Hook(listener) {
+			});
+		}
+
+		public boolean removeListener(Listener listener) {
+			synchronized (hooks) {
+				for (Iterator<Hook> hookItr = hooks.iterator(); hookItr.hasNext();)
+					if (hookItr.next().getListener() == listener) {
+						hookItr.remove();
+						return true;
+					}
+			}
+			return false;
+		}
+
+		public boolean listenerExists(Listener listener) {
+			synchronized (hooks) {
+				for (Hook curHook : hooks)
+					if (curHook.getListener() == listener) {
+						return true;
+					}
+			}
+			return false;
+		}
+
+		public Set<Listener> getListeners() {
+			return Collections.unmodifiableSet(new HashSet(hooks));
+		}
+
+		public void dispatchEvent(Event<Bot> event) {
+			HookManager.this.dispatchEvent(event);
+		}
 	}
 }
