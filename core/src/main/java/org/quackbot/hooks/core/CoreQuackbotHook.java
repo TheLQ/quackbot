@@ -185,4 +185,4 @@ public class CoreQuackbotHook extends Hook {
 			args = new String[0];
 		return args;
 	}
-
+}
