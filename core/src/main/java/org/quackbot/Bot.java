@@ -72,7 +72,6 @@ public class Bot extends PircBotX {
 	 * Stores variable local to this thread group
 	 */
 	protected final static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
-	protected final UUID uniqueId = UUID.randomUUID();
 	protected final Controller controller;
 	protected final Set<User> lockedUsers = new HashSet();
 	protected final Set<Channel> lockedChannels = new HashSet();
