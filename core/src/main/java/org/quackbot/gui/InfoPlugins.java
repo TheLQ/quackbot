@@ -146,24 +146,5 @@ public class InfoPlugins extends JScrollPane {
 				pluginTableModel.setRowCount(0);
 			}
 		});
-		
-		//Inefficent but only way to check if value has changed
-		/**new Thread(new Runnable() {
-		public void run() {
-		while (true) {
-		for (int i = 0; i < pluginTableModel.getRowCount(); i++) {
-		Boolean isIgnored = Controller.instance.findCommand(pluginTableModel.getValueAt(i, 0).toString()).isIgnore();
-		if (isIgnored == ((Boolean) pluginTableModel.getValueAt(i, 1)))
-		pluginTableModel.setValueAt(isIgnored, i, 1);
-		}
-		try {
-		Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		log.warn("Wait to update plugin list interupted");
-		return;
-		}
-		}
-		}
-		}).start();**/
 	}
 }
