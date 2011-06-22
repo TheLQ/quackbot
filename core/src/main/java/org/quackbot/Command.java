@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.err.QuackbotException;
@@ -51,11 +52,6 @@ public abstract class Command extends Hook {
 	private int optionalParams = 0;
 	@Getter
 	private boolean setup;
-	/**
-	 * General logger available to all subclasses. This is provided as convenience
-	 * as almost all subclasses should be using a log
-	 */
-	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	public Command() {
 		super();
