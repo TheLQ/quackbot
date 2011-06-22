@@ -34,6 +34,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.Channel;
 import org.slf4j.Logger;
 import org.pircbotx.PircBotX;
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Slf4j
 public class Bot extends PircBotX implements Comparable<Bot> {
 	/**
 	 * Says weather bot is globally locked or not
@@ -73,9 +75,6 @@ public class Bot extends PircBotX implements Comparable<Bot> {
 	 * Stores variable local to this thread group
 	 */
 	protected final static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
-	@Getter(AccessLevel.NONE)
-	@Setter(AccessLevel.NONE)
-	private static final Logger log = LoggerFactory.getLogger(Bot.class);
 	protected final UUID uniqueId = UUID.randomUUID();
 	protected final Controller controller;
 	protected final Set<User> lockedUsers = new HashSet();
