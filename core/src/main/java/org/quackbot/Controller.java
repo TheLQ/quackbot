@@ -27,6 +27,7 @@ import org.quackbot.data.ServerStore;
 import ch.qos.logback.classic.Level;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -112,26 +113,36 @@ public class Controller {
 			}
 			}*/);
 	/**
-	 * The full configuration avaliable to us
-	 */
-	protected QuackbotConfig config;
-	/**
 	 * The Logger
 	 */
 	protected ControlAppender appender;
 	protected GUI gui;
 	@Getter
 	protected static HookManager hookManager = new HookManager();
+	/**
+	 * Global Prefixes.
+	 */
+	@Setter(AccessLevel.NONE)
+	protected List<String> prefixes = Collections.synchronizedList(new ArrayList<String>());
+	/**
+	 * All registered plugin types
+	 */
+	private TreeMap<String, HookLoader> pluginLoaders = new TreeMap<String, HookLoader>();
+	private String version = "";
+	private String finger = "";
+	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
+	@Setter(AccessLevel.NONE) @Getter(AccessLevel.NONE)
+	protected boolean createGui = true;
+	protected int defaultPort = 6667;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
-	public Controller(QuackbotConfig config) {
-		this.config = config;
-		this.storage = config.getStorage();
-
+	public Controller(DataStore storage) {
+		this.storage = storage;
+		
 		//Setup logger
 		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
 		rootLog.getLoggerContext().reset();
@@ -148,7 +159,7 @@ public class Controller {
 
 				Controller.this.stopAll();
 				try {
-					Controller.this.getConfig().getStorage().close();
+					Controller.this.getStorage().close();
 				} catch (Exception e) {
 					e.printStackTrace(); //send to standard output because window is closing
 				}
@@ -156,7 +167,7 @@ public class Controller {
 		});
 
 		//Do we need to make a GUI?
-		if (config.isStartGui())
+		if (isGuiCreated())
 			try {
 				//This can't run in EDT, end if it is
 				if (SwingUtilities.isEventDispatchThread()) {
@@ -170,7 +181,7 @@ public class Controller {
 			}
 
 		//Setup default Plugin Loaders
-		config.addPluginLoader(new JSHookLoader(), "js");
+		addPluginLoader(new JSHookLoader(), "js");
 	}
 
 	/**
@@ -189,7 +200,7 @@ public class Controller {
 
 		//Connect to all servers
 		try {
-			Set<ServerStore> servers = config.getStorage().getServers();
+			Set<ServerStore> servers = storage.getServers();
 			if (servers.isEmpty())
 				log.error("Server list is empty!");
 			for (ServerStore curServer : servers)
@@ -233,7 +244,7 @@ public class Controller {
 	}
 
 	public void addServer(String address, String... channels) {
-		addServer(address, config.getDefaultPort(), channels);
+		addServer(address, getDefaultPort(), channels);
 	}
 	
 	/**
@@ -243,10 +254,10 @@ public class Controller {
 	 * @param channels Vararg of channels to join
 	 */
 	public void addServer(String address, int port, String... channels) {
-		ServerStore server = config.getStorage().newServerStore(address);
+		ServerStore server = getStorage().newServerStore(address);
 		server.setPort(port);
 		for (String curChan : channels)
-			server.addChannel(config.getStorage().newChannelStore(address));
+			server.addChannel(getStorage().newChannelStore(address));
 		initBot(server);
 	}
 
@@ -258,7 +269,7 @@ public class Controller {
 	 */
 	public void removeServer(String address) {
 		try {
-			for (ServerStore curServ : config.getStorage().getServers())
+			for (ServerStore curServ : storage.getServers())
 				if (curServ.getAddress().equals(address))
 					curServ.delete();
 		} catch (Exception e) {
@@ -270,7 +281,7 @@ public class Controller {
 	 * Gets all servers, regardless if they are connected or not
 	 */
 	public Set<ServerStore> getServers() {
-		return config.getStorage().getServers();
+		return storage.getServers();
 	}
 
 	/**
@@ -324,7 +335,7 @@ public class Controller {
 			String ext = extArr[1];
 
 			//Load with pluginType
-			loader = config.getPluginLoaders().get(ext);
+			loader = getPluginLoaders().get(ext);
 			if (loader != null)
 				hook = loader.load(file);
 			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
@@ -368,7 +379,7 @@ public class Controller {
 	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
-		for(AdminStore curAdmin : config.getStorage().getAllAdmins()) {
+		for(AdminStore curAdmin : storage.getAllAdmins()) {
 			//Is this even the right user?
 			if(!curAdmin.getName().equalsIgnoreCase(user.getNick()))
 				continue;
@@ -388,6 +399,61 @@ public class Controller {
 		
 		//Loop failed, they aren't an admin
 		return false;
+	}
+	
+	/**
+	 * Register a custom plugin type with Quackbot, associating with the specified extention
+	 * @param ext     Exentsion to associate Command Type with
+	 * @param newType Class of Command Type
+	 */
+	public void addPluginLoader(HookLoader loader, String ext) {
+		addPluginLoader(loader, new String[]{ext});
+	}
+
+	/**
+	 * Register a custom plugin type with Quackbot, associating with the specified extentions
+	 * @param exts     Extention to associate Command Type with
+	 * @param newType Class of Command Type
+	 */
+	public void addPluginLoader(HookLoader loader, String[] exts) {
+		for (String curExt : exts)
+			getPluginLoaders().put(curExt, loader);
+	}
+	
+	public boolean addPrefix(String prefix) {
+		return prefixes.add(prefix);
+	}
+	
+	public boolean removePrefix(String prefix) {
+		return prefixes.add(prefix);
+	}
+	
+	/**
+	 * @return the version
+	 */
+	public String getVersion() {
+		String output = "";
+		if (StringUtils.isNotBlank(version))
+			output = version + " - ";
+		return output + suffix;
+	}
+
+	/**
+	 * @return the finger
+	 */
+	public String getFinger() {
+		String output = "";
+		if (StringUtils.isNotBlank(finger))
+			output = finger + " - ";
+		return output + suffix;
+	}
+	
+	public void createGui(boolean createGui) {
+		this.createGui = createGui;
+	}
+	
+	public boolean isGuiCreated() {
+		return createGui;
 	}
 	
 	public static ExecutorService getGlobalPool() {
