@@ -36,6 +36,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
+import org.quackbot.data.ChannelStore;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.quackbot.hooks.core.AdminHelp;
 import org.quackbot.hooks.core.Help;
@@ -108,7 +109,7 @@ public class Bot extends PircBotX {
 		if (serverStore.getPassword() != null)
 			log.info("Using password " + serverStore.getPassword() + " to connect");
 
-		//Connect to server and join all channels (fetched from db)
+		//Connect to server. Channels are handled by onConnect listener in CoreQuackbotHook
 		try {
 			if (serverStore.getPassword() != null)
 				connect(serverStore.getAddress(), serverStore.getPort(), serverStore.getPassword());
