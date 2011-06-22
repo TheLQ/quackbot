@@ -177,7 +177,7 @@ public class Controller {
 	}
 
 	/**
-	 * Executues Quackbot. Loads commands, starts service commands, connects to servers.
+	 * Executes Quackbot. Loads commands, starts service commands, connects to servers.
 	 * If this isn't called, then the bot does nothing
 	 */
 	public void start() {
@@ -199,6 +199,58 @@ public class Controller {
 				initBot(curServer);
 		} catch (Exception e) {
 			log.error("Error encountered while attempting to join servers", e);
+		}
+	}
+
+	/**
+	 * Reloads all commands, clearing list only if requested
+	 * @param clean Clear list of commands?
+	 */
+	public void reloadPlugins() {
+		getHookManager().dispatchEvent(new HookLoadStartEvent(this));
+
+		try {
+			//Load all permanent commands
+			reloadPlugins(new File("plugins"));
+			getHookManager().dispatchEvent(new HookLoadEndEvent(this));
+		} catch (Exception e) {
+			log.error("Error in plugin loading!!!", e);
+		}
+	}
+
+	/**
+	 * Recursively load commands from current file. Use
+	 * @param file
+	 */
+	protected void reloadPlugins(File file) {
+		String[] extArr = null;
+		HookLoader loader = null;
+		Hook hook = null;
+		//Load using appropiate type
+		try {
+			if (file.isDirectory()) {
+				final File[] childs = file.listFiles();
+				for (File child : childs)
+					reloadPlugins(child);
+				return;
+			} //Is this in the .svn directory?
+			else if (file.getAbsolutePath().indexOf(".svn") != -1)
+				return;
+
+			//Get extension of file
+			extArr = StringUtils.split(file.getName(), '.');
+			if (extArr.length < 2)
+				return;
+			String ext = extArr[1];
+
+			//Load with pluginType
+			loader = getPluginLoaders().get(ext);
+			if (loader != null)
+				hook = loader.load(file);
+			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
+		} catch (Exception e) {
+			log.error("Could not load plugin " + extArr[0], e);
+			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, e));
 		}
 	}
 
@@ -276,58 +328,6 @@ public class Controller {
 	public void sendGlobalMessage(String msg) {
 		for (Bot curBot : bots)
 			curBot.sendAllMessage(msg);
-	}
-
-	/**
-	 * Reloads all commands, clearing list only if requested
-	 * @param clean Clear list of commands?
-	 */
-	public void reloadPlugins() {
-		getHookManager().dispatchEvent(new HookLoadStartEvent(this));
-
-		try {
-			//Load all permanent commands
-			reloadPlugins(new File("plugins"));
-			getHookManager().dispatchEvent(new HookLoadEndEvent(this));
-		} catch (Exception e) {
-			log.error("Error in plugin loading!!!", e);
-		}
-	}
-
-	/**
-	 * Recusrivly load commands from current file. Use
-	 * @param file
-	 */
-	protected void reloadPlugins(File file) {
-		String[] extArr = null;
-		HookLoader loader = null;
-		Hook hook = null;
-		//Load using appropiate type
-		try {
-			if (file.isDirectory()) {
-				final File[] childs = file.listFiles();
-				for (File child : childs)
-					reloadPlugins(child);
-				return;
-			} //Is this in the .svn directory?
-			else if (file.getAbsolutePath().indexOf(".svn") != -1)
-				return;
-
-			//Get extension of file
-			extArr = StringUtils.split(file.getName(), '.');
-			if (extArr.length < 2)
-				return;
-			String ext = extArr[1];
-
-			//Load with pluginType
-			loader = getPluginLoaders().get(ext);
-			if (loader != null)
-				hook = loader.load(file);
-			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
-		} catch (Exception e) {
-			log.error("Could not load plugin " + extArr[0], e);
-			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, e));
-		}
 	}
 
 	/**
