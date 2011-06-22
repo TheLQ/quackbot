@@ -22,17 +22,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
-import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
-import org.pircbotx.hooks.Listener;
-import org.pircbotx.hooks.managers.ListenerManager;
 import org.quackbot.Bot;
 import org.quackbot.Command;
-import org.quackbot.Controller;
 import org.quackbot.err.InvalidHookException;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -72,6 +70,16 @@ public class HookManager {
 	 *		BaseHook - Hook
 	 */
 	private final Set<Hook> hooks = Collections.synchronizedSet(new HashSet());
+	protected static final ExecutorService globalPool = Executors.newCachedThreadPool(new ThreadFactory() {
+		public int count = 0;
+		public ThreadGroup threadGroup = new ThreadGroup("mainPool");
+
+		@Override
+		public Thread newThread(Runnable r) {
+			System.out.println("New thread for runnable " + r.toString());
+			return new Thread(threadGroup, "mainPool-" + (++count));
+		}
+	});
 
 	public boolean addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
@@ -81,7 +89,7 @@ public class HookManager {
 			throw new InvalidHookException("Hook " + hook.getClass() + " uses the same name as " + potentialHook.getClass());
 		return hooks.add(hook);
 	}
-	
+
 	public boolean addHookOnce(Hook hook) {
 		log.debug("Adding hook " + hook.getName() + " once");
 		if (getHook(hook.getName()) == null)
@@ -152,7 +160,7 @@ public class HookManager {
 				event.getBot().getThreadPool().execute(run);
 			else
 				//No bot, use global thread pool
-				Controller.getGlobalPool().submit(run);
+				globalPool.submit(run);
 		}
 	}
 

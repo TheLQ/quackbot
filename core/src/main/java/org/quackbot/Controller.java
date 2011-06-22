@@ -99,19 +99,6 @@ public class Controller {
 	@Setter(AccessLevel.NONE)
 	protected int commandNumber = 0;
 	/**
-	 * ThreadPool that all non-bot threads are executed in
-	 */
-	protected static final ExecutorService globalPool = Executors.newCachedThreadPool(/*new ThreadFactory() {
-			public int count = 0;
-			public ThreadGroup threadGroup = new ThreadGroup("mainPool");
-			
-			@Override
-			public Thread newThread(Runnable r) {
-			System.out.println("New thread for runnable "+r.toString());
-			return new Thread(threadGroup, "mainPool-" + (++count));
-			}
-			}*/);
-	/**
 	 * The Logger
 	 */
 	protected ControlAppender appender;
@@ -458,9 +445,5 @@ public class Controller {
 
 	public boolean isGuiCreated() {
 		return createGui;
-	}
-
-	public static ExecutorService getGlobalPool() {
-		return globalPool;
 	}
 }
