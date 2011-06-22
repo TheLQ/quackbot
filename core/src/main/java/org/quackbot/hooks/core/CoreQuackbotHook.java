@@ -21,6 +21,7 @@ package org.quackbot.hooks.core;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
@@ -41,9 +42,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class CoreQuackbotHook extends Hook {
-	private final Logger log = LoggerFactory.getLogger(Bot.class);
-
 	@Override
 	public void onConnect(ConnectEvent event) {
 		for (org.quackbot.data.ChannelStore curChannel : getBot().getServerStore().getChannels()) {
