@@ -61,7 +61,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	public void append(ILoggingEvent event) {
 		try {
 			String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
-			if (controller.getGui() != null) {
+			if (controller != null && controller.getGui() != null) {
 				GUI gui = controller.getGui();
 				JTextPane textPane = (Bot.getPoolLocal() != null) ? gui.BerrorLog : gui.CerrorLog;
 				JScrollPane scrollPane = (Bot.getPoolLocal() != null) ? gui.BerrorScroll : gui.CerrorScroll;
