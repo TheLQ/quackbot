@@ -137,7 +137,6 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 				messageLayout.setContext(((Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).getLoggerContext());
 				messageLayout.start();
 			}
-			System.out.println("MESSAGE LAYOUT CONTEXT AFTER: " + messageLayout.getContext());
 			for (ILoggingEvent event : chunks)
 				try {
 					boolean raceCondition = botQueue.isEmpty();
