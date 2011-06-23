@@ -18,6 +18,7 @@
  */
 package org.quackbot;
 
+import java.util.List;
 import org.quackbot.gui.GUI;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.PatternLayout;
@@ -32,7 +33,11 @@ import javax.swing.text.StyledDocument;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import java.io.PrintStream;
+import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.JScrollPane;
+import javax.swing.SwingWorker;
+import javax.swing.text.DefaultStyledDocument;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -48,6 +53,9 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	@Getter
 	@Setter
 	protected PatternLayoutEncoder encoder;
+	protected LinkedBlockingQueue<ILoggingEvent> guiQueue = new LinkedBlockingQueue<ILoggingEvent>();
+	protected LinkedList<Bot> botQueue = new LinkedList<Bot>();
+	protected WriteThread writeThread;
 
 	/**
 	 * Used by Log4j to write something from the LoggingEvent. This simply points to
@@ -57,12 +65,15 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	@Override
 	public void append(ILoggingEvent event) {
 		try {
-			String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
 			if (controller != null && controller.getGui() != null) {
-				GUI gui = controller.getGui();
-				JTextPane textPane = (Bot.getPoolLocal() != null) ? gui.BerrorLog : gui.CerrorLog;
-				JScrollPane scrollPane = (Bot.getPoolLocal() != null) ? gui.BerrorScroll : gui.CerrorScroll;
-				SwingUtilities.invokeLater(new WriteOutput(textPane, scrollPane, event, server));
+				//Make sure that there is a write thread
+				synchronized (writeThread) {
+					if (writeThread == null)
+						writeThread = new WriteThread();
+				}
+				//Push the bot and the event onto the queue, with the bot first so its not taken before its added
+				botQueue.add(Bot.getPoolLocal());
+				guiQueue.add(event);
 			} else {
 				PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
 				output.println(encoder.getLayout().doLayout(event));
@@ -72,17 +83,17 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		}
 	}
 
-	/**0
-	 * Utility for writing to output TextFields on GUI using standard format.
-	 * <p>
-	 * This should ONLY be executed in AWT Event Queue
-	 * @author Lord.Quackstar 
-	 */
-	protected class WriteOutput implements Runnable {
-		/**
-		 * Pane to write to
-		 */
-		protected JTextPane pane;
+	@Override
+	public void stop() {
+		//Make sure to kill the writeThread when finished here
+		synchronized (writeThread) {
+					if (writeThread != null)
+						writeThread.cancel(true);
+				}
+		super.stop();
+	}
+
+	protected class WriteThread extends SwingWorker<Void, ILoggingEvent> {
 		/**
 		 * StyledDocument of pane
 		 */
@@ -91,87 +102,90 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		 * Date formatter, used to get same date format
 		 */
 		protected SimpleDateFormat dateFormatter = new SimpleDateFormat("hh:mm:ss a");
-		protected ILoggingEvent event;
-		protected String address;
-		protected JScrollPane scroll;
 		protected PatternLayout messageLayout;
 
-		/**
-		 * Simple constructor to init
-		 * @param appendTo JTextPane to append to
-		 */
-		public WriteOutput(JTextPane appendTo, JScrollPane scroll, ILoggingEvent event, String address) {
-			this.pane = appendTo;
-			this.doc = appendTo.getStyledDocument();
-			this.address = address;
-			this.event = event;
-			this.scroll = scroll;
-
+		public WriteThread() {
 			messageLayout = new PatternLayout();
 			messageLayout.setContext(getContext());
 			messageLayout.setPattern("%message");
 			messageLayout.start();
 
-			//Only add styles if they don't already exist
-			if (doc.getStyle("Class") == null) {
-				doc.addStyle("Normal", null);
-				StyleConstants.setForeground(doc.addStyle("Class", null), Color.blue);
-				StyleConstants.setForeground(doc.addStyle("Error", null), Color.red);
-				//BotSend gets a better shade of orange than Color.organ gives
-				StyleConstants.setForeground(doc.addStyle("BotSend", null), new Color(255, 127, 0));
-				//BotRecv gets a better shade of green than Color.green gives
-				StyleConstants.setForeground(doc.addStyle("BotRecv", null), new Color(0, 159, 107));
-				StyleConstants.setBold(doc.addStyle("Server", null), true);
-				StyleConstants.setItalic(doc.addStyle("Thread", null), true);
-				StyleConstants.setItalic(doc.addStyle("Level", null), true);
+			//Configure the styled document
+			doc = new DefaultStyledDocument();
+			doc.addStyle("Normal", null);
+			StyleConstants.setForeground(doc.addStyle("Class", null), Color.blue);
+			StyleConstants.setForeground(doc.addStyle("Error", null), Color.red);
+			//BotSend gets a better shade of orange than Color.organ gives
+			StyleConstants.setForeground(doc.addStyle("BotSend", null), new Color(255, 127, 0));
+			//BotRecv gets a better shade of green than Color.green gives
+			StyleConstants.setForeground(doc.addStyle("BotRecv", null), new Color(0, 159, 107));
+			StyleConstants.setBold(doc.addStyle("Server", null), true);
+			StyleConstants.setItalic(doc.addStyle("Thread", null), true);
+			StyleConstants.setItalic(doc.addStyle("Level", null), true);
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			try {
+				while (true)
+					publish(guiQueue.take());
+			} catch (InterruptedException e) {
+				//Were being stopped
+				return null;
 			}
 		}
 
-		/**
-		 * Actually formats and add's the text to JTextPane in AWT Event Queue
-		 */
 		@Override
-		public void run() {
-			try {
-				//get string version
-				String message = event.getFormattedMessage().trim();
+		protected void process(List<ILoggingEvent> chunks) {
+			for (ILoggingEvent event : chunks)
+				try {
+					Bot bot = botQueue.poll();
+					GUI gui = controller.getGui();
 
-				//don't print empty strings
-				if (StringUtils.isBlank(name.trim()))
-					return;
+					//Figure out where this is going
+					String address = (bot != null) ? Bot.getPoolLocal().getServer() : "";
+					JTextPane textPane = (bot != null) ? gui.BerrorLog : gui.CerrorLog;
+					JScrollPane scrollPane = (bot != null) ? gui.BerrorScroll : gui.CerrorScroll;
 
-				Style msgStyle = null;
-				if (event.getLevel().isGreaterOrEqual(Level.WARN))
-					msgStyle = doc.getStyle("Error");
-				else if (message.startsWith("###")) {
-					msgStyle = doc.getStyle("Error");
-					message = message.substring(3);
-				} else if (message.startsWith(">>>")) {
-					msgStyle = doc.getStyle("BotSend");
-					message = message.substring(3);
-				} else if (message.startsWith("@@@")) {
-					msgStyle = doc.getStyle("BotRecv");
-					message = message.substring(3);
-				} else
-					msgStyle = doc.getStyle("Normal");
+					//Make sure the styled document is set
+					if (textPane.getStyledDocument() != doc)
+						textPane.setStyledDocument(doc);
 
-				doc.insertString(doc.getLength(), "\n", doc.getStyle("Normal"));
-				int prevLength = doc.getLength();
-				doc.insertString(doc.getLength(), "[" + dateFormatter.format(event.getTimeStamp()) + "] ", doc.getStyle("Normal")); //time
-				//doc.insertString(doc.getLength(), "["+event.getThreadName()+"] ", doc.getStyle("Thread")); //thread name
-				doc.insertString(doc.getLength(), event.getLevel().toString() + " ", doc.getStyle("Level")); //Logging level
-				doc.insertString(doc.getLength(), event.getLoggerName() + " ", doc.getStyle("Class"));
-				if (StringUtils.isNotBlank(address))
-					doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
-				doc.insertString(doc.getLength(), messageLayout.doLayout(event), msgStyle);
+					//get string version
+					String message = event.getFormattedMessage().trim();
 
-				//Only autoscroll if the scrollbar is at the bottom
-				//JScrollBar scrollBar = scroll.getVerticalScrollBar();
-				//if (scrollBar.getVisibleAmount() != scrollBar.getMaximum() && scrollBar.getValue() + scrollBar.getVisibleAmount() == scrollBar.getMaximum())
-				pane.setCaretPosition(prevLength);
-			} catch (Exception e) {
-				e.printStackTrace(); //Don't use log.error because this is how stuff is outputed
-			}
+					Style msgStyle = null;
+					if (event.getLevel().isGreaterOrEqual(Level.WARN))
+						msgStyle = doc.getStyle("Error");
+					else if (message.startsWith("###")) {
+						msgStyle = doc.getStyle("Error");
+						message = message.substring(3);
+					} else if (message.startsWith(">>>")) {
+						msgStyle = doc.getStyle("BotSend");
+						message = message.substring(3);
+					} else if (message.startsWith("@@@")) {
+						msgStyle = doc.getStyle("BotRecv");
+						message = message.substring(3);
+					} else
+						msgStyle = doc.getStyle("Normal");
+
+					doc.insertString(doc.getLength(), "\n", doc.getStyle("Normal"));
+					int prevLength = doc.getLength();
+					doc.insertString(doc.getLength(), "[" + dateFormatter.format(event.getTimeStamp()) + "] ", doc.getStyle("Normal")); //time
+					//doc.insertString(doc.getLength(), "["+event.getThreadName()+"] ", doc.getStyle("Thread")); //thread name
+					doc.insertString(doc.getLength(), event.getLevel().toString() + " ", doc.getStyle("Level")); //Logging level
+					doc.insertString(doc.getLength(), event.getLoggerName() + " ", doc.getStyle("Class"));
+					if (StringUtils.isNotBlank(address))
+						doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
+					doc.insertString(doc.getLength(), messageLayout.doLayout(event), msgStyle);
+
+					//Only autoscroll if the scrollbar is at the bottom
+					//JScrollBar scrollBar = scroll.getVerticalScrollBar();
+					//if (scrollBar.getVisibleAmount() != scrollBar.getMaximum() && scrollBar.getValue() + scrollBar.getVisibleAmount() == scrollBar.getMaximum())
+					textPane.setCaretPosition(prevLength);
+				} catch (Exception e) {
+					e.printStackTrace(); //Don't use log.error because this is how stuff is outputed
+				}
 		}
 	}
 }
