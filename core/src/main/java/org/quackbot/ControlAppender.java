@@ -117,7 +117,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		public WriteThread() {
 			messageLayout = new PatternLayout();
 			messageLayout.setContext(getContext());
-			messageLayout.setPattern("%message");
+			messageLayout.setPattern("%message%n");
 		}
 
 		@Override
