@@ -65,15 +65,15 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	@Override
 	public void append(ILoggingEvent event) {
 		try {
+			//Push the bot and the event onto the queue, with the bot first so its not taken before its added
+			botQueue.add(Bot.getPoolLocal());
+			guiQueue.add(event);
 			if (controller != null && controller.getGui() != null) {
 				//Make sure that there is a write thread
 				synchronized (writeThread) {
 					if (writeThread == null)
 						writeThread = new WriteThread();
 				}
-				//Push the bot and the event onto the queue, with the bot first so its not taken before its added
-				botQueue.add(Bot.getPoolLocal());
-				guiQueue.add(event);
 			} else {
 				PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
 				output.println(encoder.getLayout().doLayout(event));
