@@ -26,7 +26,6 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import javax.swing.JTextPane;
-import javax.swing.SwingUtilities;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -37,7 +36,6 @@ import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
-import javax.swing.text.DefaultStyledDocument;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -87,17 +85,13 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	public void stop() {
 		//Make sure to kill the writeThread when finished here
 		synchronized (writeThread) {
-					if (writeThread != null)
-						writeThread.cancel(true);
-				}
+			if (writeThread != null)
+				writeThread.cancel(true);
+		}
 		super.stop();
 	}
 
 	protected class WriteThread extends SwingWorker<Void, ILoggingEvent> {
-		/**
-		 * StyledDocument of pane
-		 */
-		protected StyledDocument doc;
 		/**
 		 * Date formatter, used to get same date format
 		 */
@@ -109,19 +103,6 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 			messageLayout.setContext(getContext());
 			messageLayout.setPattern("%message");
 			messageLayout.start();
-
-			//Configure the styled document
-			doc = new DefaultStyledDocument();
-			doc.addStyle("Normal", null);
-			StyleConstants.setForeground(doc.addStyle("Class", null), Color.blue);
-			StyleConstants.setForeground(doc.addStyle("Error", null), Color.red);
-			//BotSend gets a better shade of orange than Color.organ gives
-			StyleConstants.setForeground(doc.addStyle("BotSend", null), new Color(255, 127, 0));
-			//BotRecv gets a better shade of green than Color.green gives
-			StyleConstants.setForeground(doc.addStyle("BotRecv", null), new Color(0, 159, 107));
-			StyleConstants.setBold(doc.addStyle("Server", null), true);
-			StyleConstants.setItalic(doc.addStyle("Thread", null), true);
-			StyleConstants.setItalic(doc.addStyle("Level", null), true);
 		}
 
 		@Override
@@ -139,8 +120,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		protected void process(List<ILoggingEvent> chunks) {
 			for (ILoggingEvent event : chunks)
 				try {
-					if(botQueue.size() == 0)
-						doc.insertString(doc.getLength(), "\nERROR: Race condition detected in ControlAppender when getting next Bot. Expected botQueue to have a bot to get", doc.getStyle("Error"));
+					boolean raceCondition = botQueue.isEmpty();
 					Bot bot = botQueue.poll();
 					GUI gui = controller.getGui();
 
@@ -149,9 +129,24 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 					JTextPane textPane = (bot != null) ? gui.BerrorLog : gui.CerrorLog;
 					JScrollPane scrollPane = (bot != null) ? gui.BerrorScroll : gui.CerrorScroll;
 
-					//Make sure the styled document is set
-					if (textPane.getStyledDocument() != doc)
-						textPane.setStyledDocument(doc);
+					//Get styled doc and configure if nessesary
+					StyledDocument doc = textPane.getStyledDocument();
+					if (doc.getStyle("Normal") == null) {
+						doc.addStyle("Normal", null);
+						StyleConstants.setForeground(doc.addStyle("Class", null), Color.blue);
+						StyleConstants.setForeground(doc.addStyle("Error", null), Color.red);
+						//BotSend gets a better shade of orange than Color.organ gives
+						StyleConstants.setForeground(doc.addStyle("BotSend", null), new Color(255, 127, 0));
+						//BotRecv gets a better shade of green than Color.green gives
+						StyleConstants.setForeground(doc.addStyle("BotRecv", null), new Color(0, 159, 107));
+						StyleConstants.setBold(doc.addStyle("Server", null), true);
+						StyleConstants.setItalic(doc.addStyle("Thread", null), true);
+						StyleConstants.setItalic(doc.addStyle("Level", null), true);
+					}
+					
+					//Warn user about a possible race condition
+					if(raceCondition)
+						doc.insertString(doc.getLength(), "\nERROR: Race condition detected in ControlAppender when getting next Bot. Expected botQueue to have a bot to get, but is 0", doc.getStyle("Error"));
 
 					//get string version
 					String message = event.getFormattedMessage().trim();
