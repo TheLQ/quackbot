@@ -143,9 +143,9 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 						StyleConstants.setItalic(doc.addStyle("Thread", null), true);
 						StyleConstants.setItalic(doc.addStyle("Level", null), true);
 					}
-					
+
 					//Warn user about a possible race condition
-					if(raceCondition)
+					if (raceCondition)
 						doc.insertString(doc.getLength(), "\nERROR: Race condition detected in ControlAppender when getting next Bot. Expected botQueue to have a bot to get, but is 0", doc.getStyle("Error"));
 
 					//get string version
