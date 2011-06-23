@@ -154,16 +154,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 					Style msgStyle = null;
 					if (event.getLevel().isGreaterOrEqual(Level.WARN))
 						msgStyle = doc.getStyle("Error");
-					else if (message.startsWith("###")) {
-						msgStyle = doc.getStyle("Error");
-						message = message.substring(3);
-					} else if (message.startsWith(">>>")) {
-						msgStyle = doc.getStyle("BotSend");
-						message = message.substring(3);
-					} else if (message.startsWith("@@@")) {
-						msgStyle = doc.getStyle("BotRecv");
-						message = message.substring(3);
-					} else
+					else
 						msgStyle = doc.getStyle("Normal");
 
 					doc.insertString(doc.getLength(), "\n", doc.getStyle("Normal"));
