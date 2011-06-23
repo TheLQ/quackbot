@@ -66,15 +66,6 @@ public class InfoPlugins extends JScrollPane {
 		pluginTableModel.addColumn("Required");
 		pluginTableModel.addColumn("Optional");
 		pluginTableModel.addColumn("Help");
-				
-		//Configure the default column widths
-		TableColumnModel columnModel = pluginTable.getColumnModel();
-		columnModel.getColumn(0).setPreferredWidth(120);
-		columnModel.getColumn(1).setPreferredWidth(50);
-		columnModel.getColumn(2).setPreferredWidth(75);
-		columnModel.getColumn(3).setPreferredWidth(50);
-		columnModel.getColumn(4).setPreferredWidth(40);
-		columnModel.getColumn(5).setPreferredWidth(520);
 		
 		//Toggle command enabled status when changed on the table
 		pluginTableModel.addTableModelListener(new TableModelListener() {
@@ -108,6 +99,15 @@ public class InfoPlugins extends JScrollPane {
 		pluginTable.setColumnSelectionAllowed(false);
 		pluginTable.setCellSelectionEnabled(false);
 		pluginTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		
+		//Configure the default column widths
+		TableColumnModel columnModel = pluginTable.getColumnModel();
+		columnModel.getColumn(0).setPreferredWidth(120);
+		columnModel.getColumn(1).setPreferredWidth(50);
+		columnModel.getColumn(2).setPreferredWidth(75);
+		columnModel.getColumn(3).setPreferredWidth(50);
+		columnModel.getColumn(4).setPreferredWidth(40);
+		columnModel.getColumn(5).setPreferredWidth(520);
 		
 		//Add the table to the scroll pane
 		add(pluginTable);
