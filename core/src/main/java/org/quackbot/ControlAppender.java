@@ -20,7 +20,6 @@ package org.quackbot;
 
 import org.quackbot.gui.GUI;
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import java.awt.Color;
@@ -31,14 +30,12 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.AppenderBase;
 import java.io.PrintStream;
 import javax.swing.JScrollPane;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 
 /**
  * Appender for everything thats not bot. All events from Bot are ignored
@@ -97,6 +94,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		protected ILoggingEvent event;
 		protected String address;
 		protected JScrollPane scroll;
+		protected PatternLayout messageLayout;
 
 		/**
 		 * Simple constructor to init
@@ -108,6 +106,11 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 			this.address = address;
 			this.event = event;
 			this.scroll = scroll;
+
+			messageLayout = new PatternLayout();
+			messageLayout.setContext(getContext());
+			messageLayout.setPattern("%message");
+			messageLayout.start();
 
 			//Only add styles if they don't already exist
 			if (doc.getStyle("Class") == null) {
@@ -160,7 +163,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 				doc.insertString(doc.getLength(), event.getLoggerName() + " ", doc.getStyle("Class"));
 				if (StringUtils.isNotBlank(address))
 					doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
-				doc.insertString(doc.getLength(), formatMsg(event, address, message), msgStyle);
+				doc.insertString(doc.getLength(), messageLayout.doLayout(event), msgStyle);
 
 				//Only autoscroll if the scrollbar is at the bottom
 				//JScrollBar scrollBar = scroll.getVerticalScrollBar();
@@ -169,13 +172,6 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 			} catch (Exception e) {
 				e.printStackTrace(); //Don't use log.error because this is how stuff is outputed
 			}
-		}
-
-		public String formatMsg(ILoggingEvent event, String address, String message) {
-			ThrowableProxy throwArr = (ThrowableProxy) event.getThrowableProxy();
-			if (throwArr == null)
-				return message;
-			return message + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) throwArr).getThrowable()).trim();
 		}
 	}
 }
