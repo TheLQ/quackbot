@@ -22,6 +22,7 @@ import org.quackbot.gui.GUI;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import javax.swing.JTextPane;
@@ -35,6 +36,7 @@ import ch.qos.logback.core.AppenderBase;
 import java.io.PrintStream;
 import javax.swing.JScrollPane;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -44,19 +46,11 @@ import org.apache.commons.lang.exception.ExceptionUtils;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class ControlAppender extends AppenderBase<ILoggingEvent> {
-	protected PatternLayout normalGen = new PatternLayout();
 	@Getter
 	protected Controller controller;
-
-	public ControlAppender(Controller controller, LoggerContext context) {
-		this.controller = controller;
-		setName("ControlAppender");
-		setContext(context);
-		normalGen.setContext(context);
-		normalGen.setPattern("%d{MM/dd/yyy hh:mm:ss a}  %-5p %c - ");
-		normalGen.start();
-		start();
-	}
+	@Getter
+	@Setter
+	protected PatternLayoutEncoder encoder;
 
 	/**
 	 * Used by Log4j to write something from the LoggingEvent. This simply points to
@@ -74,7 +68,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		} else {
 			PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
 			if (event.getThrowableProxy() == null)
-				output.println(normalGen.doLayout(event).trim() + event.getFormattedMessage());
+				output.println(encoder.getLayout().doLayout(event));
 			else
 				output.println(event.getFormattedMessage() + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
 		}
