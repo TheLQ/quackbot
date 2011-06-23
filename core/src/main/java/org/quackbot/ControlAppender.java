@@ -46,7 +46,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class ControlAppender extends AppenderBase<ILoggingEvent> {
-	@Getter
+	@Setter
 	protected Controller controller;
 	@Getter
 	@Setter
