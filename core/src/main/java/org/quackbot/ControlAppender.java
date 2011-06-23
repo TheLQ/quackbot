@@ -74,7 +74,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 				}
 			} else {
 				PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
-				output.println(encoder.getLayout().doLayout(event));
+				output.print(encoder.getLayout().doLayout(event));
 			}
 		} catch (Exception e) {
 			addError("Exception encountered when logging", e);
