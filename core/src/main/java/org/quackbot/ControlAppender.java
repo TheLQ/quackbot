@@ -59,18 +59,22 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	 */
 	@Override
 	public void append(ILoggingEvent event) {
-		String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
-		if (controller.getGui() != null) {
-			GUI gui = controller.getGui();
-			JTextPane textPane = (Bot.getPoolLocal() != null) ? gui.BerrorLog : gui.CerrorLog;
-			JScrollPane scrollPane = (Bot.getPoolLocal() != null) ? gui.BerrorScroll : gui.CerrorScroll;
-			SwingUtilities.invokeLater(new WriteOutput(textPane, scrollPane, event, server));
-		} else {
-			PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
-			if (event.getThrowableProxy() == null)
-				output.println(encoder.getLayout().doLayout(event));
-			else
-				output.println(event.getFormattedMessage() + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
+		try {
+			String server = (Bot.getPoolLocal() != null) ? Bot.getPoolLocal().getServer() : "";
+			if (controller.getGui() != null) {
+				GUI gui = controller.getGui();
+				JTextPane textPane = (Bot.getPoolLocal() != null) ? gui.BerrorLog : gui.CerrorLog;
+				JScrollPane scrollPane = (Bot.getPoolLocal() != null) ? gui.BerrorScroll : gui.CerrorScroll;
+				SwingUtilities.invokeLater(new WriteOutput(textPane, scrollPane, event, server));
+			} else {
+				PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
+				if (event.getThrowableProxy() == null)
+					output.println(encoder.getLayout().doLayout(event));
+				else
+					output.println(event.getFormattedMessage() + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
+			}
+		} catch (Exception e) {
+			addError("Exception encountered when logging", e);
 		}
 	}
 
@@ -164,7 +168,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 				//Only autoscroll if the scrollbar is at the bottom
 				//JScrollBar scrollBar = scroll.getVerticalScrollBar();
 				//if (scrollBar.getVisibleAmount() != scrollBar.getMaximum() && scrollBar.getValue() + scrollBar.getVisibleAmount() == scrollBar.getMaximum())
-					pane.setCaretPosition(prevLength);
+				pane.setCaretPosition(prevLength);
 			} catch (Exception e) {
 				e.printStackTrace(); //Don't use log.error because this is how stuff is outputed
 			}
