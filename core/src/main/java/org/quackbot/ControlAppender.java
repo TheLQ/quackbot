@@ -53,7 +53,8 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	protected PatternLayoutEncoder encoder;
 	protected LinkedBlockingQueue<ILoggingEvent> guiQueue = new LinkedBlockingQueue<ILoggingEvent>();
 	protected LinkedList<Bot> botQueue = new LinkedList<Bot>();
-	protected WriteThread writeThread;
+	protected WriteThread writeThread = new WriteThread();
+	protected boolean useQueue = true;
 
 	/**
 	 * Used by Log4j to write something from the LoggingEvent. This simply points to
@@ -64,18 +65,27 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	public void append(ILoggingEvent event) {
 		try {
 			//Push the bot and the event onto the queue, with the bot first so its not taken before its added
-			botQueue.add(Bot.getPoolLocal());
-			guiQueue.add(event);
-			if (controller != null && controller.getGui() != null) {
-				//Make sure that there is a write thread
-				synchronized (writeThread) {
-					if (writeThread == null)
-						writeThread = new WriteThread();
-				}
-			} else {
-				PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
-				output.print(encoder.getLayout().doLayout(event));
+			if (useQueue) {
+				botQueue.add(Bot.getPoolLocal());
+				guiQueue.add(event);
 			}
+			if (controller != null)
+				synchronized (writeThread) {
+					//If there's a GUI and writeThread isn't started, run it
+					if (controller.getGui() != null && !writeThread.isRunning())
+						writeThread.execute();
+					//If there's no GUI but useQueue is still true, undo everything
+					if (controller.getGui() == null && useQueue) {
+						useQueue = false;
+						botQueue.clear();
+						guiQueue.clear();
+					}
+				}
+
+			//If this lined is reached, print to standard out
+			PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
+			output.print(encoder.getLayout().doLayout(event));
+
 		} catch (Exception e) {
 			addError("Exception encountered when logging", e);
 		}
@@ -97,6 +107,9 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		 */
 		protected SimpleDateFormat dateFormatter = new SimpleDateFormat("hh:mm:ss a");
 		protected PatternLayout messageLayout;
+		@Getter
+		@Setter
+		protected boolean running = false;
 
 		public WriteThread() {
 			messageLayout = new PatternLayout();
