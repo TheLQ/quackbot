@@ -68,10 +68,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 				SwingUtilities.invokeLater(new WriteOutput(textPane, scrollPane, event, server));
 			} else {
 				PrintStream output = (event.getLevel().isGreaterOrEqual(Level.WARN)) ? System.err : System.out;
-				if (event.getThrowableProxy() == null)
-					output.println(encoder.getLayout().doLayout(event));
-				else
-					output.println(event.getFormattedMessage() + "\n" + ExceptionUtils.getFullStackTrace(((ThrowableProxy) event.getThrowableProxy()).getThrowable()));
+				output.println(encoder.getLayout().doLayout(event));
 			}
 		} catch (Exception e) {
 			addError("Exception encountered when logging", e);
