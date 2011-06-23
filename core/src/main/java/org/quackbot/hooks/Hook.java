@@ -54,10 +54,10 @@ public abstract class Hook extends ListenerAdapter {
 	static {
 		//Add our custom event methods to the super class eventToMethod
 		for (Method curMethod : Hook.class.getDeclaredMethods()) {
-			if (curMethod.getName().equals("onEvent"))
+			if (curMethod.getName().equals("onEvent") || curMethod.getParameterTypes().length != 1)
 				continue;
 			Class<?> curClass = curMethod.getParameterTypes()[0];
-			if (!curClass.isInterface()) {
+			if (Event.class.isAssignableFrom(curClass)) {
 				Set methods = new HashSet();
 				methods.add(curMethod);
 				eventToMethod.put((Class<? extends Event>) curClass, methods);
