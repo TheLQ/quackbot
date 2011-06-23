@@ -139,6 +139,8 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		protected void process(List<ILoggingEvent> chunks) {
 			for (ILoggingEvent event : chunks)
 				try {
+					if(botQueue.size() == 0)
+						doc.insertString(doc.getLength(), "\nERROR: Race condition detected in ControlAppender when getting next Bot. Expected botQueue to have a bot to get", doc.getStyle("Error"));
 					Bot bot = botQueue.poll();
 					GUI gui = controller.getGui();
 
