@@ -167,9 +167,6 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 					if (raceCondition)
 						doc.insertString(doc.getLength(), "\nERROR: Race condition detected in ControlAppender when getting next Bot. Expected botQueue to have a bot to get, but is 0", doc.getStyle("Error"));
 
-					//get string version
-					String message = event.getFormattedMessage().trim();
-
 					Style msgStyle = null;
 					if (event.getLevel().isGreaterOrEqual(Level.WARN))
 						msgStyle = doc.getStyle("Error");
@@ -184,7 +181,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 					doc.insertString(doc.getLength(), event.getLoggerName() + " ", doc.getStyle("Class"));
 					if (StringUtils.isNotBlank(address))
 						doc.insertString(doc.getLength(), "<" + address + "> ", doc.getStyle("Server"));
-					doc.insertString(doc.getLength(), messageLayout.doLayout(event), msgStyle);
+					doc.insertString(doc.getLength(), messageLayout.doLayout(event).trim(), msgStyle);
 
 					//Only autoscroll if the scrollbar is at the bottom
 					//JScrollBar scrollBar = scroll.getVerticalScrollBar();
