@@ -21,6 +21,8 @@ package org.quackbot;
 import java.util.List;
 import org.quackbot.gui.GUI;
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import java.awt.Color;
@@ -39,6 +41,7 @@ import javax.swing.SwingWorker;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * Appender for everything thats not bot. All events from Bot are ignored
@@ -115,7 +118,6 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 			messageLayout = new PatternLayout();
 			messageLayout.setContext(getContext());
 			messageLayout.setPattern("%message");
-			messageLayout.start();
 		}
 
 		@Override
@@ -131,6 +133,11 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 
 		@Override
 		protected void process(List<ILoggingEvent> chunks) {
+			if(messageLayout.getContext() == null) {
+				messageLayout.setContext(((Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).getLoggerContext());
+				messageLayout.start();
+			}
+			System.out.println("MESSAGE LAYOUT CONTEXT AFTER: " + messageLayout.getContext());
 			for (ILoggingEvent event : chunks)
 				try {
 					boolean raceCondition = botQueue.isEmpty();
