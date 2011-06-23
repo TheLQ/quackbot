@@ -18,6 +18,10 @@
  */
 package org.quackbot;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import java.util.Iterator;
+import javax.swing.text.StyledDocument;
 import org.quackbot.hooks.HookLoader;
 import java.util.Set;
 import org.quackbot.gui.GUI;
@@ -26,6 +30,7 @@ import org.quackbot.data.AdminStore;
 import org.quackbot.data.ChannelStore;
 import org.quackbot.data.ServerStore;
 import ch.qos.logback.classic.Level;
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +41,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import javax.swing.SwingUtilities;
+import javax.swing.text.StyleConstants;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -98,10 +104,6 @@ public class Controller {
 	 * Number of Commands executed, used by logging
 	 */
 	protected int commandNumber = 0;
-	/**
-	 * The Logger
-	 */
-	protected ControlAppender appender;
 	protected GUI gui;
 	protected HookManager hookManager = new HookManager();
 	/**
@@ -136,13 +138,6 @@ public class Controller {
 	public Controller(DataStore storage) {
 		this.storage = storage;
 
-		//Setup logger
-		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
-		rootLog.getLoggerContext().reset();
-		rootLog.setLevel(Level.ALL);
-		rootLog.detachAndStopAllAppenders();
-		rootLog.addAppender(appender = new ControlAppender(this, rootLog.getLoggerContext()));
-
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -172,6 +167,23 @@ public class Controller {
 			} catch (Exception e) {
 				log.error("Unkown error occured in GUI initialzation", e);
 			}
+
+		//Get ahold of ControlAppender and set this as the Controller
+		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
+		boolean noAppender = true;
+		for (Iterator<Appender<ILoggingEvent>> appenderItr = rootLog.iteratorForAppenders(); appenderItr.hasNext();) {
+			Appender<ILoggingEvent> curAppender = appenderItr.next();
+			if (curAppender instanceof ControlAppender) {
+				((ControlAppender) curAppender).setController(this);
+				noAppender = false;
+			}
+		}
+		
+		//Display a large error message if there a GUI but no appender
+		if(noAppender) {
+			gui.CerrorLog.setText("ERROR: ControlAppender hasn't been added as a logger! This GUI will not display any log messages");
+			gui.CerrorLog.setForeground(Color.red);
+		}
 
 		//Setup default Plugin Loaders
 		addPluginLoader(new JSHookLoader(), "js");
@@ -280,7 +292,7 @@ public class Controller {
 				return new Thread(threadGroup, rbl, "quackbot-" + goodAddress + "-" + threadCounter++);
 			}
 		});
-		
+
 		//Execute bot in its thread Pool
 		threadPool.execute(new Runnable() {
 			@Override

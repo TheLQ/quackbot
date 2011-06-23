@@ -34,6 +34,7 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.AppenderBase;
 import java.io.PrintStream;
 import javax.swing.JScrollPane;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -44,6 +45,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
  */
 public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	protected PatternLayout normalGen = new PatternLayout();
+	@Getter
 	protected Controller controller;
 
 	public ControlAppender(Controller controller, LoggerContext context) {
