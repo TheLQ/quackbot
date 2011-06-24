@@ -1,2 +1,5 @@
 glob:impl/mysqlPasswords.txt
+glob:store-hibernate/src/test/resources/hibernate.cfg.xml
+glob:javarebel.lic
 regexp:^[^\/|\\]+?.target
+
