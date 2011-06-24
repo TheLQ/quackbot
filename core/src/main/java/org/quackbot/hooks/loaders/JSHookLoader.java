@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
+import org.quackbot.err.QuackbotException;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.hooks.Hook;
@@ -58,9 +59,9 @@ public class JSHookLoader implements HookLoader {
 		//Add utilities and wrappings
 		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		jsEngine.put("log", LoggerFactory.getLogger("JSPlugins." + name));
-		jsEngine.eval(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("JSPluginResources/QuackUtils.js"))));
-		jsEngine.eval(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("JSPluginResources/JSPlugin.js"))));
-		jsEngine.eval(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileLocation))));
+		jsEngine.eval(loadResource("JSPluginResources/QuackUtils.js"));
+		jsEngine.eval(loadResource("JSPluginResources/JSPlugin.js"));
+		jsEngine.eval(loadResource(fileLocation));
 
 		//Should we just ignore this?
 		if (castToBoolean(jsEngine.get("ignore"))) {
@@ -75,6 +76,14 @@ public class JSHookLoader implements HookLoader {
 
 		//Assume hook
 		return new JSHookWrapper(jsEngine, fileLocation, name);
+	}
+
+	protected BufferedReader loadResource(String fileLocation) throws QuackbotException {
+		try {
+			return new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileLocation)));
+		} catch (Exception e) {
+			throw new QuackbotException("Can't load Javascript file at " + fileLocation, e);
+		}
 	}
 
 	public boolean castToBoolean(Object obj) {
@@ -115,7 +124,7 @@ public class JSHookLoader implements HookLoader {
 		@Override
 		public int getOptionalParams() {
 			try {
-				return (Integer)(((Invocable) jsEngine).invokeFunction("getOptionalParams", new Object[]{}));
+				return (Integer) (((Invocable) jsEngine).invokeFunction("getOptionalParams", new Object[]{}));
 			} catch (Exception ex) {
 				throw new RuntimeException("Error encountered when executing Javascript function getOptionalParams");
 			}
@@ -124,7 +133,7 @@ public class JSHookLoader implements HookLoader {
 		@Override
 		public int getRequiredParams() {
 			try {
-				return (Integer)(((Invocable) jsEngine).invokeFunction("getRequiredParams", new Object[]{}));
+				return (Integer) (((Invocable) jsEngine).invokeFunction("getRequiredParams", new Object[]{}));
 			} catch (Exception ex) {
 				throw new RuntimeException("Error encountered when executing Javascript function getRequiredParams");
 			}
