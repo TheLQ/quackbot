@@ -48,7 +48,7 @@ import org.quackbot.events.InitEvent;
 @EqualsAndHashCode(callSuper = true)
 public abstract class Hook extends ListenerAdapter {
 	private final String name;
-	private final File file;
+	private final String fileLocation;
 	private final Listener listener;
 
 	static {
@@ -72,7 +72,7 @@ public abstract class Hook extends ListenerAdapter {
 	 */
 	public Hook() {
 		this.name = getClass().getSimpleName();
-		this.file = null;
+		this.fileLocation = null;
 		this.listener = null;
 	}
 
@@ -82,18 +82,18 @@ public abstract class Hook extends ListenerAdapter {
 	 */
 	public Hook(String name) {
 		this.name = name;
-		this.file = null;
+		this.fileLocation = null;
 		this.listener = null;
 	}
 
 	/**
 	 * Create an hook with the given file and name
-	 * @param file The file that this Hook came from
+	 * @param fileLocation The file that this Hook came from
 	 * @param name The name to use for this Hook
 	 */
-	public Hook(File file, String name) {
+	public Hook(String fileLocation, String name) {
 		this.name = name;
-		this.file = file;
+		this.fileLocation = fileLocation;
 		this.listener = null;
 	}
 
@@ -104,7 +104,7 @@ public abstract class Hook extends ListenerAdapter {
 	public Hook(Listener listener) {
 		this.listener = listener;
 		this.name = listener.getClass().getSimpleName();
-		this.file = null;
+		this.fileLocation = null;
 	}
 
 	public Bot getBot() {

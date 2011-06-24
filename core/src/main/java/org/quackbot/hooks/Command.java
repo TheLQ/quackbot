@@ -62,11 +62,11 @@ public abstract class Command extends Hook {
 
 	/**
 	 * Create a Command with the given file and name
-	 * @param file The file that this Command came from
+	 * @param fileLocation The file that this Command came from
 	 * @param name The name to use for this Command
 	 */
-	public Command(File file, String name) {
-		super(file, name);
+	public Command(String fileLocation, String name) {
+		super(fileLocation, name);
 	}
 	
 	public void setup(String help, boolean admin, boolean enabled, int requiredParams, int optionalParams) throws QuackbotException {
