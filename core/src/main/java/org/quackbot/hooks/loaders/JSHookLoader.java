@@ -81,10 +81,10 @@ public class JSHookLoader implements HookLoader {
 		//Return the appropiate hook
 		if (jsEngine.get("onCommand") != null || jsEngine.get("onCommandPM") != null || jsEngine.get("onCommandChannel") != null)
 			//Has Command functions, return command
-			return new JSCommandWrapper(jsEngine, fileLocation, name);
+			return new JSCommandWrapper(jsEngine, sourceMap, fileLocation, name);
 
 		//Assume hook
-		return new JSHookWrapper(jsEngine, fileLocation, name);
+		return new JSHookWrapper(jsEngine, sourceMap, fileLocation, name);
 	}
 
 	protected void evalResource(ScriptEngine jsEngine, Map<String, String> sourceMap, String fileLocation) throws QuackbotException {
@@ -116,10 +116,12 @@ public class JSHookLoader implements HookLoader {
 
 	public class JSHookWrapper extends Hook {
 		protected ScriptEngine jsEngine;
+		protected Map<String, String> sourceMap;
 		
-		public JSHookWrapper(ScriptEngine jsEngine, String fileLocation, String name) {
+		public JSHookWrapper(ScriptEngine jsEngine, Map<String, String> sourceMap, String fileLocation, String name) {
 			super(fileLocation, name);
 			this.jsEngine = jsEngine;
+			this.sourceMap = sourceMap;
 		}
 
 		@Override
@@ -131,10 +133,12 @@ public class JSHookLoader implements HookLoader {
 
 	public class JSCommandWrapper extends Command {
 		protected ScriptEngine jsEngine;
+		protected Map<String, String> sourceMap;
 
-		public JSCommandWrapper(ScriptEngine jsEngine, String fileLocation, String name) {
+		public JSCommandWrapper(ScriptEngine jsEngine, Map<String, String> sourceMap, String fileLocation, String name) {
 			super(fileLocation, name);
 			this.jsEngine = jsEngine;
+			this.sourceMap = sourceMap;
 		}
 
 		@Override
