@@ -18,18 +18,25 @@
  */
 package org.quackbot.hooks;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
+import org.quackbot.Controller;
 import org.quackbot.err.InvalidHookException;
+import org.quackbot.events.EndEvent;
+import org.quackbot.events.StartEvent;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -62,6 +69,7 @@ import org.slf4j.LoggerFactory;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Slf4j
+@RequiredArgsConstructor
 public class HookManager {
 	/**
 	 * String - Name of Hook Method
@@ -79,6 +87,7 @@ public class HookManager {
 			return new Thread(threadGroup, "mainPool-" + (++count));
 		}
 	});
+	protected final Controller controller;
 
 	public boolean addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
@@ -139,28 +148,61 @@ public class HookManager {
 		return getHook(hookName) != null;
 	}
 
-	@Synchronized("hooks")
+	//@Synchronized("hooks")
 	public void dispatchEvent(final Event<Bot> event) {
-		for (final Hook curHook : hooks) {
-			//Make a runnable that can be passed to any thread pool
-			Runnable run = new Runnable() {
-				public void run() {
-					try {
-						curHook.onEvent(event);
-					} catch (Throwable ex) {
-						LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
-					}
-				}
-			};
+		//First, execute onEvent for the StartEvent
+		StartEvent startEvent = new StartEvent(controller);
+		for (Hook curHook : hooks)
+			executeHook(curHook, startEvent);
 
-			//Dispatch to appropiate thread pool
-			if (event.getBot() != null)
-				//Use bot's thread pool
-				event.getBot().getThreadPool().execute(run);
-			else
-				//No bot, use global thread pool
-				globalPool.submit(run);
-		}
+		//Execute all events, building up the futures to wait for execution later
+		final List<Future> futures = new ArrayList<Future>(hooks.size());
+		for (Hook curHook : hooks)
+			futures.add(executeHook(curHook, event));
+
+		//In a new thread, wait for all the futures to complete, then dispatch EndEvent
+		Runnable futureWait = new Runnable() {
+			public void run() {
+				try {
+					//Wait for futures to complete
+					for (Future curFuture : futures)
+						curFuture.get();
+					//Dispatch an EndEvent
+					EndEvent endEvent = new EndEvent(controller);
+					for(Hook curHook : hooks)
+						curHook.onEvent(endEvent);
+				} catch (Exception ex) {
+					LoggerFactory.getLogger(this.getClass()).error("Exception encountered when waiting for Listener's to finish so an EndEvent could be dispatched", ex);
+				}
+			}
+		};
+		
+		//Dump into the correct thread pool
+		if (event.getBot() != null)
+			event.getBot().getThreadPool().execute(futureWait);
+		else
+			globalPool.execute(futureWait);
+	}
+
+	protected Future executeHook(final Hook hook, final Event<Bot> event) {
+		//Make a runnable that can be passed to any thread pool
+		Runnable run = new Runnable() {
+			public void run() {
+				try {
+					hook.onEvent(event);
+				} catch (Throwable ex) {
+					LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
+				}
+			}
+		};
+
+		//Dispatch to appropiate thread pool
+		if (event.getBot() != null)
+			//Use bot's thread pool
+			return event.getBot().getThreadPool().submit(run);
+		else
+			//No bot, use global thread pool
+			return globalPool.submit(run);
 	}
 
 	/**
