@@ -36,7 +36,6 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
-import org.quackbot.data.ChannelStore;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.quackbot.hooks.core.AdminHelp;
 import org.quackbot.hooks.core.Help;
