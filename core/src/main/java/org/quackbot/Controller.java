@@ -259,7 +259,7 @@ public class Controller {
 			//Load with pluginType
 			loader = getPluginLoaders().get(ext);
 			if (loader != null)
-				hook = loader.load(file);
+				hook = loader.load(file.getAbsolutePath());
 			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
 		} catch (Exception e) {
 			log.error("Could not load plugin " + extArr[0], e);
