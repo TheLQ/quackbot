@@ -18,8 +18,10 @@
  */
 package org.quackbot.hooks.loaders;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -29,7 +31,6 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
-import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.Hook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +57,8 @@ public class JSHookLoader implements HookLoader {
 		//Add utilities and wrappings
 		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		jsEngine.put("log", LoggerFactory.getLogger("JSPlugins." + name));
-		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/QuackUtils.js").toURI())));
-		jsEngine.eval(new FileReader(new File(getClass().getResource("/JSPluginResources/JSPlugin.js").toURI())));
+		jsEngine.eval(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("JSPluginResources/QuackUtils.js"))));
+		jsEngine.eval(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("JSPluginResources/JSPlugin.js"))));
 		jsEngine.eval(new FileReader(file));
 
 		//Should we just ignore this?
