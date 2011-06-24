@@ -21,10 +21,18 @@ package org.quackbot.hooks.loaders;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import lombok.Cleanup;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
@@ -59,9 +67,10 @@ public class JSHookLoader implements HookLoader {
 		//Add utilities and wrappings
 		ScriptEngine jsEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		jsEngine.put("log", LoggerFactory.getLogger("JSPlugins." + name));
-		jsEngine.eval(loadResource("JSPluginResources/QuackUtils.js"));
-		jsEngine.eval(loadResource("JSPluginResources/JSPlugin.js"));
-		jsEngine.eval(loadResource(fileLocation));
+		LinkedHashMap<String, String> sourceMap = new LinkedHashMap();
+		evalResource(jsEngine, sourceMap, "JSPluginResources/QuackUtils.js");
+		evalResource(jsEngine, sourceMap, "JSPluginResources/JSPlugin.js");
+		evalResource(jsEngine, sourceMap, fileLocation);
 
 		//Should we just ignore this?
 		if (castToBoolean(jsEngine.get("ignore"))) {
@@ -78,9 +87,22 @@ public class JSHookLoader implements HookLoader {
 		return new JSHookWrapper(jsEngine, fileLocation, name);
 	}
 
-	protected BufferedReader loadResource(String fileLocation) throws QuackbotException {
+	protected void evalResource(ScriptEngine jsEngine, Map<String, String> sourceMap, String fileLocation) throws QuackbotException {
+		BufferedReader reader = null;
 		try {
-			return new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileLocation)));
+			InputStream stream = getClass().getClassLoader().getResourceAsStream(fileLocation);
+			if (stream == null)
+				//Try opening it as a file
+				reader = new BufferedReader(new FileReader(fileLocation));
+			reader = new BufferedReader(new InputStreamReader(stream));
+			jsEngine.eval(reader);
+
+			//Dump contents
+			StringBuilder contentBuilder = new StringBuilder();
+			String curLine = "";
+			while ((curLine = reader.readLine()) != null)
+				contentBuilder.append(curLine);
+			sourceMap.put(fileLocation, contentBuilder.toString());
 		} catch (Exception e) {
 			throw new QuackbotException("Can't load Javascript file at " + fileLocation, e);
 		}
@@ -94,7 +116,7 @@ public class JSHookLoader implements HookLoader {
 
 	public class JSHookWrapper extends Hook {
 		protected ScriptEngine jsEngine;
-
+		
 		public JSHookWrapper(ScriptEngine jsEngine, String fileLocation, String name) {
 			super(fileLocation, name);
 			this.jsEngine = jsEngine;
