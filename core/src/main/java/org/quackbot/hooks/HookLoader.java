@@ -41,5 +41,5 @@ public interface HookLoader {
 	 * @param file         The file that contains the script
 	 * @throws Exception   Any exception encountered while parsing. The command will not be added
 	 */
-	public Hook load(File file) throws Exception;
+	public Hook load(String fileLocation) throws Exception;
 }
