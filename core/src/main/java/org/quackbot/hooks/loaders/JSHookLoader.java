@@ -114,10 +114,28 @@ public class JSHookLoader implements HookLoader {
 		return (Boolean) obj;
 	}
 
+	protected Object invokeFunction(ScriptEngine jsEngine, Map<String, String> sourceMap, String functionName, Object... args) throws JSHookException {
+		try {
+			return ((Invocable) jsEngine).invokeFunction(functionName, args);
+		} catch (ScriptException ex) {
+			//Calculate where the exception occured at
+			int lastLine = -1;
+			for (Map.Entry<String, String> curEntry : sourceMap.entrySet())
+				for (String curLine : curEntry.getValue().split(System.getProperty("line.separator"))) {
+					lastLine++;
+					if (lastLine == ex.getLineNumber())
+						throw new JSHookException("Exception encountered when invoking function " + functionName, curEntry.getKey(), ex.getLineNumber(), ex.getColumnNumber(), ex);
+				}
+			throw new JSHookException("Exception encountered when invoking function " + functionName, "unknown", ex.getLineNumber(), ex.getColumnNumber(), ex);
+		} catch (NoSuchMethodException ex) {
+			throw new JSHookException("Can't find function " + functionName + " in file(s) " + StringUtils.join(sourceMap.keySet().toArray()), ex);
+		}
+	}
+
 	public class JSHookWrapper extends Hook {
 		protected ScriptEngine jsEngine;
 		protected Map<String, String> sourceMap;
-		
+
 		public JSHookWrapper(ScriptEngine jsEngine, Map<String, String> sourceMap, String fileLocation, String name) {
 			super(fileLocation, name);
 			this.jsEngine = jsEngine;
@@ -126,8 +144,7 @@ public class JSHookLoader implements HookLoader {
 
 		@Override
 		public void onEvent(Event event) throws Exception {
-			String name = StringUtils.removeEnd(event.getClass().getSimpleName(), "Event");
-			((Invocable) jsEngine).invokeFunction("on" + name, new Object[]{event});
+			invokeFunction(jsEngine, sourceMap, "on" + StringUtils.removeEnd(event.getClass().getSimpleName(), "Event"), event);
 		}
 	}
 
@@ -143,41 +160,42 @@ public class JSHookLoader implements HookLoader {
 
 		@Override
 		public void onEvent(Event event) throws Exception {
-			String name = StringUtils.removeEnd(event.getClass().getSimpleName(), "Event");
-			((Invocable) jsEngine).invokeFunction("on" + name, new Object[]{event});
+			invokeFunction(jsEngine, sourceMap, "on" + StringUtils.removeEnd(event.getClass().getSimpleName(), "Event"), event);
 		}
 
 		@Override
 		public int getOptionalParams() {
-			try {
-				return (Integer) (((Invocable) jsEngine).invokeFunction("getOptionalParams", new Object[]{}));
-			} catch (Exception ex) {
-				throw new RuntimeException("Error encountered when executing Javascript function getOptionalParams");
-			}
+			return (Integer) invokeFunction(jsEngine, sourceMap, "getOptionalParams");
 		}
 
 		@Override
 		public int getRequiredParams() {
-			try {
-				return (Integer) (((Invocable) jsEngine).invokeFunction("getRequiredParams", new Object[]{}));
-			} catch (Exception ex) {
-				throw new RuntimeException("Error encountered when executing Javascript function getRequiredParams");
-			}
+			return (Integer) invokeFunction(jsEngine, sourceMap, "getRequiredParams");
 		}
 
 		@Override
 		public String onCommand(Channel chan, User user, String[] args) throws Exception {
-			return (String) (((Invocable) jsEngine).invokeFunction("onCommand", (Object[]) args));
+			return (String) invokeFunction(jsEngine, sourceMap, "onCommand", (Object[]) args);
 		}
 
 		@Override
 		public String onCommandChannel(Channel chan, User user, String[] args) throws Exception {
-			return (String) (((Invocable) jsEngine).invokeFunction("onCommandChannel", (Object[]) args));
+			return (String) invokeFunction(jsEngine, sourceMap, "onCommandChannel", (Object[]) args);
 		}
 
 		@Override
 		public String onCommandPM(User user, String[] args) throws Exception {
-			return (String) (((Invocable) jsEngine).invokeFunction("onCommandPM", (Object[]) args));
+			return (String) invokeFunction(jsEngine, sourceMap, "onCommandPM", (Object[]) args);
+		}
+	}
+
+	public class JSHookException extends RuntimeException {
+		public JSHookException(String message, String fileLocation, int lineNumber, int column, Throwable cause) {
+			super(message + " - Error Source: File location: " + fileLocation + " | Line number: " + lineNumber + " | Column: " + column, cause);
+		}
+
+		public JSHookException(String message, Throwable cause) {
+			super(message, cause);
 		}
 	}
 }
