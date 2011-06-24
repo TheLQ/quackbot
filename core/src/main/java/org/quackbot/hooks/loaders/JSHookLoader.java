@@ -46,12 +46,13 @@ public class JSHookLoader implements HookLoader {
 	private static Logger log = LoggerFactory.getLogger(JSHookLoader.class);
 
 	@Override
-	public Hook load(File file) throws Exception {
-		if (file.getName().equals("JS_Template.js") || file.getName().equals("QuackUtils.js"))
+	public Hook load(String fileLocation) throws Exception {
+		if (fileLocation.endsWith("JS_Template.js") || fileLocation.endsWith("QuackUtils.js"))
 			//Ignore this
 			return null;
 
-		String name = StringUtils.split(file.getName(), ".")[0];
+		String[] pathParts = StringUtils.split(fileLocation, System.getProperty("file.separator"));
+		String name = StringUtils.split(pathParts[pathParts.length - 1], ".")[0];
 		log.info("New JavaScript Plugin: " + name);
 
 		//Add utilities and wrappings
@@ -59,7 +60,7 @@ public class JSHookLoader implements HookLoader {
 		jsEngine.put("log", LoggerFactory.getLogger("JSPlugins." + name));
 		jsEngine.eval(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("JSPluginResources/QuackUtils.js"))));
 		jsEngine.eval(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("JSPluginResources/JSPlugin.js"))));
-		jsEngine.eval(new FileReader(file));
+		jsEngine.eval(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileLocation))));
 
 		//Should we just ignore this?
 		if (castToBoolean(jsEngine.get("ignore"))) {
@@ -70,10 +71,10 @@ public class JSHookLoader implements HookLoader {
 		//Return the appropiate hook
 		if (jsEngine.get("onCommand") != null || jsEngine.get("onCommandPM") != null || jsEngine.get("onCommandChannel") != null)
 			//Has Command functions, return command
-			return new JSCommandWrapper(jsEngine, file, name);
+			return new JSCommandWrapper(jsEngine, fileLocation, name);
 
 		//Assume hook
-		return new JSHookWrapper(jsEngine, file, name);
+		return new JSHookWrapper(jsEngine, fileLocation, name);
 	}
 
 	public boolean castToBoolean(Object obj) {
@@ -85,8 +86,8 @@ public class JSHookLoader implements HookLoader {
 	public class JSHookWrapper extends Hook {
 		protected ScriptEngine jsEngine;
 
-		public JSHookWrapper(ScriptEngine jsEngine, File file, String name) {
-			super(file, name);
+		public JSHookWrapper(ScriptEngine jsEngine, String fileLocation, String name) {
+			super(fileLocation, name);
 			this.jsEngine = jsEngine;
 		}
 
@@ -100,8 +101,8 @@ public class JSHookLoader implements HookLoader {
 	public class JSCommandWrapper extends Command {
 		protected ScriptEngine jsEngine;
 
-		public JSCommandWrapper(ScriptEngine jsEngine, File file, String name) {
-			super(file, name);
+		public JSCommandWrapper(ScriptEngine jsEngine, String fileLocation, String name) {
+			super(fileLocation, name);
 			this.jsEngine = jsEngine;
 		}
 
