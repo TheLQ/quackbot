@@ -51,7 +51,7 @@ public class JavaHookLoader implements HookLoader {
 
 	@Override
 	public Hook load(String fileLocation) throws Exception {
-		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + file.getAbsolutePath());
+		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + fileLocation);
 	}
 
 	public static Command load(Command cmd) throws Exception {
