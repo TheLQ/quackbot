@@ -29,4 +29,19 @@
 			<version>0.9.26</version>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<resources>
+			<!--Treat scripts as resources, adding to the final JAR-->
+			<resource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/main/scripts</directory>
+			</resource>
+			<!--Keep the default resource directory as well-->
+			<resource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/main/resources</directory>
+			</resource>
+		</resources>
+	</build>
 </project>
