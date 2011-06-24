@@ -148,7 +148,7 @@ public class HookManager {
 		return getHook(hookName) != null;
 	}
 
-	//@Synchronized("hooks")
+	@Synchronized("hooks")
 	public void dispatchEvent(final Event<Bot> event) {
 		//First, execute onEvent for the StartEvent
 		StartEvent startEvent = new StartEvent(controller);
