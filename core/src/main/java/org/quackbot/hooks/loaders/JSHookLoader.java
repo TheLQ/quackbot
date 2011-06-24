@@ -124,7 +124,7 @@ public class JSHookLoader implements HookLoader {
 			for (Map.Entry<String, String> curEntry : sourceMap.entrySet()) {
 				int fileLen = curEntry.getValue().split(System.getProperty("line.separator")).length;
 				if (lastLine <= ex.getLineNumber() && ex.getLineNumber() >= fileLen)
-					throw new JSHookException("Exception encountered when invoking function " + functionName, curEntry.getKey(), ex.getLineNumber(), ex.getColumnNumber(), ex);
+					throw new JSHookException("Exception encountered when invoking function " + functionName, curEntry.getKey(), ex.getLineNumber() - lastLine, ex.getColumnNumber(), ex);
 				else
 					lastLine += fileLen;
 			}
