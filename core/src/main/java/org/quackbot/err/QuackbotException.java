@@ -32,4 +32,8 @@ public class QuackbotException extends Exception {
 	public QuackbotException(String msg) {
 		super(msg);
 	}
+
+	public QuackbotException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 }
