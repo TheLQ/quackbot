@@ -50,7 +50,7 @@ public class JavaHookLoader implements HookLoader {
 	private static Logger log = LoggerFactory.getLogger(JavaHookLoader.class);
 
 	@Override
-	public Hook load(File file) throws Exception {
+	public Hook load(String fileLocation) throws Exception {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + file.getAbsolutePath());
 	}
 
