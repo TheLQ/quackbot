@@ -120,13 +120,14 @@ public class JSHookLoader implements HookLoader {
 			return ((Invocable) jsEngine).invokeFunction(functionName, args);
 		} catch (ScriptException ex) {
 			//Calculate where the exception occured at
-			int lastLine = -1;
-			for (Map.Entry<String, String> curEntry : sourceMap.entrySet())
-				for (String curLine : curEntry.getValue().split(System.getProperty("line.separator"))) {
-					lastLine++;
-					if (lastLine == ex.getLineNumber())
-						throw new JSHookException("Exception encountered when invoking function " + functionName, curEntry.getKey(), ex.getLineNumber(), ex.getColumnNumber(), ex);
-				}
+			int lastLine = 0;
+			for (Map.Entry<String, String> curEntry : sourceMap.entrySet()) {
+				int fileLen = curEntry.getValue().split(System.getProperty("line.separator")).length;
+				if (lastLine <= ex.getLineNumber() && ex.getLineNumber() >= fileLen)
+					throw new JSHookException("Exception encountered when invoking function " + functionName, curEntry.getKey(), ex.getLineNumber(), ex.getColumnNumber(), ex);
+				else
+					lastLine += fileLen;
+			}
 			throw new JSHookException("Exception encountered when invoking function " + functionName, "unknown", ex.getLineNumber(), ex.getColumnNumber(), ex);
 		} catch (NoSuchMethodException ex) {
 			throw new JSHookException("Can't find function " + functionName + " in file(s) " + StringUtils.join(sourceMap.keySet().toArray()), ex);
