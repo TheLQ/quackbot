@@ -94,7 +94,8 @@ public class JSHookLoader implements HookLoader {
 			if (stream == null)
 				//Try opening it as a file
 				reader = new BufferedReader(new FileReader(fileLocation));
-			reader = new BufferedReader(new InputStreamReader(stream));
+			else
+				reader = new BufferedReader(new InputStreamReader(stream));
 			jsEngine.eval(reader);
 
 			//Dump contents
