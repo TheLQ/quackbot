@@ -169,14 +169,16 @@ public class HookManager {
 						curFuture.get();
 					//Dispatch an EndEvent
 					EndEvent endEvent = new EndEvent(controller);
-					for(Hook curHook : hooks)
-						curHook.onEvent(endEvent);
+					synchronized (hooks) {
+						for (Hook curHook : hooks)
+							curHook.onEvent(endEvent);
+					}
 				} catch (Exception ex) {
 					LoggerFactory.getLogger(this.getClass()).error("Exception encountered when waiting for Listener's to finish so an EndEvent could be dispatched", ex);
 				}
 			}
 		};
-		
+
 		//Dump into the correct thread pool
 		if (event.getBot() != null)
 			event.getBot().getThreadPool().execute(futureWait);
