@@ -18,7 +18,6 @@
  */
 package org.quackbot.hooks;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
