@@ -81,25 +81,21 @@ public class JavaHookLoader implements HookLoader {
 					log.debug("Ignoring " + curMethod.toGenericString() + "  - First parameter isn't a command event");
 					continue;
 				}
-				
+
 				//Ignore if CommandEvent is the only parameter, this is handled by CoreQuackbotHook
-				if(parameters.length == 1) {
+				if (parameters.length == 1) {
 					log.debug("Ignoring " + curMethod.toGenericString() + "  - Only parameter is CommandEvent");
 					continue;
 				}
-				
+
 				//Account for CommandEvent when calculating parameters
 				totalParams = parameters.length - 1;
 			} else
 				continue;
 
 			Parameters paramAnnotation = clazz.getAnnotation(Parameters.class);
-			
-			//If there are 0 params, make sure @Parameter doesn't say it needs more than 0
-			if (totalParams == 0 && paramAnnotation != null && (paramAnnotation.value() + paramAnnotation.optional() != 0))
-				throw new QuackbotException("Method " + curMethod.toGenericString() + " has no parameters even though @Parameter says it should");
 
-			//Build parameter list based off of @Optional first
+			//Build parameter counts based off of @Optional first
 			requiredCount = totalParams;
 			for (Annotation[] annotations : curMethod.getParameterAnnotations())
 				for (Annotation annotation : annotations)
@@ -110,18 +106,31 @@ public class JavaHookLoader implements HookLoader {
 						requiredCount--;
 					}
 
-			//Must not of had any @Optional annotations, use @Parameter if it exists instead
-			if (paramAnnotation != null) {
-				//Make sure the method actually has enough params
-				if (paramAnnotation.value() + paramAnnotation.optional() != totalParams)
-					throw new QuackbotException("Method " + curMethod.toGenericString() + " has " + totalParams + " parameters while @Parameter annotation specifies " + paramAnnotation.value() + paramAnnotation.optional());
-				requiredCount = paramAnnotation.value();
-				optionalCount = paramAnnotation.optional();
-			}
-		}
+			//End here if @Optional exists and therefor changed the required parameter count
+			if (requiredCount != totalParams)
+				break;
 
+			//No @Optional, use totalParams as required count if there's no @Parameter annotation
+			if (paramAnnotation == null)
+				break;
+
+			//There is @Parameter, make sure there's enough required parameters
+			if (totalParams < paramAnnotation.value())
+				throw new QuackbotException("Method " + curMethod.toGenericString() + " has less parameters "
+						+ "(" + totalParams + ") then the @Parameter annotation says it should (" + paramAnnotation.value() + ")");
+
+			//Make sure there isn't too many or not enough parameters with optional params
+			if (paramAnnotation.optional() != -1 && (paramAnnotation.value() + paramAnnotation.optional() != totalParams))
+				throw new QuackbotException("Method " + curMethod.toGenericString() + " has too many or two few parameters "
+						+ "(" + totalParams + ") then the @Parameter annotation says it should (" + (paramAnnotation.value() + paramAnnotation.optional()) + " total)");
+
+			//Values have been verified, now they can be used
+			requiredCount = paramAnnotation.value();
+			optionalCount = paramAnnotation.optional();
+		}
 		//Setup and send to the HookManager
 		cmd.setup(help, admin, enabled, requiredCount, optionalCount);
+
 		return cmd;
 	}
 }
