@@ -98,6 +98,14 @@ public class JavaHookLoader implements HookLoader {
 				log.debug("Ignoring " + curMethod.toGenericString() + "  - Only parameter is CommandEvent");
 				continue;
 			}
+			
+			//Throw exception if there is more than one array
+			int numArrays = 0;
+			for(Class curClass : parameters)
+				if(curClass.isArray())
+					numArrays++;
+			if(numArrays > 1)
+				throw new QuackbotException("Method " + curMethod.toGenericString() + " has more than one array as a parameter.");
 
 			//Account for CommandEvent when calculating parameters
 			totalParams = parameters.length - 1;
