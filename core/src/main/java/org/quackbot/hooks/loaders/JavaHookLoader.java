@@ -118,6 +118,12 @@ public class JavaHookLoader implements HookLoader {
 			//End here if @Optional exists and therefor changed the required parameter count
 			if (requiredCount != totalParams)
 				break;
+			
+			//No @Optional, see if the last element is an array. Array = unlimited
+			if(parameters[parameters.length - 1].isArray()) {
+				optionalCount = -1;
+				break;
+			}
 
 			//No @Optional, use totalParams as required count if there's no @Parameter annotation
 			if (paramAnnotation == null)
