@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Parameters {
-	int value() default -1;
+	int value() default 0;
 
-	int optional() default -1;
+	int optional() default 0;
 }
