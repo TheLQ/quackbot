@@ -77,8 +77,9 @@ public class CoreQuackbotHook extends Hook {
 		try {
 			log.info("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
-			Command cmd = getCommand(getArgs(message), command, event.getChannel(), event.getUser());
-			CommandEvent commandEvent = new CommandEvent(cmd, event, event.getChannel(), event.getUser(), event.getMessage(), command, getArgs(message));
+			String[] args = getArgs(message);
+			Command cmd = getCommand(args, command, event.getChannel(), event.getUser());
+			CommandEvent commandEvent = new CommandEvent(cmd, event, event.getChannel(), event.getUser(), event.getMessage(), command, args);
 			//Send any response back to the user
 			event.respond(cmd.onCommand(commandEvent));
 			event.respond(executeOnCommandLong(commandEvent));
@@ -106,8 +107,9 @@ public class CoreQuackbotHook extends Hook {
 		try {
 			log.debug("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
-			Command cmd = getCommand(getArgs(message), command, null, event.getUser());
-			CommandEvent commandEvent = new CommandEvent(cmd, event, null, event.getUser(), event.getMessage(), command, getArgs(message));
+			String[] args = getArgs(message);
+			Command cmd = getCommand(args, command, null, event.getUser());
+			CommandEvent commandEvent = new CommandEvent(cmd, event, null, event.getUser(), event.getMessage(), command, args);
 			event.respond(cmd.onCommand(commandEvent));
 			event.respond(executeOnCommandLong(commandEvent));
 		} catch (Exception e) {
