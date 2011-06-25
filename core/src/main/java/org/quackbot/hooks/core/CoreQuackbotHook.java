@@ -107,8 +107,8 @@ public class CoreQuackbotHook extends Hook {
 			log.debug("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
 			Command cmd = getCommand(getArgs(message), command, null, event.getUser());
-			CommandEvent commandEvent = new CommandEvent(event, null, event.getUser());
-			event.respond(cmd.onCommand(commandEvent, getArgs(message)));
+			CommandEvent commandEvent = new CommandEvent(cmd, event, null, event.getUser(), event.getMessage(), command, getArgs(message));
+			event.respond(cmd.onCommand(commandEvent));
 			event.respond(executeOnCommandLong(commandEvent));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
