@@ -69,29 +69,31 @@ public class JavaHookLoader implements HookLoader {
 		for (Method curMethod : clazz.getMethods()) {
 			int totalParams = 0;
 			Class<?>[] parameters = curMethod.getParameterTypes();
-			if (curMethod.getName().equalsIgnoreCase("onCommand")) {
-				//Ignore if there are 0 parameters
-				if (parameters.length == 0) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - No parameters");
-					continue;
-				}
-
-				//Ignore if the first parameter isn't a CommandEvent
-				if (parameters[0] != CommandEvent.class) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - First parameter isn't a command event");
-					continue;
-				}
-
-				//Ignore if CommandEvent is the only parameter, this is handled by CoreQuackbotHook
-				if (parameters.length == 1) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - Only parameter is CommandEvent");
-					continue;
-				}
-
-				//Account for CommandEvent when calculating parameters
-				totalParams = parameters.length - 1;
-			} else
+			
+			//Ignore if this isn't an onCommand method
+			if (!curMethod.getName().equalsIgnoreCase("onCommand"))
 				continue;
+			
+			//Ignore if there are 0 parameters
+			if (parameters.length == 0) {
+				log.debug("Ignoring " + curMethod.toGenericString() + "  - No parameters");
+				continue;
+			}
+
+			//Ignore if the first parameter isn't a CommandEvent
+			if (parameters[0] != CommandEvent.class) {
+				log.debug("Ignoring " + curMethod.toGenericString() + "  - First parameter isn't a command event");
+				continue;
+			}
+
+			//Ignore if CommandEvent is the only parameter, this is handled by CoreQuackbotHook
+			if (parameters.length == 1) {
+				log.debug("Ignoring " + curMethod.toGenericString() + "  - Only parameter is CommandEvent");
+				continue;
+			}
+
+			//Account for CommandEvent when calculating parameters
+			totalParams = parameters.length - 1;
 
 			Parameters paramAnnotation = clazz.getAnnotation(Parameters.class);
 
