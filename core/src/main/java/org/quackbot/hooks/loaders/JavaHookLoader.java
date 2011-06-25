@@ -23,18 +23,15 @@ import org.quackbot.hooks.java.AdminOnly;
 import org.quackbot.hooks.java.Disabled;
 import org.quackbot.hooks.java.Optional;
 import org.quackbot.hooks.java.Parameters;
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.apache.commons.lang.StringUtils;
-import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.err.QuackbotException;
+import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Hook;
-import org.quackbot.hooks.Hook;
-import org.quackbot.hooks.HookManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,49 +69,32 @@ public class JavaHookLoader implements HookLoader {
 		for (Method curMethod : clazz.getMethods()) {
 			int totalParams = 0;
 			Class<?>[] parameters = curMethod.getParameterTypes();
-			if (curMethod.getName().equalsIgnoreCase("onCommand") || curMethod.getName().equalsIgnoreCase("onCommandChannel")) {
-				//Ignore if there are less than 2 parameters
-				if (parameters.length < 2) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - Not enough parameters");
-					continue;
-				}
-
-				//Ignore if the first 2 parameters aren't Channel and User
-				if (parameters[0] != Channel.class || parameters[1] != User.class) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - First 2 parameters aren't Channel then User");
-					continue;
-				}
-
-				//Ignore if there is a 3rd parameter and its an Array
-				if (parameters.length >= 3 && parameters[2].isArray()) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - 3rd parameter is an Array");
-					continue;
-				}
-				totalParams = parameters.length - 2;
-			} else if (curMethod.getName().equalsIgnoreCase("onCommandPM")) {
+			if (curMethod.getName().equalsIgnoreCase("onCommand")) {
 				//Ignore if there are 0 parameters
 				if (parameters.length == 0) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - Not enough parameters");
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - No parameters");
 					continue;
 				}
 
-				//Ignore if the first parameter isn't a User
-				if (parameters[1] != User.class) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - First parameter isn't user");
+				//Ignore if the first parameter isn't a CommandEvent
+				if (parameters[0] != CommandEvent.class) {
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - First parameter isn't a command event");
 					continue;
 				}
-
-				//Ignore if there is a 2nd parameter and its an Array
-				if (parameters.length > 1 && parameters[3].isArray()) {
-					log.debug("Ignoring " + curMethod.toGenericString() + "  - 2nd parameter is an Array");
+				
+				//Ignore if CommandEvent is the only parameter, this is handled by CoreQuackbotHook
+				if(parameters.length == 1) {
+					log.debug("Ignoring " + curMethod.toGenericString() + "  - Only parameter is CommandEvent");
 					continue;
 				}
+				
+				//Account for CommandEvent when calculating parameters
 				totalParams = parameters.length - 1;
 			} else
 				continue;
 
 			Parameters paramAnnotation = clazz.getAnnotation(Parameters.class);
-
+			
 			//If there are 0 params, make sure @Parameter doesn't say it needs more than 0
 			if (totalParams == 0 && paramAnnotation != null && (paramAnnotation.value() + paramAnnotation.optional() != 0))
 				throw new QuackbotException("Method " + curMethod.toGenericString() + " has no parameters even though @Parameter says it should");
