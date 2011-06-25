@@ -77,7 +77,7 @@ public class CoreQuackbotHook extends Hook {
 		try {
 			log.info("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
-			Command cmd = getCommand(message, command, event.getChannel(), event.getUser());
+			Command cmd = getCommand(getArgs(message), command, event.getChannel(), event.getUser());
 			CommandEvent commandEvent = new CommandEvent(cmd, event, event.getChannel(), event.getUser(), event.getMessage(), command, getArgs(message));
 			//Send any response back to the user
 			event.respond(cmd.onCommand(commandEvent));
@@ -106,7 +106,7 @@ public class CoreQuackbotHook extends Hook {
 		try {
 			log.debug("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
-			Command cmd = getCommand(message, command, null, event.getUser());
+			Command cmd = getCommand(getArgs(message), command, null, event.getUser());
 			CommandEvent commandEvent = new CommandEvent(event, null, event.getUser());
 			event.respond(cmd.onCommand(commandEvent, getArgs(message)));
 			event.respond(executeOnCommandLong(commandEvent));
@@ -118,10 +118,7 @@ public class CoreQuackbotHook extends Hook {
 		}
 	}
 	
-	public Command getCommand(String message, String userCommand, Channel chan, User user) throws InvalidCMDException, AdminException, NumArgException {
-		//Parse message to get cmd and args
-		String[] args = getArgs(message);
-
+	public Command getCommand(String[] args, String userCommand, Channel chan, User user) throws InvalidCMDException, AdminException, NumArgException {
 		Command command = getController().getHookManager().getCommand(userCommand);
 		//Is this a valid command?
 		if (command == null || !command.isEnabled())
