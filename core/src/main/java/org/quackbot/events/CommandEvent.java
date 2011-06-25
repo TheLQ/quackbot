@@ -37,8 +37,8 @@ public class CommandEvent extends Event {
 	protected final User user;
 	protected final Event parentEvent;
 
-	public CommandEvent(PircBotX bot, Channel channel, User user, Event parentEvent) {
-		super(bot);
+	public CommandEvent(Event parentEvent, Channel channel, User user) {
+		super(parentEvent.getBot());
 		this.channel = channel;
 		this.user = user;
 		this.parentEvent = parentEvent;
