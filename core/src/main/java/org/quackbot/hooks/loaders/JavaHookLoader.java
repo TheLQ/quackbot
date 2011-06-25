@@ -66,6 +66,7 @@ public class JavaHookLoader implements HookLoader {
 		//Get required and optional parameters
 		int requiredCount = 0;
 		int optionalCount = 0;
+		Method previousMethod = null;
 		for (Method curMethod : clazz.getMethods()) {
 			int totalParams = 0;
 			Class<?>[] parameters = curMethod.getParameterTypes();
@@ -73,6 +74,12 @@ public class JavaHookLoader implements HookLoader {
 			//Ignore if this isn't an onCommand method
 			if (!curMethod.getName().equalsIgnoreCase("onCommand"))
 				continue;
+			
+			//Make sure there aren't multiple onCommand methods
+			if(previousMethod != null)
+				throw new QuackbotException("Can't have multiple onCommand methods in class " + clazz);
+			else
+				previousMethod = curMethod;
 			
 			//Ignore if there are 0 parameters
 			if (parameters.length == 0) {
