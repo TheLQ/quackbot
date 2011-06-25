@@ -80,6 +80,7 @@ public class CoreQuackbotHook extends Hook {
 			Command cmd = getCommand(message, command, event.getChannel(), event.getUser());
 			CommandEvent commandEvent = new CommandEvent(cmd, event, event.getChannel(), event.getUser(), event.getMessage(), command, getArgs(message));
 			//Send any response back to the user
+			event.respond(cmd.onCommand(commandEvent));
 			event.respond(executeOnCommandLong(cmd, commandEvent, getArgs(message)));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
