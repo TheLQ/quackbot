@@ -22,9 +22,9 @@ package org.quackbot.events;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.pircbotx.Channel;
-import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
+import org.quackbot.hooks.Command;
 
 /**
  * Event that represents a command being sent.
@@ -33,21 +33,23 @@ import org.pircbotx.hooks.Event;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class CommandEvent extends Event {
+	protected final Command commandClass;
+	protected final Event parentEvent;
 	protected final Channel channel;
 	protected final User user;
 	protected final String command;
 	protected final String[] args;
 	protected final String originalLine;
-	protected final Event parentEvent;
 
-	public CommandEvent(Event parentEvent, Channel channel, User user, String origionalLine, String command, String[] args) {
+	public CommandEvent(Command commandClass, Event parentEvent, Channel channel, User user, String origionalLine, String command, String[] args) {
 		super(parentEvent.getBot());
+		this.commandClass = commandClass;
+		this.parentEvent = parentEvent;
 		this.channel = channel;
 		this.user = user;
 		this.originalLine = origionalLine;
 		this.command = command;
 		this.args = args;
-		this.parentEvent = parentEvent;
 	}
 
 	@Override
