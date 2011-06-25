@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.InvalidCMDException;
+import org.quackbot.events.CommandEvent;
 
 /**
  * Core plugin that provides help for a command
@@ -33,7 +34,7 @@ import org.quackbot.err.InvalidCMDException;
  */
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 public class Help extends Command {
-	public String onCommand(@Optional String command) throws Exception {
+	public String onCommand(CommandEvent event, @Optional String command) throws Exception {
 		//Does user want command list
 		if (command == null) {
 			List<String> cmdList = new ArrayList<String>();
