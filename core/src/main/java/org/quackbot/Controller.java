@@ -102,7 +102,7 @@ public class Controller {
 	 */
 	protected int commandNumber = 0;
 	protected GUI gui;
-	protected HookManager hookManager = new HookManager();
+	protected HookManager hookManager = new HookManager(this);
 	/**
 	 * Global Prefixes.
 	 */
