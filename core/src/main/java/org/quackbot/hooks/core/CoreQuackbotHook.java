@@ -34,6 +34,7 @@ import org.quackbot.hooks.Command;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
+import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Hook;
 
 /**
@@ -77,10 +78,10 @@ public class CoreQuackbotHook extends Hook {
 			log.info("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
 			Command cmd = getCommand(message, command, event.getChannel(), event.getUser());
+			CommandEvent commandEvent = new CommandEvent(event, event.getChannel(), event.getUser());
 			//Send any response back to the user
-			event.respond(cmd.onCommand(event.getChannel(), event.getUser(), getArgs(message)));
-			event.respond(cmd.onCommandChannel(event.getChannel(), event.getUser(), getArgs(message)));
-			event.respond(executeOnCommandLong(cmd, event.getChannel(), event.getUser(), getArgs(message)));
+			event.respond(cmd.onCommand(commandEvent, getArgs(message)));
+			event.respond(executeOnCommandLong(cmd, commandEvent, getArgs(message)));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getChannel(), event.getUser(), "ERROR: " + e.getMessage());
@@ -106,9 +107,9 @@ public class CoreQuackbotHook extends Hook {
 			log.debug("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
 			Command cmd = getCommand(message, command, null, event.getUser());
-			event.respond(cmd.onCommand(null, event.getUser(), getArgs(message)));
-			event.respond(cmd.onCommandPM(event.getUser(), getArgs(message)));
-			event.respond(executeOnCommandLong(cmd, null, event.getUser(), getArgs(message)));
+			CommandEvent commandEvent = new CommandEvent(event, null, event.getUser());
+			event.respond(cmd.onCommand(commandEvent, getArgs(message)));
+			event.respond(executeOnCommandLong(cmd, commandEvent, getArgs(message)));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getUser(), "ERROR: " + e.getMessage());
@@ -141,26 +142,16 @@ public class CoreQuackbotHook extends Hook {
 		return command;
 	}
 
-	public String executeOnCommandLong(Command cmd, Channel chan, User user, Object[] args) throws Exception {
+	public String executeOnCommandLong(Command cmd, CommandEvent commandEvent, Object[] args) throws Exception {
 		try {
 			Class clazz = cmd.getClass();
 			for (Method curMethod : clazz.getMethods())
-				if (curMethod.getName().equalsIgnoreCase("onCommand") || curMethod.getName().equalsIgnoreCase("onCommandChannel")) {
+				if (curMethod.getName().equalsIgnoreCase("onCommand")) {
 					//Pad the args with null values
 					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
 
-					//Prefix with user and channel values
-					args = ArrayUtils.addAll(new Object[]{chan, user}, args);
-					log.trace("Args: " + StringUtils.join(args, ","));
-
-					//Execute method
-					return (String) curMethod.invoke(cmd, args);
-				} else if (curMethod.getName().equalsIgnoreCase("onCommandPM")) {
-					//Pad the args with null values
-					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
-
-					//Prefix with user values
-					args = ArrayUtils.addAll(new Object[]{user}, args);
+					//Prefix with command event
+					args = ArrayUtils.addAll(new Object[]{commandEvent}, args);
 					log.trace("Args: " + StringUtils.join(args, ","));
 
 					//Execute method
