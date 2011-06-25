@@ -81,7 +81,7 @@ public class CoreQuackbotHook extends Hook {
 			CommandEvent commandEvent = new CommandEvent(cmd, event, event.getChannel(), event.getUser(), event.getMessage(), command, getArgs(message));
 			//Send any response back to the user
 			event.respond(cmd.onCommand(commandEvent));
-			event.respond(executeOnCommandLong(cmd, commandEvent, getArgs(message)));
+			event.respond(executeOnCommandLong(commandEvent));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getChannel(), event.getUser(), "ERROR: " + e.getMessage());
@@ -109,7 +109,7 @@ public class CoreQuackbotHook extends Hook {
 			Command cmd = getCommand(message, command, null, event.getUser());
 			CommandEvent commandEvent = new CommandEvent(event, null, event.getUser());
 			event.respond(cmd.onCommand(commandEvent, getArgs(message)));
-			event.respond(executeOnCommandLong(cmd, commandEvent, getArgs(message)));
+			event.respond(executeOnCommandLong(commandEvent));
 		} catch (Exception e) {
 			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getUser(), "ERROR: " + e.getMessage());
@@ -142,11 +142,12 @@ public class CoreQuackbotHook extends Hook {
 		return command;
 	}
 
-	public String executeOnCommandLong(Command cmd, CommandEvent commandEvent, Object[] args) throws Exception {
+	public String executeOnCommandLong(CommandEvent commandEvent) throws Exception {
 		try {
-			Class clazz = cmd.getClass();
+			Class clazz = commandEvent.getCommandClass().getClass();
 			for (Method curMethod : clazz.getMethods())
 				if (curMethod.getName().equalsIgnoreCase("onCommand")) {
+					Object[] args = commandEvent.getArgs();
 					//Pad the args with null values
 					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
 
@@ -155,7 +156,7 @@ public class CoreQuackbotHook extends Hook {
 					log.trace("Args: " + StringUtils.join(args, ","));
 
 					//Execute method
-					return (String) curMethod.invoke(cmd, args);
+					return (String) curMethod.invoke(commandEvent.getCommandClass(), args);
 				}
 		} catch (InvocationTargetException e) {
 			//Unrwap if nessesary
