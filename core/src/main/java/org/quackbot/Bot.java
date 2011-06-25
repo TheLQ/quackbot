@@ -87,6 +87,7 @@ public class Bot extends PircBotX {
 		setFinger(controller.getFinger());
 		setVersion(controller.getVersion());
 		setMessageDelay(controller.getDefaultMessageDelay());
+		setListenerManager(new WrapperListenerManager());
 
 		synchronized (addedListeners) {
 			if (!addedListeners)
