@@ -61,7 +61,7 @@ public class JavaHookLoader implements HookLoader {
 		//Command info creation
 		boolean admin = clazz.isAnnotationPresent(AdminOnly.class);
 		boolean enabled = !clazz.isAnnotationPresent(Disabled.class);
-		String help = StringUtils.defaultString(clazz.getAnnotation(HelpDoc.class).value());
+		String help = (clazz.getAnnotation(HelpDoc.class) != null) ? clazz.getAnnotation(HelpDoc.class).value() : null;
 
 		//Get required and optional parameters
 		int requiredCount = 0;
