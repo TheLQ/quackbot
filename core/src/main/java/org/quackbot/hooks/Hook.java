@@ -45,7 +45,7 @@ import org.quackbot.events.InitEvent;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public abstract class Hook extends ListenerAdapter {
+public abstract class Hook extends ListenerAdapter<Bot> {
 	private final String name;
 	private final String fileLocation;
 	private final Listener listener;
