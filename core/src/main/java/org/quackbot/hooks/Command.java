@@ -46,6 +46,11 @@ public abstract class Command extends Hook {
 	private int optionalParams = 0;
 	@Getter
 	private boolean setup;
+	
+	static {
+		//Remove onCommand from event map as it needs returns the string to send back to the user
+		eventToMethod.remove(CommandEvent.class);
+	}
 
 	public Command() {
 		super();
