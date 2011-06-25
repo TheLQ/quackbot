@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.InvalidCMDException;
-import org.quackbot.hooks.HookManager;
+import org.quackbot.events.CommandEvent;
 
 /**
  *
@@ -35,7 +35,7 @@ import org.quackbot.hooks.HookManager;
 @HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?helpAdmin <OPTIONAL:command>")
 @AdminOnly
 public class AdminHelp extends Command {
-	public String onCommand(@Optional String command) throws Exception {
+	public String onCommand(CommandEvent event, @Optional String command) throws Exception {
 		//Does user want command list
 		if (command == null) {
 			List<String> cmdList = new ArrayList<String>();
