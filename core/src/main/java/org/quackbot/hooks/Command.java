@@ -89,7 +89,7 @@ public abstract class Command extends Hook {
 	 * @throws Exception Any exception you encountered <i>needs</i> to be thrown
 	 *                   and not handled internally
 	 */
-	public String onCommand(CommandEvent event, String[] args) throws Exception {
+	public String onCommand(CommandEvent event) throws Exception {
 		return null;
 	}
 }
