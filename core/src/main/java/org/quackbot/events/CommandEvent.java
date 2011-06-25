@@ -35,12 +35,18 @@ import org.pircbotx.hooks.Event;
 public class CommandEvent extends Event {
 	protected final Channel channel;
 	protected final User user;
+	protected final String command;
+	protected final String[] args;
+	protected final String originalLine;
 	protected final Event parentEvent;
 
-	public CommandEvent(Event parentEvent, Channel channel, User user) {
+	public CommandEvent(Event parentEvent, Channel channel, User user, String origionalLine, String command, String[] args) {
 		super(parentEvent.getBot());
 		this.channel = channel;
 		this.user = user;
+		this.originalLine = origionalLine;
+		this.command = command;
+		this.args = args;
 		this.parentEvent = parentEvent;
 	}
 
