@@ -19,25 +19,20 @@
 package org.quackbot.hooks.loaders;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import lombok.Cleanup;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.pircbotx.Channel;
-import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.err.QuackbotException;
+import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.hooks.Hook;
@@ -176,18 +171,8 @@ public class JSHookLoader implements HookLoader {
 		}
 
 		@Override
-		public String onCommand(Channel chan, User user, String[] args) throws Exception {
-			return (String) invokeFunction(jsEngine, sourceMap, "onCommand", (Object[]) args);
-		}
-
-		@Override
-		public String onCommandChannel(Channel chan, User user, String[] args) throws Exception {
-			return (String) invokeFunction(jsEngine, sourceMap, "onCommandChannel", (Object[]) args);
-		}
-
-		@Override
-		public String onCommandPM(User user, String[] args) throws Exception {
-			return (String) invokeFunction(jsEngine, sourceMap, "onCommandPM", (Object[]) args);
+		public String onCommand(CommandEvent event) throws Exception {
+			return (String) invokeFunction(jsEngine, sourceMap, "onCommand", ArrayUtils.add(event.getArgs(), 0 , event));
 		}
 	}
 
