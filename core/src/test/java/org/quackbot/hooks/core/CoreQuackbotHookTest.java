@@ -46,7 +46,7 @@ public class CoreQuackbotHookTest {
 	@Test
 	public void executeOnCommandLongTest() throws Exception {
 		//Build the CommandEvent
-		final String[][] args = new String[3][];
+		final String[][] args = new String[4][];
 		Command command = new Command("testcommand") {
 			public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
 				args[0] = new String[]{hello0};
