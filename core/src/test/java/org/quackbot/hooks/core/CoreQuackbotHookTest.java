@@ -18,10 +18,14 @@
  */
 package org.quackbot.hooks.core;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
+import lombok.Getter;
+import org.apache.commons.lang.ArrayUtils;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
+import org.testng.annotations.DataProvider;
 import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
@@ -43,27 +47,46 @@ public class CoreQuackbotHookTest {
 		assertEquals(args[4], "hello4", "Args 4 doesn't match given");
 	}
 
-	@Test
-	public void executeOnCommandLongTest() throws Exception {
+	@Test(dataProvider = "onCommandLongTests")
+	public void executeOnCommandLongTest(OnCommandLong command, String[][] expectedArgs) throws Exception {
 		//Build the CommandEvent
-		final String[][] args = new String[4][];
-		Command command = new Command("testcommand") {
-			public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
-				args[0] = new String[]{hello0};
-				args[1] = new String[]{hello1};
-				args[2] = hello23;
-				args[3] = new String[]{hello4};
-				return "Success";
-			}
-		};
 		CommandEvent event = new CommandEvent(command, new MessageEvent(null, null, null, message), null, null, message, "?testCommand", hook.getArgs(message));
 
 		//Execute and verify values
 		String returned = hook.executeOnCommandLong(event);
 		assertEquals(returned, "Success", "onCommandLong doesn't return expected value");
-		assertTrue(Arrays.equals(args[0], new String[]{"hello0"}));
-		assertTrue(Arrays.equals(args[1], new String[]{"hello1"}));
-		assertTrue(Arrays.equals(args[2], new String[]{"hello2", "hello3"}));
-		assertTrue(Arrays.equals(args[3], new String[]{"hello4"}));
+		assertEquals(command.getArgs(), expectedArgs);
+	}
+
+	@DataProvider(name = "onCommandLongTests")
+	public Object[][] getOnCommandLongTests() {
+		Object[][] test = {
+			{
+				new OnCommandLong() {
+					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
+						args = (String[][]) ArrayUtils.add(args, hello23);
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello4));
+						return "Success";
+					}
+				}, new String[][] {
+					makeArray("hello0"),
+					makeArray("hello1"),
+					makeArray("hello2", "hello3"),
+					makeArray("hello4")
+				}
+			}
+		};
+		return test;
+	}
+
+	protected <T> T[] makeArray(T... args) {
+		return args;
+	}
+
+	protected class OnCommandLong extends Command {
+		@Getter
+		String[][] args = new String[0][];
 	}
 }
