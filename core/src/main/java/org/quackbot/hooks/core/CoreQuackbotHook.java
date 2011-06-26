@@ -143,10 +143,32 @@ public class CoreQuackbotHook extends Hook {
 
 	public String executeOnCommandLong(CommandEvent commandEvent) throws Exception {
 		try {
-			Class clazz = commandEvent.getCommandClass().getClass();
-			for (Method curMethod : clazz.getMethods())
-				if (curMethod.getName().equalsIgnoreCase("onCommand")) {
-					Object[] args = commandEvent.getArgs();
+			Command command = commandEvent.getCommandClass();
+			Class clazz = command.getClass();
+			for (Method curMethod : clazz.getMethods()) {
+				if (curMethod.getName().equalsIgnoreCase("onCommand") && curMethod.getParameterTypes().length != 1) {
+					//Get parameters leaving off the first one
+					Class[] parameters = (Class[])ArrayUtils.remove(curMethod.getParameterTypes(), 0);
+					
+					Object[] args = new Object[command.getRequiredParams() + command.getOptionalParams()];
+					String[] userArgs = commandEvent.getArgs();
+					//Try and fill argument list, handling arrays
+					for(int i = 0; i < args.length; i++) {
+						if(parameters[i].isArray()) {
+							//Look ahead to see how big of an array we need
+							int arrayLength = parameters.length;
+							for(int s = i; s < args.length; s++)
+								if(parameters[s].isArray())
+									arrayLength--;
+							
+							//Add our array of specified length
+							args[i] = ArrayUtils.subarray(userArgs, i, i + arrayLength);
+							
+							//Move the index forward to account for the taken in parameters
+							i += arrayLength;
+						}
+					}
+					
 					//Pad the args with null values
 					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
 
@@ -155,8 +177,9 @@ public class CoreQuackbotHook extends Hook {
 					log.trace("Args: " + StringUtils.join(args, ","));
 
 					//Execute method
-					return (String) curMethod.invoke(commandEvent.getCommandClass(), args);
+					return (String) curMethod.invoke(command, args);
 				}
+			}
 		} catch (InvocationTargetException e) {
 			//Unrwap if nessesary
 			Throwable cause = e.getCause();
