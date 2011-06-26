@@ -60,6 +60,7 @@ public class CoreQuackbotHookTest {
 		String returned = hook.executeOnCommandLong(event);
 		assertEquals(returned, "Success", "onCommandLong doesn't return expected value");
 		
+		log.debug("Current command: " + command.getName());
 		logMultiArray(expectedArgs, "Expected args");
 		logMultiArray(expectedArgs, "Given args");
 		
@@ -129,7 +130,7 @@ public class CoreQuackbotHookTest {
 			},
 			{
 				message3,
-				new OnCommandLong("Message4-Array23") {
+				new OnCommandLong("Message3-Array23") {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
@@ -146,7 +147,7 @@ public class CoreQuackbotHookTest {
 			},
 			{
 				message3,
-				new OnCommandLong("Message4-Array34") {
+				new OnCommandLong("Message3-Array34") {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String hello2, String[] hello34) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
@@ -163,7 +164,7 @@ public class CoreQuackbotHookTest {
 			},
 			{
 				message3,
-				new OnCommandLong("Message4-Array01") {
+				new OnCommandLong("Message3-Array01") {
 					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, hello01);
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello2));
