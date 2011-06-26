@@ -1,6 +1,7 @@
 package org.quackbot.hooks.core;
 
 import java.util.Arrays;
+import org.pircbotx.hooks.events.MessageEvent;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import static org.testng.Assert.*;
@@ -37,8 +38,8 @@ public class CoreQuackbotHookTest {
 				return "Success";
 			}
 		};
-		CommandEvent event = new CommandEvent(command, null, null, null, message, "?testCommand", hook.getArgs(message));
-		
+		CommandEvent event = new CommandEvent(command, new MessageEvent(null, null, null, message), null, null, message, "?testCommand", hook.getArgs(message));
+
 		//Execute and verify values
 		String returned = hook.executeOnCommandLong(event);
 		assertEquals(returned, "Success", "onCommandLong doesn't return expected value");
