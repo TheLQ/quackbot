@@ -119,7 +119,7 @@ public class CoreQuackbotHook extends Hook {
 			log.debug("-----------End " + debugSuffix + "-----------");
 		}
 	}
-	
+
 	public Command getCommand(String[] args, String userCommand, Channel chan, User user) throws InvalidCMDException, AdminException, NumArgException {
 		Command command = getController().getHookManager().getCommand(userCommand);
 		//Is this a valid command?
@@ -145,30 +145,29 @@ public class CoreQuackbotHook extends Hook {
 		try {
 			Command command = commandEvent.getCommandClass();
 			Class clazz = command.getClass();
-			for (Method curMethod : clazz.getMethods()) {
+			for (Method curMethod : clazz.getMethods())
 				if (curMethod.getName().equalsIgnoreCase("onCommand") && curMethod.getParameterTypes().length != 1) {
 					//Get parameters leaving off the first one
-					Class[] parameters = (Class[])ArrayUtils.remove(curMethod.getParameterTypes(), 0);
-					
+					Class[] parameters = (Class[]) ArrayUtils.remove(curMethod.getParameterTypes(), 0);
+
 					Object[] args = new Object[command.getRequiredParams() + command.getOptionalParams()];
 					String[] userArgs = commandEvent.getArgs();
 					//Try and fill argument list, handling arrays
-					for(int i = 0; i < args.length; i++) {
-						if(parameters[i].isArray()) {
+					for (int i = 0; i < args.length; i++)
+						if (parameters[i].isArray()) {
 							//Look ahead to see how big of an array we need
 							int arrayLength = parameters.length;
-							for(int s = i; s < args.length; s++)
-								if(parameters[s].isArray())
+							for (int s = i; s < args.length; s++)
+								if (parameters[s].isArray())
 									arrayLength--;
-							
+
 							//Add our array of specified length
 							args[i] = ArrayUtils.subarray(userArgs, i, i + arrayLength);
-							
+
 							//Move the index forward to account for the taken in parameters
 							i += arrayLength;
 						}
-					}
-					
+
 					//Pad the args with null values
 					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
 
@@ -179,7 +178,6 @@ public class CoreQuackbotHook extends Hook {
 					//Execute method
 					return (String) curMethod.invoke(command, args);
 				}
-			}
 		} catch (InvocationTargetException e) {
 			//Unrwap if nessesary
 			Throwable cause = e.getCause();
