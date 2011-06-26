@@ -183,10 +183,20 @@ public class CoreQuackbotHookTest {
 		return test;
 	}
 
+	/************************* UTILS ************************/
+	/**
+	 * Simpler way to make arrays dynamically
+	 * @param <T> The type of array to create
+	 * @param args Elements in the array
+	 * @return A completed array
+	 */
 	protected <T> T[] makeArray(T... args) {
 		return args;
 	}
-
+	
+	/**
+	 * Simple test class for extracting arguments from the long version of onCommand 
+	 */
 	protected class OnCommandLong extends Command {
 		@Getter
 		String[][] args = new String[0][];
