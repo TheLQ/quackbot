@@ -21,7 +21,9 @@ package org.quackbot.hooks.core;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
@@ -33,6 +35,7 @@ import org.testng.annotations.Test;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class CoreQuackbotHookTest {
 	protected CoreQuackbotHook hook = new CoreQuackbotHook();
 	protected String message4 = "?command hello0 hello1 hello2 hello3 hello4";
@@ -56,9 +59,9 @@ public class CoreQuackbotHookTest {
 		//Execute and verify values
 		String returned = hook.executeOnCommandLong(event);
 		assertEquals(returned, "Success", "onCommandLong doesn't return expected value");
-		assertEquals(command.getArgs(), expectedArgs);
+		assertTrue(Arrays.deepEquals(command.getArgs(), expectedArgs));
 	}
-
+	
 	@DataProvider(name = "onCommandLongTests")
 	public Object[][] getOnCommandLongTests() {
 		Object[][] test = {
@@ -108,7 +111,7 @@ public class CoreQuackbotHookTest {
 					}
 				}, new String[][] {
 					makeArray("hello0"),
-					makeArray("hello1"),
+					makeArray("hello20"),
 					makeArray("hello2"),
 					makeArray("hello3", "hello4")
 				}
