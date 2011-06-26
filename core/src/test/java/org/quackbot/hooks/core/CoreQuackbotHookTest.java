@@ -35,11 +35,12 @@ import org.testng.annotations.Test;
  */
 public class CoreQuackbotHookTest {
 	protected CoreQuackbotHook hook = new CoreQuackbotHook();
-	protected String message = "?command hello0 hello1 hello2 hello3 hello4";
+	protected String message4 = "?command hello0 hello1 hello2 hello3 hello4";
+	protected String message3 = "?command hello0 hello1 hello2 hello3";
 
 	@Test
 	public void getArgsTest() {
-		String[] args = hook.getArgs(message);
+		String[] args = hook.getArgs(message4);
 		assertEquals(args[0], "hello0", "Args 0 doesn't match given");
 		assertEquals(args[1], "hello1", "Args 1 doesn't match given");
 		assertEquals(args[2], "hello2", "Args 2 doesn't match given");
@@ -62,7 +63,7 @@ public class CoreQuackbotHookTest {
 	public Object[][] getOnCommandLongTests() {
 		Object[][] test = {
 			{
-				message,
+				message4,
 				new OnCommandLong() {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
@@ -79,7 +80,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
-				message,
+				message4,
 				new OnCommandLong() {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String hello2, String[] hello34) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
@@ -96,7 +97,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
-				message,
+				message4,
 				new OnCommandLong() {
 					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, hello01);
@@ -110,6 +111,57 @@ public class CoreQuackbotHookTest {
 					makeArray("hello1"),
 					makeArray("hello2"),
 					makeArray("hello3", "hello4")
+				}
+			},
+			{
+				message3,
+				new OnCommandLong() {
+					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
+						args = (String[][]) ArrayUtils.add(args, hello23);
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello4));
+						return "Success";
+					}
+				}, new String[][] {
+					makeArray("hello0"),
+					makeArray("hello1"),
+					makeArray("hello2", "hello3"),
+					new String[]{null}
+				}
+			},
+			{
+				message3,
+				new OnCommandLong() {
+					public String onCommand(CommandEvent event, String hello0, String hello1, String hello2, String[] hello34) throws Exception {
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello2));
+						args = (String[][]) ArrayUtils.add(args, hello34);
+						return "Success";
+					}
+				}, new String[][] {
+					makeArray("hello0"),
+					makeArray("hello1"),
+					makeArray("hello2"),
+					makeArray("hello3", null)
+				}
+			},
+			{
+				message3,
+				new OnCommandLong() {
+					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
+						args = (String[][]) ArrayUtils.add(args, hello01);
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello2));
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello3));
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello4));
+						return "Success";
+					}
+				}, new String[][] {
+					makeArray("hello0"),
+					makeArray("hello1"),
+					makeArray("hello2"),
+					makeArray("hello3", null)
 				}
 			}
 		};
