@@ -92,6 +92,22 @@ public class CoreQuackbotHookTest {
 					makeArray("hello2"),
 					makeArray("hello3", "hello4")
 				}
+			},
+			{
+				new OnCommandLong() {
+					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
+						args = (String[][]) ArrayUtils.add(args, hello01);
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello2));
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello3));
+						args = (String[][]) ArrayUtils.add(args, makeArray(hello4));
+						return "Success";
+					}
+				}, new String[][] {
+					makeArray("hello0"),
+					makeArray("hello1"),
+					makeArray("hello2"),
+					makeArray("hello3", "hello4")
+				}
 			}
 		};
 		return test;
