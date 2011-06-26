@@ -59,21 +59,21 @@ public class CoreQuackbotHookTest {
 		//Execute and verify values
 		String returned = hook.executeOnCommandLong(event);
 		assertEquals(returned, "Success", "onCommandLong doesn't return expected value");
-		
+
 		log.debug("Current command: " + command.getName());
 		logMultiArray(expectedArgs, "Expected args");
 		logMultiArray(command.getArgs(), "Given args");
-		
+
 		assertTrue(Arrays.deepEquals(command.getArgs(), expectedArgs), "Command test " + command.getName() + " args don't equal");
 	}
-	
+
 	protected void logMultiArray(Object[][] array, String message) {
 		StringBuilder sb = new StringBuilder(message);
-		for(int outer = 0; outer < array.length; outer++)
+		for (int outer = 0; outer < array.length; outer++)
 			sb.append("\n").append(outer).append(" - ").append(StringUtils.join(array[outer], ", "));
 		log.trace(sb.toString().trim());
 	}
-	
+
 	@DataProvider(name = "onCommandLongTests")
 	public Object[][] getOnCommandLongTests() {
 		Object[][] test = {
@@ -87,7 +87,7 @@ public class CoreQuackbotHookTest {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello4));
 						return "Success";
 					}
-				}, new String[][] {
+				}, new String[][]{
 					{"hello0"},
 					{"hello1"},
 					{"hello2", "hello3"},
@@ -104,7 +104,7 @@ public class CoreQuackbotHookTest {
 						args = (String[][]) ArrayUtils.add(args, hello34);
 						return "Success";
 					}
-				}, new String[][] {
+				}, new String[][]{
 					{"hello0"},
 					{"hello1"},
 					{"hello2"},
@@ -121,7 +121,7 @@ public class CoreQuackbotHookTest {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello4));
 						return "Success";
 					}
-				}, new String[][] {
+				}, new String[][]{
 					{"hello0", "hello1"},
 					{"hello2"},
 					{"hello3"},
@@ -138,7 +138,7 @@ public class CoreQuackbotHookTest {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello4));
 						return "Success";
 					}
-				}, new String[][] {
+				}, new String[][]{
 					{"hello0"},
 					{"hello1"},
 					{"hello2", "hello3"},
@@ -155,7 +155,7 @@ public class CoreQuackbotHookTest {
 						args = (String[][]) ArrayUtils.add(args, hello34);
 						return "Success";
 					}
-				}, new String[][] {
+				}, new String[][]{
 					{"hello0"},
 					{"hello1"},
 					{"hello2"},
@@ -172,7 +172,7 @@ public class CoreQuackbotHookTest {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello4));
 						return "Success";
 					}
-				}, new String[][] {
+				}, new String[][]{
 					{"hello0", "hello1"},
 					{"hello2"},
 					{"hello3"},
@@ -190,7 +190,7 @@ public class CoreQuackbotHookTest {
 	protected class OnCommandLong extends Command {
 		@Getter
 		String[][] args = new String[0][];
-		
+
 		public OnCommandLong(String name) {
 			super(name);
 		}
