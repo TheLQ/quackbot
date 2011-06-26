@@ -153,7 +153,7 @@ public class CoreQuackbotHook extends Hook {
 					Object[] args = new Object[command.getRequiredParams() + command.getOptionalParams()];
 					String[] userArgs = commandEvent.getArgs();
 					//Try and fill argument list, handling arrays
-					for (int i = 0; i < args.length; i++)
+					for (int i = 0; i < args.length; i++) {
 						if (parameters[i].isArray()) {
 							//Look ahead to see how big of an array we need
 							int arrayLength = parameters.length;
@@ -167,6 +167,9 @@ public class CoreQuackbotHook extends Hook {
 							//Move the index forward to account for the taken in parameters
 							i += arrayLength;
 						}
+						else
+							args[i] = userArgs[i];
+					}
 
 					//Pad the args with null values
 					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
