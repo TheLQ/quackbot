@@ -31,16 +31,16 @@ import org.testng.annotations.Test;
  */
 public class CoreQuackbotHookTest {
 	protected CoreQuackbotHook hook = new CoreQuackbotHook();
-	protected String message = "?command hello1 hello2 hello3 hello4 hello5";
+	protected String message = "?command hello0 hello1 hello2 hello3 hello4";
 
 	@Test
 	public void getArgsTest() {
 		String[] args = hook.getArgs(message);
-		assertEquals(args[0], "hello1", "Args 0 doesn't match given");
-		assertEquals(args[1], "hello2", "Args 1 doesn't match given");
-		assertEquals(args[2], "hello3", "Args 2 doesn't match given");
-		assertEquals(args[3], "hello4", "Args 3 doesn't match given");
-		assertEquals(args[4], "hello5", "Args 4 doesn't match given");
+		assertEquals(args[0], "hello0", "Args 0 doesn't match given");
+		assertEquals(args[1], "hello1", "Args 1 doesn't match given");
+		assertEquals(args[2], "hello2", "Args 2 doesn't match given");
+		assertEquals(args[3], "hello3", "Args 3 doesn't match given");
+		assertEquals(args[4], "hello4", "Args 4 doesn't match given");
 	}
 
 	@Test
@@ -48,11 +48,11 @@ public class CoreQuackbotHookTest {
 		//Build the CommandEvent
 		final String[][] args = new String[3][];
 		Command command = new Command("testcommand") {
-			public String onCommand(CommandEvent event, String hello1, String hello2, String[] hello34, String hello5) throws Exception {
-				args[0] = new String[]{hello1};
-				args[1] = new String[]{hello2};
-				args[2] = hello34;
-				args[3] = new String[]{hello5};
+			public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
+				args[0] = new String[]{hello0};
+				args[1] = new String[]{hello1};
+				args[2] = hello23;
+				args[3] = new String[]{hello4};
 				return "Success";
 			}
 		};
@@ -61,9 +61,9 @@ public class CoreQuackbotHookTest {
 		//Execute and verify values
 		String returned = hook.executeOnCommandLong(event);
 		assertEquals(returned, "Success", "onCommandLong doesn't return expected value");
-		assertTrue(Arrays.equals(args[0], new String[]{"hello1"}));
-		assertTrue(Arrays.equals(args[1], new String[]{"hello2"}));
-		assertTrue(Arrays.equals(args[2], new String[]{"hello3", "hello4"}));
-		assertTrue(Arrays.equals(args[3], new String[]{"hello5"}));
+		assertTrue(Arrays.equals(args[0], new String[]{"hello0"}));
+		assertTrue(Arrays.equals(args[1], new String[]{"hello1"}));
+		assertTrue(Arrays.equals(args[2], new String[]{"hello2", "hello3"}));
+		assertTrue(Arrays.equals(args[3], new String[]{"hello4"}));
 	}
 }
