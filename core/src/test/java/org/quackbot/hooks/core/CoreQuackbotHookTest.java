@@ -88,10 +88,10 @@ public class CoreQuackbotHookTest {
 						return "Success";
 					}
 				}, new String[][] {
-					makeArray("hello0"),
-					makeArray("hello1"),
-					makeArray("hello2", "hello3"),
-					makeArray("hello4")
+					{"hello0"},
+					{"hello1"},
+					{"hello2", "hello3"},
+					{"hello4"}
 				}
 			},
 			{
@@ -105,10 +105,10 @@ public class CoreQuackbotHookTest {
 						return "Success";
 					}
 				}, new String[][] {
-					makeArray("hello0"),
-					makeArray("hello1"),
-					makeArray("hello2"),
-					makeArray("hello3", "hello4")
+					{"hello0"},
+					{"hello1"},
+					{"hello2"},
+					{"hello3", "hello4"}
 				}
 			},
 			{
@@ -122,10 +122,10 @@ public class CoreQuackbotHookTest {
 						return "Success";
 					}
 				}, new String[][] {
-					makeArray("hello0", "hello1"),
-					makeArray("hello2"),
-					makeArray("hello3"),
-					makeArray("hello4")
+					{"hello0", "hello1"},
+					{"hello2"},
+					{"hello3"},
+					{"hello4"}
 				}
 			},
 			{
@@ -139,10 +139,10 @@ public class CoreQuackbotHookTest {
 						return "Success";
 					}
 				}, new String[][] {
-					makeArray("hello0"),
-					makeArray("hello1"),
-					makeArray("hello2", "hello3"),
-					new String[]{null}
+					{"hello0"},
+					{"hello1"},
+					{"hello2", "hello3"},
+					{null}
 				}
 			},
 			{
@@ -156,10 +156,10 @@ public class CoreQuackbotHookTest {
 						return "Success";
 					}
 				}, new String[][] {
-					makeArray("hello0"),
-					makeArray("hello1"),
-					makeArray("hello2"),
-					makeArray("hello3") //Do not expect null as the last element as its an optional parameter
+					{"hello0"},
+					{"hello1"},
+					{"hello2"},
+					{"hello3"} //Do not expect null as the last element as its an optional parameter
 				}
 			},
 			{
@@ -173,10 +173,10 @@ public class CoreQuackbotHookTest {
 						return "Success";
 					}
 				}, new String[][] {
-					makeArray("hello0", "hello1"),
-					makeArray("hello2"),
-					makeArray("hello3"),
-					new String[]{null}
+					{"hello0", "hello1"},
+					{"hello2"},
+					{"hello3"},
+					{null}
 				}
 			}
 		};
