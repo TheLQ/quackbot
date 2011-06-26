@@ -150,33 +150,41 @@ public class CoreQuackbotHook extends Hook {
 					//Get parameters leaving off the first one
 					Class[] parameters = (Class[]) ArrayUtils.remove(curMethod.getParameterTypes(), 0);
 
-					Object[] args = new Object[command.getRequiredParams() + command.getOptionalParams()];
+					Object[] args = new Object[0];
 					String[] userArgs = commandEvent.getArgs();
+					log.debug("UserArgs: " + StringUtils.join(userArgs, ", "));
 					//Try and fill argument list, handling arrays
-					for (int i = 0; i < args.length; i++) {
-						if (parameters[i].isArray()) {
+					for (int i = 0; i < userArgs.length; i++) {
+						log.trace("Current parameter: " + i);
+						if (i < parameters.length && parameters[i].isArray()) {
+							log.trace("Parameter " + i + " is an array");
 							//Look ahead to see how big of an array we need
-							int arrayLength = parameters.length;
-							for (int s = i; s < args.length; s++)
-								if (parameters[s].isArray())
+							int arrayLength = parameters.length - (i - 1);
+							for (int s = i; s < parameters.length; s++)
+								if (!parameters[s].isArray())
 									arrayLength--;
 
 							//Add our array of specified length
-							args[i] = ArrayUtils.subarray(userArgs, i, i + arrayLength);
+							log.trace("Parameter " + i + " is an array. Assigning it the next " + arrayLength + " args");
+							Object[] curArray = ArrayUtils.subarray(userArgs, i, i + arrayLength);
+							args = ArrayUtils.add(args, curArray);
+							log.trace("Parameter " + i + " set to " + StringUtils.join(curArray, ", "));
 
-							//Move the index forward to account for the taken in parameters
-							i += arrayLength;
+							//Move the index forward to account for the args folded into the array
+							i += arrayLength - 1;
 						}
-						else
-							args[i] = userArgs[i];
+						else {
+							log.trace("User arg " + i + " isn't an array, assigning " + userArgs[i]);
+							args = ArrayUtils.add(args, userArgs[i]);
+						}
 					}
 
 					//Pad the args with null values
-					args = Arrays.copyOf(args, curMethod.getParameterTypes().length);
+					args = Arrays.copyOf(args, parameters.length);
 
 					//Prefix with command event
 					args = ArrayUtils.addAll(new Object[]{commandEvent}, args);
-					log.trace("Args: " + StringUtils.join(args, ","));
+					log.trace("Args minus CommandEvent: " + StringUtils.join(ArrayUtils.remove(args, 0), ", "));
 
 					//Execute method
 					return (String) curMethod.invoke(command, args);
