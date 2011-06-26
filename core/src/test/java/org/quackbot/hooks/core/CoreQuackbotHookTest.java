@@ -62,7 +62,7 @@ public class CoreQuackbotHookTest {
 		
 		log.debug("Current command: " + command.getName());
 		logMultiArray(expectedArgs, "Expected args");
-		logMultiArray(expectedArgs, "Given args");
+		logMultiArray(command.getArgs(), "Given args");
 		
 		assertTrue(Arrays.deepEquals(command.getArgs(), expectedArgs), "Command test " + command.getName() + " args don't equal");
 	}
@@ -122,10 +122,10 @@ public class CoreQuackbotHookTest {
 						return "Success";
 					}
 				}, new String[][] {
-					makeArray("hello0"),
-					makeArray("hello20"),
+					makeArray("hello0", "hello1"),
 					makeArray("hello2"),
-					makeArray("hello3", "hello4")
+					makeArray("hello3"),
+					makeArray("hello4")
 				}
 			},
 			{
@@ -159,7 +159,7 @@ public class CoreQuackbotHookTest {
 					makeArray("hello0"),
 					makeArray("hello1"),
 					makeArray("hello2"),
-					makeArray("hello3", null)
+					makeArray("hello3") //Do not expect null as the last element as its an optional parameter
 				}
 			},
 			{
@@ -173,10 +173,10 @@ public class CoreQuackbotHookTest {
 						return "Success";
 					}
 				}, new String[][] {
-					makeArray("hello0"),
-					makeArray("hello1"),
+					makeArray("hello0", "hello1"),
 					makeArray("hello2"),
-					makeArray("hello3", null)
+					makeArray("hello3"),
+					new String[]{null}
 				}
 			}
 		};
