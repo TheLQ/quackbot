@@ -48,9 +48,9 @@ public class CoreQuackbotHookTest {
 	}
 
 	@Test(dataProvider = "onCommandLongTests")
-	public void executeOnCommandLongTest(OnCommandLong command, String[][] expectedArgs) throws Exception {
+	public void executeOnCommandLongTest(String cmdMessage, OnCommandLong command, String[][] expectedArgs) throws Exception {
 		//Build the CommandEvent
-		CommandEvent event = new CommandEvent(command, new MessageEvent(null, null, null, message), null, null, message, "?testCommand", hook.getArgs(message));
+		CommandEvent event = new CommandEvent(command, new MessageEvent(null, null, null, cmdMessage), null, null, cmdMessage, "?testCommand", hook.getArgs(cmdMessage));
 
 		//Execute and verify values
 		String returned = hook.executeOnCommandLong(event);
@@ -62,6 +62,7 @@ public class CoreQuackbotHookTest {
 	public Object[][] getOnCommandLongTests() {
 		Object[][] test = {
 			{
+				message,
 				new OnCommandLong() {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
@@ -78,6 +79,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
+				message,
 				new OnCommandLong() {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String hello2, String[] hello34) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
@@ -94,6 +96,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
+				message,
 				new OnCommandLong() {
 					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, hello01);
