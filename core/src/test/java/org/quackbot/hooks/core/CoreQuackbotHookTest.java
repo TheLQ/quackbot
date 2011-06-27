@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.quackbot.Controller;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import org.testng.annotations.DataProvider;
@@ -36,9 +37,19 @@ import org.testng.annotations.Test;
  */
 @Slf4j
 public class CoreQuackbotHookTest {
-	protected CoreQuackbotHook hook = new CoreQuackbotHook();
-	protected final String args4 = "hello0 hello1 hello2 hello3 hello4";
-	protected final String args3 = "hello0 hello1 hello2 hello3";
+	Controller controller = new Controller(null);
+	protected CoreQuackbotHook hook = new CoreQuackbotHook() {
+		@Override
+		public Controller getController() {
+			return controller;
+		}
+	};
+	protected String args4 = "hello0 hello1 hello2 hello3 hello4";
+	protected String args3 = "hello0 hello1 hello2 hello3";
+
+	public CoreQuackbotHookTest() {
+		controller.getHookManager().addHook(hook);
+	}
 
 	@Test
 	public void getArgsTest() {
