@@ -43,6 +43,7 @@ public class CoreQuackbotHookTest {
 	@Test
 	public void getArgsTest() {
 		String[] args = hook.getArgs("?someCommand " + args4);
+		assertEquals(args.length, 5, "Too many or too few args given from getArgs");
 		assertEquals(args[0], "hello0", "Args 0 doesn't match given");
 		assertEquals(args[1], "hello1", "Args 1 doesn't match given");
 		assertEquals(args[2], "hello2", "Args 2 doesn't match given");
