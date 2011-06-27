@@ -18,7 +18,6 @@
  */
 package org.quackbot.hooks.core;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -38,12 +37,12 @@ import org.testng.annotations.Test;
 @Slf4j
 public class CoreQuackbotHookTest {
 	protected CoreQuackbotHook hook = new CoreQuackbotHook();
-	protected String message4 = "?command hello0 hello1 hello2 hello3 hello4";
-	protected String message3 = "?command hello0 hello1 hello2 hello3";
+	protected final String args4 = "hello0 hello1 hello2 hello3 hello4";
+	protected final String args3 = "hello0 hello1 hello2 hello3";
 
 	@Test
 	public void getArgsTest() {
-		String[] args = hook.getArgs(message4);
+		String[] args = hook.getArgs("?someCommand " + args4);
 		assertEquals(args[0], "hello0", "Args 0 doesn't match given");
 		assertEquals(args[1], "hello1", "Args 1 doesn't match given");
 		assertEquals(args[2], "hello2", "Args 2 doesn't match given");
@@ -78,7 +77,7 @@ public class CoreQuackbotHookTest {
 	public Object[][] getOnCommandLongTests() {
 		Object[][] test = {
 			{
-				message4,
+				"?Message4-Array23 " + args4,
 				new OnCommandLong("Message4-Array23") {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
@@ -95,7 +94,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
-				message4,
+				"?Message4-Array34 " + args4,
 				new OnCommandLong("Message4-Array34") {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String hello2, String[] hello34) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
@@ -112,7 +111,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
-				message4,
+				"?Message4-Array01 " + args4,
 				new OnCommandLong("Message4-Array01") {
 					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, hello01);
@@ -129,7 +128,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
-				message3,
+				"?Message3-Array23 " + args3,
 				new OnCommandLong("Message3-Array23") {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
@@ -146,7 +145,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
-				message3,
+				"?Message3-Array34 " + args3,
 				new OnCommandLong("Message3-Array34") {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String hello2, String[] hello34) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
@@ -163,7 +162,7 @@ public class CoreQuackbotHookTest {
 				}
 			},
 			{
-				message3,
+				"?Message3-Array01 " + args3,
 				new OnCommandLong("Message3-Array01") {
 					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, hello01);
@@ -193,7 +192,7 @@ public class CoreQuackbotHookTest {
 	protected <T> T[] makeArray(T... args) {
 		return args;
 	}
-	
+
 	/**
 	 * Simple test class for extracting arguments from the long version of onCommand 
 	 */
