@@ -299,6 +299,7 @@ public class Controller {
 					Bot bot = new Bot(Controller.this, curServer.getServerId(), threadPool);
 					bot.setVerbose(true);
 					bots.add(bot);
+					bot.connect();
 				} catch (Exception ex) {
 					log.error("Can't make bot connect to server", ex);
 				}

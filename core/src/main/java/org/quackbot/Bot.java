@@ -102,7 +102,9 @@ public class Bot extends PircBotX {
 					return;
 				}
 		}
-
+	}
+	
+	public void connect() {
 		//Some debug
 		ServerStore serverStore = getServerStore();
 		log.info("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
