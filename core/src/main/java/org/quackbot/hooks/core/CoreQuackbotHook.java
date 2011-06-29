@@ -26,9 +26,11 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
+import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
+import org.pircbotx.hooks.types.GenericMessageEvent;
 import org.quackbot.data.ChannelStore;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.AdminException;
@@ -54,11 +56,6 @@ public class CoreQuackbotHook extends Hook {
 
 	@Override
 	public void onMessage(MessageEvent event) throws Exception {
-		if (getBot().isLocked(event.getChannel(), event.getUser())) {
-			log.warn("Bot locked");
-			return;
-		}
-
 		String message = event.getMessage();
 
 		//Look for a prefix
@@ -73,53 +70,39 @@ public class CoreQuackbotHook extends Hook {
 			return;
 		}
 
+		execute(event, event.getChannel(), event.getUser(), event.getMessage());
+	}
+
+	@Override
+	public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
+		execute(event, null, event.getUser(), event.getMessage());
+	}
+
+	protected void execute(Event event, Channel chan, User user, String message) throws Exception {
+		if (getBot().isLocked(chan, user)) {
+			log.warn("Bot locked");
+			return;
+		}
+
 		int commandNumber = getController().addCommandNumber();
 		String command = "";
-		String debugSuffix = "execution of command #" + commandNumber + ",  from channel " + event.getChannel().getName() + " using message " + message;
+		String fromText = (chan != null) ? "channel " + chan.getName() : " a PM by " + user.getNick();
+		String debugSuffix = "execution of command #" + commandNumber + ",  from " + fromText + " using message " + message;
 
 		try {
 			log.info("-----------Begin " + debugSuffix + "-----------");
 			command = message.split(" ", 2)[0];
 			String[] args = getArgs(message);
-			Command cmd = getCommand(args, command, event.getChannel(), event.getUser());
-			CommandEvent commandEvent = new CommandEvent(cmd, event, event.getChannel(), event.getUser(), event.getMessage(), command, args);
+			Command cmd = getCommand(args, command, chan, user);
+			CommandEvent commandEvent = new CommandEvent(cmd, event, chan, user, message, command, args);
 			//Send any response back to the user
 			event.respond(cmd.onCommand(commandEvent));
 			event.respond(executeOnCommandLong(commandEvent));
 		} catch (Exception e) {
-			getBot().sendMessage(event.getChannel(), event.getUser(), "ERROR: " + e.getMessage());
+			getBot().sendMessage(chan, user, "ERROR: " + e.getMessage());
 			throw new QuackbotException("Error encountered when running command " + command, e);
 		} finally {
 			log.info("-----------End " + debugSuffix + "-----------");
-		}
-	}
-
-	@Override
-	public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
-		if (getBot().isLocked(null, event.getUser())) {
-			log.warn("Bot locked");
-			return;
-		}
-
-		//Assume command
-		int commandNumber = getController().addCommandNumber();
-		String message = event.getMessage();
-		String command = "";
-		String debugSuffix = "execution of command #" + commandNumber + ",  from a PM from " + event.getUser() + " using message " + message;
-
-		try {
-			log.debug("-----------Begin " + debugSuffix + "-----------");
-			command = message.split(" ", 2)[0];
-			String[] args = getArgs(message);
-			Command cmd = getCommand(args, command, null, event.getUser());
-			CommandEvent commandEvent = new CommandEvent(cmd, event, null, event.getUser(), event.getMessage(), command, args);
-			event.respond(cmd.onCommand(commandEvent));
-			event.respond(executeOnCommandLong(commandEvent));
-		} catch (Exception e) {
-			getBot().sendMessage(event.getUser(), "ERROR: " + e.getMessage());
-			throw new QuackbotException("Error encountered when running command " + command, e);
-		} finally {
-			log.debug("-----------End " + debugSuffix + "-----------");
 		}
 	}
 
@@ -175,8 +158,7 @@ public class CoreQuackbotHook extends Hook {
 
 							//Move the index forward to account for the args folded into the array
 							i += arrayLength - 1;
-						}
-						else {
+						} else {
 							log.trace("User arg " + i + " isn't an array, assigning " + userArgs[i]);
 							args = ArrayUtils.add(args, userArgs[i]);
 						}
