@@ -77,7 +77,7 @@ public class CoreQuackbotHookTest {
 			throw new UnsupportedOperationException("Not supported yet.");
 		}
 	};
-	Controller controller = new Controller(store);
+	Controller controller = new Controller(store, false);
 	Bot bot = new Bot(controller, -1, Executors.newCachedThreadPool());
 	Channel channel = new Channel(bot, "#someChannel") {
 	};
