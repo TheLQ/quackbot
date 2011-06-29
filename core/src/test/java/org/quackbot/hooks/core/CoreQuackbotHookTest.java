@@ -166,7 +166,7 @@ public class CoreQuackbotHookTest {
 	public void onMessageTest() throws Exception {
 		//Generate a simple message event
 		final String origMessage = "?hello " + args4;
-		final MessageEvent messageEvent = new MessageEvent(null, channel, null, origMessage);
+		final MessageEvent messageEvent = new MessageEvent(bot, channel, user, origMessage);
 
 		//This will notify us that execute actually ran. Yes, its ugly, but boolean is final
 		final StringBuilder executed = new StringBuilder("false");
