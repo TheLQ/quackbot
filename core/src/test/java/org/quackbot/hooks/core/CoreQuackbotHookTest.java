@@ -123,13 +123,6 @@ public class CoreQuackbotHookTest {
 		assertTrue(Arrays.deepEquals(command.getArgs(), expectedArgs), "Command test " + command.getName() + " args don't equal");
 	}
 
-	protected void logMultiArray(Object[][] array, String message) {
-		StringBuilder sb = new StringBuilder(message);
-		for (int outer = 0; outer < array.length; outer++)
-			sb.append("\n").append(outer).append(" - ").append(StringUtils.join(array[outer], ", "));
-		log.trace(sb.toString().trim());
-	}
-
 	/**
 	 * Instead of only testing onCommandLong, test feeding into onMessage
 	 */
@@ -281,6 +274,13 @@ public class CoreQuackbotHookTest {
 	 */
 	protected <T> T[] makeArray(T... args) {
 		return args;
+	}
+	
+	protected void logMultiArray(Object[][] array, String message) {
+		StringBuilder sb = new StringBuilder(message);
+		for (int outer = 0; outer < array.length; outer++)
+			sb.append("\n").append(outer).append(" - ").append(StringUtils.join(array[outer], ", "));
+		log.trace(sb.toString().trim());
 	}
 
 	/**
