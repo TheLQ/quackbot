@@ -27,10 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
+import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
 import org.quackbot.data.AdminStore;
 import org.quackbot.data.ChannelStore;
@@ -188,6 +190,36 @@ public class CoreQuackbotHookTest {
 		};
 
 		tempHook.onMessage(messageEvent);
+	}
+	
+	@Test
+	public void onPrivateMessageTest() throws Exception {
+		//Generate a simple message event
+		final String origMessage = "hello " + args4;
+		final PrivateMessageEvent pmEvent = new PrivateMessageEvent(bot, user, origMessage);
+
+		//This will notify us that execute actually ran. Yes, its ugly, but boolean is final
+		final StringBuilder executed = new StringBuilder("false");
+
+		//Test hook that makes sure all the information passed into execute is good
+		CoreQuackbotHook tempHook = new CoreQuackbotHook() {
+			@Override
+			public Bot getBot() {
+				return bot;
+			}
+
+			@Override
+			protected void execute(Event event, Channel chan, User user, String message) throws Exception {
+				assertEquals(event, pmEvent, "Event passed to execute doesn't match given");
+				assertEquals(chan, null, "Channel does not match given");
+				assertEquals(user, CoreQuackbotHookTest.this.user, "User does not match given");
+				assertEquals(message, origMessage, "Message does not match given");
+				executed.setLength(0);
+				executed.append("true");
+			}
+		};
+
+		tempHook.onPrivateMessage(pmEvent);
 	}
 
 	@DataProvider(name = "onCommandLongTests")
