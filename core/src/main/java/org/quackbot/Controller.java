@@ -117,7 +117,7 @@ public class Controller {
 	private String finger = "";
 	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
 	@Getter(AccessLevel.NONE)
-	protected boolean createGui = true;
+	protected boolean createGui;
 	@Setter(AccessLevel.PUBLIC)
 	protected int defaultPort = 6667;
 	@Setter(AccessLevel.PUBLIC)
@@ -132,8 +132,9 @@ public class Controller {
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
-	public Controller(DataStore storage) {
+	public Controller(DataStore storage, boolean createGui) {
 		this.storage = storage;
+		this.createGui = createGui;
 
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -152,7 +153,7 @@ public class Controller {
 		});
 
 		//Do we need to make a GUI?
-		if (isGuiCreated())
+		if (createGui)
 			try {
 				//This can't run in EDT, end if it is
 				if (SwingUtilities.isEventDispatchThread()) {
