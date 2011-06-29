@@ -79,6 +79,8 @@ public class CoreQuackbotHookTest {
 	Bot bot = new Bot(controller, -1, Executors.newCachedThreadPool());
 	Channel channel = new Channel(bot, "#someChannel") {
 	};
+	User user = new User(bot, "SomeUser") {
+	};
 	protected CoreQuackbotHook hook = new CoreQuackbotHook() {
 		@Override
 		public Controller getController() {
@@ -156,6 +158,36 @@ public class CoreQuackbotHookTest {
 
 		//Remove it to cleanup
 		controller.getHookManager().removeHook(command);
+	}
+
+	@Test
+	public void onMessageTest() throws Exception {
+		//Generate a simple message event
+		final String origMessage = "?hello " + args4;
+		final MessageEvent messageEvent = new MessageEvent(null, channel, null, origMessage);
+
+		//This will notify us that execute actually ran. Yes, its ugly, but boolean is final
+		final StringBuilder executed = new StringBuilder("false");
+
+		//Test hook that makes sure all the information passed into execute is good
+		CoreQuackbotHook tempHook = new CoreQuackbotHook() {
+			@Override
+			public Bot getBot() {
+				return bot;
+			}
+
+			@Override
+			protected void execute(Event event, Channel chan, User user, String message) throws Exception {
+				assertEquals(event, messageEvent, "Event passed to execute doesn't match given");
+				assertEquals(chan, channel, "Channel does not match given");
+				assertEquals(user, CoreQuackbotHookTest.this.user, "User does not match given");
+				assertEquals(message, origMessage.substring(1), "Message does not match given");
+				executed.setLength(0);
+				executed.append("true");
+			}
+		};
+
+		tempHook.onMessage(messageEvent);
 	}
 
 	@DataProvider(name = "onCommandLongTests")
