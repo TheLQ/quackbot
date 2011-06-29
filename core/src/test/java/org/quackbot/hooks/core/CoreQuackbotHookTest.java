@@ -134,7 +134,10 @@ public class CoreQuackbotHookTest {
 	 * Instead of only testing onCommandLong, test feeding into onMessage
 	 */
 	@Test(dataProvider = "onCommandLongTests")
-	public void onMessageTest(String cmdMessage, OnCommandLong command, String[][] expectedArgs) throws Exception {
+	public void executeTest(String cmdMessage, OnCommandLong command, String[][] expectedArgs) throws Exception {
+		//Remove the prefix
+		cmdMessage = cmdMessage.substring(1); 
+		
 		//Build the messageEvent 
 		final StringBuilder response = new StringBuilder();
 		MessageEvent messageEvent = new MessageEvent(null, channel, null, cmdMessage) {
@@ -295,4 +298,4 @@ public class CoreQuackbotHookTest {
 			this.optionalParams = optionalParams;
 		}
 	}
-}
+
