@@ -67,7 +67,7 @@ public class JavaHookLoader implements HookLoader {
 		int requiredCount = 0;
 		int optionalCount = 0;
 		Method previousMethod = null;
-		for (Method curMethod : clazz.getMethods()) {
+		for (Method curMethod : clazz.getDeclaredMethods()) {
 			int totalParams = 0;
 			Class<?>[] parameters = curMethod.getParameterTypes();
 			
