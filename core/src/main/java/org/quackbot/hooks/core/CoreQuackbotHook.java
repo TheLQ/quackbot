@@ -125,7 +125,7 @@ public class CoreQuackbotHook extends Hook {
 		}
 	}
 
-	public String executeOnCommandLong(CommandEvent commandEvent) throws Exception {
+	protected String executeOnCommandLong(CommandEvent commandEvent) throws Exception {
 		try {
 			Command command = commandEvent.getCommandClass();
 			Class clazz = command.getClass();
