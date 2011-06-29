@@ -136,14 +136,14 @@ public class CoreQuackbotHookTest {
 	@Test(dataProvider = "onCommandLongTests")
 	public void executeTest(String cmdMessage, OnCommandLong command, String[][] expectedArgs) throws Exception {
 		//Remove the prefix
-		cmdMessage = cmdMessage.substring(1); 
-		
+		cmdMessage = cmdMessage.substring(1);
+
 		//Build the messageEvent 
 		final StringBuilder response = new StringBuilder();
 		MessageEvent messageEvent = new MessageEvent(null, channel, null, cmdMessage) {
 			@Override
 			public void respond(String commandResponse) {
-				if(commandResponse != null)
+				if (commandResponse != null)
 					response.append(commandResponse);
 			}
 		};
@@ -298,4 +298,4 @@ public class CoreQuackbotHookTest {
 			this.optionalParams = optionalParams;
 		}
 	}
-
+}
