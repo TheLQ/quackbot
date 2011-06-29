@@ -19,14 +19,25 @@
 package org.quackbot.hooks.core;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Executors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.pircbotx.Channel;
+import org.quackbot.Bot;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.quackbot.Controller;
+import org.quackbot.data.AdminStore;
+import org.quackbot.data.ChannelStore;
+import org.quackbot.data.DataStore;
+import org.quackbot.data.ServerStore;
+import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
+import org.quackbot.hooks.java.Parameters;
 import org.testng.annotations.DataProvider;
 import static org.testng.Assert.*;
 import org.testng.annotations.Test;
@@ -37,11 +48,44 @@ import org.testng.annotations.Test;
  */
 @Slf4j
 public class CoreQuackbotHookTest {
-	Controller controller = new Controller(null);
+	DataStore store = new DataStore() {
+		public AdminStore newAdminStore(String name) {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+
+		public ChannelStore newChannelStore(String name) {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+
+		public ServerStore newServerStore(String address) {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+
+		public Set<ServerStore> getServers() {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+
+		public Set<AdminStore> getAllAdmins() {
+			return new HashSet();
+		}
+
+		public void close() throws Exception {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+	};
+	Controller controller = new Controller(store);
+	Bot bot = new Bot(controller, -1, Executors.newCachedThreadPool());
+	Channel channel = new Channel(bot, "#someChannel") {
+	};
 	protected CoreQuackbotHook hook = new CoreQuackbotHook() {
 		@Override
 		public Controller getController() {
 			return controller;
+		}
+
+		@Override
+		public Bot getBot() {
+			return bot;
 		}
 	};
 	protected String args4 = "hello0 hello1 hello2 hello3 hello4";
@@ -49,6 +93,7 @@ public class CoreQuackbotHookTest {
 
 	public CoreQuackbotHookTest() {
 		controller.getHookManager().addHook(hook);
+		controller.addPrefix("?");
 	}
 
 	@Test
@@ -85,12 +130,42 @@ public class CoreQuackbotHookTest {
 		log.trace(sb.toString().trim());
 	}
 
+	/**
+	 * Instead of only testing onCommandLong, test feeding into onMessage
+	 */
+	@Test(dataProvider = "onCommandLongTests")
+	public void onMessageTest(String cmdMessage, OnCommandLong command, String[][] expectedArgs) throws Exception {
+		//Build the messageEvent 
+		final StringBuilder response = new StringBuilder();
+		MessageEvent messageEvent = new MessageEvent(null, channel, null, cmdMessage) {
+			@Override
+			public void respond(String commandResponse) {
+				if(commandResponse != null)
+					response.append(commandResponse);
+			}
+		};
+
+		//Add our test listener
+		controller.getHookManager().addHook(command);
+
+		//Feed into onMessage
+		log.trace("Sending message " + cmdMessage);
+		hook.onMessage(messageEvent);
+
+		//Verify the results
+		assertEquals(response.toString(), "Success", "onCommandLong in test " + command.getName() + " doesn't return expected value");
+		assertTrue(Arrays.deepEquals(command.getArgs(), expectedArgs), "Command test " + command.getName() + " args don't equal");
+
+		//Remove it to cleanup
+		controller.getHookManager().removeHook(command);
+	}
+
 	@DataProvider(name = "onCommandLongTests")
 	public Object[][] getOnCommandLongTests() {
 		Object[][] test = {
 			{
 				"?Message4-Array23 " + args4,
-				new OnCommandLong("Message4-Array23") {
+				new OnCommandLong("Message4-Array23", 5, 0) {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
@@ -107,7 +182,7 @@ public class CoreQuackbotHookTest {
 			},
 			{
 				"?Message4-Array34 " + args4,
-				new OnCommandLong("Message4-Array34") {
+				new OnCommandLong("Message4-Array34", 5, 0) {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String hello2, String[] hello34) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
@@ -124,7 +199,7 @@ public class CoreQuackbotHookTest {
 			},
 			{
 				"?Message4-Array01 " + args4,
-				new OnCommandLong("Message4-Array01") {
+				new OnCommandLong("Message4-Array01", 5, 0) {
 					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, hello01);
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello2));
@@ -141,7 +216,7 @@ public class CoreQuackbotHookTest {
 			},
 			{
 				"?Message3-Array23 " + args3,
-				new OnCommandLong("Message3-Array23") {
+				new OnCommandLong("Message3-Array23", 4, 0) {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String[] hello23, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
@@ -158,7 +233,7 @@ public class CoreQuackbotHookTest {
 			},
 			{
 				"?Message3-Array34 " + args3,
-				new OnCommandLong("Message3-Array34") {
+				new OnCommandLong("Message3-Array34", 4, 0) {
 					public String onCommand(CommandEvent event, String hello0, String hello1, String hello2, String[] hello34) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello0));
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello1));
@@ -175,7 +250,7 @@ public class CoreQuackbotHookTest {
 			},
 			{
 				"?Message3-Array01 " + args3,
-				new OnCommandLong("Message3-Array01") {
+				new OnCommandLong("Message3-Array01", 4, 0) {
 					public String onCommand(CommandEvent event, String[] hello01, String hello2, String hello3, String hello4) throws Exception {
 						args = (String[][]) ArrayUtils.add(args, hello01);
 						args = (String[][]) ArrayUtils.add(args, makeArray(hello2));
@@ -208,12 +283,16 @@ public class CoreQuackbotHookTest {
 	/**
 	 * Simple test class for extracting arguments from the long version of onCommand 
 	 */
+	@Getter
 	protected class OnCommandLong extends Command {
-		@Getter
 		String[][] args = new String[0][];
+		int requiredParams = 0;
+		int optionalParams = 0;
 
-		public OnCommandLong(String name) {
+		public OnCommandLong(String name, int requiredParams, int optionalParams) {
 			super(name);
+			this.requiredParams = requiredParams;
+			this.optionalParams = optionalParams;
 		}
 	}
 }
