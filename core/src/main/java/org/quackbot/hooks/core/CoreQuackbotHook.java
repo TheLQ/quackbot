@@ -34,6 +34,7 @@ import org.quackbot.hooks.Command;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
+import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Hook;
 
@@ -52,7 +53,7 @@ public class CoreQuackbotHook extends Hook {
 	}
 
 	@Override
-	public void onMessage(MessageEvent event) {
+	public void onMessage(MessageEvent event) throws Exception {
 		if (getBot().isLocked(event.getChannel(), event.getUser())) {
 			log.warn("Bot locked");
 			return;
@@ -86,15 +87,15 @@ public class CoreQuackbotHook extends Hook {
 			event.respond(cmd.onCommand(commandEvent));
 			event.respond(executeOnCommandLong(commandEvent));
 		} catch (Exception e) {
-			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getChannel(), event.getUser(), "ERROR: " + e.getMessage());
+			throw new QuackbotException("Error encountered when running command " + command, e);
 		} finally {
 			log.info("-----------End " + debugSuffix + "-----------");
 		}
 	}
 
 	@Override
-	public void onPrivateMessage(PrivateMessageEvent event) {
+	public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
 		if (getBot().isLocked(null, event.getUser())) {
 			log.warn("Bot locked");
 			return;
@@ -115,8 +116,8 @@ public class CoreQuackbotHook extends Hook {
 			event.respond(cmd.onCommand(commandEvent));
 			event.respond(executeOnCommandLong(commandEvent));
 		} catch (Exception e) {
-			log.error("Error encountered when running command " + command, e);
 			getBot().sendMessage(event.getUser(), "ERROR: " + e.getMessage());
+			throw new QuackbotException("Error encountered when running command " + command, e);
 		} finally {
 			log.debug("-----------End " + debugSuffix + "-----------");
 		}
