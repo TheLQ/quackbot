@@ -122,7 +122,7 @@ public class HookManager {
 	}
 
 	public boolean removeHook(Hook hook) {
-		log.debug("Removing command " + hook.getName());
+		log.debug("Removing hook " + hook.getName());
 		return hooks.remove(hook);
 	}
 
