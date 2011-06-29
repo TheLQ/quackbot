@@ -70,7 +70,7 @@ public class CoreQuackbotHook extends Hook {
 			return;
 		}
 
-		execute(event, event.getChannel(), event.getUser(), event.getMessage());
+		execute(event, event.getChannel(), event.getUser(), message);
 	}
 
 	@Override
