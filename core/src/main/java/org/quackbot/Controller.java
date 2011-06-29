@@ -178,7 +178,7 @@ public class Controller {
 		}
 		
 		//Display a large error message if there a GUI but no appender
-		if(noAppender) {
+		if(noAppender && createGui) {
 			gui.CerrorLog.setText("ERROR: ControlAppender hasn't been added as a logger! This GUI will not display any log messages");
 			gui.CerrorLog.setForeground(Color.red);
 		}
