@@ -67,8 +67,10 @@ public class CoreQuackbotHook extends Hook {
 				break;
 
 		//Make sure there was a prefix that got removed. No prefix = no command
-		if (message.equals(event.getMessage()))
+		if (message.equals(event.getMessage())) {
+			log.trace("Ignoring message, no prefix");
 			return;
+		}
 
 		int commandNumber = getController().addCommandNumber();
 		String command = "";
