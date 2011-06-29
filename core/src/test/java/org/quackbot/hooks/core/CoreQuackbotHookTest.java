@@ -27,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
+import org.pircbotx.User;
+import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.quackbot.Controller;
@@ -146,7 +148,7 @@ public class CoreQuackbotHookTest {
 
 		//Feed into onMessage
 		log.trace("Sending message " + cmdMessage);
-		hook.onMessage(messageEvent);
+		hook.execute(messageEvent, channel, null, cmdMessage);
 
 		//Verify the results
 		assertEquals(response.toString(), "Success", "onCommandLong in test " + command.getName() + " doesn't return expected value");
@@ -275,7 +277,7 @@ public class CoreQuackbotHookTest {
 	protected <T> T[] makeArray(T... args) {
 		return args;
 	}
-	
+
 	protected void logMultiArray(Object[][] array, String message) {
 		StringBuilder sb = new StringBuilder(message);
 		for (int outer = 0; outer < array.length; outer++)
