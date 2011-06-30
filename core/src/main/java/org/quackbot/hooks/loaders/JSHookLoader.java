@@ -28,6 +28,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.hooks.Event;
@@ -43,12 +44,8 @@ import org.slf4j.LoggerFactory;
  * JS utility bean, holds all information about JS plugin
  * @author Lord.Quackstar
  */
+@Slf4j
 public class JSHookLoader implements HookLoader {
-	/**
-	 * Log4j Logger
-	 */
-	private static Logger log = LoggerFactory.getLogger(JSHookLoader.class);
-
 	@Override
 	public Hook load(String fileLocation) throws Exception {
 		if (fileLocation.endsWith("JS_Template.js") || fileLocation.endsWith("QuackUtils.js"))
