@@ -23,4 +23,5 @@ var arg1;
 function onCommand(levent, larg1) {
 	event = levent;
 	arg1 = larg1;
+	return "Success";
 }
