@@ -39,8 +39,8 @@ function getRequiredParams() {
 		return specified;
 	else if(optional != 0 && optional != -1 && onCommandSpec != 0) //If only optional is specified, use that
 		return onCommandSpec - optional;
-	//Only left with onCommand or 0
-	return onCommandSpec;
+	//Only left with onCommand or 0 (account for event param)
+	return onCommandSpec - 1;
 }
 
 function getOptionalParams() {
