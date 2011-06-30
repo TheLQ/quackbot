@@ -74,7 +74,7 @@ public class JSHookLoader implements HookLoader {
 		}
 
 		//Return the appropiate hook
-		if (jsEngine.get("onCommand") != null || jsEngine.get("onCommandPM") != null || jsEngine.get("onCommandChannel") != null)
+		if (jsEngine.get("onCommand") != null)
 			//Has Command functions, return command
 			return new JSCommandWrapper(jsEngine, sourceMap, fileLocation, name);
 
