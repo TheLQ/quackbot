@@ -160,12 +160,12 @@ public class JSHookLoader implements HookLoader {
 
 		@Override
 		public int getOptionalParams() {
-			return (Integer) invokeFunction(jsEngine, sourceMap, "getOptionalParams");
+			return (int)Double.parseDouble(invokeFunction(jsEngine, sourceMap, "getOptionalParams").toString());
 		}
 
 		@Override
 		public int getRequiredParams() {
-			return (Integer) invokeFunction(jsEngine, sourceMap, "getRequiredParams");
+			return (int)Double.parseDouble(invokeFunction(jsEngine, sourceMap, "getRequiredParams").toString());
 		}
 
 		@Override
