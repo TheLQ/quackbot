@@ -51,7 +51,7 @@ public class JSHookLoaderTest {
 		//Test sending a command
 		MessageEvent messageEvent = new MessageEvent(null, null, null, "Some message");
 		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg", null, new String[] {"someArg"});
-		hook.onEvent(commandEvent);
+		hook.onCommand(commandEvent);
 		assertEquals(hook.jsEngine.get("event"), commandEvent, "Event doesn't match given");
 		assertEquals(hook.jsEngine.get("arg1"), "someArg", "Single argument doesn't match given");
 	}
