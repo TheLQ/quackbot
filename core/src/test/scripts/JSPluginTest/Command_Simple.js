@@ -17,8 +17,8 @@
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
 var help = "Some Help that's really long";
-var event = event;
-var arg1 = arg1;
+var event;
+var arg1;
 
 function onCommand(levent, larg1) {
 	event = levent;
