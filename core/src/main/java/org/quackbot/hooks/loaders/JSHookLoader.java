@@ -154,7 +154,8 @@ public class JSHookLoader implements HookLoader {
 
 		@Override
 		public void onEvent(Event event) throws Exception {
-			invokeFunction(jsEngine, sourceMap, "on" + StringUtils.removeEnd(event.getClass().getSimpleName(), "Event"), event);
+			if (!(event instanceof CommandEvent))
+				invokeFunction(jsEngine, sourceMap, "on" + StringUtils.removeEnd(event.getClass().getSimpleName(), "Event"), event);
 		}
 
 		@Override
@@ -169,7 +170,7 @@ public class JSHookLoader implements HookLoader {
 
 		@Override
 		public String onCommand(CommandEvent event) throws Exception {
-			return (String) invokeFunction(jsEngine, sourceMap, "onCommand", ArrayUtils.add(event.getArgs(), 0 , event));
+			return (String) invokeFunction(jsEngine, sourceMap, "onCommand", ArrayUtils.add(event.getArgs(), 0, event));
 		}
 	}
 
