@@ -45,15 +45,15 @@
 		</resources>
 		<testResources>
 			<!--Treat scripts as resources-->
-			<resource>
+			<testResource>
 				<filtering>false</filtering>
 				<directory>${basedir}/src/test/scripts</directory>
-			</resource>
+			</testResource>
 			<!--Keep the default resource directory as well-->
-			<resource>
+			<testResource>
 				<filtering>false</filtering>
 				<directory>${basedir}/src/test/resources</directory>
-			</resource>
+			</testResource>
 		</testResources>
 	</build>
 </project>
