@@ -20,6 +20,7 @@ package org.quackbot.hooks.loaders;
 
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.quackbot.events.CommandEvent;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -37,5 +38,21 @@ public class JSHookLoaderTest {
 		MessageEvent event = new MessageEvent(null, null, null, "Some message");
 		hook.onEvent(event);
 		assertEquals(hook.jsEngine.get("event"), event, "Event doesn't match given");
+	}
+	
+	@Test
+	public void commandSimpleTest() throws Exception {
+		JSHookLoader.JSCommandWrapper hook = (JSHookLoader.JSCommandWrapper) loader.load("JSPluginTest/Command_Simple.js");
+		
+		//Make sure arguments are setup correctly
+		assertEquals(hook.getRequiredParams(), 1, "Required argument count is wrong");
+		assertEquals(hook.getOptionalParams(), 0, "Optional argument count is wrong");
+		
+		//Test sending a command
+		MessageEvent messageEvent = new MessageEvent(null, null, null, "Some message");
+		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg", null, new String[] {"someArg"});
+		hook.onEvent(commandEvent);
+		assertEquals(hook.jsEngine.get("event"), commandEvent, "Event doesn't match given");
+		assertEquals(hook.jsEngine.get("arg1"), "someArg", "Single argument doesn't match given");
 	}
 }
