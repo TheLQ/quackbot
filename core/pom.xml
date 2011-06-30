@@ -43,5 +43,17 @@
 				<directory>${basedir}/src/main/resources</directory>
 			</resource>
 		</resources>
+		<testResources>
+			<!--Treat scripts as resources-->
+			<resource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/test/scripts</directory>
+			</resource>
+			<!--Keep the default resource directory as well-->
+			<resource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/test/resources</directory>
+			</resource>
+		</testResources>
 	</build>
 </project>
