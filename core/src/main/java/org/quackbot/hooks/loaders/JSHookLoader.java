@@ -64,7 +64,7 @@ public class JSHookLoader implements HookLoader {
 		jsEngine.put("log", LoggerFactory.getLogger("JSPlugins." + name));
 		LinkedHashMap<String, String> sourceMap = new LinkedHashMap();
 		evalResource(jsEngine, sourceMap, "JSPluginBase/QuackUtils.js");
-		evalResource(jsEngine, sourceMap, "JSPluginBase/JSPlugin.js");
+		evalResource(jsEngine, sourceMap, "JSPluginBase/JSCommand.js");
 		evalResource(jsEngine, sourceMap, fileLocation);
 
 		//Should we just ignore this?
