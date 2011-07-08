@@ -63,12 +63,6 @@ public interface ChannelStore  {
 	public Integer getChannelID();
 
 	/**
-	 * ID of channel in Database
-	 * @param channelID the channelID to set
-	 */
-	public void setChannelID(Integer channelID);
-
-	/**
 	 * Name of the channel
 	 * @return the channel
 	 */

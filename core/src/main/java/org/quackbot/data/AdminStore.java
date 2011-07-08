@@ -41,12 +41,6 @@ public interface AdminStore {
 	public Integer getAdminId();
 
 	/**
-	 * The ID of the admin
-	 * @param adminId the adminId to set
-	 */
-	public void setAdminId(Integer adminId);
-
-	/**
 	 * The username of the admin
 	 * @return the user
 	 */
