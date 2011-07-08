@@ -17,7 +17,7 @@
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.quackbot.data.hibernate;
+package org.quackbot.dao.hibernate;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,29 +33,29 @@ import org.quackbot.dao.ServerDAO;
  *
  * @author lordquackstar
  */
-public class HbStore implements DAOFactory {
+public class DAOFactoryHb implements DAOFactory {
 	Session session;
 	
-	public HbStore() {
+	public DAOFactoryHb() {
 		session = new Configuration()
                 .configure() // configures settings from hibernate.cfg.xml
                 .buildSessionFactory().openSession();
 	}
 	
 	public AdminDAO newAdminStore(String name) {
-		AdminStoreHb admin = new AdminStoreHb();
+		AdminDAOHb admin = new AdminDAOHb();
 		session.save(admin);
 		return admin;
 	}
 
 	public ChannelDAO newChannelStore(String name) {
-		ChannelStoreHb channel = new ChannelStoreHb();
+		ChannelDAOHb channel = new ChannelDAOHb();
 		session.save(channel);
 		return channel;
 	}
 
 	public ServerDAO newServerStore(String address) {
-		ServerStoreHb server = new ServerStoreHb();
+		ServerDAOHb server = new ServerDAOHb();
 		session.save(server);
 		return server;
 	}
