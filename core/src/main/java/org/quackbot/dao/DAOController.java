@@ -24,7 +24,7 @@ import java.util.Set;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface DAOFactory {
+public interface DAOController {
 	public AdminDAO newAdminStore(String name);
 	public ChannelDAO newChannelStore(String name);
 	public ServerDAO newServerStore(String address);
