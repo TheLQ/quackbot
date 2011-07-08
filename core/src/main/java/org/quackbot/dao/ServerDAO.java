@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.data;
+package org.quackbot.dao;
 
 
 import java.util.Set;
@@ -28,7 +28,7 @@ import java.util.Set;
  * This is usually configured by JPersist
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface ServerStore {
+public interface ServerDAO {
 	/**
 	 * Delete the server
 	 * @return True if delete was successful, false if not
@@ -41,14 +41,14 @@ public interface ServerStore {
 	 * @param name Name of admin
 	 * @return     Admin object
 	 */
-	public Set<AdminStore> getAdmins();
+	public Set<AdminDAO> getAdmins();
 	
 	/**
 	 * Gets channel object by name
 	 * @param channel Channel name (must include prefix)
 	 * @return        Channel object
 	 */
-	public Set<ChannelStore> getChannels();
+	public Set<ChannelDAO> getChannels();
 
 	/******************************* Server Info *************************/
 	/**

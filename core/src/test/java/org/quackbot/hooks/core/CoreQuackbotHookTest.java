@@ -34,10 +34,10 @@ import org.quackbot.Bot;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
-import org.quackbot.data.AdminStore;
-import org.quackbot.data.ChannelStore;
-import org.quackbot.data.DataStore;
-import org.quackbot.data.ServerStore;
+import org.quackbot.dao.AdminDAO;
+import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.DAOFactory;
+import org.quackbot.dao.ServerDAO;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
@@ -52,24 +52,24 @@ import org.testng.annotations.Test;
  */
 @Slf4j
 public class CoreQuackbotHookTest {
-	DataStore store = new DataStore() {
-		public AdminStore newAdminStore(String name) {
+	DAOFactory store = new DAOFactory() {
+		public AdminDAO newAdminStore(String name) {
 			throw new UnsupportedOperationException("Not supported yet.");
 		}
 
-		public ChannelStore newChannelStore(String name) {
+		public ChannelDAO newChannelStore(String name) {
 			throw new UnsupportedOperationException("Not supported yet.");
 		}
 
-		public ServerStore newServerStore(String address) {
+		public ServerDAO newServerStore(String address) {
 			throw new UnsupportedOperationException("Not supported yet.");
 		}
 
-		public Set<ServerStore> getServers() {
+		public Set<ServerDAO> getServers() {
 			throw new UnsupportedOperationException("Not supported yet.");
 		}
 
-		public Set<AdminStore> getAllAdmins() {
+		public Set<AdminDAO> getAllAdmins() {
 			return new HashSet();
 		}
 

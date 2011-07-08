@@ -22,7 +22,7 @@ import org.quackbot.hooks.core.CoreQuackbotHook;
 import java.util.Set;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.hooks.Hook;
-import org.quackbot.data.ServerStore;
+import org.quackbot.dao.ServerDAO;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -106,7 +106,7 @@ public class Bot extends PircBotX {
 	
 	public void connect() {
 		//Some debug
-		ServerStore serverStore = getServerStore();
+		ServerDAO serverStore = getServerStore();
 		log.info("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
 		if (serverStore.getPassword() != null)
 			log.info("Using password " + serverStore.getPassword() + " to connect");
@@ -197,8 +197,8 @@ public class Bot extends PircBotX {
 		return list;
 	}
 
-	public ServerStore getServerStore() {
-		for (ServerStore curServer : controller.getStorage().getServers())
+	public ServerDAO getServerStore() {
+		for (ServerDAO curServer : controller.getStorage().getServers())
 			if (curServer.getServerId().equals(serverId))
 				return curServer;
 		throw new RuntimeException("Can't find server store of current bot ( " + getServer() + " ) with server id " + serverId);

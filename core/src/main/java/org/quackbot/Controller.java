@@ -25,9 +25,9 @@ import org.quackbot.hooks.HookLoader;
 import java.util.Set;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
-import org.quackbot.data.AdminStore;
-import org.quackbot.data.ChannelStore;
-import org.quackbot.data.ServerStore;
+import org.quackbot.dao.AdminDAO;
+import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.ServerDAO;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
-import org.quackbot.data.DataStore;
+import org.quackbot.dao.DAOFactory;
 import org.quackbot.events.InitEvent;
 import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
@@ -92,7 +92,7 @@ import org.slf4j.LoggerFactory;
 @EqualsAndHashCode(exclude = {"bots"})
 @Slf4j
 public class Controller {
-	protected final DataStore storage;
+	protected final DAOFactory storage;
 	/**
 	 * Set of all Bot instances
 	 */
@@ -132,7 +132,7 @@ public class Controller {
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
-	public Controller(DataStore storage, boolean createGui) {
+	public Controller(DAOFactory storage, boolean createGui) {
 		this.storage = storage;
 		this.createGui = createGui;
 
@@ -203,10 +203,10 @@ public class Controller {
 
 		//Connect to all servers
 		try {
-			Set<ServerStore> servers = storage.getServers();
+			Set<ServerDAO> servers = storage.getServers();
 			if (servers.isEmpty())
 				log.error("Server list is empty!");
-			for (ServerStore curServer : servers)
+			for (ServerDAO curServer : servers)
 				initBot(curServer);
 		} catch (Exception e) {
 			log.error("Error encountered while attempting to join servers", e);
@@ -269,7 +269,7 @@ public class Controller {
 	 * Starts bot using server object
 	 * @param curServer
 	 */
-	public void initBot(final ServerStore curServer) {
+	public void initBot(final ServerDAO curServer) {
 		//Build a thread pool for the bot
 		final ExecutorService threadPool = Executors.newCachedThreadPool(new ThreadFactory() {
 			int threadCounter = 0;
@@ -331,7 +331,7 @@ public class Controller {
 	 * @param channels Vararg of channels to join
 	 */
 	public void addServer(String address, int port, String... channels) {
-		ServerStore server = getStorage().newServerStore(address);
+		ServerDAO server = getStorage().newServerStore(address);
 		server.setPort(port);
 		for (String curChan : channels)
 			server.addChannel(getStorage().newChannelStore(curChan));
@@ -346,7 +346,7 @@ public class Controller {
 	 */
 	public void removeServer(String address) {
 		try {
-			for (ServerStore curServ : storage.getServers())
+			for (ServerDAO curServ : storage.getServers())
 				if (curServ.getAddress().equals(address))
 					curServ.delete();
 		} catch (Exception e) {
@@ -371,7 +371,7 @@ public class Controller {
 	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
-		for (AdminStore curAdmin : storage.getAllAdmins()) {
+		for (AdminDAO curAdmin : storage.getAllAdmins()) {
 			//Is this even the right user?
 			if (!curAdmin.getName().equalsIgnoreCase(user.getNick()))
 				continue;
@@ -379,9 +379,9 @@ public class Controller {
 			//Got our user; are they an admin on this server?
 			if (curAdmin.getServers().contains(bot.getServerStore()))
 				return true;
-
+			
 			//Are they an admin on the channel?
-			for (ChannelStore curChan : curAdmin.getChannels())
+			for (ChannelDAO curChan : curAdmin.getChannels())
 				if (curChan.getName().equalsIgnoreCase(chan.getName()))
 					return true;
 
