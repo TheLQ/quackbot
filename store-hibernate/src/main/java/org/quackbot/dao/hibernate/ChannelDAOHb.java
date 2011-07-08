@@ -43,6 +43,7 @@ import lombok.EqualsAndHashCode;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
+import org.quackbot.dao.UserDAO;
 
 /**
  *
@@ -70,16 +71,89 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		@JoinColumn(name = "ADMIN_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "CHANNEL_ID")})
 	private Set<AdminDAOHb> admins;
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "quackbot_user_map", joinColumns = {
+		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")})
+	protected Set<UserDAOHb> users;
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "quackbot_user_map", joinColumns = {
+		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "OP_CHANNEL_ID")})
+	protected Set<UserDAOHb> ops;
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "quackbot_user_map", joinColumns = {
+		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "VOICE_CHANNEL_ID")})
+	protected Set<UserDAOHb> voices;
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "quackbot_user_map", joinColumns = {
+		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "HALFOP_CHANNEL_ID")})
+	protected Set<UserDAOHb> halfOps;
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "quackbot_user_map", joinColumns = {
+		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "SUPEROP_CHANNEL_ID")})
+	protected Set<UserDAOHb> superOps;
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "quackbot_user_map", joinColumns = {
+		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "OWNER_CHANNEL_ID")})
+	protected Set<UserDAOHb> owners;
 
 	public ChannelDAOHb() {
 	}
 
+	public void setServer(ServerDAO server) {
+		this.server = (ServerDAOHb) server;
+	}
+	
+	@Override
 	public Set<AdminDAO> getAdmins() {
 		return (Set<AdminDAO>) (Object) Collections.checkedSet(admins, AdminDAOHb.class);
 	}
+	
+	@Override
+	public Set<UserDAO> getNormalUsers() {
+		//TODO: Implement
+		return null;
+	}
+	
+	
+	@Override
+	public Set<UserDAO> getUsers() {
+		return (Set<UserDAO>) (Object) Collections.checkedSet(users, UserDAOHb.class);
+	}
 
-	public void setServer(ServerDAO server) {
-		this.server = (ServerDAOHb) server;
+	
+	@Override
+	public Set<UserDAO> getOps() {
+		return (Set<UserDAO>) (Object) Collections.checkedSet(ops, UserDAOHb.class);
+	}
+
+	
+	@Override
+	public Set<UserDAO> getVoices() {
+		return (Set<UserDAO>) (Object) Collections.checkedSet(voices, UserDAOHb.class);
+	}
+
+	
+	@Override
+	public Set<UserDAO> getOwners() {
+		return (Set<UserDAO>) (Object) Collections.checkedSet(owners, UserDAOHb.class);
+	}
+
+	
+	@Override
+	public Set<UserDAO> getHalfOps() {
+		return (Set<UserDAO>) (Object) Collections.checkedSet(halfOps, UserDAOHb.class);
+	}
+
+	
+	@Override
+	public Set<UserDAO> getSuperOps() {
+		return (Set<UserDAO>) (Object) Collections.checkedSet(superOps, UserDAOHb.class);
 	}
 
 	public boolean delete() {
