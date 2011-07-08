@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.quackbot.dao.hibernate;
 
 import java.util.Collections;
@@ -37,14 +36,12 @@ import org.quackbot.dao.ServerDAO;
 public class DAOFactoryHb implements DAOFactory {
 	protected SessionFactory sessionFactory;
 	protected ThreadLocal<Session> sessions;
-	
+
 	public DAOFactoryHb() {
-		sessionFactory = new Configuration()
-                .configure() // configures settings from hibernate.cfg.xml
-                .buildSessionFactory();
+		sessionFactory = new Configuration().configure() // configures settings from hibernate.cfg.xml
+				.buildSessionFactory();
 	}
-	
-	
+
 	public AdminDAO newAdminStore(String name) {
 		AdminDAOHb admin = new AdminDAOHb();
 		getSession().save(admin);
@@ -64,17 +61,17 @@ public class DAOFactoryHb implements DAOFactory {
 	}
 
 	public Set<ServerDAO> getServers() {
-		return Collections.unmodifiableSet(new HashSet(getSession().createQuery( "from ServerStoreHb" ).list()));
+		return Collections.unmodifiableSet(new HashSet(getSession().createQuery("from ServerStoreHb").list()));
 	}
 
 	public Set<AdminDAO> getAllAdmins() {
-		return Collections.unmodifiableSet(new HashSet(getSession().createQuery( "from AdminStoreHb" ).list()));
+		return Collections.unmodifiableSet(new HashSet(getSession().createQuery("from AdminStoreHb").list()));
 	}
 
 	public void close() throws Exception {
 		sessionFactory.close();
 	}
-	
+
 	public void beginTransaction() {
 		//Create a new session
 		Session session = sessionFactory.openSession();
@@ -86,19 +83,18 @@ public class DAOFactoryHb implements DAOFactory {
 	public void endTransaction(boolean isErrors) {
 		//End the transaction
 		try {
-			if(isErrors)
+			if (isErrors)
 				getSession().getTransaction().rollback();
 			else
 				getSession().getTransaction().commit();
-		}
-		finally {
+		} finally {
 			getSession().close();
 		}
 	}
-	
+
 	protected Session getSession() {
 		Session session = sessions.get();
-		if(session == null)
+		if (session == null)
 			throw new RuntimeException("No session exists for this thread.");
 		return session;
 	}
