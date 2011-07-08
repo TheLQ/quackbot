@@ -20,7 +20,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.quackbot.data.hibernate;
+package org.quackbot.dao.hibernate;
 
 import java.util.Collections;
 import java.util.Set;
@@ -28,10 +28,14 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,41 +48,48 @@ import org.quackbot.dao.ServerDAO;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(exclude={"channels", "servers"})
+@EqualsAndHashCode(exclude={"admins"})
 @Entity
-@Table(name = "quackbot_admin")
-public class AdminStoreHb implements AdminDAO {
+@Table(name = "quackbot_channel")
+public class ChannelDAOHb implements ChannelDAO {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Basic(optional = false)
-	@Column(name = "ADMIN_ID", nullable = false)
-	private Integer adminId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "CHANNEL_ID", nullable = false)
+	private Integer channelID;
 	
-	@Column(name = "name", length = 50)
+	@Column(name = "name", length = 100)
 	private String name;
 	
-	@ManyToMany(cascade = CascadeType.ALL, mappedBy = "admins")
-	private Set<ChannelStoreHb> channels;
+	@Column(name = "password", length = 100)
+	private String password;
 	
-	@ManyToMany(cascade = CascadeType.ALL, mappedBy = "admins")
-	private Set<ServerStoreHb> servers;
+	@ManyToOne
+	@JoinColumn (name="SERVER_ID")
+	private ServerDAOHb server;
+	
+	@ManyToMany(cascade = CascadeType.ALL, fetch= FetchType.EAGER)
+	@JoinTable(name = "quackbot_admin_map", joinColumns = {
+		@JoinColumn(name = "ADMIN_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")})
+	private Set<AdminDAOHb> admins;
 
-	public AdminStoreHb() {
+	public ChannelDAOHb() {
 	}
 
-	public AdminStoreHb(Integer adminId) {
-		this.adminId = adminId;
+	public ChannelDAOHb(Integer channelID) {
+		this.channelID = channelID;
+	}
+	
+	public Set<AdminDAO> getAdmins() {
+		return (Set<AdminDAO>)(Object)Collections.checkedSet(admins, AdminDAOHb.class);
+	}
+	
+	public void setServer(ServerDAO server) {
+		this.server = (ServerDAOHb)server;
 	}
 
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
-	}
-	
-	public Set<ChannelDAO> getChannels() {
-		return (Set<ChannelDAO>)(Object)Collections.checkedSet(channels, ChannelStoreHb.class);
-	}
-	
-	public Set<ServerDAO> getServers() {
-		return (Set<ServerDAO>)(Object)Collections.checkedSet(servers, ServerStoreHb.class);
 	}
 }

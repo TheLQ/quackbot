@@ -20,7 +20,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.quackbot.data.hibernate;
+package org.quackbot.dao.hibernate;
 
 import java.util.Collections;
 import java.util.Set;
@@ -31,10 +31,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -47,50 +44,41 @@ import org.quackbot.dao.ServerDAO;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(exclude={"channels", "admins"})
+@EqualsAndHashCode(exclude={"channels", "servers"})
 @Entity
-@Table(name = "quackbot_server")
-public class ServerStoreHb implements ServerDAO {
+@Table(name = "quackbot_admin")
+public class AdminDAOHb implements AdminDAO {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Basic(optional = false)
-	@Column(name = "SERVER_ID", nullable = false)
-	private Integer serverId;
+	@Column(name = "ADMIN_ID", nullable = false)
+	private Integer adminId;
 	
-	@Column(name = "address", length = 50)
-	private String address;
+	@Column(name = "name", length = 50)
+	private String name;
 	
-	@Column(name = "port", length = 5)
-	private Integer port;
+	@ManyToMany(cascade = CascadeType.ALL, mappedBy = "admins")
+	private Set<ChannelDAOHb> channels;
 	
-	@Column(name = "password", length = 100)
-	private String password;
-	
-	@OneToMany(mappedBy = "server")
-	private Set<ChannelStoreHb> channels;
-	
-	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_admin_map", joinColumns = {
-		@JoinColumn(name = "ADMIN_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "SERVER_ID")})
-	private Set<AdminStoreHb> admins;
+	@ManyToMany(cascade = CascadeType.ALL, mappedBy = "admins")
+	private Set<ServerDAOHb> servers;
 
-	public ServerStoreHb() {
+	public AdminDAOHb() {
 	}
 
-	public ServerStoreHb(Integer serverId) {
-		this.serverId = serverId;
+	public AdminDAOHb(Integer adminId) {
+		this.adminId = adminId;
 	}
 
-	public Set<ChannelDAO> getChannels() {
-		return (Set<ChannelDAO>)(Object)Collections.checkedSet(channels, ChannelStoreHb.class);
-	}
-	
-	public Set<AdminDAO> getAdmins() {
-		return (Set<AdminDAO>)(Object)Collections.checkedSet(admins, AdminStoreHb.class);
-	}
-	
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	
+	public Set<ChannelDAO> getChannels() {
+		return (Set<ChannelDAO>)(Object)Collections.checkedSet(channels, ChannelDAOHb.class);
+	}
+	
+	public Set<ServerDAO> getServers() {
+		return (Set<ServerDAO>)(Object)Collections.checkedSet(servers, ServerDAOHb.class);
 	}
 }

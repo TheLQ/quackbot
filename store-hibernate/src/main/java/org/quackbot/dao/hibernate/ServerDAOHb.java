@@ -20,7 +20,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.quackbot.data.hibernate;
+package org.quackbot.dao.hibernate;
 
 import java.util.Collections;
 import java.util.Set;
@@ -28,14 +28,13 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,47 +47,49 @@ import org.quackbot.dao.ServerDAO;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(exclude={"admins"})
+@EqualsAndHashCode(exclude={"channels", "admins"})
 @Entity
-@Table(name = "quackbot_channel")
-public class ChannelStoreHb implements ChannelDAO {
+@Table(name = "quackbot_server")
+public class ServerDAOHb implements ServerDAO {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "CHANNEL_ID", nullable = false)
-	private Integer channelID;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Basic(optional = false)
+	@Column(name = "SERVER_ID", nullable = false)
+	private Integer serverId;
 	
-	@Column(name = "name", length = 100)
-	private String name;
+	@Column(name = "address", length = 50)
+	private String address;
+	
+	@Column(name = "port", length = 5)
+	private Integer port;
 	
 	@Column(name = "password", length = 100)
 	private String password;
 	
-	@ManyToOne
-	@JoinColumn (name="SERVER_ID")
-	private ServerStoreHb server;
+	@OneToMany(mappedBy = "server")
+	private Set<ChannelDAOHb> channels;
 	
-	@ManyToMany(cascade = CascadeType.ALL, fetch= FetchType.EAGER)
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "quackbot_admin_map", joinColumns = {
 		@JoinColumn(name = "ADMIN_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")})
-	private Set<AdminStoreHb> admins;
+		@JoinColumn(name = "SERVER_ID")})
+	private Set<AdminDAOHb> admins;
 
-	public ChannelStoreHb() {
+	public ServerDAOHb() {
 	}
 
-	public ChannelStoreHb(Integer channelID) {
-		this.channelID = channelID;
+	public ServerDAOHb(Integer serverId) {
+		this.serverId = serverId;
+	}
+
+	public Set<ChannelDAO> getChannels() {
+		return (Set<ChannelDAO>)(Object)Collections.checkedSet(channels, ChannelDAOHb.class);
 	}
 	
 	public Set<AdminDAO> getAdmins() {
-		return (Set<AdminDAO>)(Object)Collections.checkedSet(admins, AdminStoreHb.class);
+		return (Set<AdminDAO>)(Object)Collections.checkedSet(admins, AdminDAOHb.class);
 	}
 	
-	public void setServer(ServerDAO server) {
-		this.server = (ServerStoreHb)server;
-	}
-
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
