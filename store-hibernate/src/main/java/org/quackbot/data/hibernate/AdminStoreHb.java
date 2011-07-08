@@ -22,6 +22,7 @@
  */
 package org.quackbot.data.hibernate;
 
+import java.util.Collections;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -34,9 +35,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.quackbot.data.AdminStore;
-import org.quackbot.data.ChannelStore;
-import org.quackbot.data.ServerStore;
+import org.quackbot.dao.AdminDAO;
+import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.ServerDAO;
 
 /**
  *
@@ -46,7 +47,7 @@ import org.quackbot.data.ServerStore;
 @EqualsAndHashCode(exclude={"channels", "servers"})
 @Entity
 @Table(name = "quackbot_admin")
-public class AdminStoreHb implements AdminStore {
+public class AdminStoreHb implements AdminDAO {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Basic(optional = false)
@@ -72,20 +73,12 @@ public class AdminStoreHb implements AdminStore {
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
-
-	public void addChannel(ChannelStore channel) {
-		channels.add((ChannelStoreHb) channel);
+	
+	public Set<ChannelDAO> getChannels() {
+		return (Set<ChannelDAO>)(Object)Collections.checkedSet(channels, ChannelStoreHb.class);
 	}
-
-	public void removeChannel(ChannelStore channel) {
-		channels.remove((ChannelStoreHb) channel);
-	}
-
-	public void addServer(ServerStore server) {
-		servers.add((ServerStoreHb) server);
-	}
-
-	public void removeServer(ServerStore server) {
-		servers.remove((ServerStoreHb) server);
+	
+	public Set<ServerDAO> getServers() {
+		return (Set<ServerDAO>)(Object)Collections.checkedSet(servers, ServerStoreHb.class);
 	}
 }

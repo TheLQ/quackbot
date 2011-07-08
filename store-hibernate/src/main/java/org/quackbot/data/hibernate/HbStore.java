@@ -24,16 +24,16 @@ import java.util.HashSet;
 import java.util.Set;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
-import org.quackbot.data.AdminStore;
-import org.quackbot.data.ChannelStore;
-import org.quackbot.data.DataStore;
-import org.quackbot.data.ServerStore;
+import org.quackbot.dao.AdminDAO;
+import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.DAOFactory;
+import org.quackbot.dao.ServerDAO;
 
 /**
  *
  * @author lordquackstar
  */
-public class HbStore implements DataStore {
+public class HbStore implements DAOFactory {
 	Session session;
 	
 	public HbStore() {
@@ -42,29 +42,29 @@ public class HbStore implements DataStore {
                 .buildSessionFactory().openSession();
 	}
 	
-	public AdminStore newAdminStore(String name) {
+	public AdminDAO newAdminStore(String name) {
 		AdminStoreHb admin = new AdminStoreHb();
 		session.save(admin);
 		return admin;
 	}
 
-	public ChannelStore newChannelStore(String name) {
+	public ChannelDAO newChannelStore(String name) {
 		ChannelStoreHb channel = new ChannelStoreHb();
 		session.save(channel);
 		return channel;
 	}
 
-	public ServerStore newServerStore(String address) {
+	public ServerDAO newServerStore(String address) {
 		ServerStoreHb server = new ServerStoreHb();
 		session.save(server);
 		return server;
 	}
 
-	public Set<ServerStore> getServers() {
+	public Set<ServerDAO> getServers() {
 		return Collections.unmodifiableSet(new HashSet(session.createQuery( "from ServerStoreHb" ).list()));
 	}
 
-	public Set<AdminStore> getAllAdmins() {
+	public Set<AdminDAO> getAllAdmins() {
 		return Collections.unmodifiableSet(new HashSet(session.createQuery( "from AdminStoreHb" ).list()));
 	}
 
