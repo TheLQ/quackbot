@@ -334,7 +334,7 @@ public class Controller {
 		ServerDAO server = getStorage().newServerStore(address);
 		server.setPort(port);
 		for (String curChan : channels)
-			server.addChannel(getStorage().newChannelStore(curChan));
+			server.getChannels().add(getStorage().newChannelStore(curChan));
 		initBot(server);
 	}
 
