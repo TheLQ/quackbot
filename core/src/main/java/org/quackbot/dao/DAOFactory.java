@@ -40,4 +40,17 @@ public interface DAOFactory {
 	 * files
 	 */
 	public void close() throws Exception;
+	
+	/**
+	 * Begin a transaction (eg unit of work). Useful for implementations that require
+	 * transactional calls
+	 */
+	public void beginTransaction();
+	
+	/**
+	 * End a transaction. Guaranteed to be called in the same thread that
+	 * {@link #beginTransaction() } was called in. Note that this does NOT mean
+	 * changes have occured!
+	 */
+	public void endTransaction(boolean isError);
 }
