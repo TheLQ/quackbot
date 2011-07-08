@@ -204,6 +204,19 @@ public class Bot extends PircBotX {
 		throw new RuntimeException("Can't find server store of current bot ( " + getServer() + " ) with server id " + serverId);
 	}
 
+	@Override
+	protected void handleLine(String line) {
+		controller.getStorage().beginTransaction();
+		try {
+			super.handleLine(line);
+			controller.getStorage().endTransaction(true);
+		} catch(Throwable t) {
+			controller.getStorage().endTransaction(false);
+			//Simply do the logging here, much easier than wrapping to throw up
+			logException(t);
+		}
+	}
+	
 	/**
 	 * Static class that holds variable local to the entire thread group.
 	 * Used mainly for logging, but available for any other purpose.

@@ -192,9 +192,12 @@ public class HookManager {
 		Runnable run = new Runnable() {
 			public void run() {
 				try {
+					hook.getBot().getController().getStorage().beginTransaction();
 					hook.onEvent(event);
+					hook.getBot().getController().getStorage().endTransaction(true);
 				} catch (Throwable ex) {
 					LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
+					hook.getBot().getController().getStorage().endTransaction(false);
 				}
 			}
 		};
