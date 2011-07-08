@@ -176,9 +176,9 @@ public class Controller {
 				noAppender = false;
 			}
 		}
-		
+
 		//Display a large error message if there a GUI but no appender
-		if(noAppender && createGui) {
+		if (noAppender && createGui) {
 			gui.CerrorLog.setText("ERROR: ControlAppender hasn't been added as a logger! This GUI will not display any log messages");
 			gui.CerrorLog.setForeground(Color.red);
 		}
@@ -331,11 +331,18 @@ public class Controller {
 	 * @param channels Vararg of channels to join
 	 */
 	public void addServer(String address, int port, String... channels) {
-		ServerDAO server = getStorage().newServerStore(address);
-		server.setPort(port);
-		for (String curChan : channels)
-			server.getChannels().add(getStorage().newChannelStore(curChan));
-		initBot(server);
+		try {
+			storage.beginTransaction();
+			ServerDAO server = getStorage().newServerStore(address);
+			server.setPort(port);
+			for (String curChan : channels)
+				server.getChannels().add(getStorage().newChannelStore(curChan));
+			initBot(server);
+			storage.endTransaction(true);
+		} catch (Throwable t) {
+			storage.endTransaction(false);
+			throw new RuntimeException("Can't add server " + address, t);
+		}
 	}
 
 	/**
@@ -346,11 +353,14 @@ public class Controller {
 	 */
 	public void removeServer(String address) {
 		try {
+			storage.beginTransaction();
 			for (ServerDAO curServ : storage.getServers())
 				if (curServ.getAddress().equals(address))
 					curServ.delete();
+			storage.endTransaction(true);
 		} catch (Exception e) {
 			log.error("Can't remove server", e);
+			storage.endTransaction(false);
 		}
 	}
 
@@ -379,7 +389,7 @@ public class Controller {
 			//Got our user; are they an admin on this server?
 			if (curAdmin.getServers().contains(bot.getServerStore()))
 				return true;
-			
+
 			//Are they an admin on the channel?
 			for (ChannelDAO curChan : curAdmin.getChannels())
 				if (curChan.getName().equalsIgnoreCase(chan.getName()))
