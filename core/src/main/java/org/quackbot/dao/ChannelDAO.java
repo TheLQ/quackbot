@@ -85,4 +85,18 @@ public interface ChannelDAO  {
 	 * @param password the password to set
 	 */
 	public void setPassword(String password);
+	
+	Set<UserDAO> getHalfOps();
+
+	Set<UserDAO> getNormalUsers();
+
+	Set<UserDAO> getOps();
+
+	Set<UserDAO> getOwners();
+
+	Set<UserDAO> getSuperOps();
+
+	Set<UserDAO> getUsers();
+
+	Set<UserDAO> getVoices();
 }
