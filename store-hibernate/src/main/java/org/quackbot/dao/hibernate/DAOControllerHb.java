@@ -26,18 +26,18 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
-import org.quackbot.dao.DAOFactory;
+import org.quackbot.dao.DAOController;
 import org.quackbot.dao.ServerDAO;
 
 /**
  *
  * @author lordquackstar
  */
-public class DAOFactoryHb implements DAOFactory {
+public class DAOControllerHb implements DAOController {
 	protected SessionFactory sessionFactory;
 	protected ThreadLocal<Session> sessions;
 
-	public DAOFactoryHb() {
+	public DAOControllerHb() {
 		sessionFactory = new Configuration().configure() // configures settings from hibernate.cfg.xml
 				.buildSessionFactory();
 	}
