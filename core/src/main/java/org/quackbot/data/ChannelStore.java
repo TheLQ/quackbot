@@ -41,10 +41,7 @@ public interface ChannelStore  {
 	 * @param name Name of admin
 	 * @return     Admin object
 	 */
-	public Set<? extends AdminStore> getAdmins();
-	
-	public void addAdmin(AdminStore admin);
-	public void removeAdmin(AdminStore admin);
+	public Set<AdminStore> getAdmins();
 	
 	/************ Channel Info ***************/
 	
