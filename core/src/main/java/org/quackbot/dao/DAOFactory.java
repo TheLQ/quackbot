@@ -52,5 +52,5 @@ public interface DAOFactory {
 	 * {@link #beginTransaction() } was called in. Note that this does NOT mean
 	 * changes have occured!
 	 */
-	public void endTransaction(boolean isError);
+	public void endTransaction(boolean isGood);
 }
