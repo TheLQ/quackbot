@@ -80,13 +80,13 @@ public class DAOFactoryHb implements DAOFactory {
 		session.beginTransaction();
 	}
 
-	public void endTransaction(boolean isErrors) {
+	public void endTransaction(boolean isGood) {
 		//End the transaction
 		try {
-			if (isErrors)
-				getSession().getTransaction().rollback();
-			else
+			if (isGood)
 				getSession().getTransaction().commit();
+			else
+				getSession().getTransaction().rollback();
 		} finally {
 			getSession().close();
 		}
