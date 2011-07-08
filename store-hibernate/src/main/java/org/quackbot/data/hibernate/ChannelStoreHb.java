@@ -22,6 +22,7 @@
  */
 package org.quackbot.data.hibernate;
 
+import java.util.Collections;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -38,9 +39,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.quackbot.data.AdminStore;
-import org.quackbot.data.ChannelStore;
-import org.quackbot.data.ServerStore;
+import org.quackbot.dao.AdminDAO;
+import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.ServerDAO;
 
 /**
  *
@@ -50,7 +51,7 @@ import org.quackbot.data.ServerStore;
 @EqualsAndHashCode(exclude={"admins"})
 @Entity
 @Table(name = "quackbot_channel")
-public class ChannelStoreHb implements ChannelStore {
+public class ChannelStoreHb implements ChannelDAO {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
@@ -79,20 +80,16 @@ public class ChannelStoreHb implements ChannelStore {
 	public ChannelStoreHb(Integer channelID) {
 		this.channelID = channelID;
 	}
+	
+	public Set<AdminDAO> getAdmins() {
+		return (Set<AdminDAO>)(Object)Collections.checkedSet(admins, AdminStoreHb.class);
+	}
+	
+	public void setServer(ServerDAO server) {
+		this.server = (ServerStoreHb)server;
+	}
 
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	public void addAdmin(AdminStore admin) {
-		admins.remove((AdminStoreHb)admin);
-	}
-
-	public void removeAdmin(AdminStore admin) {
-		admins.remove((AdminStoreHb)admin);
-	}
-
-	public void setServer(ServerStore server) {
-		this.server = (ServerStoreHb)server;
 	}
 }
