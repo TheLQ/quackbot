@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.data;
+package org.quackbot.dao;
 
 import java.util.Set;
 
@@ -24,17 +24,17 @@ import java.util.Set;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface DataStore {
-	public AdminStore newAdminStore(String name);
-	public ChannelStore newChannelStore(String name);
-	public ServerStore newServerStore(String address);
-	public Set<ServerStore> getServers();
+public interface DAOFactory {
+	public AdminDAO newAdminStore(String name);
+	public ChannelDAO newChannelStore(String name);
+	public ServerDAO newServerStore(String address);
+	public Set<ServerDAO> getServers();
 	/**
 	 * Get all global, server, and channel admins. This must NOT return duplicate
 	 * entries. Implmentations should weed out duplicates by checking admin ID's
 	 * @return 
 	 */
-	public Set<AdminStore> getAllAdmins();
+	public Set<AdminDAO> getAllAdmins();
 	/**
 	 * Called when shutting down. Useful for closing any open connections and/or
 	 * files

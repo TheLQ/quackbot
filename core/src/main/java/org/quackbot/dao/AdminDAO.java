@@ -16,73 +16,61 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.data;
+package org.quackbot.dao;
 
 import java.util.Set;
 
 /**
- * Bean that holds all known Channel information. This is meant to be integrated with
+ * Bean that holds all known Admin information. This is meant to be integrated with
  * JPersist and the database. Only configure if going to add to database, otherwise let
  * JPersist configure it.
  * <p>
  * If this needs to be changed in database, call {@link #updateDB()}
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface ChannelStore  {
+public interface AdminDAO {
 	/**
-	 * Delete this Channel
+	 * Delete this admin
 	 */
 	public boolean delete();
 	
-	/*********** Admin Management ***********/
-	
 	/**
-	 * Gets admin by name
-	 * @param name Name of admin
-	 * @return     Admin object
+	 * The ID of the admin
+	 * @return the adminId
 	 */
-	public Set<AdminStore> getAdmins();
-	
-	/************ Channel Info ***************/
-	
-	/**
-	 * ID of the server Channel is attached to
-	 * @return the serverID
-	 */
-	public ServerStore getServer();
+	public Integer getAdminId();
 
 	/**
-	 * ID of the server Channel is attached to
-	 * @param serverID the serverID to set
-	 */
-	public void setServer(ServerStore server);
-	/**
-	 * ID of channel in Database
-	 * @return the channelID
-	 */
-	public Integer getChannelID();
-
-	/**
-	 * Name of the channel
-	 * @return the channel
+	 * The username of the admin
+	 * @return the user
 	 */
 	public String getName();
 
 	/**
-	 * Name of the channel
-	 * @param name the channel to set
+	 * The username of the admin
+	 * @param user the user to set
 	 */
 	public void setName(String name);
 
 	/**
-	 * Password of the channel. Can be null.
-	 * @return the password
+	 * The Channel object that the admin might be attached to. Can be null
+	 * <p>
+	 * A null value indicates this isn't attached to a channel. The admin can
+	 * either be server admin or global admin
+	 * <p>
+	 * Note that this isn't mapped by JPersist, it is simply a convience method
+	 * @return the channel
 	 */
-	public String getPassword();
+	public Set<ChannelDAO> getChannels();
 
 	/**
-	 * Password of the channel. Can be null.
-	 * @param password the password to set
+	 * The Server object that the admin might be attached to. Can be null
+	 * <p>
+	 * A null value indicates the admin isn't attached to a server. They must
+	 * be a global admin.
+	 * <p>
+	 * Note that this isn't mapped by JPersist, it is simply a convience method
+	 * @return the server
 	 */
-	public void setPassword(String password);
+	public Set<ServerDAO> getServers();
 }
