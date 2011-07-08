@@ -78,10 +78,6 @@ public class ServerDAOHb implements ServerDAO {
 	public ServerDAOHb() {
 	}
 
-	public ServerDAOHb(Integer serverId) {
-		this.serverId = serverId;
-	}
-
 	public Set<ChannelDAO> getChannels() {
 		return (Set<ChannelDAO>)(Object)Collections.checkedSet(channels, ChannelDAOHb.class);
 	}
