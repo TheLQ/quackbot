@@ -22,6 +22,7 @@
  */
 package org.quackbot.dao.hibernate;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 import javax.persistence.Basic;
@@ -50,7 +51,7 @@ import org.quackbot.dao.ServerDAO;
 @EqualsAndHashCode(exclude = {"channels", "admins"})
 @Entity
 @Table(name = "quackbot_server")
-public class ServerDAOHb implements ServerDAO {
+public class ServerDAOHb implements ServerDAO, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Basic(optional = false)
