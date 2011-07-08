@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
@@ -34,42 +35,71 @@ import org.quackbot.dao.ServerDAO;
  * @author lordquackstar
  */
 public class DAOFactoryHb implements DAOFactory {
-	Session session;
+	protected SessionFactory sessionFactory;
+	protected ThreadLocal<Session> sessions;
 	
 	public DAOFactoryHb() {
-		session = new Configuration()
+		sessionFactory = new Configuration()
                 .configure() // configures settings from hibernate.cfg.xml
-                .buildSessionFactory().openSession();
+                .buildSessionFactory();
 	}
+	
 	
 	public AdminDAO newAdminStore(String name) {
 		AdminDAOHb admin = new AdminDAOHb();
-		session.save(admin);
+		getSession().save(admin);
 		return admin;
 	}
 
 	public ChannelDAO newChannelStore(String name) {
 		ChannelDAOHb channel = new ChannelDAOHb();
-		session.save(channel);
+		getSession().save(channel);
 		return channel;
 	}
 
 	public ServerDAO newServerStore(String address) {
 		ServerDAOHb server = new ServerDAOHb();
-		session.save(server);
+		getSession().save(server);
 		return server;
 	}
 
 	public Set<ServerDAO> getServers() {
-		return Collections.unmodifiableSet(new HashSet(session.createQuery( "from ServerStoreHb" ).list()));
+		return Collections.unmodifiableSet(new HashSet(getSession().createQuery( "from ServerStoreHb" ).list()));
 	}
 
 	public Set<AdminDAO> getAllAdmins() {
-		return Collections.unmodifiableSet(new HashSet(session.createQuery( "from AdminStoreHb" ).list()));
+		return Collections.unmodifiableSet(new HashSet(getSession().createQuery( "from AdminStoreHb" ).list()));
 	}
 
 	public void close() throws Exception {
-		session.close();
-		session.disconnect();
+		sessionFactory.close();
+	}
+	
+	public void beginTransaction() {
+		//Create a new session
+		Session session = sessionFactory.openSession();
+		sessions.set(session);
+		//Begin the transaction
+		session.beginTransaction();
+	}
+
+	public void endTransaction(boolean isErrors) {
+		//End the transaction
+		try {
+			if(isErrors)
+				getSession().getTransaction().rollback();
+			else
+				getSession().getTransaction().commit();
+		}
+		finally {
+			getSession().close();
+		}
+	}
+	
+	protected Session getSession() {
+		Session session = sessions.get();
+		if(session == null)
+			throw new RuntimeException("No session exists for this thread.");
+		return session;
 	}
 }
