@@ -47,7 +47,7 @@ import org.quackbot.dao.ServerDAO;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(exclude={"channels", "admins"})
+@EqualsAndHashCode(exclude = {"channels", "admins"})
 @Entity
 @Table(name = "quackbot_server")
 public class ServerDAOHb implements ServerDAO {
@@ -56,19 +56,14 @@ public class ServerDAOHb implements ServerDAO {
 	@Basic(optional = false)
 	@Column(name = "SERVER_ID", nullable = false)
 	private Integer serverId;
-	
 	@Column(name = "address", length = 50)
 	private String address;
-	
 	@Column(name = "port", length = 5)
 	private Integer port;
-	
 	@Column(name = "password", length = 100)
 	private String password;
-	
 	@OneToMany(mappedBy = "server")
 	private Set<ChannelDAOHb> channels;
-	
 	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "quackbot_admin_map", joinColumns = {
 		@JoinColumn(name = "ADMIN_ID")}, inverseJoinColumns = {
@@ -79,13 +74,13 @@ public class ServerDAOHb implements ServerDAO {
 	}
 
 	public Set<ChannelDAO> getChannels() {
-		return (Set<ChannelDAO>)(Object)Collections.checkedSet(channels, ChannelDAOHb.class);
+		return (Set<ChannelDAO>) (Object) Collections.checkedSet(channels, ChannelDAOHb.class);
 	}
-	
+
 	public Set<AdminDAO> getAdmins() {
-		return (Set<AdminDAO>)(Object)Collections.checkedSet(admins, AdminDAOHb.class);
+		return (Set<AdminDAO>) (Object) Collections.checkedSet(admins, AdminDAOHb.class);
 	}
-	
+
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}

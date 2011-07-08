@@ -48,27 +48,23 @@ import org.quackbot.dao.ServerDAO;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(exclude={"admins"})
+@EqualsAndHashCode(exclude = {"admins"})
 @Entity
 @Table(name = "quackbot_channel")
 public class ChannelDAOHb implements ChannelDAO {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "CHANNEL_ID", nullable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Basic(optional = false)
+	@Column(name = "CHANNEL_ID", nullable = false)
 	private Integer channelID;
-	
 	@Column(name = "name", length = 100)
 	private String name;
-	
 	@Column(name = "password", length = 100)
 	private String password;
-	
 	@ManyToOne
-	@JoinColumn (name="SERVER_ID")
+	@JoinColumn(name = "SERVER_ID")
 	private ServerDAOHb server;
-	
-	@ManyToMany(cascade = CascadeType.ALL, fetch= FetchType.EAGER)
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinTable(name = "quackbot_admin_map", joinColumns = {
 		@JoinColumn(name = "ADMIN_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "CHANNEL_ID")})
@@ -76,13 +72,13 @@ public class ChannelDAOHb implements ChannelDAO {
 
 	public ChannelDAOHb() {
 	}
-	
+
 	public Set<AdminDAO> getAdmins() {
-		return (Set<AdminDAO>)(Object)Collections.checkedSet(admins, AdminDAOHb.class);
+		return (Set<AdminDAO>) (Object) Collections.checkedSet(admins, AdminDAOHb.class);
 	}
-	
+
 	public void setServer(ServerDAO server) {
-		this.server = (ServerDAOHb)server;
+		this.server = (ServerDAOHb) server;
 	}
 
 	public boolean delete() {

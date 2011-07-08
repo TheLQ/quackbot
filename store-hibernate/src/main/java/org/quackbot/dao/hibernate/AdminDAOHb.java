@@ -44,7 +44,7 @@ import org.quackbot.dao.ServerDAO;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(exclude={"channels", "servers"})
+@EqualsAndHashCode(exclude = {"channels", "servers"})
 @Entity
 @Table(name = "quackbot_admin")
 public class AdminDAOHb implements AdminDAO {
@@ -53,13 +53,10 @@ public class AdminDAOHb implements AdminDAO {
 	@Basic(optional = false)
 	@Column(name = "ADMIN_ID", nullable = false)
 	private Integer adminId;
-	
 	@Column(name = "name", length = 50)
 	private String name;
-	
 	@ManyToMany(cascade = CascadeType.ALL, mappedBy = "admins")
 	private Set<ChannelDAOHb> channels;
-	
 	@ManyToMany(cascade = CascadeType.ALL, mappedBy = "admins")
 	private Set<ServerDAOHb> servers;
 
@@ -69,12 +66,12 @@ public class AdminDAOHb implements AdminDAO {
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
-	
+
 	public Set<ChannelDAO> getChannels() {
-		return (Set<ChannelDAO>)(Object)Collections.checkedSet(channels, ChannelDAOHb.class);
+		return (Set<ChannelDAO>) (Object) Collections.checkedSet(channels, ChannelDAOHb.class);
 	}
-	
+
 	public Set<ServerDAO> getServers() {
-		return (Set<ServerDAO>)(Object)Collections.checkedSet(servers, ServerDAOHb.class);
+		return (Set<ServerDAO>) (Object) Collections.checkedSet(servers, ServerDAOHb.class);
 	}
 }
