@@ -37,7 +37,6 @@ import org.quackbot.dao.UserDAO;
 @Data
 @Entity
 @Table(name = "quackbot_user")
-@Setter
 public class UserDAOHb implements Serializable, UserDAO {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
