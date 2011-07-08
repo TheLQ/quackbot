@@ -66,10 +66,6 @@ public class AdminDAOHb implements AdminDAO {
 	public AdminDAOHb() {
 	}
 
-	public AdminDAOHb(Integer adminId) {
-		this.adminId = adminId;
-	}
-
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}

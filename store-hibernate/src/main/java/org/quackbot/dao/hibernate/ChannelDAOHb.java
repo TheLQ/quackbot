@@ -76,10 +76,6 @@ public class ChannelDAOHb implements ChannelDAO {
 
 	public ChannelDAOHb() {
 	}
-
-	public ChannelDAOHb(Integer channelID) {
-		this.channelID = channelID;
-	}
 	
 	public Set<AdminDAO> getAdmins() {
 		return (Set<AdminDAO>)(Object)Collections.checkedSet(admins, AdminDAOHb.class);
