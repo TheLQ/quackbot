@@ -148,42 +148,43 @@ public class HookManager {
 		return getHook(hookName) != null;
 	}
 
-	@Synchronized("hooks")
 	public void dispatchEvent(final Event<Bot> event) {
-		//First, execute onEvent for the StartEvent
-		StartEvent startEvent = new StartEvent(controller);
-		for (Hook curHook : hooks)
-			executeHook(curHook, startEvent);
-
-		//Execute all events, building up the futures to wait for execution later
-		final List<Future> futures = new ArrayList<Future>(hooks.size());
-		for (Hook curHook : hooks)
-			futures.add(executeHook(curHook, event));
-
-		//In a new thread, wait for all the futures to complete, then dispatch EndEvent
-		Runnable futureWait = new Runnable() {
+		Runnable dispatcher = new Runnable() {
 			public void run() {
+				final List<Future> futures = new ArrayList<Future>(hooks.size());
+				synchronized (hooks) {
+					//First, execute onEvent for the StartEvent
+					StartEvent startEvent = new StartEvent(controller);
+					for (Hook curHook : hooks)
+						executeHook(curHook, startEvent);
+
+					//Execute all events, building up the futures to wait for execution
+					for (Hook curHook : hooks)
+						futures.add(executeHook(curHook, event));
+				}
+
+				//Wait for all futures to complete
 				try {
-					//Wait for futures to complete
 					for (Future curFuture : futures)
 						curFuture.get();
-					//Dispatch an EndEvent
-					EndEvent endEvent = new EndEvent(controller);
-					synchronized (hooks) {
-						for (Hook curHook : hooks)
-							curHook.onEvent(endEvent);
-					}
 				} catch (Exception ex) {
 					LoggerFactory.getLogger(this.getClass()).error("Exception encountered when waiting for Listener's to finish so an EndEvent could be dispatched", ex);
+				}
+
+				//Dispatch an EndEvent
+				synchronized (hooks) {
+					EndEvent endEvent = new EndEvent(controller);
+					for (Hook curHook : hooks)
+						executeHook(curHook, endEvent);
 				}
 			}
 		};
 
 		//Dump into the correct thread pool
 		if (event.getBot() != null)
-			event.getBot().getThreadPool().execute(futureWait);
+			event.getBot().getThreadPool().execute(dispatcher);
 		else
-			globalPool.execute(futureWait);
+			globalPool.execute(dispatcher);
 	}
 
 	protected Future executeHook(final Hook hook, final Event<Bot> event) {
