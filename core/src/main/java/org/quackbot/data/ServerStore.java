@@ -41,20 +41,14 @@ public interface ServerStore {
 	 * @param name Name of admin
 	 * @return     Admin object
 	 */
-	public Set<? extends AdminStore> getAdmins();
-	
-	public void addAdmin(AdminStore admin);
-	public void removeAdmin(AdminStore admin);
+	public Set<AdminStore> getAdmins();
 	
 	/**
 	 * Gets channel object by name
 	 * @param channel Channel name (must include prefix)
 	 * @return        Channel object
 	 */
-	public Set<? extends ChannelStore> getChannels();
-	
-	public void addChannel(ChannelStore channel);
-	public void removeChannel(ChannelStore channel);
+	public Set<ChannelStore> getChannels();
 
 	/******************************* Server Info *************************/
 	/**
@@ -98,11 +92,5 @@ public interface ServerStore {
 	 * @return the serverId
 	 */
 	public Integer getServerId();
-
-	/**
-	 * Value mapped to column in DB or manually provided
-	 * @param serverId the serverId to set
-	 */
-	public void setServerId(Integer serverId);
 }
 
