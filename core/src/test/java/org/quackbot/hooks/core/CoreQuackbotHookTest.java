@@ -36,7 +36,7 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
-import org.quackbot.dao.DAOFactory;
+import org.quackbot.dao.DAOController;
 import org.quackbot.dao.ServerDAO;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
@@ -52,7 +52,7 @@ import org.testng.annotations.Test;
  */
 @Slf4j
 public class CoreQuackbotHookTest {
-	DAOFactory store = new DAOFactory() {
+	DAOController store = new DAOController() {
 		public AdminDAO newAdminStore(String name) {
 			throw new UnsupportedOperationException("Not supported yet.");
 		}
@@ -75,6 +75,14 @@ public class CoreQuackbotHookTest {
 
 		public void close() throws Exception {
 			throw new UnsupportedOperationException("Not supported yet.");
+		}
+
+		public void beginTransaction() {
+			//Do nothing
+		}
+
+		public void endTransaction(boolean isGood) {
+			//Do nothing
 		}
 	};
 	Controller controller = new Controller(store, false);
