@@ -63,12 +63,9 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	private Integer port;
 	@Column(name = "password", length = 100)
 	private String password;
-	@OneToMany(mappedBy = "server")
+	@OneToMany(cascade = CascadeType.ALL)
 	private Set<ChannelDAOHb> channels;
-	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_admin_map", joinColumns = {
-		@JoinColumn(name = "ADMIN_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "SERVER_ID")})
+	@OneToMany(cascade = CascadeType.ALL)
 	private Set<AdminDAOHb> admins;
 
 	public ServerDAOHb() {
