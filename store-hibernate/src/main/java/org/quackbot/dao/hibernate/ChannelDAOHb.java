@@ -68,7 +68,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@Column(name = "topicTimestamp", length = 100)
 	protected Long topicTimestamp;
 	@Column(name = "mode", length = 100)
-	protected Long mode;
+	protected String mode;
 	@ManyToOne
 	@JoinColumn(name = "SERVER_ID")
 	private ServerDAOHb server;
