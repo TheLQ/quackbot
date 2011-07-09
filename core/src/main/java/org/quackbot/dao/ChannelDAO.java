@@ -88,7 +88,7 @@ public interface ChannelDAO  {
 	
 	public String getTopic();
 	
-	public void setTopic();
+	public void setTopic(String topic);
 	
 	public Long getCreateTimestamp();
 	
