@@ -70,7 +70,6 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@Column(name = "mode", length = 100)
 	protected String mode;
 	@ManyToOne
-	@JoinColumn(name = "SERVER_ID")
 	private ServerDAOHb server;
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinTable(name = "quackbot_admin_map", joinColumns = {
