@@ -86,6 +86,26 @@ public interface ChannelDAO  {
 	 */
 	public void setPassword(String password);
 	
+	public String getTopic();
+	
+	public void setTopic();
+	
+	public Long getCreateTimestamp();
+	
+	public void setCreateTimestamp(Long createTimestamp);
+	
+	public String getTopicSetter();
+	
+	public void setTopicSetter(String topicSetter);
+	
+	public Long getTopicTimestamp();
+	
+	public void setTopicTimestamp(Long topicTimestamp);
+	
+	public String getMode();
+	
+	public void setMode(String mode);
+	
 	Set<UserDAO> getHalfOps();
 
 	Set<UserDAO> getNormalUsers();
