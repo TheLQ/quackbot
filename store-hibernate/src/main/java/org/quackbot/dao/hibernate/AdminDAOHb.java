@@ -22,14 +22,14 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,7 +44,7 @@ import org.quackbot.dao.ServerDAO;
 @Data
 @EqualsAndHashCode(exclude = {"channels", "servers"})
 @Entity
-@Table(name = "quackbot_admin")
+@Table(name = "quackbot_admins")
 public class AdminDAOHb implements AdminDAO, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -53,9 +53,9 @@ public class AdminDAOHb implements AdminDAO, Serializable {
 	private Integer adminId;
 	@Column(name = "name", length = 50)
 	private String name;
-	@ManyToMany(cascade = CascadeType.ALL, mappedBy = "admins")
+	@ManyToMany(mappedBy = "admins")
 	private Set<ChannelDAOHb> channels;
-	@ManyToOne
+	@ManyToMany(mappedBy = "admins")
 	private Set<ServerDAOHb> servers;
 
 	public AdminDAOHb() {

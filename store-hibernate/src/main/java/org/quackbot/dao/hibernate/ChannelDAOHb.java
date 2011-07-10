@@ -25,17 +25,19 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.Cascade;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
@@ -48,7 +50,7 @@ import org.quackbot.dao.UserDAO;
 @Data
 @EqualsAndHashCode(exclude = {"admins"})
 @Entity
-@Table(name = "quackbot_channel")
+@Table(name = "quackbot_channels")
 public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,41 +72,42 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@Column(name = "mode", length = 100)
 	protected String mode;
 	@ManyToOne
+	@JoinColumn(name = "SERVER_ID", insertable = false, updatable = false)
 	private ServerDAOHb server;
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "quackbot_admin_map", joinColumns = {
-		@JoinColumn(name = "ADMIN_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")})
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_adminmap", joinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "ADMIN_ID")})
 	private Set<AdminDAOHb> admins;
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "quackbot_user_map", joinColumns = {
-		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")})
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "NORM_CHANNEL_ID", nullable=true)}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
 	protected Set<UserDAOHb> users;
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "quackbot_user_map", joinColumns = {
-		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "OP_CHANNEL_ID")})
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "OP_CHANNEL_ID", nullable=true)}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
 	protected Set<UserDAOHb> ops;
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "quackbot_user_map", joinColumns = {
-		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "VOICE_CHANNEL_ID")})
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "VOICE_CHANNEL_ID", nullable=true)}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
 	protected Set<UserDAOHb> voices;
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "quackbot_user_map", joinColumns = {
-		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "HALFOP_CHANNEL_ID")})
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "HALFOP_CHANNEL_ID", nullable=true)}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
 	protected Set<UserDAOHb> halfOps;
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "quackbot_user_map", joinColumns = {
-		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "SUPEROP_CHANNEL_ID")})
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "SUPEROP_CHANNEL_ID", nullable=true)}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
 	protected Set<UserDAOHb> superOps;
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "quackbot_user_map", joinColumns = {
-		@JoinColumn(name = "USER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "OWNER_CHANNEL_ID")})
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "OWNER_CHANNEL_ID", nullable=true)}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
 	protected Set<UserDAOHb> owners;
 
 	public ChannelDAOHb() {
@@ -113,49 +116,43 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	public void setServer(ServerDAO server) {
 		this.server = (ServerDAOHb) server;
 	}
-	
+
 	@Override
 	public Set<AdminDAO> getAdmins() {
 		return (Set<AdminDAO>) (Object) Collections.checkedSet(admins, AdminDAOHb.class);
 	}
-	
+
 	@Override
 	public Set<UserDAO> getNormalUsers() {
 		//TODO: Implement
 		return null;
 	}
-	
-	
+
 	@Override
 	public Set<UserDAO> getUsers() {
 		return (Set<UserDAO>) (Object) Collections.checkedSet(users, UserDAOHb.class);
 	}
 
-	
 	@Override
 	public Set<UserDAO> getOps() {
 		return (Set<UserDAO>) (Object) Collections.checkedSet(ops, UserDAOHb.class);
 	}
 
-	
 	@Override
 	public Set<UserDAO> getVoices() {
 		return (Set<UserDAO>) (Object) Collections.checkedSet(voices, UserDAOHb.class);
 	}
 
-	
 	@Override
 	public Set<UserDAO> getOwners() {
 		return (Set<UserDAO>) (Object) Collections.checkedSet(owners, UserDAOHb.class);
 	}
 
-	
 	@Override
 	public Set<UserDAO> getHalfOps() {
 		return (Set<UserDAO>) (Object) Collections.checkedSet(halfOps, UserDAOHb.class);
 	}
 
-	
 	@Override
 	public Set<UserDAO> getSuperOps() {
 		return (Set<UserDAO>) (Object) Collections.checkedSet(superOps, UserDAOHb.class);

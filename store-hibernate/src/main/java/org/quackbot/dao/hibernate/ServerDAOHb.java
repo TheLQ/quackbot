@@ -50,7 +50,7 @@ import org.quackbot.dao.ServerDAO;
 @Data
 @EqualsAndHashCode(exclude = {"channels", "admins"})
 @Entity
-@Table(name = "quackbot_server")
+@Table(name = "quackbot_servers")
 public class ServerDAOHb implements ServerDAO, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -63,9 +63,13 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	private Integer port;
 	@Column(name = "password", length = 100)
 	private String password;
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany
+	@JoinColumn(name="SERVER_ID")
 	private Set<ChannelDAOHb> channels;
-	@OneToMany(cascade = CascadeType.ALL)
+	@ManyToMany
+	@JoinTable(name = "quackbot_adminmap", joinColumns = {
+		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "ADMIN_ID")})
 	private Set<AdminDAOHb> admins;
 
 	public ServerDAOHb() {
