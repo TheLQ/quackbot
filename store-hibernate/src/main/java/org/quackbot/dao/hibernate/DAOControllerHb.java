@@ -18,6 +18,7 @@
  */
 package org.quackbot.dao.hibernate;
 
+import java.io.InvalidObjectException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,10 +37,14 @@ import org.quackbot.dao.ServerDAO;
 public class DAOControllerHb implements DAOController {
 	protected SessionFactory sessionFactory;
 	protected ThreadLocal<Session> sessions;
+	protected static DAOControllerHb instance;
 
 	public DAOControllerHb() {
+		if(instance != null)
+			throw new RuntimeException("Can't create more than one DAOControllerHb");
 		sessionFactory = new Configuration().configure() // configures settings from hibernate.cfg.xml
 				.buildSessionFactory();
+		instance = this;
 	}
 
 	public AdminDAO newAdminStore(String name) {
@@ -97,5 +102,9 @@ public class DAOControllerHb implements DAOController {
 		if (session == null)
 			throw new RuntimeException("No session exists for this thread.");
 		return session;
+	}
+	
+	public static DAOControllerHb getInstance() {
+		return instance;
 	}
 }
