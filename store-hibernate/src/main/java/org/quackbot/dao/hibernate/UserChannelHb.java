@@ -20,6 +20,7 @@ package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -45,10 +46,10 @@ public class UserChannelHb implements Serializable {
 	@Basic(optional = false)
 	@Column(name = "ID", nullable = false)
 	private Integer id;
-	@ManyToOne(optional = false)
+	@ManyToOne(cascade = CascadeType.ALL, optional = false)
 	@JoinColumn(name = "USER_ID")
 	protected UserDAOHb user;
-	@ManyToOne(optional = false)
+	@ManyToOne(cascade = CascadeType.ALL, optional = false)
 	@JoinColumn(name = "CHANNEL_ID")
 	protected ChannelDAOHb channel;
 	@Column(name = "op")
@@ -61,11 +62,11 @@ public class UserChannelHb implements Serializable {
 	protected boolean superOp;
 	@Column(name = "owner")
 	protected boolean owner;
-	
+
 	public UserChannelHb() {
 		//Blank constructor for Hibernate
 	}
-	
+
 	public UserChannelHb(ChannelDAOHb channel, UserDAOHb user) {
 		this.channel = channel;
 		this.user = user;

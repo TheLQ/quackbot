@@ -24,8 +24,10 @@ package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -64,13 +66,12 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	private Integer port;
 	@Column(name = "password", length = 100)
 	private String password;
-	@OneToMany
-	@JoinColumn(name="SERVER_ID")
-	private Set<ChannelDAOHb> channels;
-	@ManyToMany
-	@JoinTable(name = "quackbot_adminmap", joinColumns = {
-		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "ADMIN_ID")})
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "server")
+	private Set<ChannelDAOHb> channels = new HashSet();
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_adminmap", 
+			joinColumns = {@JoinColumn(name = "SERVER_ID")}, 
+			inverseJoinColumns = {@JoinColumn(name = "ADMIN_ID")})
 	private Set<AdminDAOHb> admins;
 
 	public ServerDAOHb() {

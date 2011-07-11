@@ -75,8 +75,8 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	protected Long topicTimestamp;
 	@Column(name = "mode", length = 100)
 	protected String mode;
-	@ManyToOne
-	@JoinColumn(name = "SERVER_ID", insertable = false, updatable = false)
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "SERVER_ID", insertable = false)
 	private ServerDAOHb server;
 	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "quackbot_adminmap", joinColumns = {
