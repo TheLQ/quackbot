@@ -28,6 +28,7 @@ import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.util.StringHelper;
 import org.quackbot.dao.ChannelDAO;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -47,17 +48,17 @@ public class RelationTest {
 		config = new Configuration().configure();
 		config.setNamingStrategy(new TestNamingStrategy());
 		sessionFactory = config.buildSessionFactory();
-		session = sessionFactory.openSession();
 		
 		DAOControllerHb controller = mock(DAOControllerHb.class);
 		when(controller.getSession()).thenReturn(session);
 		DAOControllerHb.instance = controller;
 	}
 
-	@BeforeTest
+	@BeforeMethod
 	public void setUp() {
 		SchemaExport se = new SchemaExport(config);
 		se.create(true, true);
+		session = sessionFactory.openSession();
 	}
 
 	@Test(description = "Make sure when saving a server the assoicated channels get created")
