@@ -45,7 +45,7 @@ public class UserDAOHb implements Serializable, UserDAO {
 	@Column(name = "USER_ID", nullable = false)
 	protected Integer userId;
 	@ManyToOne
-	@JoinColumn(name = "SERVER_ID", insertable = false)
+	@JoinColumn(name = "SERVER_ID")
 	protected ServerDAOHb server;
 	@Column(name = "nick", length = 100, nullable = false)
 	protected String nick;
