@@ -35,6 +35,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
@@ -46,6 +47,7 @@ import org.quackbot.dao.UserDAO;
  */
 @Data
 @EqualsAndHashCode(exclude = {"admins"})
+@ToString(exclude = {"admins"})
 @Entity
 @Table(name = "quackbot_channels")
 public class ChannelDAOHb implements ChannelDAO, Serializable {

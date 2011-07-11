@@ -33,6 +33,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
@@ -43,6 +44,7 @@ import org.quackbot.dao.ServerDAO;
  */
 @Data
 @EqualsAndHashCode(exclude = {"channels", "servers"})
+@ToString(exclude = {"channels", "servers"})
 @Entity
 @Table(name = "quackbot_admins")
 public class AdminDAOHb implements AdminDAO, Serializable {
