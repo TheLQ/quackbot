@@ -53,7 +53,7 @@ public class AdminDAOHb implements AdminDAO, Serializable {
 	@Basic(optional = false)
 	@Column(name = "ADMIN_ID", nullable = false)
 	private Integer adminId;
-	@Column(name = "name", length = 50)
+	@Column(name = "name", length = 50, nullable = false)
 	private String name;
 	@ManyToMany(mappedBy = "admins")
 	private Set<ChannelDAOHb> channels;

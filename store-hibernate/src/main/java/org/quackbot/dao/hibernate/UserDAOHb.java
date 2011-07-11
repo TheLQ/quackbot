@@ -43,7 +43,7 @@ public class UserDAOHb implements Serializable, UserDAO {
 	@Basic(optional = false)
 	@Column(name = "USER_ID", nullable = false)
 	protected Integer userId;
-	@Column(name = "nick", length = 100)
+	@Column(name = "nick", length = 100, nullable = false)
 	protected String nick;
 	@Column(name = "login", length = 100)
 	protected String login;

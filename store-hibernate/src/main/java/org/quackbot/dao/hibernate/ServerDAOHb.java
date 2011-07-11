@@ -58,7 +58,7 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	@Basic(optional = false)
 	@Column(name = "SERVER_ID", nullable = false)
 	private Integer serverId;
-	@Column(name = "address", length = 50)
+	@Column(name = "address", length = 50, nullable = false)
 	private String address;
 	@Column(name = "port", length = 5)
 	private Integer port;

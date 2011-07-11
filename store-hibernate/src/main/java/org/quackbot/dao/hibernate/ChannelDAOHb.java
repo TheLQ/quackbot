@@ -72,7 +72,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@Basic(optional = false)
 	@Column(name = "CHANNEL_ID", nullable = false)
 	protected Integer channelID;
-	@Column(name = "name", length = 100)
+	@Column(name = "name", length = 100, nullable = false)
 	protected String name;
 	@Column(name = "password", length = 100)
 	protected String password;
