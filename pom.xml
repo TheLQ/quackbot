@@ -167,6 +167,13 @@
 			<version>0.10.0-RC1</version>
 			<scope>provided</scope>
 		</dependency>
+		<!-- Mockito for mocking test objects-->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>1.8.5</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<reporting>
@@ -188,16 +195,16 @@
 			<id>jrebel</id>
 			<url>http://repos.zeroturnaround.com/maven2/</url>
 		</repository>
-		        <repository>
-                <id>sonatype-nexus-snapshots</id>
-                <name>Sonatype Nexus Snapshots</name>
-                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                <releases>
-                        <enabled>false</enabled>
-                </releases>
-                <snapshots>
-                        <enabled>true</enabled>
-                </snapshots>
-        </repository>
+		<repository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus Snapshots</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 </project>
