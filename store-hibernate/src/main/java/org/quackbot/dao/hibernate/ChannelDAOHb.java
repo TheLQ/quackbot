@@ -19,12 +19,12 @@
 package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,13 +34,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterJoinTable;
+import org.hibernate.annotations.WhereJoinTable;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
@@ -83,6 +84,41 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
 	private Set<AdminDAOHb> admins;
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
+	protected Set<UserDAOHb> users = new HashSet();
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
+	@FilterJoinTable(name="ops_true", condition=":ops = 1")
+	protected Set<UserDAOHb> ops = new HashSet();
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
+	@FilterJoinTable(name="voices_true", condition=":voices = 1")
+	protected Set<UserDAOHb> voices = new HashSet();
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
+	@FilterJoinTable(name="halfOps_true", condition=":halfOps = 1")
+	protected Set<UserDAOHb> halfOps = new HashSet();
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
+	@FilterJoinTable(name="superOps_true", condition=":superOps = 1")
+	protected Set<UserDAOHb> superOps = new HashSet();
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "quackbot_usermap", joinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "USER_ID")})
+	 @FilterJoinTable(name="owner_true", condition=":owner = 1")
+	protected Set<UserDAOHb> owners = new HashSet();
 
 	public ChannelDAOHb() {
 	}
@@ -96,114 +132,38 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		return (Set<AdminDAO>) (Object) Collections.checkedSet(admins, AdminDAOHb.class);
 	}
 
-	@Override
 	public Set<UserDAO> getNormalUsers() {
-		final Session session = DAOControllerHb.getInstance().getSession();
-		Criteria criteria = session.createCriteria(UserChannelHb.class);
-		criteria.add(Restrictions.eq("channel", this));
-		criteria.add(Restrictions.eq("op", false));
-		criteria.add(Restrictions.eq("voice", false));
-		criteria.add(Restrictions.eq("halfOp", false));
-		criteria.add(Restrictions.eq("superOp", false));
-		criteria.add(Restrictions.eq("owner", false));
-		List list = criteria.list();
-		return (Set<UserDAO>) (Object) new QuerySet<UserDAOHb>(list) {
-			@Override
-			public void onAdd(UserDAOHb entry) {
-				//Just save the object with default state
-				session.save(new UserChannelHb(ChannelDAOHb.this, entry));
-			}
-
-			@Override
-			public void onRemove(Object entry) {
-				if (entry instanceof UserDAOHb)
-					throw new RuntimeException("Attempting to remove object that isn't a UserDAOHb from normal user status list: " + entry);
-				//Normal user means no special status, so just delete the whole row
-				Criteria criteria = session.createCriteria(UserChannelHb.class);
-				criteria.add(Restrictions.eq("channel", this));
-				criteria.add(Restrictions.eq("op", false));
-				criteria.add(Restrictions.eq("voice", false));
-				criteria.add(Restrictions.eq("halfOp", false));
-				criteria.add(Restrictions.eq("superOp", false));
-				criteria.add(Restrictions.eq("owner", false));
-				criteria.add(Restrictions.eq("user", entry));
-				Object result = criteria.uniqueResult();
-				if (result == null)
-					throw new RuntimeException("Can't find UserChannelHb mapping for user " + entry + " in channel " + ChannelDAOHb.this);
-				session.delete(criteria.uniqueResult());
-			}
-		};
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
-
+	
 	@Override
 	public Set<UserDAO> getUsers() {
-		return getByStatus(null);
+		return (Set<UserDAO>) (Object) Collections.checkedSet(users, UserDAOHb.class);
 	}
 
 	@Override
 	public Set<UserDAO> getOps() {
-		return getByStatus("op");
+		return (Set<UserDAO>) (Object) Collections.checkedSet(ops, UserDAOHb.class);
 	}
 
 	@Override
 	public Set<UserDAO> getVoices() {
-		return getByStatus("voice");
+		return (Set<UserDAO>) (Object) Collections.checkedSet(voices, UserDAOHb.class);
 	}
 
 	@Override
 	public Set<UserDAO> getOwners() {
-		return getByStatus("owner");
+		return (Set<UserDAO>) (Object) Collections.checkedSet(owners, UserDAOHb.class);
 	}
 
 	@Override
 	public Set<UserDAO> getHalfOps() {
-		return getByStatus("halfOp");
+		return (Set<UserDAO>) (Object) Collections.checkedSet(halfOps, UserDAOHb.class);
 	}
 
 	@Override
 	public Set<UserDAO> getSuperOps() {
-		return getByStatus("superOp");
-	}
-
-	protected Set<UserDAO> getByStatus(final String status) {
-		final Session session = DAOControllerHb.getInstance().getSession();
-		Criteria criteria = session.createCriteria(UserChannelHb.class);
-		criteria.add(Restrictions.eq("channel", this));
-		if (status != null)
-			criteria.add(Restrictions.eq(status, true));
-		List list = criteria.list();
-		return (Set<UserDAO>) (Object) new QuerySet<UserDAOHb>(list) {
-			@Override
-			public void onAdd(UserDAOHb entry) {
-				UserChannelHb userChannelMap = new UserChannelHb(ChannelDAOHb.this, entry);
-				try {
-					//Since this is a generic class, hack through with reflection
-					Field field = userChannelMap.getClass().getField(status);
-					field.setAccessible(true);
-					field.set(userChannelMap, true);
-					session.save(userChannelMap);
-				} catch (Exception e) {
-					//Rethrow with RuntimeException causing something to fail
-					throw new RuntimeException("Can't set " + status + " field in object " + userChannelMap, e);
-				}
-			}
-
-			@Override
-			public void onRemove(Object entry) {
-				if (entry instanceof UserDAOHb)
-					throw new RuntimeException("Attempting to remove object that isn't a UserDAOHb from " + status + " status list: " + entry);
-				//Just delete the mapping
-				Criteria criteria = session.createCriteria(UserChannelHb.class);
-				criteria.add(Restrictions.eq("channel", this));
-				if (status != null)
-					criteria.add(Restrictions.eq(status, true));
-				criteria.add(Restrictions.eq("user", entry));
-				Object result = criteria.uniqueResult();
-				if (result == null)
-					throw new RuntimeException("Can't find UserChannelHb mapping for user " + entry + " in channel " + ChannelDAOHb.this);
-				session.delete(criteria.uniqueResult());
-			}
-		};
+		return (Set<UserDAO>) (Object) Collections.checkedSet(superOps, UserDAOHb.class);
 	}
 
 	public boolean delete() {
