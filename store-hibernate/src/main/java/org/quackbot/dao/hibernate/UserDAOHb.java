@@ -27,6 +27,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import org.quackbot.dao.UserDAO;
@@ -47,6 +48,9 @@ public class UserDAOHb implements Serializable, UserDAO {
 	@ManyToOne
 	@JoinColumn(name = "SERVER_ID")
 	protected ServerDAOHb server;
+	@OneToOne
+	@JoinColumn(name = "ADMIN_ID")
+	protected AdminDAOHb admin;
 	@Column(name = "nick", length = 100, nullable = false)
 	protected String nick;
 	@Column(name = "login", length = 100)
