@@ -97,12 +97,7 @@ public class RelationTest {
 		session.beginTransaction();
 		ServerDAOHb server = new ServerDAOHb();
 		server.setAddress("some.host");
-		ChannelDAOHb channel = new ChannelDAOHb();
-		channel.setName("#channelName");
-		server.getChannels().add(channel);
-		UserDAOHb userDAOHb = new UserDAOHb();
-		userDAOHb.setNick("someNick");
-		channel.getUsers().add(userDAOHb);
+		server.getChannels().add(generateChannel());
 		session.save(server);
 		session.getTransaction().commit();
 
@@ -114,11 +109,28 @@ public class RelationTest {
 		assertEquals((int) fetchedChannel.getChannelID(), 1, "Channel ID is wrong");
 		assertEquals(fetchedChannel.getName(), "#channelName", "Channel name doesn't match");
 		
-		Set<UserDAO> users = channel.getUsers();
+		Set<UserDAO> users = fetchedChannel.getUsers();
 		assertEquals(users.size(), 1, "Too many/No users");
 		UserDAO fetchedUser = users.iterator().next();
 		assertEquals((int) fetchedUser.getUserId(), 1, "User ID is wrong");
 		assertEquals(fetchedUser.getNick(), "someNick");
+		session.getTransaction().commit();
+	}
+	
+	protected ChannelDAOHb generateChannel() {
+		ChannelDAOHb channel = new ChannelDAOHb();
+		channel.setName("#channelName");
+		UserDAOHb user = new UserDAOHb();
+		channel.getUsers().add(generateUser("someNickNormal"));
+		channel.getOps().add(generateUser("someNickOp"));
+		channel.getVoices().add(generateUser("someNickOp"));
+		return channel;
+	}
+	
+	protected UserDAOHb generateUser(String name) {
+		UserDAOHb user = new UserDAOHb();
+		user.setNick(name);
+		return user;
 	}
 
 	protected class TestNamingStrategy extends ImprovedNamingStrategy {
