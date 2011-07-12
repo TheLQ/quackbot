@@ -18,10 +18,12 @@
  */
 package org.quackbot.dao.hibernate;
 
+import java.util.ArrayList;
 import org.quackbot.dao.UserDAO;
 import java.util.List;
 import org.hibernate.SessionFactory;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.ImprovedNamingStrategy;
@@ -29,7 +31,6 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.util.StringHelper;
 import org.quackbot.dao.ChannelDAO;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 import static org.mockito.Mockito.*;
@@ -48,7 +49,7 @@ public class RelationTest {
 		config = new Configuration().configure();
 		config.setNamingStrategy(new TestNamingStrategy());
 		sessionFactory = config.buildSessionFactory();
-		
+
 		DAOControllerHb controller = mock(DAOControllerHb.class);
 		when(controller.getSession()).thenReturn(session);
 		DAOControllerHb.instance = controller;
@@ -57,6 +58,7 @@ public class RelationTest {
 	@BeforeMethod
 	public void setUp() {
 		SchemaExport se = new SchemaExport(config);
+		se.drop(true, true);
 		se.create(true, true);
 		session = sessionFactory.openSession();
 	}
@@ -91,9 +93,8 @@ public class RelationTest {
 		session.getTransaction().commit();
 	}
 
-	@Test(dependsOnMethods = "ServerChannelTest", description = "Make sure when saving a server the assoicated channels and users get created")
-	public void ServerChannelUserTest() {
-		//Setup
+	@Test(dependsOnMethods = "ServerChannelTest")
+	public void ChannelUserStatusTest() {
 		session.beginTransaction();
 		ServerDAOHb server = new ServerDAOHb();
 		server.setAddress("some.host");
@@ -101,32 +102,52 @@ public class RelationTest {
 		session.save(server);
 		session.getTransaction().commit();
 
-		//Make sure the channel created the user
+		//Make sure the statuses still work (use known working methods
 		session.beginTransaction();
-		List results = session.createQuery("from ChannelDAOHb").list();
-		assertEquals(results.size(), 1, "Too many/No channels");
-		ChannelDAOHb fetchedChannel = (ChannelDAOHb) results.get(0);
-		assertEquals((int) fetchedChannel.getChannelID(), 1, "Channel ID is wrong");
-		assertEquals(fetchedChannel.getName(), "#channelName", "Channel name doesn't match");
+		ChannelDAOHb chan = (ChannelDAOHb) session.createQuery("from ChannelDAOHb").list().get(0);
 		
-		Set<UserDAO> users = fetchedChannel.getUsers();
-		assertEquals(users.size(), 1, "Too many/No users");
-		UserDAO fetchedUser = users.iterator().next();
-		assertEquals((int) fetchedUser.getUserId(), 1, "User ID is wrong");
-		assertEquals(fetchedUser.getNick(), "someNick");
-		session.getTransaction().commit();
+		//Verify there are 3 users
+		List<String> usersShouldExist = new ArrayList();
+		usersShouldExist.add("someNickNormal");
+		usersShouldExist.add("someNickOp");
+		usersShouldExist.add("someNickVoice");
+		for(UserDAO curUser : chan.getUsers()) {
+			String nick = curUser.getNick();
+			assertTrue(usersShouldExist.contains(nick), "Unknown user: " + nick);
+			usersShouldExist.remove(nick);
+		}
+		assertEquals(usersShouldExist.size(), 0, "Users missing from channel's getUsers: " + StringUtils.join(usersShouldExist, ", "));
+		
+		//Verify normal
+		assertEquals(chan.getNormalUsers().size(), 1, "Normal user list size is wrong");
+		UserDAO user = chan.getNormalUsers().iterator().next();
+		assertEquals(user.getNick(), "someNickNormal", "Normal nick is wrong (wrong user?)");
+		
+		//Verify op
+		assertEquals(chan.getOps().size(), 1, "Op list size is wrong");
+		user = chan.getOps().iterator().next();
+		assertEquals(user.getNick(), "someNickOp", "Op nick is wrong (wrong user?)");
+		
+		//Verify voice
+		assertEquals(chan.getVoices().size(), 1, "Op list size is wrong");
+		user = chan.getVoices().iterator().next();
+		assertEquals(user.getNick(), "someNickVoice", "Op nick is wrong (wrong user?)");
+		
+		//Make sure the other lists are empty
+		assertEquals(chan.getSuperOps().size(), 0, "Extra super ops: " + StringUtils.join(chan.getSuperOps(), ", "));
+		assertEquals(chan.getHalfOps().size(), 0, "Extra half ops: " + StringUtils.join(chan.getHalfOps(), ", "));
+		assertEquals(chan.getOwners().size(), 0, "Extra owners: " + StringUtils.join(chan.getOwners(), ", "));
 	}
-	
+
 	protected ChannelDAOHb generateChannel() {
 		ChannelDAOHb channel = new ChannelDAOHb();
 		channel.setName("#channelName");
-		UserDAOHb user = new UserDAOHb();
 		channel.getUsers().add(generateUser("someNickNormal"));
 		channel.getOps().add(generateUser("someNickOp"));
-		channel.getVoices().add(generateUser("someNickOp"));
+		channel.getVoices().add(generateUser("someNickVoice"));
 		return channel;
 	}
-	
+
 	protected UserDAOHb generateUser(String name) {
 		UserDAOHb user = new UserDAOHb();
 		user.setNick(name);
