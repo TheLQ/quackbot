@@ -49,4 +49,6 @@ public interface UserDAO {
 	public String getConnectedServer();
 
 	public void setConnectedServer(String connectedServer);
+	
+	public void delete();
 }
