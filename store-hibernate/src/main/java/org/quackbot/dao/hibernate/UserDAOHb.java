@@ -66,15 +66,12 @@ public class UserDAOHb implements Serializable, UserDAO {
 	protected Integer hops;
 	@Column(name = "connectedServer", length = 100)
 	protected String connectedServer;
-	@PersistenceContext
-	@Transient
-	protected EntityManager em;
 
 	public UserDAOHb() {
 	}
 	
 	@Override
 	public void delete() {
-		em.remove(this);
+		DAOControllerHb.getInstance().getSession().delete(this);
 	}
 }

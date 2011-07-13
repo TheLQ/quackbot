@@ -23,17 +23,15 @@ import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.Session;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
@@ -59,16 +57,13 @@ public class AdminDAOHb implements AdminDAO, Serializable {
 	private Set<ChannelDAO> channels;
 	@ManyToMany(targetEntity = ServerDAOHb.class, mappedBy = "admins")
 	private Set<ServerDAO> servers;
-	@PersistenceContext
-	@Transient
-	protected EntityManager em;
 
 	public AdminDAOHb() {
 	}
 
 	@Override
 	public boolean delete() {
-		em.remove(this);
+		DAOControllerHb.getInstance().getSession().delete(this);
 		return true;
 	}
 }

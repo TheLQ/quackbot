@@ -77,7 +77,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@Column(name = "mode", length = 100)
 	protected String mode;
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = ServerDAOHb.class)
-	@JoinColumn(name = "SERVER_ID", nullable = false)
+	@JoinColumn(name = "SERVER_ID" /*, nullable = false*/)
 	private ServerDAO server;
 	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
 	@JoinTable(name = "quackbot_channel_admins", joinColumns = {
@@ -87,9 +87,6 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "CHANNEL_ID")
 	private Set<UserChannelHb> userMaps = new HashSet();
-	@PersistenceContext
-	@Transient
-	protected EntityManager em;
 
 	public ChannelDAOHb() {
 	}
@@ -301,7 +298,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Override
 	public boolean delete() {
-		em.remove(this);
+		DAOControllerHb.getInstance().getSession().delete(this);
 		return true;
 	}
 }
