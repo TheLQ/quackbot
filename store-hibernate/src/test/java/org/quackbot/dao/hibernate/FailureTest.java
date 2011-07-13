@@ -39,4 +39,11 @@ public class FailureTest extends GenericHbTest {
 		ChannelDAOHb channel = new ChannelDAOHb();
 		session.save(channel);
 	}
+	
+	@Test(expectedExceptions = PropertyValueException.class, description = "Makes sure address is required on server")
+	public void serverAddressRequiredTest() {
+		//Generate a channel without a name
+		ServerDAOHb server = new ServerDAOHb();
+		session.save(server);
+	}
 }
