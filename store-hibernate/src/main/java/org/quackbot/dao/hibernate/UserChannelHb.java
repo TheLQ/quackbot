@@ -24,12 +24,13 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.GenericGenerator;
 
 /**
  *
@@ -37,16 +38,19 @@ import org.hibernate.annotations.GenericGenerator;
  */
 @Data
 @EqualsAndHashCode(exclude = {"user", "channel"})
-@Table(name = "quackbot_usermap")
 @Entity
+@Table(name = "quackbot_usermap")
 public class UserChannelHb implements Serializable {
 	@Id
-	@GenericGenerator(name = "test", strategy = "seqhilo")
-	@GeneratedValue(generator = "test")
-	protected Long id;
-	@ManyToOne(cascade = CascadeType.ALL)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Basic(optional = false)
+	@Column(name = "ID", nullable = false)
+	private Integer id;
+	@ManyToOne(cascade = CascadeType.ALL, optional = false)
+	@JoinColumn(name = "USER_ID")
 	protected UserDAOHb user;
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.ALL, optional = false)
+	@JoinColumn(name = "CHANNEL_ID")
 	protected ChannelDAOHb channel;
 	@Column(name = "op")
 	protected boolean op;

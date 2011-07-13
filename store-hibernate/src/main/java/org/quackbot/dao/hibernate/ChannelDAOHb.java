@@ -19,12 +19,13 @@
 package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -39,9 +40,6 @@ import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterJoinTable;
-import org.hibernate.annotations.WhereJoinTable;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
@@ -83,42 +81,10 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@JoinTable(name = "quackbot_adminmap", joinColumns = {
 		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
-	private Set<AdminDAOHb> admins;
+	private Set<AdminDAOHb> admins = new HashSet();
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_usermap", joinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "USER_ID")})
-	protected Set<UserDAOHb> users = new HashSet();
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_usermap", joinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "USER_ID")})
-	@FilterJoinTable(name="ops_true", condition=":ops = 1")
-	protected Set<UserDAOHb> ops = new HashSet();
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_usermap", joinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "USER_ID")})
-	@FilterJoinTable(name="voices_true", condition=":voices = 1")
-	protected Set<UserDAOHb> voices = new HashSet();
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_usermap", joinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "USER_ID")})
-	@FilterJoinTable(name="halfOps_true", condition=":halfOps = 1")
-	protected Set<UserDAOHb> halfOps = new HashSet();
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_usermap", joinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "USER_ID")})
-	@FilterJoinTable(name="superOps_true", condition=":superOps = 1")
-	protected Set<UserDAOHb> superOps = new HashSet();
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_usermap", joinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "USER_ID")})
-	 @FilterJoinTable(name="owner_true", condition=":owner = 1")
-	protected Set<UserDAOHb> owners = new HashSet();
+	@JoinColumn(name = "CHANNEL_ID")
+	private Set<UserChannelHb> userMaps = new HashSet();
 
 	public ChannelDAOHb() {
 	}
@@ -132,38 +98,209 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		return (Set<AdminDAO>) (Object) Collections.checkedSet(admins, AdminDAOHb.class);
 	}
 
+	@Override
 	public Set<UserDAO> getNormalUsers() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		return (Set<UserDAO>) (Object) new UserQuerySet() {
+			@Override
+			public boolean isSet(UserChannelHb userMap) {
+				//Make sure nothing is set
+				return !userMap.isOp()
+						&& !userMap.isVoice()
+						&& !userMap.isHalfOp()
+						&& !userMap.isSuperOp()
+						&& !userMap.isOwner();
+			}
+
+			@Override
+			public void configure(UserChannelHb userMap, boolean set) {
+				//No configuration nessesary
+			}
+		};
 	}
-	
+
 	@Override
 	public Set<UserDAO> getUsers() {
-		return (Set<UserDAO>) (Object) Collections.checkedSet(users, UserDAOHb.class);
+		return (Set<UserDAO>) (Object) new UserQuerySet() {
+			@Override
+			public boolean isSet(UserChannelHb userMap) {
+				//Get ALL users
+				return true;
+			}
+
+			@Override
+			public void configure(UserChannelHb userMap, boolean set) {
+				//No configuration nessesary
+			}
+		};
 	}
 
 	@Override
 	public Set<UserDAO> getOps() {
-		return (Set<UserDAO>) (Object) Collections.checkedSet(ops, UserDAOHb.class);
+		return (Set<UserDAO>) (Object) new UserQuerySet() {
+			@Override
+			public boolean isSet(UserChannelHb userMap) {
+				return userMap.isOp();
+			}
+
+			@Override
+			public void configure(UserChannelHb userMap, boolean set) {
+				userMap.setOp(set);
+			}
+		};
 	}
 
 	@Override
 	public Set<UserDAO> getVoices() {
-		return (Set<UserDAO>) (Object) Collections.checkedSet(voices, UserDAOHb.class);
+		return (Set<UserDAO>) (Object) new UserQuerySet() {
+			@Override
+			public boolean isSet(UserChannelHb userMap) {
+				return userMap.isVoice();
+			}
+
+			@Override
+			public void configure(UserChannelHb userMap, boolean set) {
+				userMap.setVoice(set);
+			}
+		};
 	}
 
 	@Override
 	public Set<UserDAO> getOwners() {
-		return (Set<UserDAO>) (Object) Collections.checkedSet(owners, UserDAOHb.class);
+		return (Set<UserDAO>) (Object) new UserQuerySet() {
+			@Override
+			public boolean isSet(UserChannelHb userMap) {
+				return userMap.isOwner();
+			}
+
+			@Override
+			public void configure(UserChannelHb userMap, boolean set) {
+				userMap.setOwner(set);
+			}
+		};
 	}
 
 	@Override
 	public Set<UserDAO> getHalfOps() {
-		return (Set<UserDAO>) (Object) Collections.checkedSet(halfOps, UserDAOHb.class);
+		return (Set<UserDAO>) (Object) new UserQuerySet() {
+			@Override
+			public boolean isSet(UserChannelHb userMap) {
+				return userMap.isHalfOp();
+			}
+
+			@Override
+			public void configure(UserChannelHb userMap, boolean set) {
+				userMap.setHalfOp(set);
+			}
+		};
 	}
 
 	@Override
 	public Set<UserDAO> getSuperOps() {
-		return (Set<UserDAO>) (Object) Collections.checkedSet(superOps, UserDAOHb.class);
+		return (Set<UserDAO>) (Object) new UserQuerySet() {
+			@Override
+			public boolean isSet(UserChannelHb userMap) {
+				return userMap.isSuperOp();
+			}
+
+			@Override
+			public void configure(UserChannelHb userMap, boolean set) {
+				userMap.setSuperOp(set);
+			}
+		};
+	}
+
+	protected abstract class UserQuerySet extends HashSet<UserDAOHb> {
+		public UserQuerySet() {
+			for (UserChannelHb userMap : userMaps)
+				if (isSet(userMap))
+					super.add(userMap.getUser());
+		}
+
+		/* Hook methods */
+		public void onAdd(UserDAOHb entry) {
+			//Update the existing object if the user already exists
+			for (UserChannelHb userMap : userMaps)
+				if (userMap.getUser().equals(entry)) {
+					configure(userMap, true);
+					return;
+				}
+
+			//No existing map, create a new one
+			UserChannelHb userMap = new UserChannelHb(ChannelDAOHb.this, entry);
+			configure(userMap, true);
+			userMaps.add(userMap);
+		}
+
+		public void onRemove(Object entry) {
+			if (!(entry instanceof UserDAOHb))
+				throw new RuntimeException("Attempting to remove unknown object " + entry);
+			//Attempt to remove the existing object
+			for (UserChannelHb userMap : userMaps)
+				if (userMap.getUser().equals(entry)) {
+					configure(userMap, true);
+					return;
+				}
+
+			throw new RuntimeException("Can't remove user " + entry + " as they don't exist in this set");
+		}
+
+		public abstract boolean isSet(UserChannelHb userMap);
+
+		public abstract void configure(UserChannelHb userMap, boolean set);
+
+		@Override
+		public boolean add(UserDAOHb e) {
+			onAdd(e);
+			return super.add(e);
+		}
+
+		@Override
+		public boolean addAll(Collection<? extends UserDAOHb> c) {
+			for (UserDAOHb curObj : c)
+				onAdd(curObj);
+			return super.addAll(c);
+		}
+
+		@Override
+		public boolean remove(Object o) {
+			onRemove(o);
+			return super.remove(o);
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> c) {
+			for (Object curObj : c)
+				onRemove(curObj);
+			return super.removeAll(c);
+		}
+
+		@Override
+		public Iterator<UserDAOHb> iterator() {
+			//Wrap the iterator to capture remove operations
+			final Iterator<UserDAOHb> queryItr = super.iterator();
+			return new Iterator<UserDAOHb>() {
+				UserDAOHb lastElement;
+
+				public boolean hasNext() {
+					return queryItr.hasNext();
+				}
+
+				public UserDAOHb next() {
+					lastElement = queryItr.next();
+					return lastElement;
+				}
+
+				public void remove() {
+					onRemove(lastElement);
+					queryItr.remove();
+				}
+			};
+		}
+
+		@Override
+		public boolean retainAll(Collection<?> c) {
+			throw new UnsupportedOperationException("Not implemented");
+		}
 	}
 
 	public boolean delete() {
