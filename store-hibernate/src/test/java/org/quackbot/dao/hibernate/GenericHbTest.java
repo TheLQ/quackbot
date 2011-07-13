@@ -58,13 +58,13 @@ public class GenericHbTest {
 		se.create(true, true);
 		session = sessionFactory.openSession();
 	}
-	
+
 	protected ServerDAOHb generateServer(String address) {
 		ServerDAOHb server = new ServerDAOHb();
 		server.setAddress(address);
 		return server;
 	}
-	
+
 	protected ChannelDAOHb generateChannel(String name) {
 		ChannelDAOHb channel = new ChannelDAOHb();
 		channel.setName(name);
@@ -82,7 +82,35 @@ public class GenericHbTest {
 		globalAdmin.setName(name);
 		return globalAdmin;
 	}
-	
+
+	protected ServerDAOHb generateEnviornment(int num, AdminDAOHb globalAdmin) {
+		ServerDAOHb server = generateServer("irc.host" + num);
+		server.setServerId(num);
+		if (globalAdmin != null)
+			server.getAdmins().add(globalAdmin);
+		server.getAdmins().add(generateAdmin("serverAdmin" + num));
+
+		AdminDAOHb channelAdmin = generateAdmin("channelAdmin" + num);
+
+		ChannelDAOHb channel = generateChannel("#aChannel" + num);
+		channel.getAdmins().add(channelAdmin);
+		channel.getAdmins().add(generateAdmin("aChannelAdmin" + num));
+		channel.getUsers().add(generateUser("aNormalUser" + num));
+		channel.getOps().add(generateUser("aOpUser" + num));
+		channel.getSuperOps().add(generateUser("aSuperOpUser" + num));
+		server.getChannels().add(channel);
+
+		channel = generateChannel("#someChannel" + num);
+		channel.getAdmins().add(channelAdmin);
+		channel.getAdmins().add(generateAdmin("someChannelAdmin" + num));
+		channel.getUsers().add(generateUser("someNormalUser" + num));
+		channel.getOps().add(generateUser("someOpUser" + num));
+		channel.getSuperOps().add(generateUser("someSuperOpUser" + num));
+		server.getChannels().add(channel);
+
+		return server;
+	}
+
 	protected class TestNamingStrategy extends ImprovedNamingStrategy {
 		@Override
 		public String classToTableName(String className) {
