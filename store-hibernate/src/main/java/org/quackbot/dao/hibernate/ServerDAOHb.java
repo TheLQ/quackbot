@@ -69,10 +69,10 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "server")
 	private Set<ChannelDAOHb> channels = new HashSet();
 	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "quackbot_adminmap", 
-			joinColumns = {@JoinColumn(name = "SERVER_ID")}, 
-			inverseJoinColumns = {@JoinColumn(name = "ADMIN_ID")})
-	private Set<AdminDAOHb> admins;
+	@JoinTable(name = "quackbot_adminmap", joinColumns = {
+		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "ADMIN_ID")})
+	private Set<AdminDAOHb> admins = new HashSet();
 
 	public ServerDAOHb() {
 	}
