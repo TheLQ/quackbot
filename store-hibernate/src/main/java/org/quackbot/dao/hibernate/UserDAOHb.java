@@ -22,13 +22,16 @@ import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.Data;
 import org.quackbot.dao.UserDAO;
 
@@ -63,7 +66,15 @@ public class UserDAOHb implements Serializable, UserDAO {
 	protected Integer hops;
 	@Column(name = "connectedServer", length = 100)
 	protected String connectedServer;
+	@PersistenceContext
+	@Transient
+	protected EntityManager em;
 
 	public UserDAOHb() {
+	}
+	
+	@Override
+	public void delete() {
+		em.remove(this);
 	}
 }

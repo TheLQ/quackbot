@@ -23,13 +23,13 @@
 package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,7 +37,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -73,11 +75,16 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
 	private Set<AdminDAO> admins = new HashSet();
+	@PersistenceContext
+	@Transient
+	protected EntityManager em;
 
 	public ServerDAOHb() {
 	}
 
+	@Override
 	public boolean delete() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		em.remove(this);
+		return true;
 	}
 }
