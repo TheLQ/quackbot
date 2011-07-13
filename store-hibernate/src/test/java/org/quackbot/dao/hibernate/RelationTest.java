@@ -111,45 +111,49 @@ public class RelationTest extends GenericHbTest {
 		assertEquals(chan.getOwners().size(), 0, "Extra owners: " + StringUtils.join(chan.getOwners(), ", "));
 	}
 
-	@Test(dependsOnMethods = "ServerChannelTest")
+	@Test
 	public void AdminTest() {
 		session.beginTransaction();
-		ServerDAOHb server = new ServerDAOHb();
-		server.setAddress("some.host");
-		AdminDAOHb globalAdmin = generateAdmin("someGlobalAdmin");
-		server.getAdmins().add(globalAdmin);
-		server.getAdmins().add(generateAdmin("someServerAdmin"));
-		ChannelDAOHb channel = generateChannel("#someChannel");
-		channel.getAdmins().add(generateAdmin("someChannelAdmin"));
-		channel.getAdmins().add(globalAdmin);
-		server.getChannels().add(channel);
-		session.save(server);
+		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
+		session.save(generateEnviornment(1, globalAdmin));
+		session.save(generateEnviornment(2, globalAdmin));
 		session.getTransaction().commit();
 
-		//Start verifying
 		session.beginTransaction();
-		ServerDAOHb fetchedServer = (ServerDAOHb) session.createQuery("from ServerDAOHb").list().get(0);
-
-		//Verify server admins
+		//Verify server1 admins
+		ServerDAOHb fetchedServer1 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
 		List<String> adminsShouldExist = new ArrayList();
-		adminsShouldExist.add("someGlobalAdmin");
-		adminsShouldExist.add("someServerAdmin");
-		for (AdminDAO curAdmin : fetchedServer.getAdmins()) {
+		adminsShouldExist.add("globalAdmin");
+		adminsShouldExist.add("serverAdmin1");
+		AdminDAO fetchedGlobalAdmin1 = null;
+		for (AdminDAO curAdmin : fetchedServer1.getAdmins()) {
 			String name = curAdmin.getName();
-			assertTrue(adminsShouldExist.contains(name), "Unknown server admin: " + curAdmin);
+			if (name.equals("globalAdmin"))
+				fetchedGlobalAdmin1 = curAdmin;
+			assertTrue(adminsShouldExist.contains(name), "Unknown server1 admin: " + curAdmin);
 			adminsShouldExist.remove(name);
 		}
-		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from servers's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
+		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from server1's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
+		assertNotNull(fetchedGlobalAdmin1, "Global admin not found in server1");
 
-		//Verify channel admins
+		//Verify server2 admins
+		ServerDAOHb fetchedServer2 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 2").uniqueResult();
 		adminsShouldExist = new ArrayList();
-		adminsShouldExist.add("someGlobalAdmin");
-		adminsShouldExist.add("someChannelAdmin");
-		for (AdminDAO curAdmin : fetchedServer.getChannels().iterator().next().getAdmins()) {
+		adminsShouldExist.add("globalAdmin");
+		adminsShouldExist.add("serverAdmin2");
+		AdminDAO fetchedGlobalAdmin2 = null;
+		for (AdminDAO curAdmin : fetchedServer2.getAdmins()) {
 			String name = curAdmin.getName();
-			assertTrue(adminsShouldExist.contains(name), "Unknown channel admin: " + curAdmin);
+			if (name.equals("globalAdmin"))
+				fetchedGlobalAdmin2 = curAdmin;
+			assertTrue(adminsShouldExist.contains(name), "Unknown server2 admin: " + curAdmin);
 			adminsShouldExist.remove(name);
 		}
-		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from channel's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
+		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from server2's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
+		assertNotNull(fetchedGlobalAdmin2, "Global admin not found in server2");
+		
+		//Make sure global admins match
+		assertEquals(fetchedGlobalAdmin1.getAdminId(), fetchedGlobalAdmin2.getAdminId(), "Global admins IDs do not match");
+		assertEquals(fetchedGlobalAdmin1, fetchedGlobalAdmin2, "Global admins do not match in .equals()");
 	}
 }
