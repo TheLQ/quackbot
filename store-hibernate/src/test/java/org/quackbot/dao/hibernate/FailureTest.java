@@ -32,4 +32,11 @@ public class FailureTest extends GenericHbTest {
 		ChannelDAOHb channel = generateChannel("#aChannel");
 		session.save(channel);
 	}
+	
+	@Test(expectedExceptions = PropertyValueException.class, description = "Makes sure name is required on channel")
+	public void channelNameRequiredTest() {
+		//Generate a channel without a name
+		ChannelDAOHb channel = new ChannelDAOHb();
+		session.save(channel);
+	}
 }
