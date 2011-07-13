@@ -44,11 +44,7 @@ public class GenericHbTest {
 		//Configure these things once
 		config = new Configuration().configure();
 		config.setNamingStrategy(new TestNamingStrategy());
-		sessionFactory = config.buildSessionFactory();
-
-		DAOControllerHb controller = mock(DAOControllerHb.class);
-		when(controller.getSession()).thenReturn(session);
-		DAOControllerHb.instance = controller;
+		sessionFactory = config.buildSessionFactory();		
 	}
 
 	@BeforeMethod
@@ -57,6 +53,10 @@ public class GenericHbTest {
 		se.drop(true, true);
 		se.create(true, true);
 		session = sessionFactory.openSession();
+		
+		DAOControllerHb controller = mock(DAOControllerHb.class);
+		when(controller.getSession()).thenReturn(session);
+		DAOControllerHb.instance = controller;
 	}
 
 	protected ServerDAOHb generateServer(String address) {
