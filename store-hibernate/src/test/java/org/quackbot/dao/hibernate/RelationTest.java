@@ -66,7 +66,7 @@ public class RelationTest extends GenericHbTest {
 	public void ChannelUserStatusTest() {
 		session.beginTransaction();
 		ServerDAOHb server = generateServer("some.host");
-		ChannelDAOHb channel = generateChannel();
+		ChannelDAOHb channel = generateChannel("#someChannel");
 		channel.getUsers().add(generateUser("someNickNormal"));
 		channel.getOps().add(generateUser("someNickOp"));
 		channel.getVoices().add(generateUser("someNickVoice"));
@@ -119,7 +119,7 @@ public class RelationTest extends GenericHbTest {
 		AdminDAOHb globalAdmin = generateAdmin("someGlobalAdmin");
 		server.getAdmins().add(globalAdmin);
 		server.getAdmins().add(generateAdmin("someServerAdmin"));
-		ChannelDAOHb channel = generateChannel();
+		ChannelDAOHb channel = generateChannel("#someChannel");
 		channel.getAdmins().add(generateAdmin("someChannelAdmin"));
 		channel.getAdmins().add(globalAdmin);
 		server.getChannels().add(channel);

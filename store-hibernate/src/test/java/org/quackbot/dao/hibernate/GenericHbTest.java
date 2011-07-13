@@ -65,9 +65,9 @@ public class GenericHbTest {
 		return server;
 	}
 	
-	protected ChannelDAOHb generateChannel() {
+	protected ChannelDAOHb generateChannel(String name) {
 		ChannelDAOHb channel = new ChannelDAOHb();
-		channel.setName("#channelName");
+		channel.setName(name);
 		return channel;
 	}
 
