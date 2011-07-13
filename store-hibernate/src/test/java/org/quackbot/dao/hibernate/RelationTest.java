@@ -37,8 +37,7 @@ public class RelationTest extends GenericHbTest {
 	public void ServerChannelTest() {
 		//Setup
 		session.beginTransaction();
-		ServerDAOHb server = new ServerDAOHb();
-		server.setAddress("some.host");
+		ServerDAOHb server = generateServer("some.host");
 		ChannelDAOHb channel = new ChannelDAOHb();
 		channel.setName("#channelName");
 		server.getChannels().add(channel);
@@ -66,8 +65,7 @@ public class RelationTest extends GenericHbTest {
 	@Test(dependsOnMethods = "ServerChannelTest")
 	public void ChannelUserStatusTest() {
 		session.beginTransaction();
-		ServerDAOHb server = new ServerDAOHb();
-		server.setAddress("some.host");
+		ServerDAOHb server = generateServer("some.host");
 		ChannelDAOHb channel = generateChannel();
 		channel.getUsers().add(generateUser("someNickNormal"));
 		channel.getOps().add(generateUser("someNickOp"));

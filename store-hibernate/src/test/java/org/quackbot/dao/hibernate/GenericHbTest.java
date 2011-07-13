@@ -59,6 +59,12 @@ public class GenericHbTest {
 		session = sessionFactory.openSession();
 	}
 	
+	protected ServerDAOHb generateServer(String address) {
+		ServerDAOHb server = new ServerDAOHb();
+		server.setAddress(address);
+		return server;
+	}
+	
 	protected ChannelDAOHb generateChannel() {
 		ChannelDAOHb channel = new ChannelDAOHb();
 		channel.setName("#channelName");
