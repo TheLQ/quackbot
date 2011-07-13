@@ -84,7 +84,7 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 
 	@Override
 	public boolean delete() {
-		em.remove(this);
+		DAOControllerHb.getInstance().getSession().delete(this);
 		return true;
 	}
 }
