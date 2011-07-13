@@ -19,15 +19,12 @@
 package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -36,9 +33,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -93,7 +88,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Override
 	public Set<UserDAO> getNormalUsers() {
-		return (Set<UserDAO>) (Object) new UserQuerySet() {
+		return (Set<UserDAO>) (Object) new UserListenerSet() {
 			@Override
 			public boolean isSet(UserChannelHb userMap) {
 				//Make sure nothing is set
@@ -113,7 +108,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Override
 	public Set<UserDAO> getUsers() {
-		return (Set<UserDAO>) (Object) new UserQuerySet() {
+		return (Set<UserDAO>) (Object) new UserListenerSet() {
 			@Override
 			public boolean isSet(UserChannelHb userMap) {
 				//Get ALL users
@@ -129,7 +124,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Override
 	public Set<UserDAO> getOps() {
-		return (Set<UserDAO>) (Object) new UserQuerySet() {
+		return (Set<UserDAO>) (Object) new UserListenerSet() {
 			@Override
 			public boolean isSet(UserChannelHb userMap) {
 				return userMap.isOp();
@@ -144,7 +139,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Override
 	public Set<UserDAO> getVoices() {
-		return (Set<UserDAO>) (Object) new UserQuerySet() {
+		return (Set<UserDAO>) (Object) new UserListenerSet() {
 			@Override
 			public boolean isSet(UserChannelHb userMap) {
 				return userMap.isVoice();
@@ -159,7 +154,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Override
 	public Set<UserDAO> getOwners() {
-		return (Set<UserDAO>) (Object) new UserQuerySet() {
+		return (Set<UserDAO>) (Object) new UserListenerSet() {
 			@Override
 			public boolean isSet(UserChannelHb userMap) {
 				return userMap.isOwner();
@@ -174,7 +169,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Override
 	public Set<UserDAO> getHalfOps() {
-		return (Set<UserDAO>) (Object) new UserQuerySet() {
+		return (Set<UserDAO>) (Object) new UserListenerSet() {
 			@Override
 			public boolean isSet(UserChannelHb userMap) {
 				return userMap.isHalfOp();
@@ -189,7 +184,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Override
 	public Set<UserDAO> getSuperOps() {
-		return (Set<UserDAO>) (Object) new UserQuerySet() {
+		return (Set<UserDAO>) (Object) new UserListenerSet() {
 			@Override
 			public boolean isSet(UserChannelHb userMap) {
 				return userMap.isSuperOp();
@@ -202,14 +197,15 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		};
 	}
 
-	protected abstract class UserQuerySet extends HashSet<UserDAOHb> {
-		public UserQuerySet() {
+	protected abstract class UserListenerSet extends ListenerSet<UserDAOHb> {
+		public UserListenerSet() {
 			for (UserChannelHb userMap : userMaps)
 				if (isSet(userMap))
 					super.add(userMap.getUser());
 		}
 
 		/* Hook methods */
+		@Override
 		public void onAdd(UserDAOHb entry) {
 			//Update the existing object if the user already exists
 			for (UserChannelHb userMap : userMaps)
@@ -224,6 +220,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 			userMaps.add(userMap);
 		}
 
+		@Override
 		public void onRemove(Object entry) {
 			if (!(entry instanceof UserDAOHb))
 				throw new RuntimeException("Attempting to remove unknown object " + entry);
@@ -240,60 +237,6 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		public abstract boolean isSet(UserChannelHb userMap);
 
 		public abstract void configure(UserChannelHb userMap, boolean set);
-
-		@Override
-		public boolean add(UserDAOHb e) {
-			onAdd(e);
-			return super.add(e);
-		}
-
-		@Override
-		public boolean addAll(Collection<? extends UserDAOHb> c) {
-			for (UserDAOHb curObj : c)
-				onAdd(curObj);
-			return super.addAll(c);
-		}
-
-		@Override
-		public boolean remove(Object o) {
-			onRemove(o);
-			return super.remove(o);
-		}
-
-		@Override
-		public boolean removeAll(Collection<?> c) {
-			for (Object curObj : c)
-				onRemove(curObj);
-			return super.removeAll(c);
-		}
-
-		@Override
-		public Iterator<UserDAOHb> iterator() {
-			//Wrap the iterator to capture remove operations
-			final Iterator<UserDAOHb> queryItr = super.iterator();
-			return new Iterator<UserDAOHb>() {
-				UserDAOHb lastElement;
-
-				public boolean hasNext() {
-					return queryItr.hasNext();
-				}
-
-				public UserDAOHb next() {
-					lastElement = queryItr.next();
-					return lastElement;
-				}
-
-				public void remove() {
-					onRemove(lastElement);
-					queryItr.remove();
-				}
-			};
-		}
-
-		@Override
-		public boolean retainAll(Collection<?> c) {
-			throw new UnsupportedOperationException("Not implemented");
-		}
 	}
 
 	@Override
