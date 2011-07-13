@@ -20,7 +20,6 @@ package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -74,28 +73,19 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	protected Long topicTimestamp;
 	@Column(name = "mode", length = 100)
 	protected String mode;
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.ALL, targetEntity = ServerDAOHb.class)
 	@JoinColumn(name = "SERVER_ID", insertable = false)
-	private ServerDAOHb server;
-	@ManyToMany(cascade = CascadeType.ALL)
+	private ServerDAO server;
+	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
 	@JoinTable(name = "quackbot_adminmap", joinColumns = {
 		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
-	private Set<AdminDAOHb> admins = new HashSet();
+	private Set<AdminDAO> admins = new HashSet();
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "CHANNEL_ID")
 	private Set<UserChannelHb> userMaps = new HashSet();
 
 	public ChannelDAOHb() {
-	}
-
-	public void setServer(ServerDAO server) {
-		this.server = (ServerDAOHb) server;
-	}
-
-	@Override
-	public Set<AdminDAO> getAdmins() {
-		return (Set<AdminDAO>) (Object) Collections.checkedSet(admins, AdminDAOHb.class);
 	}
 
 	@Override
