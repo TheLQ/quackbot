@@ -27,8 +27,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Data;
@@ -55,23 +53,15 @@ public class AdminDAOHb implements AdminDAO, Serializable {
 	private Integer adminId;
 	@Column(name = "name", length = 50, nullable = false)
 	private String name;
-	@ManyToMany(mappedBy = "admins")
-	private Set<ChannelDAOHb> channels;
-	@ManyToMany(mappedBy = "admins")
-	private Set<ServerDAOHb> servers;
+	@ManyToMany(targetEntity = ChannelDAOHb.class, mappedBy = "admins")
+	private Set<ChannelDAO> channels;
+	@ManyToMany(targetEntity = ServerDAOHb.class, mappedBy = "admins")
+	private Set<ServerDAO> servers;
 
 	public AdminDAOHb() {
 	}
 
 	public boolean delete() {
 		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	public Set<ChannelDAO> getChannels() {
-		return (Set<ChannelDAO>) (Object) Collections.checkedSet(channels, ChannelDAOHb.class);
-	}
-
-	public Set<ServerDAO> getServers() {
-		return (Set<ServerDAO>) (Object) Collections.checkedSet(servers, ServerDAOHb.class);
 	}
 }
