@@ -27,6 +27,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +36,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -84,6 +87,9 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "CHANNEL_ID")
 	private Set<UserChannelHb> userMaps = new HashSet();
+	@PersistenceContext
+	@Transient
+	protected EntityManager em;
 
 	public ChannelDAOHb() {
 	}
@@ -293,7 +299,9 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		}
 	}
 
+	@Override
 	public boolean delete() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		em.remove(this);
+		return true;
 	}
 }

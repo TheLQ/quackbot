@@ -19,16 +19,18 @@
 package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -57,11 +59,16 @@ public class AdminDAOHb implements AdminDAO, Serializable {
 	private Set<ChannelDAO> channels;
 	@ManyToMany(targetEntity = ServerDAOHb.class, mappedBy = "admins")
 	private Set<ServerDAO> servers;
+	@PersistenceContext
+	@Transient
+	protected EntityManager em;
 
 	public AdminDAOHb() {
 	}
 
+	@Override
 	public boolean delete() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		em.remove(this);
+		return true;
 	}
 }
