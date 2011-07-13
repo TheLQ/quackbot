@@ -29,6 +29,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.util.StringHelper;
+import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -105,38 +106,80 @@ public class RelationTest {
 		//Make sure the statuses still work (use known working methods
 		session.beginTransaction();
 		ChannelDAOHb chan = (ChannelDAOHb) session.createQuery("from ChannelDAOHb").list().get(0);
-		
+
 		//Verify there are 3 users
 		List<String> usersShouldExist = new ArrayList();
 		usersShouldExist.add("someNickNormal");
 		usersShouldExist.add("someNickOp");
 		usersShouldExist.add("someNickVoice");
-		for(UserDAO curUser : chan.getUsers()) {
+		for (UserDAO curUser : chan.getUsers()) {
 			String nick = curUser.getNick();
 			assertTrue(usersShouldExist.contains(nick), "Unknown user: " + nick);
 			usersShouldExist.remove(nick);
 		}
 		assertEquals(usersShouldExist.size(), 0, "Users missing from channel's getUsers: " + StringUtils.join(usersShouldExist, ", "));
-		
+
 		//Verify normal
 		assertEquals(chan.getNormalUsers().size(), 1, "Normal user list size is wrong");
 		UserDAO user = chan.getNormalUsers().iterator().next();
 		assertEquals(user.getNick(), "someNickNormal", "Normal nick is wrong (wrong user?)");
-		
+
 		//Verify op
 		assertEquals(chan.getOps().size(), 1, "Op list size is wrong");
 		user = chan.getOps().iterator().next();
 		assertEquals(user.getNick(), "someNickOp", "Op nick is wrong (wrong user?)");
-		
+
 		//Verify voice
 		assertEquals(chan.getVoices().size(), 1, "Op list size is wrong");
 		user = chan.getVoices().iterator().next();
 		assertEquals(user.getNick(), "someNickVoice", "Op nick is wrong (wrong user?)");
-		
+
 		//Make sure the other lists are empty
 		assertEquals(chan.getSuperOps().size(), 0, "Extra super ops: " + StringUtils.join(chan.getSuperOps(), ", "));
 		assertEquals(chan.getHalfOps().size(), 0, "Extra half ops: " + StringUtils.join(chan.getHalfOps(), ", "));
 		assertEquals(chan.getOwners().size(), 0, "Extra owners: " + StringUtils.join(chan.getOwners(), ", "));
+	}
+
+	@Test(dependsOnMethods = "ServerChannelTest")
+	public void AdminTest() {
+		session.beginTransaction();
+		ServerDAOHb server = new ServerDAOHb();
+		server.setAddress("some.host");
+		AdminDAOHb globalAdmin = generateAdmin("someGlobalAdmin");
+		server.getAdmins().add(globalAdmin);
+		server.getAdmins().add(generateAdmin("someServerAdmin"));
+		ChannelDAOHb channel = generateChannel();
+		channel.getAdmins().add(generateAdmin("someChannelAdmin"));
+		channel.getAdmins().add(globalAdmin);
+		server.getChannels().add(channel);
+		session.save(server);
+		session.getTransaction().commit();
+
+		//Start verifying
+		session.beginTransaction();
+		ServerDAOHb fetchedServer = (ServerDAOHb) session.createQuery("from ServerDAOHb").list().get(0);
+
+		//Verify server admins
+		List<String> adminsShouldExist = new ArrayList();
+		adminsShouldExist.add("someGlobalAdmin");
+		adminsShouldExist.add("someServerAdmin");
+		for (AdminDAO curAdmin : fetchedServer.getAdmins()) {
+			String name = curAdmin.getName();
+			assertTrue(adminsShouldExist.contains(name), "Unknown server admin: " + curAdmin);
+			adminsShouldExist.remove(name);
+		}
+		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from servers's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
+
+		//Verify channel admins
+		adminsShouldExist = new ArrayList();
+		adminsShouldExist.add("someGlobalAdmin");
+		adminsShouldExist.add("someChannelAdmin");
+		for (AdminDAO curAdmin : fetchedServer.getChannels().iterator().next().getAdmins()) {
+			String name = curAdmin.getName();
+			assertTrue(adminsShouldExist.contains(name), "Unknown channel admin: " + curAdmin);
+			adminsShouldExist.remove(name);
+		}
+		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from channel's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
 	}
 
 	protected ChannelDAOHb generateChannel() {
@@ -152,6 +195,12 @@ public class RelationTest {
 		UserDAOHb user = new UserDAOHb();
 		user.setNick(name);
 		return user;
+	}
+
+	protected AdminDAOHb generateAdmin(String name) {
+		AdminDAOHb globalAdmin = new AdminDAOHb();
+		globalAdmin.setName(name);
+		return globalAdmin;
 	}
 
 	protected class TestNamingStrategy extends ImprovedNamingStrategy {
