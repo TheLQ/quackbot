@@ -78,6 +78,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@JoinTable(name = "quackbot_channel_admins", joinColumns = {
 		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	private Set<AdminDAO> admins = new HashSet();
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "CHANNEL_ID")
@@ -85,7 +86,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	public ChannelDAOHb() {
 	}
-	
+
 	public Set<AdminDAO> getAdmins() {
 		return new ListenerSet<AdminDAO>(admins) {
 			@Override
@@ -97,7 +98,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 			public void onRemove(Object entry) {
 				if (!(entry instanceof AdminDAOHb))
 					throw new RuntimeException("Attempting to remove unknown object from channel admin list " + entry);
-				((AdminDAOHb) entry).getChannels().remove(ChannelDAOHb.this);
+				//Do nothing
 			}
 		};
 	}
