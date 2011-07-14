@@ -46,7 +46,6 @@ public class GenericHbTest {
 	@BeforeMethod
 	public void setUp() {
 		SchemaExport se = new SchemaExport(config);
-		se.drop(true, true);
 		se.create(true, true);
 		session = sessionFactory.openSession();
 		
