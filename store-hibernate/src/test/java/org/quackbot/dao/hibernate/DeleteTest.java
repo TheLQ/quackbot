@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.quackbot.dao.hibernate;
 
 import org.hibernate.Criteria;
@@ -32,26 +31,49 @@ public class DeleteTest extends GenericHbTest {
 	@Test
 	public void deleteAdminGlobalTest() {
 		setupEnviornment();
-		
+
 		session.beginTransaction();
 		//Grab the global admin and delete it
 		Criteria query = session.createCriteria(AdminDAOHb.class);
 		query.add(Restrictions.eq("name", "globalAdmin"));
 		((AdminDAOHb) query.uniqueResult()).delete();
 		session.getTransaction().commit();
-		
+
 		session.beginTransaction();
 		//Make sure its gone from server1
 		ServerDAOHb server1 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
 		assertEquals(server1.getAdmins().size(), 1, "Too many server1 admins: " + server1.getAdmins());
 		assertEquals(server1.getAdmins().iterator().next().getName(), "serverAdmin1", "Remaining server1 admin name is wrong");
-		
+
 		//Make sure its gone from server2
 		ServerDAOHb server2 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 2").uniqueResult();
 		assertEquals(server2.getAdmins().size(), 1, "Too many server2 admins: " + server2.getAdmins());
 		assertEquals(server2.getAdmins().iterator().next().getName(), "serverAdmin2", "Remaining server2 admin name is wrong");
 	}
-	
+
+	@Test
+	public void deleteAdminChannelGlobalTest() {
+		setupEnviornment();
+
+		session.beginTransaction();
+		//Grab the global admin and delete it
+		Criteria query = session.createCriteria(AdminDAOHb.class);
+		query.add(Restrictions.eq("name", "channelAdmin1"));
+		((AdminDAOHb) query.uniqueResult()).delete();
+		session.getTransaction().commit();
+		
+		session.beginTransaction();
+		//Make sure its gone from #aChannel1
+		ChannelDAOHb aChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#aChannel1'").uniqueResult();
+		assertEquals(aChannel.getAdmins().size(), 1, "Too many #aChannel1 admins: " + aChannel.getAdmins());
+		assertEquals(aChannel.getAdmins().iterator().next().getName(), "aChannelAdmin1", "Remaining #aChannel1 admin name is wrong");
+
+		//Make sure its gone from #someChannel1
+		ChannelDAOHb someChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#someChannel1'").uniqueResult();
+		assertEquals(someChannel.getAdmins().size(), 1, "Too many #someChannel1 admins: " + someChannel.getAdmins());
+		assertEquals(someChannel.getAdmins().iterator().next().getName(), "someChannelAdmin1", "Remaining #someChannel1 admin name is wrong");
+	}
+
 	protected void setupEnviornment() {
 		session.beginTransaction();
 		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
