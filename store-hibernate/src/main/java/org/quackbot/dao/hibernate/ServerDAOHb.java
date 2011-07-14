@@ -76,6 +76,38 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	public ServerDAOHb() {
 	}
 
+	public Set<AdminDAO> getAdmins() {
+		return new ListenerSet<AdminDAO>(admins) {
+			@Override
+			public void onAdd(AdminDAO entry) {
+				entry.getServers().add(ServerDAOHb.this);
+			}
+
+			@Override
+			public void onRemove(Object entry) {
+				if (!(entry instanceof AdminDAOHb))
+					throw new RuntimeException("Attempting to remove unknown object from server admin list " + entry);
+				((AdminDAOHb) entry).getServers().remove(ServerDAOHb.this);
+			}
+		};
+	}
+
+	public Set<ChannelDAO> getChannels() {
+		return new ListenerSet<ChannelDAO>(channels) {
+			@Override
+			public void onAdd(ChannelDAO entry) {
+				entry.setServer(ServerDAOHb.this);
+			}
+
+			@Override
+			public void onRemove(Object entry) {
+				if (!(entry instanceof ChannelDAO))
+					throw new RuntimeException("Attempting to remove unknown object from server channel list " + entry);
+				((ChannelDAOHb) entry).setServer(null);
+			}
+		};
+	}
+
 	@Override
 	public boolean delete() {
 		DAOControllerHb.getInstance().getSession().delete(this);
