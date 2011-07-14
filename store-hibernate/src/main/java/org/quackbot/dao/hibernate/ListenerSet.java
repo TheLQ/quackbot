@@ -19,14 +19,20 @@
 package org.quackbot.dao.hibernate;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  *
  * @author lordquackstar
  */
-abstract class ListenerSet<T> extends HashSet<T> {
+abstract class ListenerSet<T> implements Set<T> {
+	protected Collection<T> delegateSet;
+
+	public ListenerSet(Collection<T> delegateSet) {
+		this.delegateSet = delegateSet;
+	}
+
 	/* Hook methods */
 	public abstract void onAdd(T entry);
 
@@ -35,33 +41,33 @@ abstract class ListenerSet<T> extends HashSet<T> {
 	@Override
 	public boolean add(T e) {
 		onAdd(e);
-		return super.add(e);
+		return delegateSet.add(e);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends T> c) {
 		for (T curObj : c)
 			onAdd(curObj);
-		return super.addAll(c);
+		return delegateSet.addAll(c);
 	}
 
 	@Override
 	public boolean remove(Object o) {
 		onRemove(o);
-		return super.remove(o);
+		return delegateSet.remove(o);
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
 		for (Object curObj : c)
 			onRemove(curObj);
-		return super.removeAll(c);
+		return delegateSet.removeAll(c);
 	}
 
 	@Override
 	public Iterator<T> iterator() {
 		//Wrap the iterator to capture remove operations
-		final Iterator<T> queryItr = super.iterator();
+		final Iterator<T> queryItr = delegateSet.iterator();
 		return new Iterator<T>() {
 			T lastElement;
 
@@ -84,5 +90,40 @@ abstract class ListenerSet<T> extends HashSet<T> {
 	@Override
 	public boolean retainAll(Collection<?> c) {
 		throw new UnsupportedOperationException("Not implemented");
+	}
+
+	@Override
+	public <T> T[] toArray(T[] a) {
+		return delegateSet.toArray(a);
+	}
+
+	@Override
+	public Object[] toArray() {
+		return delegateSet.toArray();
+	}
+
+	@Override
+	public int size() {
+		return delegateSet.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return delegateSet.isEmpty();
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return delegateSet.containsAll(c);
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		return delegateSet.contains(o);
+	}
+
+	@Override
+	public void clear() {
+		delegateSet.clear();
 	}
 }
