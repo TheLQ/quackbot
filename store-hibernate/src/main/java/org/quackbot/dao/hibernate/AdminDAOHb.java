@@ -47,7 +47,7 @@ import org.quackbot.dao.ServerDAO;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(exclude = {"channels", "servers"})
+@EqualsAndHashCode(of = "name")
 @ToString(exclude = {"channels", "servers"})
 @Entity
 @Table(name = "quackbot_admins")

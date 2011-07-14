@@ -37,7 +37,7 @@ import lombok.EqualsAndHashCode;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(exclude = {"user", "channel"})
+@EqualsAndHashCode(of = {"user", "channel"})
 @Entity
 @Table(name = "quackbot_usermap")
 public class UserChannelHb implements Serializable {
