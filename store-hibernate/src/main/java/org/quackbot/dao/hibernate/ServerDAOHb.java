@@ -65,7 +65,7 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	private Integer port;
 	@Column(name = "password", length = 100)
 	private String password;
-	@OneToMany(cascade = CascadeType.ALL, targetEntity = ChannelDAOHb.class, mappedBy = "server")
+	@OneToMany(cascade = CascadeType.ALL, targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true)
 	private Set<ChannelDAO> channels = new HashSet();
 	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
 	@JoinTable(name = "quackbot_server_admins", joinColumns = {
