@@ -33,6 +33,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.quackbot.dao.UserDAO;
 
 /**
@@ -40,6 +41,7 @@ import org.quackbot.dao.UserDAO;
  * @author lordquackstar
  */
 @Data
+@EqualsAndHashCode(of = "name")
 @Entity
 @Table(name = "quackbot_users")
 public class UserDAOHb implements Serializable, UserDAO {
