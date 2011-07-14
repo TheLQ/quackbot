@@ -235,6 +235,10 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 			//No existing map, create a new one
 			UserChannelHb userMap = new UserChannelHb(ChannelDAOHb.this, entry);
 			configure(userMap, true);
+			if (server == null)
+				throw new NullPointerException("Server in channel is null, can't pass to user");
+			entry.setServer((ServerDAOHb) server);
+
 			userMaps.add(userMap);
 		}
 
@@ -246,6 +250,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 			for (UserChannelHb userMap : userMaps)
 				if (userMap.getUser().equals(entry)) {
 					configure(userMap, false);
+					userMap.getUser().setServer(null);
 					return;
 				}
 
