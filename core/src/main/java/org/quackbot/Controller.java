@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
-import org.quackbot.dao.DAOFactory;
+import org.quackbot.dao.DAOController;
 import org.quackbot.events.InitEvent;
 import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
@@ -92,7 +92,7 @@ import org.slf4j.LoggerFactory;
 @EqualsAndHashCode(exclude = {"bots"})
 @Slf4j
 public class Controller {
-	protected final DAOFactory storage;
+	protected final DAOController storage;
 	/**
 	 * Set of all Bot instances
 	 */
@@ -132,7 +132,7 @@ public class Controller {
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
-	public Controller(DAOFactory storage, boolean createGui) {
+	public Controller(DAOController storage, boolean createGui) {
 		this.storage = storage;
 		this.createGui = createGui;
 
