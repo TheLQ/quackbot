@@ -245,7 +245,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 			//Attempt to remove the existing object
 			for (UserChannelHb userMap : userMaps)
 				if (userMap.getUser().equals(entry)) {
-					configure(userMap, true);
+					configure(userMap, false);
 					return;
 				}
 
