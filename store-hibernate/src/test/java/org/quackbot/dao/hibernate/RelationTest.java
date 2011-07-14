@@ -62,7 +62,7 @@ public class RelationTest extends GenericHbTest {
 		session.getTransaction().commit();
 	}
 
-	@Test(dependsOnMethods = "ServerChannelTest")
+	@Test()
 	public void ChannelUserStatusTest() {
 		session.beginTransaction();
 		ServerDAOHb server = generateServer("some.host");
@@ -88,7 +88,7 @@ public class RelationTest extends GenericHbTest {
 			assertTrue(usersShouldExist.contains(nick), "Unknown user: " + nick);
 			usersShouldExist.remove(nick);
 		}
-		assertEquals(usersShouldExist.size(), 0, "Users missing from channel's getUsers: " + StringUtils.join(usersShouldExist, ", "));
+		assertEquals(usersShouldExist.size(), 0, "Users missing from channel's getUsers(" + chan.getUsers().size() + "): " + StringUtils.join(usersShouldExist, ", "));
 
 		//Verify normal
 		assertEquals(chan.getNormalUsers().size(), 1, "Normal user list size is wrong");
@@ -151,7 +151,7 @@ public class RelationTest extends GenericHbTest {
 		}
 		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from server2's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
 		assertNotNull(fetchedGlobalAdmin2, "Global admin not found in server2");
-		
+
 		//Make sure global admins match
 		assertEquals(fetchedGlobalAdmin1.getAdminId(), fetchedGlobalAdmin2.getAdminId(), "Global admins IDs do not match");
 		assertEquals(fetchedGlobalAdmin1, fetchedGlobalAdmin2, "Global admins do not match in .equals()");
