@@ -18,20 +18,26 @@
  */
 package org.quackbot.dao.hibernate;
 
+import com.sun.java.swing.plaf.windows.WindowsTreeUI.CollapsedIcon;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.Session;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
@@ -54,15 +60,19 @@ public class AdminDAOHb implements AdminDAO, Serializable {
 	@Column(name = "name", length = 50, nullable = false)
 	private String name;
 	@ManyToMany(targetEntity = ChannelDAOHb.class, mappedBy = "admins")
-	private Set<ChannelDAO> channels;
+	private Set<ChannelDAO> channels = new HashSet();
 	@ManyToMany(targetEntity = ServerDAOHb.class, mappedBy = "admins")
-	private Set<ServerDAO> servers;
+	private Set<ServerDAO> servers = new HashSet();
 
 	public AdminDAOHb() {
 	}
 
 	@Override
 	public boolean delete() {
+		for (ChannelDAO curChannel : channels)
+			curChannel.getAdmins().remove(this);
+		for (ServerDAO curServer : servers)
+			curServer.getAdmins().remove(this);
 		DAOControllerHb.getInstance().getSession().delete(this);
 		return true;
 	}
