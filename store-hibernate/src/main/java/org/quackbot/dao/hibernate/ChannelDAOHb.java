@@ -72,7 +72,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@Column(name = "mode", length = 100)
 	protected String mode;
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = ServerDAOHb.class)
-	@JoinColumn(name = "SERVER_ID" /*, nullable = false*/)
+	@JoinColumn(name = "SERVER_ID", nullable = false)
 	private ServerDAO server;
 	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
 	@JoinTable(name = "quackbot_channel_admins", joinColumns = {
@@ -84,6 +84,22 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	private Set<UserChannelHb> userMaps = new HashSet();
 
 	public ChannelDAOHb() {
+	}
+	
+	public Set<AdminDAO> getAdmins() {
+		return new ListenerSet<AdminDAO>(admins) {
+			@Override
+			public void onAdd(AdminDAO entry) {
+				entry.getChannels().add(ChannelDAOHb.this);
+			}
+
+			@Override
+			public void onRemove(Object entry) {
+				if (!(entry instanceof AdminDAOHb))
+					throw new RuntimeException("Attempting to remove unknown object from channel admin list " + entry);
+				((AdminDAOHb) entry).getChannels().remove(ChannelDAOHb.this);
+			}
+		};
 	}
 
 	@Override
@@ -199,9 +215,10 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	protected abstract class UserListenerSet extends ListenerSet<UserDAOHb> {
 		public UserListenerSet() {
+			super(new HashSet());
 			for (UserChannelHb userMap : userMaps)
 				if (isSet(userMap))
-					super.add(userMap.getUser());
+					delegateSet.add(userMap.getUser());
 		}
 
 		/* Hook methods */
