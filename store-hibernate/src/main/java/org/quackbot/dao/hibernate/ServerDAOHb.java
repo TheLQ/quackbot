@@ -65,12 +65,14 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	private Integer port;
 	@Column(name = "password", length = 100)
 	private String password;
-	@OneToMany(cascade = CascadeType.ALL, targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true)
+	@OneToMany(targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true)
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	private Set<ChannelDAO> channels = new HashSet();
 	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
 	@JoinTable(name = "quackbot_server_admins", joinColumns = {
 		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	private Set<AdminDAO> admins = new HashSet();
 
 	public ServerDAOHb() {
@@ -87,7 +89,7 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 			public void onRemove(Object entry) {
 				if (!(entry instanceof AdminDAOHb))
 					throw new RuntimeException("Attempting to remove unknown object from server admin list " + entry);
-				((AdminDAOHb) entry).getServers().remove(ServerDAOHb.this);
+				//Do nothing
 			}
 		};
 	}
@@ -103,7 +105,7 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 			public void onRemove(Object entry) {
 				if (!(entry instanceof ChannelDAO))
 					throw new RuntimeException("Attempting to remove unknown object from server channel list " + entry);
-				((ChannelDAOHb) entry).setServer(null);
+				//Do nothing
 			}
 		};
 	}
