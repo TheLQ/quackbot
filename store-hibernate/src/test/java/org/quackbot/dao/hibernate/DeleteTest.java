@@ -20,8 +20,6 @@
 package org.quackbot.dao.hibernate;
 
 import org.hibernate.Criteria;
-import java.util.List;
-import org.hibernate.Hibernate;
 import org.hibernate.criterion.Restrictions;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -32,16 +30,14 @@ import static org.testng.Assert.*;
  */
 public class DeleteTest extends GenericHbTest {
 	@Test
-	public void deleteAdminGlobaleTest() {
+	public void deleteAdminGlobalTest() {
 		setupEnviornment();
 		
 		session.beginTransaction();
 		//Grab the global admin and delete it
 		Criteria query = session.createCriteria(AdminDAOHb.class);
 		query.add(Restrictions.eq("name", "globalAdmin"));
-		
-		AdminDAOHb globalAdmin = (AdminDAOHb) query.uniqueResult();
-		globalAdmin.delete();
+		((AdminDAOHb) query.uniqueResult()).delete();
 		session.getTransaction().commit();
 		
 		session.beginTransaction();
