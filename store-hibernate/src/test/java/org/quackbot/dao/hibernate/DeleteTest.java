@@ -52,6 +52,24 @@ public class DeleteTest extends GenericHbTest {
 	}
 
 	@Test
+	public void deleteAdminServerTest() {
+		setupEnviornment();
+
+		session.beginTransaction();
+		//Grab the someChannelAdmin2 admin and delete it
+		Criteria query = session.createCriteria(AdminDAOHb.class);
+		query.add(Restrictions.eq("name", "serverAdmin1"));
+		((AdminDAOHb) query.uniqueResult()).delete();
+		session.getTransaction().commit();
+
+		session.beginTransaction();
+		//Make sure its gone from server1
+		ServerDAOHb server1 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
+		assertEquals(server1.getAdmins().size(), 1, "Too many server1 admins: " + server1.getAdmins());
+		assertEquals(server1.getAdmins().iterator().next().getName(), "globalAdmin", "Remaining server1 admin name is wrong");
+	}
+
+	@Test
 	public void deleteAdminChannelGlobalTest() {
 		setupEnviornment();
 
