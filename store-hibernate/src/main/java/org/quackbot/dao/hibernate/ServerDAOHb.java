@@ -25,7 +25,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -82,7 +81,7 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 		};
 	}
 
-	@OneToMany(targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToMany(targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true)
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	public Set<ChannelDAO> getChannels() {
 		return new ListenerSet<ChannelDAO>(channels) {
