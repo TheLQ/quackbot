@@ -54,37 +54,7 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	private String address;
 	private Integer port;
 	private String password;
-	private Set<ChannelDAO> channels = new HashSet();
-	private Set<AdminDAO> admins = new HashSet();
-
-	public ServerDAOHb() {
-	}
-
-	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
-	@JoinTable(name = "quackbot_server_admins", joinColumns = {
-		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "ADMIN_ID")})
-	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
-	public Set<AdminDAO> getAdmins() {
-		return new ListenerSet<AdminDAO>(admins) {
-			@Override
-			public void onAdd(AdminDAO entry) {
-				entry.getServers().add(ServerDAOHb.this);
-			}
-
-			@Override
-			public void onRemove(Object entry) {
-				if (!(entry instanceof AdminDAOHb))
-					throw new RuntimeException("Attempting to remove unknown object from server admin list " + entry);
-				//Do nothing
-			}
-		};
-	}
-
-	@OneToMany(targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true)
-	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
-	public Set<ChannelDAO> getChannels() {
-		return new ListenerSet<ChannelDAO>(channels) {
+	private Set<ChannelDAO> channels = new ListenerSet<ChannelDAO>(new HashSet()) {
 			@Override
 			public void onAdd(ChannelDAO entry) {
 				entry.setServer(ServerDAOHb.this);
@@ -97,6 +67,36 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 				//Do nothing
 			}
 		};
+	private Set<AdminDAO> admins = new ListenerSet<AdminDAO>(new HashSet()) {
+			@Override
+			public void onAdd(AdminDAO entry) {
+				entry.getServers().add(ServerDAOHb.this);
+			}
+
+			@Override
+			public void onRemove(Object entry) {
+				if (!(entry instanceof AdminDAOHb))
+					throw new RuntimeException("Attempting to remove unknown object from server admin list " + entry);
+				//Do nothing
+			}
+		};
+
+	public ServerDAOHb() {
+	}
+
+	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
+	@JoinTable(name = "quackbot_server_admins", joinColumns = {
+		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "ADMIN_ID")})
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
+	public Set<AdminDAO> getAdmins() {
+		return admins;
+	}
+
+	@OneToMany(targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true)
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
+	public Set<ChannelDAO> getChannels() {
+		return channels;
 	}
 
 	@Id
