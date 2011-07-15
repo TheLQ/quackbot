@@ -41,7 +41,7 @@ import org.quackbot.dao.UserDAO;
  * @author lordquackstar
  */
 @Data
-@EqualsAndHashCode(of = "name")
+@EqualsAndHashCode(of = "nick")
 @Entity
 @Table(name = "quackbot_users")
 public class UserDAOHb implements Serializable, UserDAO {
