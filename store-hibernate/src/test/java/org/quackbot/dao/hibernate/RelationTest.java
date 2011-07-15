@@ -67,10 +67,10 @@ public class RelationTest extends GenericHbTest {
 		session.beginTransaction();
 		ServerDAOHb server = generateServer("some.host");
 		ChannelDAOHb channel = generateChannel("#someChannel");
+		server.getChannels().add(channel);
 		channel.getUsers().add(generateUser("someNickNormal"));
 		channel.getOps().add(generateUser("someNickOp"));
 		channel.getVoices().add(generateUser("someNickVoice"));
-		server.getChannels().add(channel);
 		session.save(server);
 		session.getTransaction().commit();
 
