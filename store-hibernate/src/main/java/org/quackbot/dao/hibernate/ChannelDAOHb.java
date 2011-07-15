@@ -52,41 +52,26 @@ import org.quackbot.dao.UserDAO;
 @Entity
 @Table(name = "quackbot_channels")
 public class ChannelDAOHb implements ChannelDAO, Serializable {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Basic(optional = false)
-	@Column(name = "CHANNEL_ID", nullable = false)
 	protected Integer channelID;
-	@Column(name = "name", length = 100, nullable = false)
 	protected String name;
-	@Column(name = "password", length = 100)
 	protected String password;
-	@Column(name = "topic", length = 100)
 	protected String topic;
-	@Column(name = "createTimestamp", length = 20)
 	protected Long createTimestamp;
-	@Column(name = "topicSetter", length = 50)
 	protected String topicSetter;
-	@Column(name = "topicTimestamp", length = 100)
 	protected Long topicTimestamp;
-	@Column(name = "mode", length = 100)
 	protected String mode;
-	@ManyToOne(cascade = CascadeType.ALL, targetEntity = ServerDAOHb.class)
-	@JoinColumn(name = "SERVER_ID", nullable = false)
 	private ServerDAO server;
-	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
-	@JoinTable(name = "quackbot_channel_admins", joinColumns = {
-		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "ADMIN_ID")})
-	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	private Set<AdminDAO> admins = new HashSet();
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name = "CHANNEL_ID")
 	private Set<UserChannelHb> userMaps = new HashSet();
 
 	public ChannelDAOHb() {
 	}
 
+	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
+	@JoinTable(name = "quackbot_channel_admins", joinColumns = {
+		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "ADMIN_ID")})
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	public Set<AdminDAO> getAdmins() {
 		return new ListenerSet<AdminDAO>(admins) {
 			@Override
@@ -212,6 +197,61 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 				userMap.setSuperOp(set);
 			}
 		};
+	}
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Basic(optional = false)
+	@Column(name = "CHANNEL_ID", nullable = false)
+	public Integer getChannelID() {
+		return channelID;
+	}
+
+	@Column(name = "name", length = 100, nullable = false)
+	public String getName() {
+		return name;
+	}
+
+	@Column(name = "password", length = 100)
+	public String getPassword() {
+		return password;
+	}
+
+	@Column(name = "topic", length = 100)
+	public String getTopic() {
+		return topic;
+	}
+
+	@Column(name = "createTimestamp", length = 20)
+	public Long getCreateTimestamp() {
+		return createTimestamp;
+	}
+
+	@Column(name = "topicSetter", length = 50)
+	public String getTopicSetter() {
+		return topicSetter;
+	}
+
+	@Column(name = "topicTimestamp", length = 100)
+	public Long getTopicTimestamp() {
+		return topicTimestamp;
+	}
+
+	@Column(name = "mode", length = 100)
+	public String getMode() {
+		return mode;
+	}
+
+	@ManyToOne(cascade = CascadeType.ALL, targetEntity = ServerDAOHb.class)
+	@JoinColumn(name = "SERVER_ID", nullable = false)
+	public ServerDAO getServer() {
+		return server;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "CHANNEL_ID")
+	public Set<UserChannelHb> getUserMaps() {
+		return userMaps;
 	}
 
 	protected abstract class UserListenerSet extends ListenerSet<UserDAOHb> {
