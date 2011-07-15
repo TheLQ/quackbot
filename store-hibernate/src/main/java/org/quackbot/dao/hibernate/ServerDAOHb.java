@@ -25,6 +25,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -50,30 +51,21 @@ import org.quackbot.dao.ServerDAO;
 @Entity
 @Table(name = "quackbot_servers")
 public class ServerDAOHb implements ServerDAO, Serializable {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Basic(optional = false)
-	@Column(name = "SERVER_ID", nullable = false)
 	private Integer serverId;
-	@Column(name = "address", length = 50, nullable = false)
 	private String address;
-	@Column(name = "port", length = 5)
 	private Integer port;
-	@Column(name = "password", length = 100)
 	private String password;
-	@OneToMany(targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true)
-	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	private Set<ChannelDAO> channels = new HashSet();
-	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
-	@JoinTable(name = "quackbot_server_admins", joinColumns = {
-		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
-		@JoinColumn(name = "ADMIN_ID")})
-	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	private Set<AdminDAO> admins = new HashSet();
 
 	public ServerDAOHb() {
 	}
 
+	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
+	@JoinTable(name = "quackbot_server_admins", joinColumns = {
+		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
+		@JoinColumn(name = "ADMIN_ID")})
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	public Set<AdminDAO> getAdmins() {
 		return new ListenerSet<AdminDAO>(admins) {
 			@Override
@@ -90,6 +82,8 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 		};
 	}
 
+	@OneToMany(targetEntity = ChannelDAOHb.class, mappedBy = "server", orphanRemoval = true, fetch = FetchType.EAGER)
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	public Set<ChannelDAO> getChannels() {
 		return new ListenerSet<ChannelDAO>(channels) {
 			@Override
@@ -104,6 +98,29 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 				//Do nothing
 			}
 		};
+	}
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Basic(optional = false)
+	@Column(name = "SERVER_ID", nullable = false)
+	public Integer getServerId() {
+		return serverId;
+	}
+
+	@Column(name = "address", length = 50, nullable = false)
+	public String getAddress() {
+		return address;
+	}
+
+	@Column(name = "port", length = 5)
+	public Integer getPort() {
+		return port;
+	}
+
+	@Column(name = "password", length = 100)
+	public String getPassword() {
+		return password;
 	}
 
 	@Override
