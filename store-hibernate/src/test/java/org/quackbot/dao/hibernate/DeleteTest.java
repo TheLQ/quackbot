@@ -61,7 +61,7 @@ public class DeleteTest extends GenericHbTest {
 		query.add(Restrictions.eq("name", "channelAdmin1"));
 		((AdminDAOHb) query.uniqueResult()).delete();
 		session.getTransaction().commit();
-		
+
 		session.beginTransaction();
 		//Make sure its gone from #aChannel1
 		ChannelDAOHb aChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#aChannel1'").uniqueResult();
@@ -72,6 +72,24 @@ public class DeleteTest extends GenericHbTest {
 		ChannelDAOHb someChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#someChannel1'").uniqueResult();
 		assertEquals(someChannel.getAdmins().size(), 1, "Too many #someChannel1 admins: " + someChannel.getAdmins());
 		assertEquals(someChannel.getAdmins().iterator().next().getName(), "someChannelAdmin1", "Remaining #someChannel1 admin name is wrong");
+	}
+
+	@Test
+	public void deleteAdminChannelTest() {
+		setupEnviornment();
+
+		session.beginTransaction();
+		//Grab the someChannelAdmin2 admin and delete it
+		Criteria query = session.createCriteria(AdminDAOHb.class);
+		query.add(Restrictions.eq("name", "someChannelAdmin2"));
+		((AdminDAOHb) query.uniqueResult()).delete();
+		session.getTransaction().commit();
+
+		session.beginTransaction();
+		//Make sure its gone from #someChannel1
+		ChannelDAOHb someChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#someChannel2'").uniqueResult();
+		assertEquals(someChannel.getAdmins().size(), 1, "Too many #someChannel2 admins: " + someChannel.getAdmins());
+		assertEquals(someChannel.getAdmins().iterator().next().getName(), "channelAdmin2", "Remaining #someChannel1 admin name is wrong");
 	}
 
 	protected void setupEnviornment() {
