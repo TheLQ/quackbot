@@ -50,9 +50,6 @@ public class UserDAOHb implements Serializable, UserDAO {
 	@ManyToOne
 	@JoinColumn(name = "SERVER_ID")
 	protected ServerDAOHb server;
-	@OneToOne
-	@JoinColumn(name = "ADMIN_ID")
-	protected AdminDAOHb admin;
 	@Column(name = "nick", length = 100, nullable = false)
 	protected String nick;
 	@Column(name = "login", length = 100)
