@@ -112,7 +112,7 @@ public class RelationTest extends GenericHbTest {
 	}
 
 	@Test(dependsOnMethods = "ServerChannelTest")
-	public void AdminTest() {
+	public void AdminServerTest() {
 		session.beginTransaction();
 		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
 		session.save(generateEnviornment(1, globalAdmin));
@@ -155,5 +155,50 @@ public class RelationTest extends GenericHbTest {
 		//Make sure global admins match
 		assertEquals(fetchedGlobalAdmin1.getAdminId(), fetchedGlobalAdmin2.getAdminId(), "Global admins IDs do not match");
 		assertEquals(fetchedGlobalAdmin1, fetchedGlobalAdmin2, "Global admins do not match in .equals()");
+	}
+	
+	@Test(dependsOnMethods = "AdminServerTest")
+	public void AdminChannelTest() {
+		session.beginTransaction();
+		session.save(generateEnviornment(1, null));
+		session.save(generateEnviornment(2, null));
+		session.getTransaction().commit();
+
+		session.beginTransaction();
+		//Verify #aChannel1 admins
+		ChannelDAOHb aChannel1 = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#aChannel1'").uniqueResult();
+		List<String> adminsShouldExist = new ArrayList();
+		adminsShouldExist.add("channelAdmin1");
+		adminsShouldExist.add("aChannelAdmin1");
+		AdminDAO fetchedChannelAdmin = null;
+		for (AdminDAO curAdmin : aChannel1.getAdmins()) {
+			String name = curAdmin.getName();
+			if (name.equals("channelAdmin1"))
+				fetchedChannelAdmin = curAdmin;
+			assertTrue(adminsShouldExist.contains(name), "Unknown #aChannel1 admin: " + curAdmin);
+			adminsShouldExist.remove(name);
+		}
+		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from #aChannel1's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
+		assertNotNull(fetchedChannelAdmin, "Channel admin not found in #aChannel1");
+
+		//Verify #someChannel1 admins
+		ChannelDAOHb someChannel1 = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#someChannel1'").uniqueResult();
+		adminsShouldExist = new ArrayList();
+		adminsShouldExist.add("channelAdmin1");
+		adminsShouldExist.add("someChannelAdmin1");
+		AdminDAO fetchedChannelAdmin2 = null;
+		for (AdminDAO curAdmin : someChannel1.getAdmins()) {
+			String name = curAdmin.getName();
+			if (name.equals("channelAdmin1"))
+				fetchedChannelAdmin2 = curAdmin;
+			assertTrue(adminsShouldExist.contains(name), "Unknown #someChannel1 admin: " + curAdmin);
+			adminsShouldExist.remove(name);
+		}
+		assertEquals(adminsShouldExist.size(), 0, "Admin(s) missing from #someChannel1's getAdmins: " + StringUtils.join(adminsShouldExist, ", "));
+		assertNotNull(fetchedChannelAdmin2, "Global admin not found in #someChannel1");
+
+		//Make sure global admins match
+		assertEquals(fetchedChannelAdmin.getAdminId(), fetchedChannelAdmin2.getAdminId(), "Global admins IDs do not match");
+		assertEquals(fetchedChannelAdmin, fetchedChannelAdmin2, "Global admins do not match in .equals()");
 	}
 }
