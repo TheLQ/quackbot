@@ -79,7 +79,7 @@ public class DeleteTest extends GenericHbTest {
 		//Grab the channel admin and delete it
 		Criteria query = session.createCriteria(AdminDAOHb.class);
 		query.add(Restrictions.eq("name", "channelAdmin1"));
-		((AdminDAOHb) query.uniqueResult()).delete();
+		((AdminDAOHb) query.list().get(0)).delete();
 		session.getTransaction().commit();
 
 		session.beginTransaction();
