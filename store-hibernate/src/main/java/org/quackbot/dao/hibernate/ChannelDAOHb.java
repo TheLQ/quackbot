@@ -34,6 +34,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -87,7 +88,8 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 			}
 		};
 	}
-
+	
+	@Transient
 	@Override
 	public Set<UserDAO> getNormalUsers() {
 		return (Set<UserDAO>) (Object) new UserListenerSet() {
@@ -108,6 +110,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		};
 	}
 
+	@Transient
 	@Override
 	public Set<UserDAO> getUsers() {
 		return (Set<UserDAO>) (Object) new UserListenerSet() {
@@ -124,6 +127,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		};
 	}
 
+	@Transient
 	@Override
 	public Set<UserDAO> getOps() {
 		return (Set<UserDAO>) (Object) new UserListenerSet() {
@@ -139,6 +143,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		};
 	}
 
+	@Transient
 	@Override
 	public Set<UserDAO> getVoices() {
 		return (Set<UserDAO>) (Object) new UserListenerSet() {
@@ -154,6 +159,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		};
 	}
 
+	@Transient
 	@Override
 	public Set<UserDAO> getOwners() {
 		return (Set<UserDAO>) (Object) new UserListenerSet() {
@@ -169,6 +175,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		};
 	}
 
+	@Transient
 	@Override
 	public Set<UserDAO> getHalfOps() {
 		return (Set<UserDAO>) (Object) new UserListenerSet() {
@@ -184,6 +191,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		};
 	}
 
+	@Transient
 	@Override
 	public Set<UserDAO> getSuperOps() {
 		return (Set<UserDAO>) (Object) new UserListenerSet() {
