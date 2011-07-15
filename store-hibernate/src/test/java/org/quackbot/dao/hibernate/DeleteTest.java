@@ -18,6 +18,8 @@
  */
 package org.quackbot.dao.hibernate;
 
+import org.apache.commons.lang.StringUtils;
+import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.testng.annotations.Test;
@@ -108,6 +110,46 @@ public class DeleteTest extends GenericHbTest {
 		ChannelDAOHb someChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#someChannel2'").uniqueResult();
 		assertEquals(someChannel.getAdmins().size(), 1, "Too many #someChannel2 admins: " + someChannel.getAdmins());
 		assertEquals(someChannel.getAdmins().iterator().next().getName(), "channelAdmin2", "Remaining #someChannel1 admin name is wrong");
+	}
+
+	@Test
+	public void deleteChannelTest() {
+		setupEnviornment();
+
+		session.beginTransaction();
+		//Grab the someChannelAdmin2 admin and delete it
+		Criteria query = session.createCriteria(ChannelDAOHb.class);
+		query.add(Restrictions.eq("name", "#someChannel2"));
+		((ChannelDAOHb) query.uniqueResult()).delete();
+		session.getTransaction().commit();
+
+		session.beginTransaction();
+		//Make sure other channels still exist
+		assertNotNull(session.createQuery("from ChannelDAOHb WHERE name = '#aChannel1'"), "#aChannel1 doesn't exist");
+		assertNotNull(session.createQuery("from ChannelDAOHb WHERE name = '#someChannel1'"), "#someChannel1 doesn't exist");
+		assertNotNull(session.createQuery("from ChannelDAOHb WHERE name = '#aChannel2'"), "#aChannel2 doesn't exist");
+		List remainingChannels = session.createQuery("from ChannelDAOHb WHERE name != '#aChannel1' AND name != '#someChannel1' AND name != '#aChannel2'").list();
+		assertEquals(remainingChannels.size(), 0, "Extra channels after deletion: " + StringUtils.join(remainingChannels.toArray(), ", "));
+
+		//Make sure other servers still exist
+		assertNotNull(session.createQuery("from ServerDAOHb WHERE address = 'irc.host1'"), "Server 1 doesn't exist");
+		assertNotNull(session.createQuery("from ServerDAOHb WHERE address = 'irc.host2'"), "Server 2 doesn't exist");
+		List remainingServers = session.createQuery("from ServerDAOHb WHERE address != 'irc.host1' AND address != 'irc.host2'").list();
+		assertEquals(remainingServers.size(), 0, "Strange servers exists: " + StringUtils.join(remainingServers.toArray(), ", "));
+
+		//Make sure other users still exist
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'someOpUser1'"), "User someOpUser1 doesn't exist");
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'someNormalUser1'"), "User someNormalUser1 doesn't exist");
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'someSuperOpUser1'"), "User someSuperOpUser1 doesn't exist");
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aOpUser1'"), "User aOpUser1 doesn't exist");
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aSuperOpUser1'"), "User aSuperOpUser1 doesn't exist");
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aNormalUser1'"), "User aNormalUser1 doesn't exist");
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aOpUser2'"), "User aOpUser2 doesn't exist");
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aSuperOpUser2'"), "User aSuperOpUser2 doesn't exist");
+		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aNormalUser2'"), "User aNormalUser2 doesn't exist");
+		List remainingUsers = session.createQuery("from ServerDAOHb WHERE 'someOpUser1' AND 'someNormalUser1' AND 'someSuperOpUser1' AND 'aOpUser1' "
+				+ "AND 'aSuperOpUser1' AND 'aNormalUser1' AND 'aOpUser2' AND 'aSuperOpUser2' AND 'aNormalUser2'").list();
+		assertEquals(remainingUsers.size(), 0, "Extra users after deletion: " + StringUtils.join(remainingUsers.toArray(), ", "));
 	}
 
 	protected void setupEnviornment() {
