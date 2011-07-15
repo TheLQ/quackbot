@@ -62,7 +62,7 @@ public class RelationTest extends GenericHbTest {
 		session.getTransaction().commit();
 	}
 
-	@Test()
+	@Test(dependsOnMethods = "ServerChannelTest")
 	public void ChannelUserStatusTest() {
 		session.beginTransaction();
 		ServerDAOHb server = generateServer("some.host");
@@ -111,7 +111,7 @@ public class RelationTest extends GenericHbTest {
 		assertEquals(chan.getOwners().size(), 0, "Extra owners: " + StringUtils.join(chan.getOwners(), ", "));
 	}
 
-	@Test
+	@Test(dependsOnMethods = "ServerChannelTest")
 	public void AdminTest() {
 		session.beginTransaction();
 		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
