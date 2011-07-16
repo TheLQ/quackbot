@@ -63,6 +63,13 @@ abstract class ListenerSet<T> implements Set<T> {
 			onRemove(curObj);
 		return delegateSet.removeAll(c);
 	}
+	
+	@Override
+	public void clear() {
+		for(T curEntry : delegateSet)
+			onRemove(curEntry);
+		delegateSet.clear();
+	}
 
 	@Override
 	public Iterator<T> iterator() {
@@ -120,10 +127,5 @@ abstract class ListenerSet<T> implements Set<T> {
 	@Override
 	public boolean contains(Object o) {
 		return delegateSet.contains(o);
-	}
-
-	@Override
-	public void clear() {
-		delegateSet.clear();
 	}
 }
