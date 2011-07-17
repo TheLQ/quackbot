@@ -86,12 +86,14 @@ public class GenericHbTest {
 		server.getAdmins().add(generateAdmin("serverAdmin" + num));
 
 		AdminDAOHb channelAdmin = generateAdmin("channelAdmin" + num);
+		UserDAOHb channelUser = generateUser("channelUser" + num);
 
 		ChannelDAOHb channel = generateChannel("#aChannel" + num);
 		server.getChannels().add(channel);
 		channel.getAdmins().add(channelAdmin);
 		channel.getAdmins().add(generateAdmin("aChannelAdmin" + num));
 		channel.getUsers().add(generateUser("aNormalUser" + num));
+		channel.getUsers().add(channelUser);
 		channel.getOps().add(generateUser("aOpUser" + num));
 		channel.getSuperOps().add(generateUser("aSuperOpUser" + num));
 
@@ -101,6 +103,7 @@ public class GenericHbTest {
 		channel.getAdmins().add(generateAdmin("someChannelAdmin" + num));
 		channel.getUsers().add(generateUser("someNormalUser" + num));
 		channel.getOps().add(generateUser("someOpUser" + num));
+		channel.getOps().add(channelUser);
 		channel.getSuperOps().add(generateUser("someSuperOpUser" + num));
 
 		return server;
