@@ -23,6 +23,7 @@ import org.quackbot.dao.UserDAO;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.criterion.Restrictions;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.testng.annotations.Test;
@@ -111,6 +112,34 @@ public class RelationTest extends GenericHbTest {
 		assertEquals(chan.getOwners().size(), 0, "Extra owners: " + StringUtils.join(chan.getOwners(), ", "));
 	}
 
+	@Test(dependsOnMethods = "ChannelUserStatusTest")
+	public void UserSameTest() {
+		session.beginTransaction();
+		session.save(generateEnviornment(1, null));
+		session.getTransaction().commit();
+
+		session.beginTransaction();
+		//Load channelUser1 from #aChannel1
+		ChannelDAOHb channel = (ChannelDAOHb) session.createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#aChannel1")).uniqueResult();
+		UserDAO aChannelUser = null;
+		for (UserDAO curUser : channel.getUsers())
+			if (curUser.getNick().equals("channelUser1"))
+				aChannelUser = curUser;
+		assertNotNull(aChannelUser, "channelUser1 doesn't exist in channel #aChannel1");
+		
+		//Load channelUser1 from #aChannel1
+		channel = (ChannelDAOHb) session.createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#someChannel1")).uniqueResult();
+		UserDAO someChannelUser = null;
+		for (UserDAO curUser : channel.getUsers())
+			if (curUser.getNick().equals("channelUser1"))
+				someChannelUser = curUser;
+		assertNotNull(someChannelUser, "channelUser1 doesn't exist in channel #someChannel1");
+
+		//Make sure they are equal
+		assertEquals(aChannelUser, someChannelUser, "channelUser1's from #aChannel1 and #someChannel1 are not equal");
+		assertEquals(aChannelUser.getUserId(), someChannelUser.getUserId(), "channelUser1's from #aChannel1 and #someChannel1 ids don't match");
+	}
+
 	@Test(dependsOnMethods = "ServerChannelTest")
 	public void AdminServerTest() {
 		session.beginTransaction();
@@ -156,7 +185,7 @@ public class RelationTest extends GenericHbTest {
 		assertEquals(fetchedGlobalAdmin1.getAdminId(), fetchedGlobalAdmin2.getAdminId(), "Global admins IDs do not match");
 		assertEquals(fetchedGlobalAdmin1, fetchedGlobalAdmin2, "Global admins do not match in .equals()");
 	}
-	
+
 	@Test(dependsOnMethods = "AdminServerTest")
 	public void AdminChannelTest() {
 		session.beginTransaction();
