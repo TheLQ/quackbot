@@ -182,8 +182,8 @@ public class DeleteTest extends GenericHbTest {
 		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aOpUser1'"), "User aOpUser1 doesn't exist");
 		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aSuperOpUser1'"), "User aSuperOpUser1 doesn't exist");
 		assertNotNull(session.createQuery("from UserDAOHb WHERE nick = 'aNormalUser1'"), "User aNormalUser1 doesn't exist");
-		List remainingUsers = session.createQuery("from ServerDAOHb WHERE 'someOpUser1' AND 'someNormalUser1' AND 'someSuperOpUser1' AND 'aOpUser1' "
-				+ "AND 'aSuperOpUser1' AND 'aNormalUser1'").list();
+		List remainingUsers = session.createQuery("from ServerDAOHb WHERE nick != 'someOpUser1' AND nick != 'someNormalUser1' AND nick != 'someSuperOpUser1' AND nick != 'aOpUser1' "
+				+ "AND nick != 'aSuperOpUser1' AND nick != 'aNormalUser1'").list();
 		assertEquals(remainingUsers.size(), 0, "Extra users after deletion: " + StringUtils.join(remainingUsers.toArray(), ", "));
 	}
 
