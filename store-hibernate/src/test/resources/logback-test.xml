@@ -27,7 +27,7 @@
 	</appender>
 	
 	<!--Remove hibernate nonsense-->
-	<logger name="org.hibernate" level="WARN"/>
+	<logger name="org.hibernate" level="ALL"/>
 
   <!--By default, log everything with ControlAppender-->
 	<root level="ALL">
