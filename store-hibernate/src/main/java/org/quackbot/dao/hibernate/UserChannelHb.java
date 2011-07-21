@@ -46,10 +46,10 @@ public class UserChannelHb implements Serializable {
 	@Basic(optional = false)
 	@Column(name = "ID", nullable = false)
 	private Integer id;
-	@ManyToOne(cascade = CascadeType.ALL, optional = false)
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "USER_ID")
 	protected UserDAOHb user;
-	@ManyToOne(cascade = CascadeType.ALL, optional = false)
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "CHANNEL_ID")
 	protected ChannelDAOHb channel;
 	@Column(name = "op")

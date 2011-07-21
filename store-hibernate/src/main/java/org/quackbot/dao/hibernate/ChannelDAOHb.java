@@ -20,6 +20,7 @@ package org.quackbot.dao.hibernate;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -38,6 +39,8 @@ import javax.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
@@ -62,33 +65,33 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	protected Long topicTimestamp;
 	protected String mode;
 	private ServerDAO server;
-	private Set<AdminDAO> admins = new HashSet();
+	private Set<AdminDAO> admins = new ListenerSet<AdminDAO>(new HashSet()) {
+		@Override
+		public void onAdd(AdminDAO entry) {
+			entry.getChannels().add(ChannelDAOHb.this);
+		}
+
+		@Override
+		public void onRemove(Object entry) {
+			if (!(entry instanceof AdminDAOHb))
+				throw new RuntimeException("Attempting to remove unknown object from channel admin list " + entry);
+			//Do nothing
+		}
+	};
 	private Set<UserChannelHb> userMaps = new HashSet();
 
 	public ChannelDAOHb() {
 	}
 
-	@ManyToMany(cascade = CascadeType.ALL, targetEntity = AdminDAOHb.class)
+	@ManyToMany(targetEntity = AdminDAOHb.class)
 	@JoinTable(name = "quackbot_channel_admins", joinColumns = {
 		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	public Set<AdminDAO> getAdmins() {
-		return new ListenerSet<AdminDAO>(admins) {
-			@Override
-			public void onAdd(AdminDAO entry) {
-				entry.getChannels().add(ChannelDAOHb.this);
-			}
-
-			@Override
-			public void onRemove(Object entry) {
-				if (!(entry instanceof AdminDAOHb))
-					throw new RuntimeException("Attempting to remove unknown object from channel admin list " + entry);
-				//Do nothing
-			}
-		};
+		return admins;
 	}
-	
+
 	@Transient
 	@Override
 	public Set<UserDAO> getNormalUsers() {
@@ -250,16 +253,37 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		return mode;
 	}
 
-	@ManyToOne(cascade = CascadeType.ALL, targetEntity = ServerDAOHb.class)
-	@JoinColumn(name = "SERVER_ID", nullable = false)
+	@ManyToOne(targetEntity = ServerDAOHb.class)
+	@JoinColumn(name = "SERVER_ID", nullable = false, updatable = false)
 	public ServerDAO getServer() {
 		return server;
 	}
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany
 	@JoinColumn(name = "CHANNEL_ID")
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	public Set<UserChannelHb> getUserMaps() {
 		return userMaps;
+	}
+
+	@Override
+	public boolean delete() {
+		//Remove channel from server
+		server.getChannels().remove(this);
+
+		//Remove channel from admins
+		for (Iterator<AdminDAO> itr = admins.iterator(); itr.hasNext();) {
+			AdminDAO curAdmin = itr.next();
+			curAdmin.getChannels().remove(this);
+			itr.remove();
+		}
+
+		//Delete all usermaps for this channel
+		userMaps.clear();
+
+		//Finally, delete the channel
+		DAOControllerHb.getInstance().getSession().delete(this);
+		return true;
 	}
 
 	protected abstract class UserListenerSet extends ListenerSet<UserDAOHb> {
@@ -273,6 +297,9 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		/* Hook methods */
 		@Override
 		public void onAdd(UserDAOHb entry) {
+			if (entry == null)
+				throw new NullPointerException("Adding null entry");
+
 			//Update the existing object if the user already exists
 			for (UserChannelHb userMap : userMaps)
 				if (userMap.getUser().equals(entry)) {
@@ -292,6 +319,8 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 		@Override
 		public void onRemove(Object entry) {
+			if (entry == null)
+				throw new NullPointerException("Removing null entry");
 			if (!(entry instanceof UserDAOHb))
 				throw new RuntimeException("Attempting to remove unknown object " + entry);
 			//Attempt to remove the existing object
@@ -308,11 +337,5 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		public abstract boolean isSet(UserChannelHb userMap);
 
 		public abstract void configure(UserChannelHb userMap, boolean set);
-	}
-
-	@Override
-	public boolean delete() {
-		DAOControllerHb.getInstance().getSession().delete(this);
-		return true;
 	}
 }
