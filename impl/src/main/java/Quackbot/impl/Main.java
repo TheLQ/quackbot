@@ -19,11 +19,8 @@
 package Quackbot.impl;
 
 import Quackbot.impl.plugins.JavaTest;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import org.quackbot.Controller;
-import org.quackbot.data.hibernate.HbStore;
+import org.quackbot.dao.hibernate.DAOControllerHb;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +37,7 @@ public class Main {
 	 * @param args Passed parameters (ignored)
 	 */
 	public static void main(String[] args) {		
-		Controller controller = new Controller(new HbStore());
+		Controller controller = new Controller(new DAOControllerHb(), true);
 		controller.setDefaultName("Quackbot");
 		controller.addPrefix("?");
 		try {
