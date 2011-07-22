@@ -19,8 +19,6 @@
 package org.quackbot.site;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.basic.Label;
 
 /**
  *
@@ -36,7 +34,5 @@ public class HomePage extends QuackbotPage {
 	 */
     public HomePage(final PageParameters parameters) {
 		super(parameters);
-        // Add the simplest type of label
-        add(new Label("label1", "Home page content"));
     }
 }
