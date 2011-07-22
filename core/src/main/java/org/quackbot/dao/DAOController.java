@@ -30,6 +30,8 @@ public interface DAOController {
 	public ChannelDAO newChannelStore(String name);
 
 	public ServerDAO newServerStore(String address);
+	
+	public LogEntryDAO newLogEntry();
 
 	public Set<ServerDAO> getServers();
 
