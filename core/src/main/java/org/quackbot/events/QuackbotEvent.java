@@ -1,6 +1,6 @@
 package org.quackbot.events;
 
-import lombok.Getter;
+import lombok.Data;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.quackbot.Controller;
@@ -9,9 +9,9 @@ import org.quackbot.Controller;
  *
  * @author lordquackstar
  */
-@Getter
+@Data
 public abstract class QuackbotEvent extends Event<Bot> {
-	protected Controller controller;
+	protected final Controller controller;
 
 	public QuackbotEvent(Controller controller) {
 		super(null);
