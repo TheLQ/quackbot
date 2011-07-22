@@ -45,11 +45,11 @@ import static org.mockito.Mockito.*;
  */
 @Slf4j
 public class CoreQuackbotHookTest {
-	DAOController store;
-	Controller controller;
-	Bot bot;
-	Channel channel;
-	User user;
+	protected DAOController store;
+	protected Controller controller;
+	protected Bot bot;
+	protected Channel channel;
+	protected User user;
 	protected CoreQuackbotHook hook;
 	protected String args4 = "hello0 hello1 hello2 hello3 hello4";
 	protected String args3 = "hello0 hello1 hello2 hello3";
