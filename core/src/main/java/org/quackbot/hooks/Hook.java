@@ -106,12 +106,12 @@ public abstract class Hook extends ListenerAdapter<Bot> {
 		this.fileLocation = null;
 	}
 
-	public Bot getBot() {
-		return Bot.getPoolLocal();
+	public Bot getBot(Event<Bot> event) {
+		return event.getBot();
 	}
 
-	public Controller getController() {
-		return getBot().getController();
+	public Controller getController(Event<Bot> event) {
+		return event.getBot().getController();
 	}
 
 	@Override
