@@ -37,6 +37,7 @@ import org.quackbot.Controller;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.DAOController;
+import org.quackbot.dao.LogEntryDAO;
 import org.quackbot.dao.ServerDAO;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
@@ -83,6 +84,10 @@ public class CoreQuackbotHookTest {
 
 		public void endTransaction(boolean isGood) {
 			//Do nothing
+		}
+
+		public LogEntryDAO newLogEntry() {
+			throw new UnsupportedOperationException("Not supported yet.");
 		}
 	};
 	Controller controller = new Controller(store, false);
