@@ -26,27 +26,32 @@ import java.util.Set;
  */
 public interface DAOController {
 	public AdminDAO newAdminStore(String name);
+
 	public ChannelDAO newChannelStore(String name);
+
 	public ServerDAO newServerStore(String address);
+
 	public Set<ServerDAO> getServers();
+
 	/**
 	 * Get all global, server, and channel admins. This must NOT return duplicate
 	 * entries. Implmentations should weed out duplicates by checking admin ID's
 	 * @return 
 	 */
 	public Set<AdminDAO> getAllAdmins();
+
 	/**
 	 * Called when shutting down. Useful for closing any open connections and/or
 	 * files
 	 */
 	public void close() throws Exception;
-	
+
 	/**
 	 * Begin a transaction (eg unit of work). Useful for implementations that require
 	 * transactional calls
 	 */
 	public void beginTransaction();
-	
+
 	/**
 	 * End a transaction. Guaranteed to be called in the same thread that
 	 * {@link #beginTransaction() } was called in. Note that this does NOT mean
