@@ -32,6 +32,7 @@ import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.events.InitEvent;
+import org.quackbot.events.QuackbotEvent;
 
 /**
  * The Hook interface is what all Hooks must implement to be added to the stack.
@@ -111,7 +112,12 @@ public abstract class Hook extends ListenerAdapter<Bot> {
 	}
 
 	public Controller getController(Event<Bot> event) {
-		return event.getBot().getController();
+		if (event.getBot().getController() != null)
+			return event.getBot().getController();
+		else if (event instanceof QuackbotEvent)
+			return ((QuackbotEvent) event).getController();
+		else
+			throw new RuntimeException("Can't find controller (should exist) from " + event.getClass() + " event - " + event);
 	}
 
 	@Override
