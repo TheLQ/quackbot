@@ -39,7 +39,7 @@ public class GenericHbTest {
 	public GenericHbTest() {
 		//Configure these things once
 		config = new Configuration().configure();
-		config.setNamingStrategy(new PrefixNamingStrategy("TEST_quackbot"));
+		config.setNamingStrategy(new PrefixNamingStrategy("TEST_quackbot_"));
 		sessionFactory = config.buildSessionFactory();		
 	}
 
