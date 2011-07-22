@@ -31,6 +31,7 @@ import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
+import org.quackbot.Bot;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.AdminException;
@@ -48,9 +49,9 @@ import org.quackbot.hooks.Hook;
 public class CoreQuackbotHook extends Hook {
 	@Override
 	public void onConnect(ConnectEvent event) {
-		for (ChannelDAO curChannel : getBot().getServerStore().getChannels()) {
+		for (ChannelDAO curChannel : getBot(event).getServerStore().getChannels()) {
 			log.debug("Trying to join channel using " + curChannel);
-			getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
+			event.getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 		}
 	}
 
@@ -59,7 +60,7 @@ public class CoreQuackbotHook extends Hook {
 		String message = event.getMessage();
 
 		//Look for a prefix
-		for (String curPrefix : getBot().getPrefixes())
+		for (String curPrefix : getBot(event).getPrefixes())
 			//Strip away start of message and end when the message doesn't match anymore (meaning something changed)
 			if (!(message = StringUtils.removeStartIgnoreCase(message, curPrefix)).equals(message))
 				break;
@@ -79,12 +80,12 @@ public class CoreQuackbotHook extends Hook {
 	}
 
 	protected void execute(Event event, Channel chan, User user, String message) throws Exception {
-		if (getBot().isLocked(chan, user)) {
+		if (getBot(event).isLocked(chan, user)) {
 			log.warn("Bot locked");
 			return;
 		}
 
-		int commandNumber = getController().addCommandNumber();
+		int commandNumber = getController(event).addCommandNumber();
 		String commandText = "";
 		String fromText = (chan != null) ? "channel " + chan.getName() : " a PM by " + user.getNick();
 		String debugSuffix = "execution of command #" + commandNumber + ",  from " + fromText + " using message " + message;
@@ -95,12 +96,12 @@ public class CoreQuackbotHook extends Hook {
 			String[] args = getArgs(message);
 
 			//Load command
-			Command command = getController().getHookManager().getCommand(commandText);
+			Command command = getController(event).getHookManager().getCommand(commandText);
 			//Is this a valid command?
 			if (command == null || !command.isEnabled())
 				throw new InvalidCMDException(commandText);
 			//Is this an admin function? If so, is the person an admin?
-			if (command.isAdmin() && !getController().isAdmin(getBot(), user, chan))
+			if (command.isAdmin() && !getController(event).isAdmin(getBot(event), user, chan))
 				throw new AdminException();
 			//Does the required number of args exist?
 			int given = args.length;
@@ -118,7 +119,7 @@ public class CoreQuackbotHook extends Hook {
 			event.respond(command.onCommand(commandEvent));
 			event.respond(executeOnCommandLong(commandEvent));
 		} catch (Exception e) {
-			getBot().sendMessage(chan, user, "ERROR: " + e.getMessage());
+			getBot(event).sendMessage(chan, user, "ERROR: " + e.getMessage());
 			throw new QuackbotException("Error encountered when running command " + commandText, e);
 		} finally {
 			log.info("-----------End " + debugSuffix + "-----------");
