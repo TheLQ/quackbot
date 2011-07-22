@@ -1,4 +1,4 @@
-glob:impl/mysqlPasswords.txt
-glob:store-hibernate/src/test/resources/hibernate.cfg.xml
-glob:impl/src/main/resources/hibernate.cfg.xml
+glob:hibernate.cfg.xml
+glob:nb-configuration.xml
 regexp:^[^\/|\\]+?.target
+
