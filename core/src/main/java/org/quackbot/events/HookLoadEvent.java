@@ -40,7 +40,6 @@ public class HookLoadEvent extends QuackbotEvent {
 
 	public HookLoadEvent(Controller controller, Hook hook, HookLoader pluginLoader, File file, Exception exception) {
 		super(controller);
-		this.controller = controller;
 		this.pluginLoader = pluginLoader;
 		this.file = file;
 		this.exception = exception;
