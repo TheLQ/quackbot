@@ -16,12 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.quackbot.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.pircbotx.hooks.Event;
 import org.quackbot.Controller;
 
 /**
@@ -30,12 +28,9 @@ import org.quackbot.Controller;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HookLoadStartEvent extends Event {
-	private final Controller controller;
-	
-	public HookLoadStartEvent(Controller ctrl) {
-		super(null);
-		this.controller = ctrl;
+public class HookLoadStartEvent extends QuackbotEvent {
+	public HookLoadStartEvent(Controller controller) {
+		super(controller);
 	}
 
 	/**

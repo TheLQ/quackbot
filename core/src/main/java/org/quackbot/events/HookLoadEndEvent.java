@@ -20,7 +20,6 @@ package org.quackbot.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.pircbotx.hooks.Event;
 import org.quackbot.Controller;
 
 /**
@@ -29,12 +28,9 @@ import org.quackbot.Controller;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HookLoadEndEvent extends Event {
-	private final Controller controller;
-
-	public HookLoadEndEvent(Controller ctrl) {
-		super(null);
-		this.controller = ctrl;
+public class HookLoadEndEvent extends QuackbotEvent {
+	public HookLoadEndEvent(Controller controller) {
+		super(controller);
 	}
 
 	/**
