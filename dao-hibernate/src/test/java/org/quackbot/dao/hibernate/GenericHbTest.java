@@ -39,7 +39,7 @@ public class GenericHbTest {
 	public GenericHbTest() {
 		//Configure these things once
 		config = new Configuration().configure();
-		config.setNamingStrategy(new TestNamingStrategy());
+		config.setNamingStrategy(new PrefixNamingStrategy("TEST_quackbot"));
 		sessionFactory = config.buildSessionFactory();		
 	}
 
@@ -107,32 +107,5 @@ public class GenericHbTest {
 		channel.getSuperOps().add(generateUser("someSuperOpUser" + num));
 
 		return server;
-	}
-
-	protected class TestNamingStrategy extends ImprovedNamingStrategy {
-		@Override
-		public String classToTableName(String className) {
-			return StringHelper.unqualify(className);
-		}
-
-		@Override
-		public String propertyToColumnName(String propertyName) {
-			return propertyName;
-		}
-
-		@Override
-		public String tableName(String tableName) {
-			return "TEST_" + tableName;
-		}
-
-		@Override
-		public String columnName(String columnName) {
-			return columnName;
-		}
-
-		public String propertyToTableName(String className, String propertyName) {
-			return "TEST_" + classToTableName(className) + '_'
-					+ propertyToColumnName(propertyName);
-		}
 	}
 }
