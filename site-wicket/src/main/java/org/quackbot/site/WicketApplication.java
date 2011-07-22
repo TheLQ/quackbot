@@ -25,21 +25,17 @@ import org.apache.wicket.protocol.http.WebApplication;
  * 
  * @see org.quackbot.site.Start#main(String[])
  */
-public class WicketApplication extends WebApplication
-{    
-    /**
-     * Constructor
-     */
-	public WicketApplication()
-	{
+public class WicketApplication extends WebApplication {
+	/**
+	 * Constructor
+	 */
+	public WicketApplication() {
 	}
-	
+
 	/**
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
-	public Class<HomePage> getHomePage()
-	{
-		return HomePage.class;
+	public Class<PageTemplate> getHomePage() {
+		return PageTemplate.class;
 	}
-
 }
