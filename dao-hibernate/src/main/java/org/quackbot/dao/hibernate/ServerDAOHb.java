@@ -87,7 +87,7 @@ public class ServerDAOHb implements ServerDAO, Serializable {
 	}
 
 	@ManyToMany(cascade= CascadeType.ALL, targetEntity = AdminDAOHb.class)
-	@JoinTable(name = "quackbot_server_admins", joinColumns = {
+	@JoinTable(name = "server_admins", joinColumns = {
 		@JoinColumn(name = "SERVER_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
 	//@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})

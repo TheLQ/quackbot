@@ -84,7 +84,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	}
 
 	@ManyToMany(targetEntity = AdminDAOHb.class)
-	@JoinTable(name = "quackbot_channel_admins", joinColumns = {
+	@JoinTable(name = "channel_admins", joinColumns = {
 		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
