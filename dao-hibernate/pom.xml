@@ -9,9 +9,9 @@
 	</parent>
 
 	<groupId>org.quackbot</groupId>
-	<artifactId>store-hibernate</artifactId>
+	<artifactId>dao-hibernate</artifactId>
 	<packaging>jar</packaging>
-	<name>Quackbot-Store-Hibernate</name>
+	<name>Quackbot-DAO-Hibernate</name>
 	
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>

@@ -22,7 +22,7 @@
 		<!--Hibernate store for DAO-->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>store-hibernate</artifactId>
+			<artifactId>dao-hibernate</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!--Apache wicket for site-->
