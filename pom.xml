@@ -219,10 +219,6 @@
 	
 	<repositories>
 		<repository>
-			<id>jrebel</id>
-			<url>http://repos.zeroturnaround.com/maven2/</url>
-		</repository>
-		<repository>
 			<id>sonatype-nexus-snapshots</id>
 			<name>Sonatype Nexus Snapshots</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
