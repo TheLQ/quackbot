@@ -33,6 +33,6 @@ public class HomePage extends QuackbotPage {
 	 *            Page parameters
 	 */
     public HomePage(final PageParameters parameters) {
-		super(parameters);
+		super(parameters, "Home");
     }
 }
