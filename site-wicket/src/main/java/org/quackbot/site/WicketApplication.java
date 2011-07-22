@@ -35,7 +35,7 @@ public class WicketApplication extends WebApplication {
 	/**
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
-	public Class<QuackbotPage> getHomePage() {
-		return QuackbotPage.class;
+	public Class<HomePage> getHomePage() {
+		return HomePage.class;
 	}
 }
