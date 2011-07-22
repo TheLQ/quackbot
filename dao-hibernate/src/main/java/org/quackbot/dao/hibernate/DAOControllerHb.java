@@ -43,8 +43,13 @@ public class DAOControllerHb implements DAOController {
 	public DAOControllerHb() {
 		if(instance != null)
 			throw new RuntimeException("Can't create more than one DAOControllerHb");
-		sessionFactory = new Configuration().configure() // configures settings from hibernate.cfg.xml
-				.buildSessionFactory();
+		
+		// configures settings from hibernate.cfg.xml
+		Configuration config = new Configuration().configure();
+		config.setNamingStrategy(new PrefixNamingStrategy("quackbot_"));
+		
+		sessionFactory = config.buildSessionFactory();
+		
 		instance = this;
 	}
 

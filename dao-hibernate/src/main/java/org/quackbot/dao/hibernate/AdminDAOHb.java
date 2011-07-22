@@ -44,7 +44,7 @@ import org.quackbot.dao.ServerDAO;
 @EqualsAndHashCode(of = "name")
 @ToString(exclude = {"channels", "servers"})
 @Entity
-@Table(name = "quackbot_admins")
+@Table(name = "admins")
 public class AdminDAOHb implements AdminDAO, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

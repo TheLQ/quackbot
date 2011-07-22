@@ -54,7 +54,7 @@ import org.quackbot.dao.UserDAO;
 @EqualsAndHashCode(of = "name")
 @ToString(exclude = {"admins"})
 @Entity
-@Table(name = "quackbot_channels")
+@Table(name = "channels")
 public class ChannelDAOHb implements ChannelDAO, Serializable {
 	protected Integer channelID;
 	protected String name;

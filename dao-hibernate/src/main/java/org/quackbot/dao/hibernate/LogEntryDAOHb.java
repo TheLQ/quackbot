@@ -33,7 +33,7 @@ import org.quackbot.dao.LogEntryDAO;
  * @author lordquackstar
  */
 @Data
-@Entity(name = "quackbot_log")
+@Entity(name = "log")
 public class LogEntryDAOHb implements LogEntryDAO, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
