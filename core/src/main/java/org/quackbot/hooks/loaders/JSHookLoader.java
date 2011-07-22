@@ -28,6 +28,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -159,26 +160,26 @@ public class JSHookLoader implements HookLoader {
 
 		@Override
 		public int getOptionalParams() {
-			return (int)Double.parseDouble(invokeFunction(jsEngine, sourceMap, "getOptionalParams").toString());
+			return (int) Double.parseDouble(invokeFunction(jsEngine, sourceMap, "getOptionalParams").toString());
 		}
 
 		@Override
 		public int getRequiredParams() {
-			return (int)Double.parseDouble(invokeFunction(jsEngine, sourceMap, "getRequiredParams").toString());
+			return (int) Double.parseDouble(invokeFunction(jsEngine, sourceMap, "getRequiredParams").toString());
 		}
 
 		@Override
 		public String onCommand(CommandEvent event) throws Exception {
 			//Get the number of args in onCommand
-			int numCommandArgs = (Integer)jsEngine.eval("QuackUtils.onCommandParse(onCommand);");
+			int numCommandArgs = (Integer) jsEngine.eval("QuackUtils.onCommandParse(onCommand);");
 			log.trace("Optional Params: " + getOptionalParams());
 			Object[] args = new Object[0];
-			if(getOptionalParams() == -1) {
+			if (getOptionalParams() == -1) {
 				//Fill arg list up to second to last element
-				args = ArrayUtils.subarray(event.getArgs(), 0, numCommandArgs -1);
+				args = ArrayUtils.subarray(event.getArgs(), 0, numCommandArgs - 1);
 				log.trace("Arg array before final processing: " + StringUtils.join(args, ", "));
 				//Add whats left if anything is left
-				if(event.getArgs().length < numCommandArgs)
+				if (event.getArgs().length < numCommandArgs)
 					args = ArrayUtils.add(args, ArrayUtils.subarray(event.getArgs(), numCommandArgs, event.getArgs().length));
 				log.trace("Arg array before after processing: " + StringUtils.join(args, ", "));
 			}
@@ -186,13 +187,37 @@ public class JSHookLoader implements HookLoader {
 		}
 	}
 
+	@Data
 	public class JSHookException extends RuntimeException {
-		public JSHookException(String message, String fileLocation, int lineNumber, int column, Throwable cause) {
-			super(message + " - Error Source: File location: " + fileLocation + " | Line number: " + lineNumber + " | Column: " + column, cause);
+		String fileLocation;
+		int lineNumber;
+		int column;
+
+		public JSHookException(String message, String fileLocation, int lineNumber, int column) {
+			super(message);
+			this.fileLocation = fileLocation;
+			this.lineNumber = lineNumber;
+			this.column = column;
 		}
 
+		public JSHookException(String message, String fileLocation, int lineNumber, int column, Throwable cause) {
+			super(message, cause);
+			this.fileLocation = fileLocation;
+			this.lineNumber = lineNumber;
+			this.column = column;
+		}
+
+		public JSHookException(String message) {
+			super(message);
+		}
+		
 		public JSHookException(String message, Throwable cause) {
 			super(message, cause);
+		}
+
+		@Override
+		public String getMessage() {
+			return super.getMessage() + " - Error Source: File location: " + fileLocation + " | Line number: " + lineNumber + " | Column: " + column;
 		}
 	}
 }
