@@ -86,7 +86,7 @@ public class CoreQuackbotHookTest {
 	@Test(dataProvider = "onCommandLongTests")
 	public void executeOnCommandLongTest(String cmdMessage, OnCommandLong command, String[][] expectedArgs) throws Exception {
 		//Build the CommandEvent
-		CommandEvent event = new CommandEvent(command, new MessageEvent(null, null, null, cmdMessage), null, null, cmdMessage, "?testCommand", hook.getArgs(cmdMessage));
+		CommandEvent event = new CommandEvent(command, new MessageEvent(bot, null, null, cmdMessage), null, null, cmdMessage, "?testCommand", hook.getArgs(cmdMessage));
 
 		//Execute and verify values
 		String returned = hook.executeOnCommandLong(event);
@@ -109,7 +109,7 @@ public class CoreQuackbotHookTest {
 
 		//Build the messageEvent 
 		final StringBuilder response = new StringBuilder();
-		MessageEvent messageEvent = new MessageEvent(null, channel, null, cmdMessage) {
+		MessageEvent messageEvent = new MessageEvent(bot, channel, null, cmdMessage) {
 			@Override
 			public void respond(String commandResponse) {
 				if (commandResponse != null)
