@@ -39,7 +39,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = {"user", "channel"})
 @Entity
-@Table(name = "quackbot_usermap")
+@Table(name = "usermap")
 public class UserChannelHb implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

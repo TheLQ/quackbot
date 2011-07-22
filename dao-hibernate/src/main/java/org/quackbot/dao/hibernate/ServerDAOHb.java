@@ -50,7 +50,7 @@ import org.quackbot.dao.ServerDAO;
 @EqualsAndHashCode(of = "address")
 @ToString(exclude = {"channels", "admins"})
 @Entity
-@Table(name = "quackbot_servers")
+@Table(name = "servers")
 public class ServerDAOHb implements ServerDAO, Serializable {
 	private Integer serverId;
 	private String address;
