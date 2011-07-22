@@ -19,33 +19,25 @@
 package org.quackbot.hooks.core;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
-import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
-import org.quackbot.dao.AdminDAO;
-import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.DAOController;
-import org.quackbot.dao.LogEntryDAO;
-import org.quackbot.dao.ServerDAO;
-import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
-import org.quackbot.hooks.java.Parameters;
 import org.testng.annotations.DataProvider;
-import static org.testng.Assert.*;
 import org.testng.annotations.Test;
+import static org.testng.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -53,66 +45,34 @@ import org.testng.annotations.Test;
  */
 @Slf4j
 public class CoreQuackbotHookTest {
-	DAOController store = new DAOController() {
-		public AdminDAO newAdminStore(String name) {
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-
-		public ChannelDAO newChannelStore(String name) {
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-
-		public ServerDAO newServerStore(String address) {
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-
-		public Set<ServerDAO> getServers() {
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-
-		public Set<AdminDAO> getAllAdmins() {
-			return new HashSet();
-		}
-
-		public void close() throws Exception {
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-
-		public void beginTransaction() {
-			//Do nothing
-		}
-
-		public void endTransaction(boolean isGood) {
-			//Do nothing
-		}
-
-		public LogEntryDAO newLogEntry() {
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-	};
-	Controller controller = new Controller(store, false);
-	Bot bot = new Bot(controller, -1, Executors.newCachedThreadPool());
-	Channel channel = new Channel(bot, "#someChannel") {
-	};
-	User user = new User(bot, "SomeUser") {
-	};
-	protected CoreQuackbotHook hook = new CoreQuackbotHook() {
-		@Override
-		public Controller getController() {
-			return controller;
-		}
-
-		@Override
-		public Bot getBot() {
-			return bot;
-		}
-	};
+	DAOController store;
+	Controller controller;
+	Bot bot;
+	Channel channel;
+	User user;
+	protected CoreQuackbotHook hook;
 	protected String args4 = "hello0 hello1 hello2 hello3 hello4";
 	protected String args3 = "hello0 hello1 hello2 hello3";
 
 	public CoreQuackbotHookTest() {
-		controller.getHookManager().addHook(hook);
+		store = mock(DAOController.class);
+
+		//Configure controller with empty DAOController, no GUI, and basic prefix
+		controller = new Controller(store, false);
 		controller.addPrefix("?");
+
+		//Create basic state
+		bot = new Bot(controller, -1, Executors.newCachedThreadPool());
+		channel = new Channel(bot, "#someChannel") {
+		};
+		user = new User(bot, "SomeUser") {
+		};
+
+		//Create our listener hook, being sure to mock specific methods
+		hook = spy(new CoreQuackbotHook());
+		doReturn(controller).when(hook).getController();
+		doReturn(bot).when(hook).getBot();
+		controller.getHookManager().addHook(hook);
 	}
 
 	@Test
@@ -204,7 +164,7 @@ public class CoreQuackbotHookTest {
 
 		tempHook.onMessage(messageEvent);
 	}
-	
+
 	@Test
 	public void onPrivateMessageTest() throws Exception {
 		//Generate a simple message event
