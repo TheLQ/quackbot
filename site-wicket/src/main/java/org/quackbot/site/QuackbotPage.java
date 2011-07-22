@@ -20,6 +20,7 @@ package org.quackbot.site;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
 /**
@@ -37,5 +38,10 @@ public class QuackbotPage extends WebPage {
 	 */
 	public QuackbotPage(final PageParameters parameters) {
 		add(new BookmarkablePageLink("HomePage", HomePage.class));
+	}
+	
+	public QuackbotPage(final PageParameters parameters, String pageTitle) {
+		this(parameters);
+		add(new Label("PageTitle", pageTitle));
 	}
 }
