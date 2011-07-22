@@ -26,7 +26,7 @@ public interface LogEntryDAO {
 	public Integer getId();
 
 	public Integer getTimestamp();
-
+	
 	public void setTimestamp(Integer timestamp);
 
 	public String getServer();
@@ -39,17 +39,17 @@ public interface LogEntryDAO {
 
 	public String getType();
 
-	public void setType();
+	public void setType(String type);
 
 	public String getUser();
 
-	public void setUser();
+	public void setUser(String user);
 
 	public String getMessage();
 
-	public void setMessage();
+	public void setMessage(String message);
 
 	public String getRawLine();
 
-	public void setRawLine();
+	public void setRawLine(String rawLine);
 }
