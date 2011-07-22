@@ -57,4 +57,23 @@ public class JSHookLoaderTest {
 		assertEquals(hook.jsEngine.get("event"), commandEvent, "Event doesn't match given");
 		assertEquals(hook.jsEngine.get("arg1"), "someArg", "Single argument doesn't match given");
 	}
+	
+	@Test
+	public void commandOptionalArrayTest() throws Exception {
+		//TODO: Finish
+		JSHookLoader.JSCommandWrapper hook = (JSHookLoader.JSCommandWrapper) loader.load("JSPluginTest/Command_OptionalArray.js");
+		
+		//Make sure arguments are setup correctly
+		assertEquals(hook.getRequiredParams(), 2, "Required argument count is wrong");
+		assertEquals(hook.getOptionalParams(), -1, "Optional argument count is wrong");
+		
+		//Test sending a command with several args
+		MessageEvent messageEvent = new MessageEvent(null, null, null, "Some message");
+		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg1 someArg2 someArg3 someArg4", null, new String[] {"someArg1", "someArg2", "someArg3", "someArg4"});
+		String returned = hook.onCommand(commandEvent);
+		
+		assertEquals(returned, "Success", "Returned value doesn't match given");
+		log.trace("Arg array in commandOptionalTest" + hook.jsEngine.get("argArray3").getClass().toString());
+		log.trace("First element in arg array: " + hook.jsEngine.get("argArrayFirst"));
+	}
 }
