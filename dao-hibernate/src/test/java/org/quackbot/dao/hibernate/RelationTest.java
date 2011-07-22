@@ -47,9 +47,7 @@ public class RelationTest extends GenericHbTest {
 
 		//Make sure they exist
 		session.beginTransaction();
-		List results = session.createQuery(" from ServerDAOHb").list();
-		assertEquals(results.size(), 1, "Too many/No servers");
-		ServerDAOHb fetchedServer = (ServerDAOHb) results.get(0);
+		ServerDAOHb fetchedServer = (ServerDAOHb) session.createQuery(" from ServerDAOHb").uniqueResult();
 		assertNotNull(fetchedServer, "Fetched server is null");
 		assertEquals((int) fetchedServer.getServerId(), 1, "Server ID is wrong");
 		assertEquals(fetchedServer.getAddress(), "some.host", "Server host is wrong");
@@ -77,7 +75,7 @@ public class RelationTest extends GenericHbTest {
 
 		//Make sure the statuses still work (use known working methods
 		session.beginTransaction();
-		ChannelDAOHb chan = (ChannelDAOHb) session.createQuery("from ChannelDAOHb").list().get(0);
+		ChannelDAOHb chan = (ChannelDAOHb) session.createQuery("from ChannelDAOHb").uniqueResult();
 
 		//Verify there are 3 users
 		List<String> usersShouldExist = new ArrayList();
@@ -126,7 +124,7 @@ public class RelationTest extends GenericHbTest {
 			if (curUser.getNick().equals("channelUser1"))
 				aChannelUser = curUser;
 		assertNotNull(aChannelUser, "channelUser1 doesn't exist in channel #aChannel1");
-		
+
 		//Load channelUser1 from #aChannel1
 		channel = (ChannelDAOHb) session.createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#someChannel1")).uniqueResult();
 		UserDAO someChannelUser = null;
