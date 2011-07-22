@@ -169,6 +169,19 @@ public class JSHookLoader implements HookLoader {
 
 		@Override
 		public String onCommand(CommandEvent event) throws Exception {
+			//Get the number of args in onCommand
+			int numCommandArgs = (Integer)jsEngine.eval("QuackUtils.onCommandParse(onCommand);");
+			log.trace("Optional Params: " + getOptionalParams());
+			Object[] args = new Object[0];
+			if(getOptionalParams() == -1) {
+				//Fill arg list up to second to last element
+				args = ArrayUtils.subarray(event.getArgs(), 0, numCommandArgs -1);
+				log.trace("Arg array before final processing: " + StringUtils.join(args, ", "));
+				//Add whats left if anything is left
+				if(event.getArgs().length < numCommandArgs)
+					args = ArrayUtils.add(args, ArrayUtils.subarray(event.getArgs(), numCommandArgs, event.getArgs().length));
+				log.trace("Arg array before after processing: " + StringUtils.join(args, ", "));
+			}
 			return (String) invokeFunction(jsEngine, sourceMap, "onCommand", ArrayUtils.addAll(new Object[]{event}, event.getArgs()));
 		}
 	}
