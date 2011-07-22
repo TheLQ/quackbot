@@ -69,10 +69,7 @@ public class CoreQuackbotHookTest {
 		};
 
 		//Create our listener hook, being sure to mock specific methods
-		hook = spy(new CoreQuackbotHook());
-		doReturn(controller).when(hook).getController();
-		doReturn(bot).when(hook).getBot();
-		controller.getHookManager().addHook(hook);
+		hook = new CoreQuackbotHook();
 	}
 
 	@Test
@@ -147,11 +144,6 @@ public class CoreQuackbotHookTest {
 		//Test hook that makes sure all the information passed into execute is good
 		CoreQuackbotHook tempHook = new CoreQuackbotHook() {
 			@Override
-			public Bot getBot() {
-				return bot;
-			}
-
-			@Override
 			protected void execute(Event event, Channel chan, User user, String message) throws Exception {
 				assertEquals(event, messageEvent, "Event passed to execute doesn't match given");
 				assertEquals(chan, channel, "Channel does not match given");
@@ -176,11 +168,6 @@ public class CoreQuackbotHookTest {
 
 		//Test hook that makes sure all the information passed into execute is good
 		CoreQuackbotHook tempHook = new CoreQuackbotHook() {
-			@Override
-			public Bot getBot() {
-				return bot;
-			}
-
 			@Override
 			protected void execute(Event event, Channel chan, User user, String message) throws Exception {
 				assertEquals(event, pmEvent, "Event passed to execute doesn't match given");
