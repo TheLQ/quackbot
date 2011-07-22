@@ -28,6 +28,7 @@ import org.hibernate.cfg.Configuration;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.DAOController;
+import org.quackbot.dao.LogEntryDAO;
 import org.quackbot.dao.ServerDAO;
 
 /**
@@ -63,6 +64,11 @@ public class DAOControllerHb implements DAOController {
 		ServerDAOHb server = new ServerDAOHb();
 		getSession().save(server);
 		return server;
+	}
+	
+	public LogEntryDAO newLogEntry() {
+		LogEntryDAOHb logEntry = new LogEntryDAOHb();
+		return logEntry;
 	}
 
 	public Set<ServerDAO> getServers() {
