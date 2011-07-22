@@ -33,6 +33,11 @@ import static org.mockito.Mockito.*;
 @Slf4j
 public class JSHookLoaderTest {
 	JSHookLoader loader = new JSHookLoader();
+	Bot bot;
+
+	public JSHookLoaderTest() {
+		bot = mock(Bot.class);
+	}
 
 	@Test
 	public void messageEventTest() throws Exception {
@@ -41,45 +46,45 @@ public class JSHookLoaderTest {
 		hook.onEvent(event);
 		assertEquals(hook.jsEngine.get("event"), event, "Event doesn't match given");
 	}
-	
+
 	@Test
 	public void commandSimpleTest() throws Exception {
 		JSHookLoader.JSCommandWrapper hook = (JSHookLoader.JSCommandWrapper) loader.load("JSPluginTest/Command_Simple.js");
-		
+
 		//Make sure arguments are setup correctly
 		assertEquals(hook.getRequiredParams(), 1, "Required argument count is wrong");
 		assertEquals(hook.getOptionalParams(), 0, "Optional argument count is wrong");
-		
+
 		//Test sending a command
-		MessageEvent messageEvent = new MessageEvent(null, null, null, "Some message");
-		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg", null, new String[] {"someArg"});
+		MessageEvent messageEvent = new MessageEvent(bot, null, null, "Some message");
+		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg", null, new String[]{"someArg"});
 		String returned = hook.onCommand(commandEvent);
-		
+
 		assertEquals(returned, "Success", "Returned value doesn't match given");
 		assertEquals(hook.jsEngine.get("event"), commandEvent, "Event doesn't match given");
 		assertEquals(hook.jsEngine.get("arg1"), "someArg", "Single argument doesn't match given");
 	}
-	
+
 	@Test
 	public void commandOptionalArrayTest() throws Exception {
 		//TODO: Finish
 		JSHookLoader.JSCommandWrapper hook = (JSHookLoader.JSCommandWrapper) loader.load("JSPluginTest/Command_OptionalArray.js");
-		
+
 		//Make sure arguments are setup correctly
 		assertEquals(hook.getRequiredParams(), 2, "Required argument count is wrong");
 		assertEquals(hook.getOptionalParams(), -1, "Optional argument count is wrong");
-		
+
 		//Test sending a command with several args
-		MessageEvent messageEvent = new MessageEvent(null, null, null, "Some message");
-		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg1 someArg2 someArg3 someArg4", null, new String[] {"someArg1", "someArg2", "someArg3", "someArg4"});
+		MessageEvent messageEvent = new MessageEvent(bot, null, null, "Some message");
+		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg1 someArg2 someArg3 someArg4", null, new String[]{"someArg1", "someArg2", "someArg3", "someArg4"});
 		String returned = hook.onCommand(commandEvent);
-		
+
 		assertEquals(returned, "Success", "Returned value doesn't match given");
 		assertEquals(hook.jsEngine.get("event"), commandEvent, "Event doesn't match given");
 		assertEquals(hook.jsEngine.get("arg1"), "someArg1", "First argument doesn't match given");
 		assertEquals(hook.jsEngine.get("arg2"), "someArg2", "Second argument doesn't match given");
 		assertEquals(hook.jsEngine.get("argArrayFirst"), "someArg3", "Second argument doesn't match given");
-		
+
 		log.trace("Arg array in commandOptionalTest" + hook.jsEngine.get("argArray3").getClass().toString());
 	}
 }
