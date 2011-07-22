@@ -21,8 +21,6 @@ package org.quackbot.events;
 import java.io.File;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.pircbotx.PircBotX;
-import org.pircbotx.hooks.Event;
 import org.quackbot.Controller;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.hooks.Hook;
@@ -34,15 +32,14 @@ import org.quackbot.hooks.Hook;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HookLoadEvent extends Event {
-	private final Controller controller;
+public class HookLoadEvent extends QuackbotEvent {
 	private final Hook hook;
 	private final HookLoader pluginLoader;
 	private final File file;
 	private final Exception exception;
 
 	public HookLoadEvent(Controller controller, Hook hook, HookLoader pluginLoader, File file, Exception exception) {
-		super(null);
+		super(controller);
 		this.controller = controller;
 		this.pluginLoader = pluginLoader;
 		this.file = file;

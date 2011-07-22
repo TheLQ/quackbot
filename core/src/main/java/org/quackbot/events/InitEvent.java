@@ -40,12 +40,9 @@ import org.quackbot.hooks.HookManager;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class InitEvent extends Event {
-	private final Controller controller;
-	
-	public InitEvent(Controller ctrl) {
-		super(null);
-		this.controller = ctrl;
+public class InitEvent extends QuackbotEvent {
+	public InitEvent(Controller controller) {
+		super(controller);
 	}
 	
 	/**

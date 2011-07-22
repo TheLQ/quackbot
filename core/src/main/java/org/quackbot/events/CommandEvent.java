@@ -24,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
+import org.quackbot.Bot;
 import org.quackbot.hooks.Command;
 
 /**
@@ -32,7 +33,7 @@ import org.quackbot.hooks.Command;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CommandEvent extends Event {
+public class CommandEvent extends QuackbotEvent {
 	protected final Command commandClass;
 	protected final Event parentEvent;
 	protected final Channel channel;
@@ -41,7 +42,7 @@ public class CommandEvent extends Event {
 	protected final String[] args;
 	protected final String originalLine;
 
-	public CommandEvent(Command commandClass, Event parentEvent, Channel channel, User user, String origionalLine, String command, String[] args) {
+	public CommandEvent(Command commandClass, Event<Bot> parentEvent, Channel channel, User user, String origionalLine, String command, String[] args) {
 		super(parentEvent.getBot());
 		this.commandClass = commandClass;
 		this.parentEvent = parentEvent;
