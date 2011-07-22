@@ -18,24 +18,24 @@
  */
 package org.quackbot.site;
 
-import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
 /**
- * Application object for your web application. If you want to run this application without deploying, run the Start class.
- * 
- * @see org.quackbot.site.Start#main(String[])
+ * Homepage
  */
-public class WicketApplication extends WebApplication {
-	/**
-	 * Constructor
-	 */
-	public WicketApplication() {
-	}
+public class QuackbotPage extends WebPage {
+	private static final long serialVersionUID = 1L;
 
+	// TODO Add any page properties or variables here
 	/**
-	 * @see org.apache.wicket.Application#getHomePage()
+	 * Constructor that is invoked when page is invoked without a session.
+	 * 
+	 * @param parameters
+	 *            Page parameters
 	 */
-	public Class<QuackbotPage> getHomePage() {
-		return QuackbotPage.class;
+	public QuackbotPage(final PageParameters parameters) {
+		add(new BookmarkablePageLink("HomePage", HomePage.class));
 	}
 }
