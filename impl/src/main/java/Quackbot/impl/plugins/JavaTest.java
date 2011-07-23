@@ -20,6 +20,7 @@ package Quackbot.impl.plugins;
 
 import org.pircbotx.Channel;
 import org.pircbotx.User;
+import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.java.HelpDoc;
 
@@ -29,12 +30,12 @@ import org.quackbot.hooks.java.HelpDoc;
  */
 @HelpDoc("This is JavaTest Help")
 public class JavaTest extends Command {
-
-	public String onCommand(Channel chan, User user) throws Exception {
+	@Override
+	public String onCommand(CommandEvent event) throws Exception {
 		StringBuilder users = new StringBuilder();
-		for(User curUser : getBot().getUsers(chan))
+		for (User curUser : event.getChannel().getUsers())
 			users.append(curUser.toString()).append("\n");
 
-		return users.toString()+getBot().getUsers(chan).size();
+		return users.toString();
 	}
 }
