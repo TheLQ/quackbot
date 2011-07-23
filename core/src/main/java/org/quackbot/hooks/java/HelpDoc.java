@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  *	...
  * }}
  * </pre>
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

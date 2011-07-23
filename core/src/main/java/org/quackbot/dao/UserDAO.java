@@ -21,7 +21,7 @@ package org.quackbot.dao;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public interface UserDAO {	
 	public Integer getUserId();

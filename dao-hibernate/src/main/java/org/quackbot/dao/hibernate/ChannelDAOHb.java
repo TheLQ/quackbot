@@ -48,7 +48,7 @@ import org.quackbot.dao.UserDAO;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 @EqualsAndHashCode(of = "name")

@@ -23,7 +23,7 @@ import org.hibernate.util.StringHelper;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class PrefixNamingStrategy extends ImprovedNamingStrategy {
 	protected String prefix;

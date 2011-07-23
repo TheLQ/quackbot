@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 /**
  * Denotes that this Java Plugin should be ignored.
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

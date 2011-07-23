@@ -25,7 +25,7 @@ import org.quackbot.Controller;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 public abstract class QuackbotEvent extends Event<Bot> {

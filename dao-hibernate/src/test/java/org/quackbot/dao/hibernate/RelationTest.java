@@ -31,7 +31,7 @@ import static org.testng.Assert.*;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class RelationTest extends GenericHbTest {
 	@Test(description = "Make sure when saving a server the assoicated channels get created")

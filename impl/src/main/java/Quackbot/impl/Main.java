@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Main Class for implementation.
  *
- * @author LordQuackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class Main {
 	private static final Logger log = LoggerFactory.getLogger(Main.class);

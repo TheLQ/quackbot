@@ -22,7 +22,7 @@ import org.apache.wicket.PageParameters;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class HomePage extends QuackbotPage {
 

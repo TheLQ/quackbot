@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * JS utility bean, holds all information about JS plugin
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Slf4j
 public class JSHookLoader implements HookLoader {

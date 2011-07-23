@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 /**
  * Denotes Java Plugin is usable only by Admins. No parameters are needed
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
