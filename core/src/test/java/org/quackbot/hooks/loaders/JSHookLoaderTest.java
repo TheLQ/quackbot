@@ -20,6 +20,7 @@ package org.quackbot.hooks.loaders;
 
 import org.quackbot.Bot;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.quackbot.events.CommandEvent;
 import org.testng.annotations.Test;
@@ -83,7 +84,7 @@ public class JSHookLoaderTest {
 		assertEquals(hook.jsEngine.get("event"), commandEvent, "Event doesn't match given");
 		assertEquals(hook.jsEngine.get("arg1"), "someArg1", "First argument doesn't match given");
 		assertEquals(hook.jsEngine.get("arg2"), "someArg2", "Second argument doesn't match given");
-		assertEquals(hook.jsEngine.get("argArrayFirst"), "someArg3", "Second argument doesn't match given");
+		assertEquals(hook.jsEngine.get("argArrayFirst"), "someArg3", "Third argument doesn't match given");
 
 		log.trace("Arg array in commandOptionalTest" + hook.jsEngine.get("argArray3").getClass().toString());
 	}
