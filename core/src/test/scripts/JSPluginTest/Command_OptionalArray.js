@@ -21,7 +21,6 @@ var event;
 var arg1;
 var arg2;
 var argArray3;
-var argArrayFirst;
 var parameters = [2,-1];
 
 function onCommand(levent, larg1, larg2, largArray3) {
@@ -29,6 +28,5 @@ function onCommand(levent, larg1, larg2, largArray3) {
 	arg1 = larg1;
 	arg2 = larg2;
 	argArray3 = largArray3;
-	argArrayFirst = largArray3[0];
 	return "Success";
 }
