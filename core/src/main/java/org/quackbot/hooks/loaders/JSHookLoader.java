@@ -22,7 +22,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -38,7 +41,6 @@ import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.hooks.Hook;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -170,20 +172,27 @@ public class JSHookLoader implements HookLoader {
 
 		@Override
 		public String onCommand(CommandEvent event) throws Exception {
-			//Get the number of args in onCommand
-			int numCommandArgs = (Integer) jsEngine.eval("QuackUtils.onCommandParse(onCommand);");
+			//Get the number of args in onCommand minus one for the event
+			int numCommandArgs = (Integer) jsEngine.eval("QuackUtils.onCommandParse(onCommand);") - 1;
+			log.trace("Number of command args: " + numCommandArgs);
 			log.trace("Optional Params: " + getOptionalParams());
-			Object[] args = new Object[0];
+			Object[] args;
+
 			if (getOptionalParams() == -1) {
-				//Fill arg list up to second to last element
-				args = ArrayUtils.subarray(event.getArgs(), 0, numCommandArgs - 1);
+				args = Arrays.copyOf(event.getArgs(), numCommandArgs - 1, Object[].class);
+				log.trace("Args class: " + args.getClass());
+				log.trace("Event args(" + event.getArgs().length + "): " + StringUtils.join(event.getArgs(), ", "));
 				log.trace("Arg array before final processing: " + StringUtils.join(args, ", "));
 				//Add whats left if anything is left
-				if (event.getArgs().length < numCommandArgs)
-					args = ArrayUtils.add(args, ArrayUtils.subarray(event.getArgs(), numCommandArgs, event.getArgs().length));
+				if (event.getArgs().length > numCommandArgs) {
+					Object[] lastArgs = (Object[]) ArrayUtils.subarray(event.getArgs(), numCommandArgs - 1, event.getArgs().length);
+					log.trace("Compressed last arguments into array: " + StringUtils.join(lastArgs, ", "));
+					args = ArrayUtils.add(args, lastArgs);
+				}
 				log.trace("Arg array before after processing: " + StringUtils.join(args, ", "));
-			}
-			return (String) invokeFunction(jsEngine, sourceMap, "onCommand", ArrayUtils.addAll(new Object[]{event}, event.getArgs()));
+			} else
+				args = event.getArgs();
+			return (String) invokeFunction(jsEngine, sourceMap, "onCommand", ArrayUtils.addAll(new Object[]{event}, args));
 		}
 	}
 
@@ -210,7 +219,7 @@ public class JSHookLoader implements HookLoader {
 		public JSHookException(String message) {
 			super(message);
 		}
-		
+
 		public JSHookException(String message, Throwable cause) {
 			super(message, cause);
 		}
