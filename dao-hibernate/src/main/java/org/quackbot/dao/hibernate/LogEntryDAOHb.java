@@ -30,7 +30,7 @@ import org.quackbot.dao.LogEntryDAO;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 @Entity(name = "log")

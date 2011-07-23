@@ -33,7 +33,7 @@ import org.quackbot.dao.ServerDAO;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class DAOControllerHb implements DAOController {
 	protected SessionFactory sessionFactory;

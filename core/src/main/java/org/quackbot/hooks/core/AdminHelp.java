@@ -30,7 +30,7 @@ import org.quackbot.events.CommandEvent;
 
 /**
  *
- * @author LordQuackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?helpAdmin <OPTIONAL:command>")
 @AdminOnly

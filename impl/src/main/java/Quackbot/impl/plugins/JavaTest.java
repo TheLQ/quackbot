@@ -26,7 +26,7 @@ import org.quackbot.hooks.java.HelpDoc;
 
 /**
  * Simple Java cmd test
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @HelpDoc("This is JavaTest Help")
 public class JavaTest extends Command {

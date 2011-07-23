@@ -24,7 +24,7 @@ import java.util.Set;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 abstract class ListenerSet<T> implements Set<T> {
 	protected Collection<T> delegateSet;

@@ -28,7 +28,7 @@ import static org.testng.Assert.*;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class DeleteTest extends GenericHbTest {
 	@Test

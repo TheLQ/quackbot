@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  *
- * @author Owner
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)

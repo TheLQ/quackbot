@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * non-existant field names will throw a {@link NoSuchFieldException} and disable
  * the plugin.
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

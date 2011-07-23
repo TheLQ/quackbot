@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class FailureTest extends GenericHbTest {
 	@Test(expectedExceptions = PropertyValueException.class, description = "Makes sure server is required on channel")

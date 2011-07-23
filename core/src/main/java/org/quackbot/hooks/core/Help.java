@@ -30,7 +30,7 @@ import org.quackbot.events.CommandEvent;
 /**
  * Core plugin that provides help for a command
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 public class Help extends Command {

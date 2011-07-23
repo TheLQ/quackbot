@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 
 /**
  *
- * @author lordquackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class GenericHbTest {
 	protected Configuration config;

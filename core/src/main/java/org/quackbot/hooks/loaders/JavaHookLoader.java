@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is the global JavaBean/Utility for all Java written commands
  *
- * @author Lord.Quackstar
+ * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class JavaHookLoader implements HookLoader {
 	/**
