@@ -19,19 +19,18 @@
 package Quackbot.impl;
 
 import Quackbot.impl.plugins.JavaTest;
+import lombok.extern.slf4j.Slf4j;
 import org.quackbot.Controller;
 import org.quackbot.dao.hibernate.DAOControllerHb;
 import org.quackbot.hooks.loaders.JavaHookLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Main Class for implementation.
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class Main {
-	private static final Logger log = LoggerFactory.getLogger(Main.class);
 	/**
 	 * Main method of Implementation
 	 * @param args Passed parameters (ignored)
