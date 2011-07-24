@@ -25,6 +25,7 @@ import org.quackbot.hooks.java.Optional;
 import org.quackbot.hooks.java.Parameters;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.User;
 import org.quackbot.hooks.Command;
@@ -40,12 +41,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class JavaHookLoader implements HookLoader {
-	/**
-	 * Log4j logger
-	 */
-	private static Logger log = LoggerFactory.getLogger(JavaHookLoader.class);
-
 	@Override
 	public Hook load(String fileLocation) throws Exception {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + fileLocation);
