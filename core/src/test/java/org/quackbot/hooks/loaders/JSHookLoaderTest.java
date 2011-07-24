@@ -18,6 +18,7 @@
  */
 package org.quackbot.hooks.loaders;
 
+import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -90,8 +91,12 @@ public class JSHookLoaderTest {
 
 		//In order to verify the arg array, need to convert back to a Java array
 		Object[] argArray = (Object[]) ((Invocable) engine).invokeMethod(engine.get("QuackUtils"), "toJavaArray", Object.class, engine.get("argArray3"));
-		for (int i = 0; i < extraArgs.length; i++)
-			assertEquals(argArray[i], extraArgs[i], "Extra arg #" + i + " doesn't match given");
+		for (int i = 0; i < extraArgs.length; i++) {
+			log.trace("Arg array: " + Arrays.toString(argArray));
+			Object commandArg = argArray[i];
+			Object extraArg = extraArgs[i];
+			assertEquals(commandArg, extraArg, "Extra arg #" + i + " doesn't match given");
+		}
 	}
 
 	@DataProvider
