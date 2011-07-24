@@ -126,6 +126,7 @@ public class Controller {
 	protected String defaultLogin = "QB";
 	@Setter(AccessLevel.PUBLIC)
 	protected int defaultMessageDelay = 1750;
+	protected boolean started = false;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -192,6 +193,10 @@ public class Controller {
 	 * If this isn't called, then the bot does nothing
 	 */
 	public void start() {
+		if (started)
+			throw new RuntimeException("Can't run start more than once");
+		started = true;
+
 		//Call list of commands
 		getHookManager().dispatchEvent(new InitEvent(this));
 
@@ -337,7 +342,8 @@ public class Controller {
 			server.setPort(port);
 			for (String curChan : channels)
 				server.getChannels().add(getStorage().newChannelStore(curChan));
-			initBot(server);
+			if (started)
+				initBot(server);
 			storage.endTransaction(true);
 		} catch (Throwable t) {
 			storage.endTransaction(false);
