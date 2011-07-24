@@ -35,9 +35,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.swing.SwingUtilities;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -57,6 +58,7 @@ import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.loaders.JSHookLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * Quackbot is an advanced IRC bot framework based off of PircBot.
@@ -276,7 +278,7 @@ public class Controller {
 	 */
 	public void initBot(final ServerDAO curServer) {
 		//Build a thread pool for the bot
-		final ExecutorService threadPool = Executors.newCachedThreadPool(new ThreadFactory() {
+		final BotThreadPool threadPool = new BotThreadPool(new ThreadFactory() {
 			int threadCounter = 0;
 			List<String> usedNames = new ArrayList<String>();
 			ThreadGroup threadGroup;
@@ -303,6 +305,7 @@ public class Controller {
 				try {
 					log.info("Initiating IRC connection to server " + curServer);
 					Bot bot = new Bot(Controller.this, curServer.getServerId(), threadPool);
+					threadPool.setBot(bot);
 					bot.setVerbose(true);
 					bots.add(bot);
 					bot.connect();
@@ -462,5 +465,33 @@ public class Controller {
 
 	public boolean isGuiCreated() {
 		return createGui;
+	}
+
+	protected class BotThreadPool extends ThreadPoolExecutor {
+		@Setter
+		protected Bot bot;
+
+		public BotThreadPool(ThreadFactory threadFactory) {
+			super(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
+		}
+
+		@Override
+		protected void beforeExecute(Thread t, Runnable r) {
+			super.beforeExecute(t, r);
+			if (bot != null && MDC.get("quackbot_server_address") == null)
+				MDC.put("quackbot_server_address", bot.getServer());
+		}
+
+		@Override
+		protected void afterExecute(Runnable r, Throwable t) {
+			super.afterExecute(r, t);
+			if (bot != null && MDC.get("quackbot_server_address") != null)
+				MDC.remove("quackbot_server_address");
+		}
+
+		@Override
+		protected void terminated() {
+			super.terminated();
+		}
 	}
 }
