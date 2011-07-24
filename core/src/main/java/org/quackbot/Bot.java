@@ -151,6 +151,14 @@ public class Bot extends PircBotX {
 			log.info("Command ignored due to channel lock in effect");
 			return true;
 		}
+		
+		//Is user ignored
+		if(user != null && ignoredUsers.contains(user)) {
+			log.info("Command ignored due to user lock in effect");
+			return true;
+		}
+		
+		//All tests pass. Bot, channel, and user are not ignored
 		return false;
 	}
 
