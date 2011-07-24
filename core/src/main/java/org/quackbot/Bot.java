@@ -37,8 +37,8 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
 import org.quackbot.hooks.loaders.JavaHookLoader;
-import org.quackbot.hooks.core.AdminHelp;
-import org.quackbot.hooks.core.Help;
+import org.quackbot.hooks.core.AdminHelpCommand;
+import org.quackbot.hooks.core.HelpCommand;
 
 /**
  * Bot instance that communicates with 1 server
@@ -94,8 +94,8 @@ public class Bot extends PircBotX {
 				try {
 					//Add our default hooks
 					controller.getHookManager().addHook(new CoreQuackbotHook());
-					controller.getHookManager().addHook(JavaHookLoader.load(new Help()));
-					controller.getHookManager().addHook(JavaHookLoader.load(new AdminHelp()));
+					controller.getHookManager().addHook(JavaHookLoader.load(new HelpCommand()));
+					controller.getHookManager().addHook(JavaHookLoader.load(new AdminHelpCommand()));
 					addedListeners = true;
 				} catch (Exception ex) {
 					log.error("Exception encountered when loading default plugins. Halting loading bot", ex);

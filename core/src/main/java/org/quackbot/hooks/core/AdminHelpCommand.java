@@ -18,6 +18,7 @@
  */
 package org.quackbot.hooks.core;
 
+import org.quackbot.hooks.java.AdminOnly;
 import org.quackbot.hooks.java.HelpDoc;
 import org.quackbot.hooks.java.Optional;
 import java.util.ArrayList;
@@ -28,12 +29,12 @@ import org.quackbot.err.InvalidCMDException;
 import org.quackbot.events.CommandEvent;
 
 /**
- * Core plugin that provides help for a command
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
-public class Help extends Command {
+@HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?helpAdmin <OPTIONAL:command>")
+@AdminOnly
+public class AdminHelpCommand extends Command {
 	public String onCommand(CommandEvent event, @Optional String command) throws Exception {
 		//Does user want command list
 		if (command == null) {
@@ -41,21 +42,19 @@ public class Help extends Command {
 
 			//Add Java Plugins
 			for (Command curCmd : getController(event).getHookManager().getCommands())
-				if (curCmd.isEnabled() && !curCmd.isAdmin())
+				if (curCmd.isEnabled() && curCmd.isAdmin())
 					cmdList.add(curCmd.getName());
 
 			//Send to user
 			return "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ");
 		}
-	
-		//Command specified, get specific help
+		
+		//Command specified, get specific help for it
 		Command result = getController(event).getHookManager().getCommand(command);
 		if (result == null)
 			throw new InvalidCMDException(command);
 		else if (!result.isEnabled())
-			throw new InvalidCMDException(command, "disabled");
-		else if (result.isAdmin())
-			throw new InvalidCMDException(command, "admin only");
+			throw new InvalidCMDException(command, "(disabled)");
 		else if (StringUtils.isBlank(result.getHelp()))
 			return "No help avalible";
 		return result.getHelp();

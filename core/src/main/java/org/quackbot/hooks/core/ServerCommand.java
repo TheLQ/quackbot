@@ -17,7 +17,7 @@ import org.quackbot.hooks.java.Optional;
  */
 @AdminOnly
 @HelpDoc("The umbrilla command for any action to a server")
-public class Server extends Command {
+public class ServerCommand extends Command {
 	public String onCommand(CommandEvent event, String action, String target, @Optional String[] arg2) throws Exception {
 		Bot bot = event.getBot();
 		Controller controller = bot.getController();

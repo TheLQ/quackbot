@@ -80,7 +80,7 @@ public class CoreQuackbotHook extends Hook {
 	}
 
 	protected void execute(Event event, Channel chan, User user, String message) throws Exception {
-		if (getBot(event).isLocked(chan, user)) {
+		if (getBot(event).isIgnored(chan, user)) {
 			log.warn("Bot locked");
 			return;
 		}
