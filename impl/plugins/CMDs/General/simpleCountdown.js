@@ -24,7 +24,7 @@ var closestMin = 0;
 
 importClass(java.lang.System);
 
-function onCommand(seconds) {
+function onCommand(levent, seconds) {
 	futureMs = System.currentTimeMillis()+(seconds*1000);
 	try{
 		recalculate();
