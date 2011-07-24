@@ -34,13 +34,6 @@ public class Channel extends Command {
 					throw new RuntimeException("Channel " + target + " doesn't exist");
 				bot.partChannel(bot.getChannel(target));
 			}
-		else if (action.equalsIgnoreCase("quit"))
-			if (StringUtils.isBlank(target))
-				//No args = no quit message
-				bot.quitServer();
-			else
-				//Args, join to make quit message (join target and arg2 array to form complete message)
-				bot.quitServer(StringUtils.join(ArrayUtils.add(arg2, 0, target), " "));
 		/**** Set user channel status commands *****/
 		else if (action.equalsIgnoreCase("op")) {
 			userArgCheck(event, target);
