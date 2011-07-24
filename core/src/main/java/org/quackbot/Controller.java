@@ -281,19 +281,16 @@ public class Controller {
 		final BotThreadPool threadPool = new BotThreadPool(new ThreadFactory() {
 			int threadCounter = 0;
 			List<String> usedNames = new ArrayList<String>();
-			ThreadGroup threadGroup;
-
+			final String address = curServer.getAddress();
+			ThreadGroup threadGroup = new ThreadGroup("quackbot-" + address);
+			
 			@Override
 			public Thread newThread(Runnable rbl) {
-				String address = curServer.getAddress();
 				String goodAddress = address;
-
 				int counter = 0;
 				while (usedNames.contains(goodAddress))
 					goodAddress = address + "-" + (counter++);
-
-				if (threadGroup == null)
-					threadGroup = new ThreadGroup("quackbot-" + goodAddress);
+				usedNames.add(goodAddress);
 				return new Thread(threadGroup, rbl, "quackbot-" + goodAddress + "-" + threadCounter++);
 			}
 		});
