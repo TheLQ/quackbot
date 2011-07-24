@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.TimeZone;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -33,14 +32,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
-
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ch.qos.logback.classic.Level;
 import javax.swing.JComboBox;
-import javax.swing.JScrollBar;
 import javax.swing.JTabbedPane;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provides a GUI for bot
@@ -50,17 +46,15 @@ import javax.swing.JTabbedPane;
  * There should only be <b>1</b> instance of this. It can be refrenced by {@link #instance}
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class GUI extends JFrame implements ActionListener {
 	/**
 	 * GUI log pane's
 	 */
 	public JTextPane BerrorLog, CerrorLog;
 	public JScrollPane BerrorScroll, CerrorScroll;
-	/**
-	 * Log4j logger
-	 */
-	private Logger log = LoggerFactory.getLogger(GUI.class);
 	public Controller controller;
+
 	/**
 	 * Recall's this in AWT event queue
 	 */
