@@ -32,10 +32,14 @@ import javax.swing.JSplitPane;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-class JSplitPaneDivid extends JSplitPane {
-	boolean isPainted = false;
+class JSplitPaneDivide extends JSplitPane {
+	protected boolean isPainted = false;
 
-	JSplitPaneDivid(int split, Component comp1, Component comp2) {
+	JSplitPaneDivide(int split) {
+		this(split, null, null);
+	}
+
+	JSplitPaneDivide(int split, Component comp1, Component comp2) {
 		super(split, comp1, comp2);
 		setDividerSize(6);
 	}
@@ -50,15 +54,17 @@ class JSplitPaneDivid extends JSplitPane {
 	}
 }
 
-public class InfoStats extends JSplitPaneDivid {
-	protected static final LayoutManager panelLayout = new GridLayout(0, 2, 5, 5);
-	protected static JPanel topLeft = new JPanel(panelLayout);
-	protected static JPanel topRight = new JPanel(panelLayout);
-	protected static JPanel bottom = new JPanel(panelLayout);
+public class InfoStats extends JSplitPaneDivide {
+	protected final LayoutManager panelLayout = new GridLayout(0, 2, 5, 5);
+	protected JPanel topLeft = new JPanel(panelLayout);
+	protected JPanel topRight = new JPanel(panelLayout);
+	protected JPanel bottom = new JPanel(panelLayout);
 	protected JLabel uptime, totalServers, totalChan, totalUsers, totalMessages, totalCommands;
 
 	public InfoStats() {
-		super(VERTICAL_SPLIT, new JSplitPaneDivid(HORIZONTAL_SPLIT, topLeft, topRight), bottom);
+		super(VERTICAL_SPLIT);
+		setLeftComponent(new JSplitPaneDivide(HORIZONTAL_SPLIT, topLeft, topRight));
+		setRightComponent(bottom);
 
 		//Info bits
 		topLeft.add(new JLabel("Uptime", JLabel.RIGHT));
