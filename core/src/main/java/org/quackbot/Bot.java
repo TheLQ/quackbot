@@ -67,8 +67,8 @@ public class Bot extends PircBotX {
 	 */
 	protected final static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
 	protected final Controller controller;
-	protected final Set<User> lockedUsers = new HashSet();
-	protected final Set<Channel> lockedChannels = new HashSet();
+	protected final Set<User> ignoredUsers = new HashSet();
+	protected final Set<Channel> ignoredChannels = new HashSet();
 	protected static Boolean addedListeners = false;
 
 	/**
@@ -135,7 +135,7 @@ public class Bot extends PircBotX {
 		return botLocked;
 	}
 
-	public boolean isLocked(Channel chan, User user) {
+	public boolean isIgnored(Channel chan, User user) {
 		//If the user is an admin, let them through
 		if (controller.isAdmin(this, user, chan))
 			return false;
@@ -146,8 +146,8 @@ public class Bot extends PircBotX {
 			return true;
 		}
 
-		//Is channel locked?
-		if (chan != null && lockedChannels.contains(chan)) {
+		//Is channel Ignored?
+		if (chan != null && ignoredChannels.contains(chan)) {
 			log.info("Command ignored due to channel lock in effect");
 			return true;
 		}
