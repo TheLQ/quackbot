@@ -1,6 +1,9 @@
 package org.quackbot.hooks.core;
 
+import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
 import org.quackbot.Bot;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
@@ -33,6 +36,36 @@ public class ChannelCommand extends Command {
 					throw new RuntimeException("Channel " + target + " doesn't exist");
 				bot.partChannel(bot.getChannel(target));
 			}
+		/*** Ignore commands ***/
+		else if (action.equalsIgnoreCase("ignore"))
+			if (target.equalsIgnoreCase("list")) {
+				ArrayList<String> channelNames = new ArrayList(bot.getIgnoredChannels().size());
+				for (Channel curChannel : bot.getIgnoredChannels())
+					channelNames.add(curChannel.getName());
+				ArrayList<String> userNames = new ArrayList(bot.getIgnoredUsers().size());
+				for (User curUser : bot.getIgnoredUsers())
+					userNames.add(curUser.getNick());
+				return "Ignored channels: " + channelNames + " | Ignored users: " + userNames;
+			} else if (target.equalsIgnoreCase("add")) {
+				if(bot.userExists(arg2[0])) {
+					bot.getIgnoredUsers().add(bot.getUser(arg2[0]));
+					return "Ignoring user " + arg2[0];
+				} else if (bot.channelExists(arg2[0])) {
+					bot.getIgnoredChannels().add(bot.getChannel(arg2[0]));
+					return "Ignoring channel " + arg2[0];
+				} else
+					throw new RuntimeException("Unknown channel or user " + arg2[0]);
+			} else if (target.equalsIgnoreCase("remove")) {
+				if(bot.userExists(arg2[0])) {
+					bot.getIgnoredUsers().remove(bot.getUser(arg2[0]));
+					return "Unignoring user " + arg2[0];
+				} else if (bot.channelExists(arg2[0])) {
+					bot.getIgnoredChannels().remove(bot.getChannel(arg2[0]));
+					return "Unignoring channel " + arg2[0];
+				} else
+					throw new RuntimeException("Unknown channel or user " + arg2[0]);
+			} else
+				throw new RuntimeException("Unknown ignore operation: " + target);
 		/**** Set user channel status commands *****/
 		else if (action.equalsIgnoreCase("op")) {
 			userArgCheck(event, target);
