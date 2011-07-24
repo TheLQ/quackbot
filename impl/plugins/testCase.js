@@ -18,6 +18,6 @@
  */
 var help = "Test command"
 admin = true;
-function onCommand(youSaid) {
+function onCommand(levent, youSaid) {
 	return "You said: "+youSaid;
 }
