@@ -2,6 +2,7 @@ package org.quackbot.hooks.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.quackbot.Bot;
 import org.quackbot.Controller;
 import org.quackbot.events.CommandEvent;
@@ -29,7 +30,24 @@ public class Server extends Command {
 		} else if (action.equalsIgnoreCase("add")) {
 			controller.addServer(target);
 			return "Attempting to join server: " + target;
+		} else if (action.equalsIgnoreCase("quit")) {
+			String quitMessage = "Bot killed by user " + event.getUser().getNick();
+			if (StringUtils.isBlank(target))
+				//Assume quitting this server
+				bot.quitServer(quitMessage);
+			else {
+				//Trying to quit another server
+				for (Bot curBot : controller.getBots())
+					if (curBot.getServer().equalsIgnoreCase(target)) {
+						curBot.quitServer(quitMessage);
+						return "Quit server " + target;
+					}
+				//Getting here means the server wasn't found
+				throw new RuntimeException("Can't find server " + target);
+			}
 		} else
 			return "Unknown operation: " + action;
+		
+		return null;
 	}
 }
