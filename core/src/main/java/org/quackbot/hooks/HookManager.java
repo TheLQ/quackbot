@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.Event;
@@ -69,7 +68,6 @@ import org.slf4j.LoggerFactory;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Slf4j
-@RequiredArgsConstructor
 public class HookManager {
 	/**
 	 * String - Name of Hook Method
@@ -88,6 +86,10 @@ public class HookManager {
 		}
 	});
 	protected final Controller controller;
+	
+	public HookManager(Controller controller) {
+		this.controller = controller;
+	}
 
 	public boolean addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
