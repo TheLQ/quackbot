@@ -14,7 +14,7 @@ import org.quackbot.hooks.java.Optional;
  * @author lordquackstar
  */
 @AdminOnly
-@HelpDoc(value = "The umbrilla command for any action to a channel")
+@HelpDoc("The umbrilla command for any action to a channel")
 public class Channel extends Command {
 	public String onCommand(CommandEvent event, String action, String target, @Optional String[] arg2) throws Exception {
 		Bot bot = event.getBot();
@@ -39,7 +39,7 @@ public class Channel extends Command {
 				//No args = no quit message
 				bot.quitServer();
 			else
-				//Args, join to make quit message
+				//Args, join to make quit message (join target and arg2 array to form complete message)
 				bot.quitServer(StringUtils.join(ArrayUtils.add(arg2, 0, target), " "));
 		/**** Set user channel status commands *****/
 		else if (action.equalsIgnoreCase("op")) {
