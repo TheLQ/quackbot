@@ -1,6 +1,5 @@
 package org.quackbot.hooks.core;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.quackbot.Bot;
 import org.quackbot.events.CommandEvent;
@@ -15,7 +14,7 @@ import org.quackbot.hooks.java.Optional;
  */
 @AdminOnly
 @HelpDoc("The umbrilla command for any action to a channel")
-public class Channel extends Command {
+public class ChannelCommand extends Command {
 	public String onCommand(CommandEvent event, String action, String target, @Optional String[] arg2) throws Exception {
 		Bot bot = event.getBot();
 
@@ -86,7 +85,7 @@ public class Channel extends Command {
 				bot.unBan(event.getChannel(), "*!*@" + bot.getUser(target).getHostmask());
 			}
 		else if (action.equalsIgnoreCase("tempBan")) {
-			if(arg2.length != 1)
+			if (arg2.length != 1)
 				throw new RuntimeException("Not enough arguments. Should be <hostmask or user> <time in minuites>");
 			int banTime = Integer.parseInt(arg2[0]);
 			String hostmask;
