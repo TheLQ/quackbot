@@ -65,7 +65,6 @@ public class Bot extends PircBotX {
 	/**
 	 * Stores variable local to this thread group
 	 */
-	protected final static ThreadGroupLocal<Bot> poolLocal = new ThreadGroupLocal<Bot>(null);
 	protected final Controller controller;
 	protected final Set<User> ignoredUsers = new HashSet();
 	protected final Set<Channel> ignoredChannels = new HashSet();
@@ -78,7 +77,6 @@ public class Bot extends PircBotX {
 	public Bot(Controller controller, int serverId, ExecutorService threadPool) {
 		this.serverId = serverId;
 		this.threadPool = threadPool;
-		poolLocal.set(this);
 		this.controller = controller;
 
 		setName(controller.getDefaultName());
@@ -103,7 +101,7 @@ public class Bot extends PircBotX {
 				}
 		}
 	}
-	
+
 	public void connect() {
 		//Some debug
 		ServerDAO serverStore = getServerStore();
@@ -120,11 +118,6 @@ public class Bot extends PircBotX {
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
 		}
-	}
-
-	public static Bot getPoolLocal() {
-		Bot bot = poolLocal.get();
-		return bot;
 	}
 
 	/**
@@ -151,13 +144,13 @@ public class Bot extends PircBotX {
 			log.info("Command ignored due to channel lock in effect");
 			return true;
 		}
-		
+
 		//Is user ignored
-		if(user != null && ignoredUsers.contains(user)) {
+		if (user != null && ignoredUsers.contains(user)) {
 			log.info("Command ignored due to user lock in effect");
 			return true;
 		}
-		
+
 		//All tests pass. Bot, channel, and user are not ignored
 		return false;
 	}
@@ -218,55 +211,10 @@ public class Bot extends PircBotX {
 		try {
 			super.handleLine(line);
 			controller.getStorage().endTransaction(true);
-		} catch(Throwable t) {
+		} catch (Throwable t) {
 			controller.getStorage().endTransaction(false);
 			//Simply do the logging here, much easier than wrapping to throw up
 			logException(t);
-		}
-	}
-	
-	/**
-	 * Static class that holds variable local to the entire thread group.
-	 * Used mainly for logging, but available for any other purpose.
-	 * <p>
-	 * Thanks to the jkad open source project for providing most of the code.
-	 * Source: http://code.google.com/p/jkad/source/browse/trunk/JKad/src/jkad/controller/ThreadGroupLocal.java
-	 * @param <T>
-	 */
-	public static class ThreadGroupLocal<T> {
-		/**
-		 * Map storing all variables with ThreadGroup
-		 */
-		private final HashMap<ThreadGroup, T> map = new HashMap<ThreadGroup, T>();
-		private T initValue;
-
-		public ThreadGroupLocal(T initValue) {
-			this.initValue = initValue;
-		}
-
-		/**
-		 * Get object for current ThreadGroup
-		 * @return Requested Object
-		 */
-		public T get() {
-			T result = null;
-			ThreadGroup group = Thread.currentThread().getThreadGroup();
-			synchronized (map) {
-				result = map.get(group);
-				if (result == null) {
-					result = initValue;
-					map.put(group, result);
-				}
-			}
-			return result;
-		}
-
-		/**
-		 * Sets object for current ThreadGroup
-		 * @param obj Object to store
-		 */
-		public void set(T obj) {
-			map.put(Thread.currentThread().getThreadGroup(), obj);
 		}
 	}
 
