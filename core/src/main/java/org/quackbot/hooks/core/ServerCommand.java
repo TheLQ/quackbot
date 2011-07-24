@@ -45,9 +45,17 @@ public class ServerCommand extends Command {
 				//Getting here means the server wasn't found
 				throw new RuntimeException("Can't find server " + target);
 			}
-		} else
+		} else if (action.equalsIgnoreCase("lock")) {
+			bot.setBotLocked(true);
+			return "Bot locked on this server";
+		} else if (action.equalsIgnoreCase("unlock")) {
+			bot.setBotLocked(false);
+			return "Bot unlocked on this server";
+		} else if (action.equalsIgnoreCase("lockStatus"))
+			return "Bot locked status: " + ((bot.isBotLocked()) ? "Locked" : "Unlocked");
+		else
 			return "Unknown operation: " + action;
-		
+
 		return null;
 	}
 }
