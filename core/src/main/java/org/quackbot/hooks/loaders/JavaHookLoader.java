@@ -26,15 +26,11 @@ import org.quackbot.hooks.java.Parameters;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.pircbotx.User;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Hook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the global JavaBean/Utility for all Java written commands
@@ -67,17 +63,17 @@ public class JavaHookLoader implements HookLoader {
 		for (Method curMethod : clazz.getDeclaredMethods()) {
 			int totalParams = 0;
 			Class<?>[] parameters = curMethod.getParameterTypes();
-			
+
 			//Ignore if this isn't an onCommand method
 			if (!curMethod.getName().equalsIgnoreCase("onCommand"))
 				continue;
-			
+
 			//Make sure there aren't multiple onCommand methods
-			if(previousMethod != null)
+			if (previousMethod != null)
 				throw new QuackbotException("Can't have multiple onCommand methods in class " + clazz);
 			else
 				previousMethod = curMethod;
-			
+
 			//Ignore if there are 0 parameters
 			if (parameters.length == 0) {
 				log.debug("Ignoring " + curMethod.toGenericString() + "  - No parameters");
@@ -95,13 +91,13 @@ public class JavaHookLoader implements HookLoader {
 				log.debug("Ignoring " + curMethod.toGenericString() + "  - Only parameter is CommandEvent");
 				continue;
 			}
-			
+
 			//Throw exception if there is more than one array
 			int numArrays = 0;
-			for(Class curClass : parameters)
-				if(curClass.isArray())
+			for (Class curClass : parameters)
+				if (curClass.isArray())
 					numArrays++;
-			if(numArrays > 1)
+			if (numArrays > 1)
 				throw new QuackbotException("Method " + curMethod.toGenericString() + " has more than one array as a parameter.");
 
 			//Account for CommandEvent when calculating parameters
@@ -123,9 +119,9 @@ public class JavaHookLoader implements HookLoader {
 			//End here if @Optional exists and therefor changed the required parameter count
 			if (requiredCount != totalParams)
 				continue;
-			
+
 			//No @Optional, see if the last element is an array. Array = unlimited
-			if(parameters[parameters.length - 1].isArray()) {
+			if (parameters[parameters.length - 1].isArray()) {
 				optionalCount = -1;
 				continue;
 			}
