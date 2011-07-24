@@ -32,6 +32,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import java.io.PrintStream;
 import java.util.LinkedList;
@@ -42,6 +43,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * Appender for everything thats not bot. All events from Bot are ignored
@@ -54,8 +56,8 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	@Getter
 	@Setter
 	protected PatternLayoutEncoder encoder;
-	protected LinkedBlockingQueue<ILoggingEvent> guiQueue = new LinkedBlockingQueue<ILoggingEvent>();
-	protected LinkedList<Bot> botQueue = new LinkedList<Bot>();
+	protected LinkedBlockingQueue<ILoggingEvent> eventQueue = new LinkedBlockingQueue<ILoggingEvent>();
+	protected LinkedList<String> serverList = new LinkedList<String>();
 	protected WriteThread writeThread = new WriteThread();
 	protected boolean useQueue = true;
 
@@ -69,8 +71,8 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		try {
 			//Push the bot and the event onto the queue, with the bot first so its not taken before its added
 			if (useQueue) {
-				botQueue.add(Bot.getPoolLocal());
-				guiQueue.add(event);
+				eventQueue.add(event);
+				serverList.add(MDC.get("quackbot_server_address"));
 			}
 			if (controller != null)
 				synchronized (writeThread) {
@@ -80,8 +82,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 					//If there's no GUI but useQueue is still true, undo everything
 					if (controller.getGui() == null && useQueue) {
 						useQueue = false;
-						botQueue.clear();
-						guiQueue.clear();
+						eventQueue.clear();
 					}
 				}
 
@@ -124,7 +125,7 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 		protected Void doInBackground() throws Exception {
 			try {
 				while (true)
-					publish(guiQueue.take());
+					publish(eventQueue.take());
 			} catch (InterruptedException e) {
 				//Were being stopped
 				return null;
@@ -139,14 +140,11 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 			}
 			for (ILoggingEvent event : chunks)
 				try {
-					boolean raceCondition = botQueue.isEmpty();
-					Bot bot = botQueue.poll();
 					GUI gui = controller.getGui();
-
 					//Figure out where this is going
-					String address = (bot != null) ? Bot.getPoolLocal().getServer() : "";
-					JTextPane textPane = (bot != null) ? gui.BerrorLog : gui.CerrorLog;
-					JScrollPane scrollPane = (bot != null) ? gui.BerrorScroll : gui.CerrorScroll;
+					String address = serverList.getFirst();
+					JTextPane textPane = (StringUtils.isBlank(address)) ? gui.CerrorLog : gui.BerrorLog;
+					JScrollPane scrollPane = (StringUtils.isBlank(address)) ? gui.CerrorScroll : gui.BerrorScroll;
 
 					//Get styled doc and configure if nessesary
 					StyledDocument doc = textPane.getStyledDocument();
@@ -162,10 +160,6 @@ public class ControlAppender extends AppenderBase<ILoggingEvent> {
 						StyleConstants.setItalic(doc.addStyle("Thread", null), true);
 						StyleConstants.setItalic(doc.addStyle("Level", null), true);
 					}
-
-					//Warn user about a possible race condition
-					if (raceCondition)
-						doc.insertString(doc.getLength(), "\nERROR: Race condition detected in ControlAppender when getting next Bot. Expected botQueue to have a bot to get, but is 0", doc.getStyle("Error"));
 
 					Style msgStyle = null;
 					if (event.getLevel().isGreaterOrEqual(Level.WARN))
