@@ -77,18 +77,22 @@ public class DAOControllerHb implements DAOController {
 		return logEntry;
 	}
 
+	@Override
 	public Set<ServerDAO> getServers() {
 		return Collections.unmodifiableSet(new HashSet(getSession().createQuery("from ServerStoreHb").list()));
 	}
 
+	@Override
 	public Set<AdminDAO> getAllAdmins() {
 		return Collections.unmodifiableSet(new HashSet(getSession().createQuery("from AdminStoreHb").list()));
 	}
 
+	@Override
 	public void close() throws Exception {
 		sessionFactory.close();
 	}
 
+	@Override
 	public void beginTransaction() {
 		//Create a new session
 		Session session = sessionFactory.openSession();
@@ -97,6 +101,7 @@ public class DAOControllerHb implements DAOController {
 		session.beginTransaction();
 	}
 
+	@Override
 	public void endTransaction(boolean isGood) {
 		//End the transaction
 		try {
