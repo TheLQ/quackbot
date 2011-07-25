@@ -36,6 +36,13 @@
 			<artifactId>javassist</artifactId>
 			<version>3.12.1.GA</version>
 		</dependency>
+		<!--C3p0 for connection pooling in tests-->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-c3p0</artifactId>
+			<version>3.6.5.Final</version>
+			<scope>test</scope>		
+		</dependency>
 		<!--Test database: MySQL-->
 		<dependency>
 			<groupId>mysql</groupId>
