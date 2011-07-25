@@ -81,7 +81,6 @@ public class HookManager {
 
 		@Override
 		public Thread newThread(Runnable r) {
-			System.out.println("New thread for runnable " + r.toString());
 			return new Thread(threadGroup, "mainPool-" + (++count));
 		}
 	});
