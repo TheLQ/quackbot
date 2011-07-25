@@ -184,11 +184,10 @@ public class JSHookLoader implements HookLoader {
 				log.trace("Event args(" + event.getArgs().length + "): " + StringUtils.join(event.getArgs(), ", "));
 				log.trace("Arg array before final processing: " + StringUtils.join(args, ", "));
 				//Add whats left if anything is left
-				if (event.getArgs().length > numCommandArgs) {
-					Object[] lastArgs = (Object[]) ArrayUtils.subarray(event.getArgs(), numCommandArgs - 1, event.getArgs().length);
-					log.trace("Compressed last arguments into array: " + StringUtils.join(lastArgs, ", "));
-					args = ArrayUtils.add(args, lastArgs);
-				}
+				Object[] lastArgs = (Object[]) ArrayUtils.subarray(event.getArgs(), numCommandArgs - 1, event.getArgs().length);
+				log.trace("Compressed last arguments into array: " + StringUtils.join(lastArgs, ", "));
+				args = ArrayUtils.add(args, lastArgs);
+
 				log.trace("Arg array before after processing: " + StringUtils.join(args, ", "));
 			} else
 				args = event.getArgs();
