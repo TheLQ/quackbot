@@ -49,27 +49,19 @@ public class GenericHbTest {
 	}
 
 	protected ServerDAOHb generateServer(String address) {
-		ServerDAOHb server = new ServerDAOHb();
-		server.setAddress(address);
-		return server;
+		return (ServerDAOHb) controller.newServerDAO(address);
 	}
 
 	protected ChannelDAOHb generateChannel(String name) {
-		ChannelDAOHb channel = new ChannelDAOHb();
-		channel.setName(name);
-		return channel;
+		return (ChannelDAOHb) controller.newChannelDAO(name);
 	}
 
 	protected UserDAOHb generateUser(String name) {
-		UserDAOHb user = new UserDAOHb();
-		user.setNick(name);
-		return user;
+		return (UserDAOHb) controller.newUserDAO(name);
 	}
 
 	protected AdminDAOHb generateAdmin(String name) {
-		AdminDAOHb globalAdmin = new AdminDAOHb();
-		globalAdmin.setName(name);
-		return globalAdmin;
+		return (AdminDAOHb) controller.newAdminDAO(name);
 	}
 
 	protected ServerDAOHb generateEnviornment(int num, AdminDAOHb globalAdmin) {
