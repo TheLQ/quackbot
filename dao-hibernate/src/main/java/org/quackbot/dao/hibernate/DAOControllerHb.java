@@ -41,7 +41,7 @@ import org.quackbot.dao.UserDAO;
 public class DAOControllerHb implements DAOController {
 	protected Configuration configuration;
 	protected SessionFactory sessionFactory;
-	protected ThreadLocal<Session> sessions;
+	protected ThreadLocal<Session> sessions = new ThreadLocal();
 	protected ThreadLocal<List<Object>> objectsToSave = new ThreadLocal();
 	protected static DAOControllerHb instance;
 
