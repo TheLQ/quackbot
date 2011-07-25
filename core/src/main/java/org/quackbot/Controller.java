@@ -205,9 +205,6 @@ public class Controller {
 		//Load current CMD classes
 		reloadPlugins();
 
-		if (true)
-			return;
-
 		//Connect to all servers
 		try {
 			Set<ServerDAO> servers = storage.getServers();
