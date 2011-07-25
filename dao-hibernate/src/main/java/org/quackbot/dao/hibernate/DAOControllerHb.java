@@ -18,7 +18,6 @@
  */
 package org.quackbot.dao.hibernate;
 
-import java.io.InvalidObjectException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,6 +29,7 @@ import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.DAOController;
 import org.quackbot.dao.LogEntryDAO;
 import org.quackbot.dao.ServerDAO;
+import org.quackbot.dao.UserDAO;
 
 /**
  *
@@ -54,27 +54,38 @@ public class DAOControllerHb implements DAOController {
 		instance = this;
 	}
 
-	public AdminDAO newAdminStore(String name) {
+	@Override
+	public AdminDAO newAdminDAO(String name) {
 		AdminDAOHb admin = new AdminDAOHb();
 		getSession().save(admin);
 		return admin;
 	}
 
-	public ChannelDAO newChannelStore(String name) {
+	@Override
+	public ChannelDAO newChannelDAO(String name) {
 		ChannelDAOHb channel = new ChannelDAOHb();
 		getSession().save(channel);
 		return channel;
 	}
 
-	public ServerDAO newServerStore(String address) {
+	@Override
+	public ServerDAO newServerDAO(String address) {
 		ServerDAOHb server = new ServerDAOHb();
 		getSession().save(server);
 		return server;
 	}
 	
-	public LogEntryDAO newLogEntry() {
+	@Override
+	public LogEntryDAO newLogEntryDAO() {
 		LogEntryDAOHb logEntry = new LogEntryDAOHb();
 		return logEntry;
+	}
+	
+	@Override
+	public UserDAO newUserDAO(String nick) {
+		UserDAOHb user = new UserDAOHb();
+		user.setNick(nick);
+		return user;
 	}
 
 	@Override
