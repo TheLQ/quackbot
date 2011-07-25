@@ -25,13 +25,13 @@ import java.util.Set;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public interface DAOController {
-	public AdminDAO newAdminStore(String name);
+	public AdminDAO newAdminDAO(String name);
 
-	public ChannelDAO newChannelStore(String name);
+	public ChannelDAO newChannelDAO(String name);
 
-	public ServerDAO newServerStore(String address);
+	public ServerDAO newServerDAO(String address);
 	
-	public LogEntryDAO newLogEntry();
+	public LogEntryDAO newLogEntryDAO();
 
 	public Set<ServerDAO> getServers();
 
