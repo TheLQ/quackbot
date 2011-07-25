@@ -24,6 +24,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import org.quackbot.Bot;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.quackbot.events.CommandEvent;
 import org.testng.annotations.DataProvider;
@@ -72,6 +73,7 @@ public class JSHookLoaderTest {
 
 	@Test(dataProvider = "commandOptionalArrayDataProvider")
 	public void commandOptionalArrayTest(String[] extraArgs) throws Exception {
+		log.trace("--- Begin commandOptionalArrayTest with args " + Arrays.toString(extraArgs) + " ---");
 		JSHookLoader.JSCommandWrapper hook = (JSHookLoader.JSCommandWrapper) loader.load("JSPluginTest/Command_OptionalArray.js");
 
 		//Make sure arguments are setup correctly
@@ -80,7 +82,7 @@ public class JSHookLoaderTest {
 
 		//Test sending a command with several args
 		MessageEvent messageEvent = new MessageEvent(bot, null, null, "Some message");
-		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg1 someArg2 " + StringUtils.join(extraArgs, ", "), null, new String[]{"someArg1", "someArg2", "someArg3", "someArg4"});
+		CommandEvent commandEvent = new CommandEvent(null, messageEvent, null, null, "?command someArg1 someArg2 " + StringUtils.join(extraArgs, ", "), null, (String[]) ArrayUtils.addAll(new String[]{"someArg1", "someArg2"}, extraArgs));
 		String returned = hook.onCommand(commandEvent);
 		ScriptEngine engine = hook.jsEngine;
 
@@ -94,6 +96,7 @@ public class JSHookLoaderTest {
 		for (int i = 0; i < extraArgs.length; i++) {
 			log.trace("Arg array: " + Arrays.toString(argArray));
 			Object commandArg = argArray[i];
+			log.trace("Got command arg successfully");
 			Object extraArg = extraArgs[i];
 			assertEquals(commandArg, extraArg, "Extra arg #" + i + " doesn't match given");
 		}
