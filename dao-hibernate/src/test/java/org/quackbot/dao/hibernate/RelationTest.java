@@ -37,17 +37,16 @@ public class RelationTest extends GenericHbTest {
 	@Test(description = "Make sure when saving a server the assoicated channels get created")
 	public void ServerChannelTest() {
 		//Setup
-		session.beginTransaction();
+		controller.beginTransaction();
 		ServerDAOHb server = generateServer("some.host");
 		ChannelDAOHb channel = new ChannelDAOHb();
 		channel.setName("#channelName");
 		server.getChannels().add(channel);
-		session.save(server);
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 
 		//Make sure they exist
-		session.beginTransaction();
-		ServerDAOHb fetchedServer = (ServerDAOHb) session.createQuery(" from ServerDAOHb").uniqueResult();
+		controller.beginTransaction();
+		ServerDAOHb fetchedServer = (ServerDAOHb) controller.getSession().createQuery(" from ServerDAOHb").uniqueResult();
 		assertNotNull(fetchedServer, "Fetched server is null");
 		assertEquals((int) fetchedServer.getServerId(), 1, "Server ID is wrong");
 		assertEquals(fetchedServer.getAddress(), "some.host", "Server host is wrong");
@@ -58,24 +57,23 @@ public class RelationTest extends GenericHbTest {
 		assertNotNull(fetchedChannel, "Channel is null but is in the channel list");
 		assertEquals((int) fetchedChannel.getChannelID(), 1, "Channel ID is wrong");
 		assertEquals(fetchedChannel.getName(), "#channelName", "Channel name doesn't match");
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 	}
 
 	@Test(dependsOnMethods = "ServerChannelTest")
 	public void ChannelUserStatusTest() {
-		session.beginTransaction();
+		controller.beginTransaction();
 		ServerDAOHb server = generateServer("some.host");
 		ChannelDAOHb channel = generateChannel("#someChannel");
 		server.getChannels().add(channel);
 		channel.getUsers().add(generateUser("someNickNormal"));
 		channel.getOps().add(generateUser("someNickOp"));
 		channel.getVoices().add(generateUser("someNickVoice"));
-		session.save(server);
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 
 		//Make sure the statuses still work (use known working methods
-		session.beginTransaction();
-		ChannelDAOHb chan = (ChannelDAOHb) session.createQuery("from ChannelDAOHb").uniqueResult();
+		controller.beginTransaction();
+		ChannelDAOHb chan = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb").uniqueResult();
 
 		//Verify there are 3 users
 		List<String> usersShouldExist = new ArrayList();
@@ -112,13 +110,13 @@ public class RelationTest extends GenericHbTest {
 
 	@Test(dependsOnMethods = "ChannelUserStatusTest")
 	public void UserSameTest() {
-		session.beginTransaction();
-		session.save(generateEnviornment(1, null));
-		session.getTransaction().commit();
+		controller.beginTransaction();
+		generateEnviornment(1, null);
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Load channelUser1 from #aChannel1
-		ChannelDAOHb channel = (ChannelDAOHb) session.createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#aChannel1")).uniqueResult();
+		ChannelDAOHb channel = (ChannelDAOHb) controller.getSession().createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#aChannel1")).uniqueResult();
 		UserDAO aChannelUser = null;
 		for (UserDAO curUser : channel.getUsers())
 			if (curUser.getNick().equals("channelUser1"))
@@ -126,7 +124,7 @@ public class RelationTest extends GenericHbTest {
 		assertNotNull(aChannelUser, "channelUser1 doesn't exist in channel #aChannel1");
 
 		//Load channelUser1 from #aChannel1
-		channel = (ChannelDAOHb) session.createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#someChannel1")).uniqueResult();
+		channel = (ChannelDAOHb) controller.getSession().createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#someChannel1")).uniqueResult();
 		UserDAO someChannelUser = null;
 		for (UserDAO curUser : channel.getUsers())
 			if (curUser.getNick().equals("channelUser1"))
@@ -140,15 +138,15 @@ public class RelationTest extends GenericHbTest {
 
 	@Test(dependsOnMethods = "ServerChannelTest")
 	public void AdminServerTest() {
-		session.beginTransaction();
+		controller.beginTransaction();
 		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
-		session.save(generateEnviornment(1, globalAdmin));
-		session.save(generateEnviornment(2, globalAdmin));
-		session.getTransaction().commit();
+		generateEnviornment(1, globalAdmin);
+		generateEnviornment(2, globalAdmin);
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Verify server1 admins
-		ServerDAOHb fetchedServer1 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
+		ServerDAOHb fetchedServer1 = (ServerDAOHb) controller.getSession().createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
 		List<String> adminsShouldExist = new ArrayList();
 		adminsShouldExist.add("globalAdmin");
 		adminsShouldExist.add("serverAdmin1");
@@ -164,7 +162,7 @@ public class RelationTest extends GenericHbTest {
 		assertNotNull(fetchedGlobalAdmin1, "Global admin not found in server1");
 
 		//Verify server2 admins
-		ServerDAOHb fetchedServer2 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 2").uniqueResult();
+		ServerDAOHb fetchedServer2 = (ServerDAOHb) controller.getSession().createQuery("from ServerDAOHb WHERE SERVER_ID = 2").uniqueResult();
 		adminsShouldExist = new ArrayList();
 		adminsShouldExist.add("globalAdmin");
 		adminsShouldExist.add("serverAdmin2");
@@ -186,14 +184,14 @@ public class RelationTest extends GenericHbTest {
 
 	@Test(dependsOnMethods = "AdminServerTest")
 	public void AdminChannelTest() {
-		session.beginTransaction();
-		session.save(generateEnviornment(1, null));
-		session.save(generateEnviornment(2, null));
-		session.getTransaction().commit();
+		controller.beginTransaction();
+		generateEnviornment(1, null);
+		generateEnviornment(2, null);
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Verify #aChannel1 admins
-		ChannelDAOHb aChannel1 = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#aChannel1'").uniqueResult();
+		ChannelDAOHb aChannel1 = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb WHERE name = '#aChannel1'").uniqueResult();
 		List<String> adminsShouldExist = new ArrayList();
 		adminsShouldExist.add("channelAdmin1");
 		adminsShouldExist.add("aChannelAdmin1");
@@ -209,7 +207,7 @@ public class RelationTest extends GenericHbTest {
 		assertNotNull(fetchedChannelAdmin, "Channel admin not found in #aChannel1");
 
 		//Verify #someChannel1 admins
-		ChannelDAOHb someChannel1 = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#someChannel1'").uniqueResult();
+		ChannelDAOHb someChannel1 = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb WHERE name = '#someChannel1'").uniqueResult();
 		adminsShouldExist = new ArrayList();
 		adminsShouldExist.add("channelAdmin1");
 		adminsShouldExist.add("someChannelAdmin1");

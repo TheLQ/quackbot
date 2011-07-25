@@ -29,21 +29,24 @@ public class FailureTest extends GenericHbTest {
 	@Test(expectedExceptions = PropertyValueException.class, description = "Makes sure server is required on channel")
 	public void channelServerRequiredTest() {
 		//Generate a channel without a server
+		controller.beginTransaction();
 		ChannelDAOHb channel = generateChannel("#aChannel");
-		session.save(channel);
+		controller.endTransaction(true);
 	}
 	
 	@Test(expectedExceptions = PropertyValueException.class, description = "Makes sure name is required on channel")
 	public void channelNameRequiredTest() {
 		//Generate a channel without a name
-		ChannelDAOHb channel = new ChannelDAOHb();
-		session.save(channel);
+		controller.beginTransaction();
+		ChannelDAOHb channel = generateChannel(null);
+		controller.endTransaction(true);
 	}
 	
 	@Test(expectedExceptions = PropertyValueException.class, description = "Makes sure address is required on server")
 	public void serverAddressRequiredTest() {
-		//Generate a channel without a name
-		ServerDAOHb server = new ServerDAOHb();
-		session.save(server);
+		//Generate a server without a address
+		controller.beginTransaction();
+		ServerDAOHb server = generateServer(null);
+		controller.endTransaction(true);
 	}
 }

@@ -18,6 +18,7 @@
  */
 package org.quackbot.dao.hibernate;
 
+import org.hibernate.Session;
 import org.apache.commons.lang.StringUtils;
 import java.util.List;
 import org.hibernate.Criteria;
@@ -35,39 +36,40 @@ public class DeleteTest extends GenericHbTest {
 	public void deleteAdminGlobalTest() {
 		setupEnviornment();
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Grab the global admin and delete it
-		Criteria query = session.createCriteria(AdminDAOHb.class);
+		Criteria query = controller.getSession().createCriteria(AdminDAOHb.class);
 		query.add(Restrictions.eq("name", "globalAdmin"));
 		((AdminDAOHb) query.uniqueResult()).delete();
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Make sure its gone from server1
-		ServerDAOHb server1 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
+		ServerDAOHb server1 = (ServerDAOHb) controller.getSession().createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
 		assertEquals(server1.getAdmins().size(), 1, "Too many server1 admins: " + server1.getAdmins());
 		assertEquals(server1.getAdmins().iterator().next().getName(), "serverAdmin1", "Remaining server1 admin name is wrong");
 
 		//Make sure its gone from server2
-		ServerDAOHb server2 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 2").uniqueResult();
+		ServerDAOHb server2 = (ServerDAOHb) controller.getSession().createQuery("from ServerDAOHb WHERE SERVER_ID = 2").uniqueResult();
 		assertEquals(server2.getAdmins().size(), 1, "Too many server2 admins: " + server2.getAdmins());
 		assertEquals(server2.getAdmins().iterator().next().getName(), "serverAdmin2", "Remaining server2 admin name is wrong");
+		controller.endTransaction(true);
 	}
 
 	@Test
 	public void deleteAdminServerTest() {
 		setupEnviornment();
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Grab the someChannelAdmin2 admin and delete it
-		Criteria query = session.createCriteria(AdminDAOHb.class);
+		Criteria query = controller.getSession().createCriteria(AdminDAOHb.class);
 		query.add(Restrictions.eq("name", "serverAdmin1"));
 		((AdminDAOHb) query.uniqueResult()).delete();
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Make sure its gone from server1
-		ServerDAOHb server1 = (ServerDAOHb) session.createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
+		ServerDAOHb server1 = (ServerDAOHb) controller.getSession().createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
 		assertEquals(server1.getAdmins().size(), 1, "Too many server1 admins: " + server1.getAdmins());
 		assertEquals(server1.getAdmins().iterator().next().getName(), "globalAdmin", "Remaining server1 admin name is wrong");
 	}
@@ -76,21 +78,21 @@ public class DeleteTest extends GenericHbTest {
 	public void deleteAdminChannelGlobalTest() {
 		setupEnviornment();
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Grab the channel admin and delete it
-		Criteria query = session.createCriteria(AdminDAOHb.class);
+		Criteria query = controller.getSession().createCriteria(AdminDAOHb.class);
 		query.add(Restrictions.eq("name", "channelAdmin1"));
 		((AdminDAOHb) query.list().get(0)).delete();
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Make sure its gone from #aChannel1
-		ChannelDAOHb aChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#aChannel1'").uniqueResult();
+		ChannelDAOHb aChannel = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb WHERE name = '#aChannel1'").uniqueResult();
 		assertEquals(aChannel.getAdmins().size(), 1, "Too many #aChannel1 admins: " + aChannel.getAdmins());
 		assertEquals(aChannel.getAdmins().iterator().next().getName(), "aChannelAdmin1", "Remaining #aChannel1 admin name is wrong");
 
 		//Make sure its gone from #someChannel1
-		ChannelDAOHb someChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#someChannel1'").uniqueResult();
+		ChannelDAOHb someChannel = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb WHERE name = '#someChannel1'").uniqueResult();
 		assertEquals(someChannel.getAdmins().size(), 1, "Too many #someChannel1 admins: " + someChannel.getAdmins());
 		assertEquals(someChannel.getAdmins().iterator().next().getName(), "someChannelAdmin1", "Remaining #someChannel1 admin name is wrong");
 	}
@@ -99,16 +101,16 @@ public class DeleteTest extends GenericHbTest {
 	public void deleteAdminChannelTest() {
 		setupEnviornment();
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Grab the someChannelAdmin2 admin and delete it
-		Criteria query = session.createCriteria(AdminDAOHb.class);
+		Criteria query = controller.getSession().createCriteria(AdminDAOHb.class);
 		query.add(Restrictions.eq("name", "someChannelAdmin2"));
 		((AdminDAOHb) query.uniqueResult()).delete();
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Make sure its gone from #someChannel1
-		ChannelDAOHb someChannel = (ChannelDAOHb) session.createQuery("from ChannelDAOHb WHERE name = '#someChannel2'").uniqueResult();
+		ChannelDAOHb someChannel = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb WHERE name = '#someChannel2'").uniqueResult();
 		assertEquals(someChannel.getAdmins().size(), 1, "Too many #someChannel2 admins: " + someChannel.getAdmins());
 		assertEquals(someChannel.getAdmins().iterator().next().getName(), "channelAdmin2", "Remaining #someChannel1 admin name is wrong");
 	}
@@ -120,14 +122,15 @@ public class DeleteTest extends GenericHbTest {
 	public void deleteChannelTest() {
 		setupEnviornment();
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Grab the someChannelAdmin2 admin and delete it
-		Criteria query = session.createCriteria(ChannelDAOHb.class);
+		Criteria query = controller.getSession().createCriteria(ChannelDAOHb.class);
 		query.add(Restrictions.eq("name", "#someChannel2"));
 		((ChannelDAOHb) query.uniqueResult()).delete();
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
+		Session session = controller.getSession();
 		//Make sure other channels still exist
 		assertNotNull(session.createQuery("from ChannelDAOHb WHERE name = '#aChannel1'"), "#aChannel1 doesn't exist");
 		assertNotNull(session.createQuery("from ChannelDAOHb WHERE name = '#someChannel1'"), "#someChannel1 doesn't exist");
@@ -163,14 +166,15 @@ public class DeleteTest extends GenericHbTest {
 	public void deleteServerTest() {
 		setupEnviornment();
 
-		session.beginTransaction();
+		controller.beginTransaction();
 		//Grab the some.host2 server and delete it
-		Criteria query = session.createCriteria(ServerDAOHb.class);
+		Criteria query = controller.getSession().createCriteria(ServerDAOHb.class);
 		query.add(Restrictions.eq("address", "irc.host2"));
 		((ServerDAOHb) query.uniqueResult()).delete();
-		session.getTransaction().commit();
+		controller.endTransaction(true);
 
-		session.beginTransaction();
+		controller.beginTransaction();
+		Session session = controller.getSession();
 		//Make sure other channels still exist
 		assertNotNull(session.createQuery("from ChannelDAOHb WHERE name = '#aChannel1'"), "#aChannel1 doesn't exist");
 		assertNotNull(session.createQuery("from ChannelDAOHb WHERE name = '#someChannel1'"), "#someChannel1 doesn't exist");
@@ -195,10 +199,10 @@ public class DeleteTest extends GenericHbTest {
 	}
 
 	protected void setupEnviornment() {
-		session.beginTransaction();
+		controller.beginTransaction();
 		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
-		session.save(generateEnviornment(1, globalAdmin));
-		session.save(generateEnviornment(2, globalAdmin));
-		session.getTransaction().commit();
+		generateEnviornment(1, globalAdmin);
+		generateEnviornment(2, globalAdmin);
+		controller.endTransaction(true);
 	}
 }
