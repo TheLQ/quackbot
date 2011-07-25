@@ -338,10 +338,10 @@ public class Controller {
 	public void addServer(String address, int port, String... channels) {
 		try {
 			storage.beginTransaction();
-			ServerDAO server = getStorage().newServerStore(address);
+			ServerDAO server = getStorage().newServerDAO(address);
 			server.setPort(port);
 			for (String curChan : channels)
-				server.getChannels().add(getStorage().newChannelStore(curChan));
+				server.getChannels().add(getStorage().newChannelDAO(curChan));
 			if (started)
 				initBot(server);
 			storage.endTransaction(true);
