@@ -32,6 +32,8 @@ public interface DAOController {
 	public ServerDAO newServerDAO(String address);
 	
 	public LogEntryDAO newLogEntryDAO();
+	
+	public UserDAO newUserDAO(String nick);
 
 	public Set<ServerDAO> getServers();
 
