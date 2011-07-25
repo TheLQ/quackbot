@@ -36,6 +36,7 @@ import org.quackbot.dao.ServerDAO;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class DAOControllerHb implements DAOController {
+	protected Configuration configuration;
 	protected SessionFactory sessionFactory;
 	protected ThreadLocal<Session> sessions;
 	protected static DAOControllerHb instance;
@@ -45,10 +46,10 @@ public class DAOControllerHb implements DAOController {
 			throw new RuntimeException("Can't create more than one DAOControllerHb");
 		
 		// configures settings from hibernate.cfg.xml
-		Configuration config = new Configuration().configure();
-		config.setNamingStrategy(new PrefixNamingStrategy("quackbot_"));
+		configuration = new Configuration().configure();
+		configuration.setNamingStrategy(new PrefixNamingStrategy("quackbot_"));
 		
-		sessionFactory = config.buildSessionFactory();
+		sessionFactory = configuration.buildSessionFactory();
 		
 		instance = this;
 	}
