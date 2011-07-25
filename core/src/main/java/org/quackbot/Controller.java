@@ -207,13 +207,16 @@ public class Controller {
 
 		//Connect to all servers
 		try {
+			storage.beginTransaction();
 			Set<ServerDAO> servers = storage.getServers();
 			if (servers.isEmpty())
 				log.error("Server list is empty!");
 			for (ServerDAO curServer : servers)
 				initBot(curServer);
+			storage.endTransaction(true);
 		} catch (Exception e) {
 			log.error("Error encountered while attempting to join servers", e);
+			storage.endTransaction(false);
 		}
 	}
 
