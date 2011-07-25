@@ -18,8 +18,11 @@
  */
 package org.quackbot.dao.hibernate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -39,63 +42,73 @@ public class DAOControllerHb implements DAOController {
 	protected Configuration configuration;
 	protected SessionFactory sessionFactory;
 	protected ThreadLocal<Session> sessions;
+	protected ThreadLocal<List<Object>> objectsToSave = new ThreadLocal();
 	protected static DAOControllerHb instance;
 
 	public DAOControllerHb() {
-		if(instance != null)
+		if (instance != null)
 			throw new RuntimeException("Can't create more than one DAOControllerHb");
-		
+
 		// configures settings from hibernate.cfg.xml
 		configuration = new Configuration().configure();
 		configuration.setNamingStrategy(new PrefixNamingStrategy("quackbot_"));
-		
+
 		sessionFactory = configuration.buildSessionFactory();
-		
+
 		instance = this;
 	}
 
 	@Override
 	public AdminDAO newAdminDAO(String name) {
 		AdminDAOHb admin = new AdminDAOHb();
-		getSession().save(admin);
+		admin.setName(name);
+		addObjectToSave(admin);
 		return admin;
 	}
 
 	@Override
 	public ChannelDAO newChannelDAO(String name) {
 		ChannelDAOHb channel = new ChannelDAOHb();
-		getSession().save(channel);
+		channel.setName(name);
+		addObjectToSave(channel);
 		return channel;
 	}
 
 	@Override
 	public ServerDAO newServerDAO(String address) {
 		ServerDAOHb server = new ServerDAOHb();
-		getSession().save(server);
+		server.setAddress(address);
+		addObjectToSave(server);
 		return server;
 	}
-	
+
 	@Override
 	public LogEntryDAO newLogEntryDAO() {
 		LogEntryDAOHb logEntry = new LogEntryDAOHb();
+		addObjectToSave(logEntry);
 		return logEntry;
 	}
-	
+
 	@Override
 	public UserDAO newUserDAO(String nick) {
 		UserDAOHb user = new UserDAOHb();
 		user.setNick(nick);
+		addObjectToSave(user);
 		return user;
 	}
 
 	@Override
 	public Set<ServerDAO> getServers() {
-		return Collections.unmodifiableSet(new HashSet(getSession().createQuery("from ServerStoreHb").list()));
+		List servers = getSession().createQuery("from ServerStoreHb").list();
+		addObjectToSave(servers.toArray());
+		return Collections.unmodifiableSet(new HashSet(servers));
 	}
 
 	@Override
 	public Set<AdminDAO> getAllAdmins() {
-		return Collections.unmodifiableSet(new HashSet(getSession().createQuery("from AdminStoreHb").list()));
+		List admins = getSession().createQuery("from AdminStoreHb").list();
+		addObjectToSave(admins.toArray());
+		return Collections.unmodifiableSet(new HashSet(admins));
 	}
 
 	@Override
@@ -116,9 +129,15 @@ public class DAOControllerHb implements DAOController {
 	public void endTransaction(boolean isGood) {
 		//End the transaction
 		try {
-			if (isGood)
+			if (isGood) {
+				List<Object> localObjects = objectsToSave.get();
+				if (localObjects == null || !localObjects.isEmpty()) {
+					for (Object curObject : localObjects)
+						getSession().saveOrUpdate(curObject);
+					objectsToSave.remove();
+				}
 				getSession().getTransaction().commit();
-			else
+			} else
 				getSession().getTransaction().rollback();
 		} finally {
 			getSession().close();
@@ -131,8 +150,15 @@ public class DAOControllerHb implements DAOController {
 			throw new RuntimeException("No session exists for this thread.");
 		return session;
 	}
-	
+
 	public static DAOControllerHb getInstance() {
 		return instance;
+	}
+
+	protected void addObjectToSave(Object... objects) {
+		List<Object> localObjects = objectsToSave.get();
+		if (localObjects == null)
+			objectsToSave.set(localObjects = new ArrayList());
+		localObjects.addAll(Arrays.asList(objects));
 	}
 }
