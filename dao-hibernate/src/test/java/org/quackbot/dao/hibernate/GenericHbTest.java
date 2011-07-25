@@ -18,14 +18,9 @@
  */
 package org.quackbot.dao.hibernate;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
-import org.hibernate.util.StringHelper;
 import org.testng.annotations.BeforeMethod;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -33,25 +28,24 @@ import static org.mockito.Mockito.*;
  */
 public class GenericHbTest {
 	protected Configuration config;
-	protected SessionFactory sessionFactory;
-	protected Session session;
+	protected DAOControllerHb controller;
 
 	public GenericHbTest() {
 		//Configure these things once
-		config = new Configuration().configure();
-		config.setNamingStrategy(new PrefixNamingStrategy("TEST_quackbot_"));
-		sessionFactory = config.buildSessionFactory();		
+		controller = new DAOControllerHb() {
+			{
+				configuration.setNamingStrategy(new PrefixNamingStrategy("TEST_quackbot_"));
+				GenericHbTest.this.config = configuration;
+				//Rebuild session factory so new naming strategy is used
+				sessionFactory = configuration.buildSessionFactory();
+			}
+		};
 	}
 
 	@BeforeMethod
 	public void setUp() {
 		SchemaExport se = new SchemaExport(config);
 		se.create(true, true);
-		session = sessionFactory.openSession();
-		
-		DAOControllerHb controller = mock(DAOControllerHb.class);
-		when(controller.getSession()).thenReturn(session);
-		DAOControllerHb.instance = controller;
 	}
 
 	protected ServerDAOHb generateServer(String address) {
