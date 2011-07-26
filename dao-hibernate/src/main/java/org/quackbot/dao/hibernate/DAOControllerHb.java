@@ -18,12 +18,14 @@
  */
 package org.quackbot.dao.hibernate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -38,11 +40,12 @@ import org.quackbot.dao.UserDAO;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class DAOControllerHb implements DAOController {
 	protected Configuration configuration;
 	protected SessionFactory sessionFactory;
 	protected ThreadLocal<Session> sessions = new ThreadLocal();
-	protected ThreadLocal<List<Object>> objectsToSave = new ThreadLocal();
+	protected ThreadLocal<Queue<Object>> objectsToSave = new ThreadLocal();
 	protected static DAOControllerHb instance;
 
 	public DAOControllerHb() {
@@ -130,17 +133,27 @@ public class DAOControllerHb implements DAOController {
 		//End the transaction
 		try {
 			if (isGood) {
-				List<Object> localObjects = objectsToSave.get();
-				if (localObjects == null || !localObjects.isEmpty()) {
-					for (Object curObject : localObjects)
-						getSession().saveOrUpdate(curObject);
-					objectsToSave.remove();
+				Queue<Object> localObjects = objectsToSave.get();
+				if (localObjects != null && !localObjects.isEmpty()) {
+					synchronized(localObjects) {
+						while(!localObjects.isEmpty()) {
+							Object object = localObjects.remove();
+							log.trace("Removing object:  " + object);
+							getSession().saveOrUpdate(object);
+						}
+						objectsToSave.remove();
+					}
 				}
 				getSession().getTransaction().commit();
 			} else
 				getSession().getTransaction().rollback();
+		} catch(RuntimeException e) {
+			log.error("Exception encountered: ", e);
+			throw e;
 		} finally {
 			getSession().close();
+			objectsToSave.remove();
+			sessions.remove();
 		}
 	}
 
@@ -156,9 +169,11 @@ public class DAOControllerHb implements DAOController {
 	}
 
 	protected void addObjectToSave(Object... objects) {
-		List<Object> localObjects = objectsToSave.get();
+		Queue<Object> localObjects = objectsToSave.get();
+		log.trace("Adding object: " + StringUtils.join(objects, "\n\rAdding object: "));
 		if (localObjects == null)
-			objectsToSave.set(localObjects = new ArrayList());
-		localObjects.addAll(Arrays.asList(objects));
+			objectsToSave.set(localObjects = new LinkedList());
+		for(Object curObject : objects)
+			localObjects.add(curObject);
 	}
 }
