@@ -31,6 +31,8 @@ public class GenericHbTest {
 	protected DAOControllerHb controller;
 
 	public GenericHbTest() {
+		//Null any previously set instance
+		DAOControllerHb.instance = null;
 		//Configure these things once
 		controller = new DAOControllerHb() {
 			{
