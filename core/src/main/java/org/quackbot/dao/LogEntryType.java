@@ -11,5 +11,6 @@ public enum LogEntryType {
 	CHANNEL_MODE,
 	JOIN,
 	QUIT,
-	PART
+	PART,
+	NICK_CHANGE
 }
