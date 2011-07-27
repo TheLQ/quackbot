@@ -25,9 +25,9 @@ package org.quackbot.dao;
 public interface LogEntryDAO {
 	public Integer getId();
 
-	public Integer getTimestamp();
+	public Long getTimestamp();
 	
-	public void setTimestamp(Integer timestamp);
+	public void setTimestamp(Long timestamp);
 
 	public String getServer();
 
