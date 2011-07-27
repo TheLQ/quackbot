@@ -1,4 +1,5 @@
 glob:hibernate.cfg.xml
 glob:nb-configuration.xml
+glob:nbactions.xml
 regexp:^[^\/|\\]+?.target
 
