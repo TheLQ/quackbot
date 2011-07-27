@@ -39,9 +39,9 @@ public interface LogEntryDAO {
 
 	public String getType();
 
-	public void setType(String type);
+	public void setType(LogEntryType type);
 
-	public String getUser();
+	public LogEntryType getUser();
 
 	public void setUser(String user);
 
