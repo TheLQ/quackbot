@@ -295,18 +295,15 @@ public class Controller {
 		//Build a thread pool for the bot
 		final BotThreadPool threadPool = new BotThreadPool(new ThreadFactory() {
 			int threadCounter = 0;
-			List<String> usedNames = new ArrayList<String>();
-			final String address = curServer.getAddress();
-			ThreadGroup threadGroup = new ThreadGroup("quackbot-" + address);
+			ThreadGroup threadGroup = new ThreadGroup(genPrefix());
 
 			@Override
 			public Thread newThread(Runnable rbl) {
-				String goodAddress = address;
-				int counter = 0;
-				while (usedNames.contains(goodAddress))
-					goodAddress = address + "-" + (counter++);
-				usedNames.add(goodAddress);
-				return new Thread(threadGroup, rbl, "quackbot-" + goodAddress + "-" + threadCounter++);
+				return new Thread(threadGroup, rbl, genPrefix() + "-" + threadCounter++);
+			}
+			
+			protected String genPrefix() {
+				return "quackbot-" + curServer.getAddress() + "-" + curServer.getServerId();
 			}
 		});
 
