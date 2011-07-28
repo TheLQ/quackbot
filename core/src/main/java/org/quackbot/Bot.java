@@ -110,7 +110,7 @@ public class Bot extends PircBotX {
 	protected InputThread createInputThread(Socket socket, BufferedReader breader) {
 		InputThread inputThread = new InputThread(this, socket, breader) {
 		};
-		inputThread.setName(getServer() + "-input");
+		inputThread.setName("quackbot-" + getServerStore().getAddress() + "-" + getServerStore().getServerId() + "-input");
 		return inputThread;
 	}
 
@@ -118,7 +118,7 @@ public class Bot extends PircBotX {
 	protected OutputThread createOutputThread(BufferedWriter bwriter) {
 		OutputThread outputThread = new OutputThread(this, bwriter) {
 		};
-		outputThread.setName(getServer() + "-output");
+		outputThread.setName("quackbot-" + getServerStore().getAddress() + "-" + getServerStore().getServerId() + "-output");
 		return outputThread;
 	}
 
