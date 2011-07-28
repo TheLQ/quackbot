@@ -357,6 +357,10 @@ public class Controller {
 			server.setPort(port);
 			for (String curChan : channels)
 				server.getChannels().add(getStorage().newChannelDAO(curChan));
+			storage.endTransaction(true);
+			
+			//Split up into multiple transactions so things like id's automatically get created
+			storage.beginTransaction();
 			if (started)
 				initBot(server);
 			storage.endTransaction(true);
