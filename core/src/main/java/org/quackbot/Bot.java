@@ -18,7 +18,6 @@
  */
 package org.quackbot;
 
-import org.quackbot.hooks.core.CoreQuackbotHook;
 import java.util.Set;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.hooks.Hook;
@@ -36,9 +35,6 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
-import org.quackbot.hooks.loaders.JavaHookLoader;
-import org.quackbot.hooks.core.AdminHelpCommand;
-import org.quackbot.hooks.core.HelpCommand;
 
 /**
  * Bot instance that communicates with 1 server
@@ -68,7 +64,6 @@ public class Bot extends PircBotX {
 	protected final Controller controller;
 	protected final Set<User> ignoredUsers = new HashSet();
 	protected final Set<Channel> ignoredChannels = new HashSet();
-	protected static Boolean addedListeners = false;
 
 	/**
 	 * Init bot by setting all information
@@ -86,20 +81,6 @@ public class Bot extends PircBotX {
 		setVersion(controller.getVersion());
 		setMessageDelay(controller.getDefaultMessageDelay());
 		setListenerManager(new WrapperListenerManager());
-
-		synchronized (addedListeners) {
-			if (!addedListeners)
-				try {
-					//Add our default hooks
-					controller.getHookManager().addHook(new CoreQuackbotHook());
-					controller.getHookManager().addHook(JavaHookLoader.load(new HelpCommand()));
-					controller.getHookManager().addHook(JavaHookLoader.load(new AdminHelpCommand()));
-					addedListeners = true;
-				} catch (Exception ex) {
-					log.error("Exception encountered when loading default plugins. Halting loading bot", ex);
-					return;
-				}
-		}
 	}
 
 	public void connect() {

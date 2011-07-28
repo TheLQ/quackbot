@@ -55,7 +55,11 @@ import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.core.AdminHelpCommand;
+import org.quackbot.hooks.core.CoreQuackbotHook;
+import org.quackbot.hooks.core.HelpCommand;
 import org.quackbot.hooks.loaders.JSHookLoader;
+import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -188,6 +192,15 @@ public class Controller {
 
 		//Setup default Plugin Loaders
 		addPluginLoader(new JSHookLoader(), "js");
+
+		//Load default hooks
+		try {
+			hookManager.addHook(new CoreQuackbotHook());
+			hookManager.addHook(JavaHookLoader.load(new HelpCommand()));
+			hookManager.addHook(JavaHookLoader.load(new AdminHelpCommand()));
+		} catch (Exception e) {
+			log.error("Error when loading default plugins", e);
+		}
 	}
 
 	/**
@@ -283,7 +296,7 @@ public class Controller {
 			List<String> usedNames = new ArrayList<String>();
 			final String address = curServer.getAddress();
 			ThreadGroup threadGroup = new ThreadGroup("quackbot-" + address);
-			
+
 			@Override
 			public Thread newThread(Runnable rbl) {
 				String goodAddress = address;
