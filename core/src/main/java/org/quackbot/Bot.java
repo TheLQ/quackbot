@@ -18,6 +18,9 @@
  */
 package org.quackbot;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.net.Socket;
 import java.util.Set;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.hooks.Hook;
@@ -31,6 +34,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.Channel;
+import org.pircbotx.InputThread;
+import org.pircbotx.OutputThread;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
@@ -99,6 +104,22 @@ public class Bot extends PircBotX {
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
 		}
+	}
+
+	@Override
+	protected InputThread createInputThread(Socket socket, BufferedReader breader) {
+		InputThread inputThread = new InputThread(this, socket, breader) {
+		};
+		inputThread.setName(getServer() + "-input");
+		return inputThread;
+	}
+
+	@Override
+	protected OutputThread createOutputThread(BufferedWriter bwriter) {
+		OutputThread outputThread = new OutputThread(this, bwriter) {
+		};
+		outputThread.setName(getServer() + "-output");
+		return outputThread;
 	}
 
 	/**
