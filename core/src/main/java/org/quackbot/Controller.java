@@ -58,6 +58,7 @@ import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.core.AdminHelpCommand;
 import org.quackbot.hooks.core.CoreQuackbotHook;
 import org.quackbot.hooks.core.HelpCommand;
+import org.quackbot.hooks.core.QuackbotLogHook;
 import org.quackbot.hooks.loaders.JSHookLoader;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.Logger;
@@ -196,6 +197,7 @@ public class Controller {
 		//Load default hooks
 		try {
 			hookManager.addHook(new CoreQuackbotHook());
+			hookManager.addHook(new QuackbotLogHook());
 			hookManager.addHook(JavaHookLoader.load(new HelpCommand()));
 			hookManager.addHook(JavaHookLoader.load(new AdminHelpCommand()));
 		} catch (Exception e) {
