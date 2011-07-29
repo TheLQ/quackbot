@@ -174,8 +174,8 @@ public class Bot extends PircBotX {
 
 	@Override
 	public synchronized void dispose() {
-		threadPool.shutdown();
 		super.dispose();
+		threadPool.shutdown();
 	}
 
 	/**
