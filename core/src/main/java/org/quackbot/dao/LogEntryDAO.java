@@ -37,11 +37,11 @@ public interface LogEntryDAO {
 
 	public void setChannel(String channel);
 
-	public String getType();
+	public LogEntryType getType();
 
 	public void setType(LogEntryType type);
 
-	public LogEntryType getUser();
+	public String getUser();
 
 	public void setUser(String user);
 
