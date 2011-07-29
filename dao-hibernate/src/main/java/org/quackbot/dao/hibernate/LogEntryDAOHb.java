@@ -27,6 +27,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import lombok.Data;
 import org.quackbot.dao.LogEntryDAO;
+import org.quackbot.dao.LogEntryType;
 
 /**
  *
@@ -42,14 +43,14 @@ public class LogEntryDAOHb implements LogEntryDAO, Serializable {
 	protected Integer id;
 	
 	@Column(name = "timestamp", nullable = false)
-	protected Integer timestamp;
+	protected Long timestamp;
 	
 	@Column(name = "server", nullable = false)
 	protected String server;
 	
 	protected String channel;
 	
-	protected String type;
+	protected LogEntryType type;
 	
 	protected String user;
 	
