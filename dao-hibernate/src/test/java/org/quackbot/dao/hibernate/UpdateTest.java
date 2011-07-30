@@ -48,7 +48,7 @@ public class UpdateTest extends GenericHbTest {
 		for (ServerDAO curServer : controller.getServers()) {
 			assertTrue(curServer.getAddress().endsWith("-test"), "Address doesn't end with -test, wasn't updated? (Real value: " + curServer.getAddress());
 			assertEquals(curServer.getPassword(), "testPassword", "Password wasn't udpated");
-			assertEquals((int) curServer.getPort(), 9867, "Port wasn't updated");
+			assertEquals((int) curServer.getPort(), 9876, "Port wasn't updated");
 		}
 		controller.endTransaction(true);
 	}
