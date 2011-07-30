@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
@@ -127,31 +126,28 @@ public class DAOControllerHb implements DAOController {
 	@Override
 	public void endTransaction(boolean isGood) {
 		//End the transaction
+		Queue<Object> localObjects = objectsToSave.get();
 		try {
 			if (isGood) {
-				Queue<Object> localObjects = objectsToSave.get();
-				if (localObjects != null && !localObjects.isEmpty()) {
-					synchronized(localObjects) {
-						while(!localObjects.isEmpty()) {
-							Object object = localObjects.remove();
-							log.trace("Removing object:  " + object);
-							getSession().saveOrUpdate(object);
-						}
-						objectsToSave.remove();
+				if (localObjects != null && !localObjects.isEmpty())
+					for (Object curObject : localObjects) {
+						log.trace("Removing object:  " + curObject);
+						getSession().save(curObject);
 					}
-				}
 				getSession().getTransaction().commit();
 			} else
 				rollbackTransaction();
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			log.error("Exception encountered: ", e);
 			rollbackTransaction();
 			throw e;
 		} finally {
+			if (localObjects != null)
+				localObjects.clear();
 			objectsToSave.remove();
 		}
 	}
-	
+
 	protected void rollbackTransaction() {
 		getSession().getTransaction().rollback();
 		getSession().close();
@@ -170,7 +166,7 @@ public class DAOControllerHb implements DAOController {
 		log.trace("Adding object: " + StringUtils.join(objects, "\n\rAdding object: "));
 		if (localObjects == null)
 			objectsToSave.set(localObjects = new LinkedList());
-		for(Object curObject : objects)
+		for (Object curObject : objects)
 			localObjects.add(curObject);
 	}
 }
