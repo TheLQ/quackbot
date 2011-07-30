@@ -48,7 +48,7 @@ public class GenericHbTest {
 	}
 
 	@BeforeMethod
-	public void setUp() {
+	public void setupSchema() {
 		SchemaExport se = new SchemaExport(config);
 		se.create(true, true);
 	}
