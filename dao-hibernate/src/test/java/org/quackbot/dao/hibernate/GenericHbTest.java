@@ -107,4 +107,12 @@ public class GenericHbTest {
 
 		return server;
 	}
+
+	protected void setupEnviornment() {
+		controller.beginTransaction();
+		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
+		generateEnviornment(1, globalAdmin);
+		generateEnviornment(2, globalAdmin);
+		controller.endTransaction(true);
+	}
 }
