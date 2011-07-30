@@ -21,6 +21,7 @@ package org.quackbot.dao.hibernate;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 /**
@@ -31,7 +32,8 @@ public class GenericHbTest {
 	protected Configuration config;
 	protected DAOControllerHb controller;
 
-	public GenericHbTest() {
+	@BeforeClass
+	public void setupController() {
 		//Null any previously set instance
 		DAOControllerHb.instance = null;
 		//Configure these things once
