@@ -20,6 +20,7 @@ package org.quackbot.dao.hibernate;
 
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 /**
@@ -48,6 +49,14 @@ public class GenericHbTest {
 	public void setUp() {
 		SchemaExport se = new SchemaExport(config);
 		se.create(true, true);
+	}
+
+	@AfterMethod
+	public void cleanup() {
+		controller.beginTransaction();
+		controller.getSession().flush();
+		controller.getSession().clear();
+		controller.endTransaction(true);
 	}
 
 	protected ServerDAOHb generateServer(String address) {
