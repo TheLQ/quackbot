@@ -197,12 +197,4 @@ public class DeleteTest extends GenericHbTest {
 				+ "AND nick != 'aSuperOpUser1' AND nick != 'aNormalUser1'").list();
 		assertEquals(remainingUsers.size(), 0, "Extra users after deletion: " + StringUtils.join(remainingUsers.toArray(), ", "));
 	}
-
-	protected void setupEnviornment() {
-		controller.beginTransaction();
-		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
-		generateEnviornment(1, globalAdmin);
-		generateEnviornment(2, globalAdmin);
-		controller.endTransaction(true);
-	}
 }
