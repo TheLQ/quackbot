@@ -101,14 +101,14 @@ public class DAOControllerHb implements DAOController {
 
 	@Override
 	public Set<ServerDAO> getServers() {
-		List servers = getSession().createQuery("from ServerStoreHb").list();
+		List servers = getSession().createCriteria(ServerDAOHb.class).list();
 		addObjectToSave(servers.toArray());
 		return Collections.unmodifiableSet(new HashSet(servers));
 	}
 
 	@Override
 	public Set<AdminDAO> getAllAdmins() {
-		List admins = getSession().createQuery("from AdminStoreHb").list();
+		List admins = getSession().createCriteria(AdminDAOHb.class).list();
 		addObjectToSave(admins.toArray());
 		return Collections.unmodifiableSet(new HashSet(admins));
 	}
