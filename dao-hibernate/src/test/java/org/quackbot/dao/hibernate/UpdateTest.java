@@ -42,7 +42,6 @@ public class UpdateTest extends GenericHbTest {
 			curServer.setPort(9876);
 		}
 		controller.endTransaction(true);
-		controller.getSession().clear();
 
 		//Make sure the values were updated
 		controller.beginTransaction();
@@ -73,7 +72,6 @@ public class UpdateTest extends GenericHbTest {
 				curChannel.setTopicSetter("SomeUser");
 			}
 		controller.endTransaction(true);
-		controller.getSession().clear();
 
 		//Make sure the values were updated
 		controller.beginTransaction();
