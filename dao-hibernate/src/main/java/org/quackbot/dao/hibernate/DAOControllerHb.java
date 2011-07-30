@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
@@ -44,7 +45,6 @@ import org.quackbot.dao.UserDAO;
 public class DAOControllerHb implements DAOController {
 	protected Configuration configuration;
 	protected SessionFactory sessionFactory;
-	protected ThreadLocal<Session> sessions = new ThreadLocal();
 	protected ThreadLocal<Queue<Object>> objectsToSave = new ThreadLocal();
 	protected static DAOControllerHb instance;
 
@@ -121,11 +121,7 @@ public class DAOControllerHb implements DAOController {
 
 	@Override
 	public void beginTransaction() {
-		//Create a new session
-		Session session = sessionFactory.openSession();
-		sessions.set(session);
-		//Begin the transaction
-		session.beginTransaction();
+		sessionFactory.getCurrentSession().beginTransaction();
 	}
 
 	@Override
@@ -146,22 +142,23 @@ public class DAOControllerHb implements DAOController {
 				}
 				getSession().getTransaction().commit();
 			} else
-				getSession().getTransaction().rollback();
+				rollbackTransaction();
 		} catch(RuntimeException e) {
 			log.error("Exception encountered: ", e);
+			rollbackTransaction();
 			throw e;
 		} finally {
-			getSession().close();
 			objectsToSave.remove();
-			sessions.remove();
 		}
+	}
+	
+	protected void rollbackTransaction() {
+		getSession().getTransaction().rollback();
+		getSession().close();
 	}
 
 	protected Session getSession() {
-		Session session = sessions.get();
-		if (session == null)
-			throw new RuntimeException("No session exists for this thread.");
-		return session;
+		return sessionFactory.getCurrentSession();
 	}
 
 	public static DAOControllerHb getInstance() {
