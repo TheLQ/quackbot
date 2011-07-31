@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.dao.hibernate;
+package org.quackbot.dao.hibernate.model;
 
 import java.io.Serializable;
 import javax.persistence.Basic;
@@ -31,6 +31,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.quackbot.dao.model.GenericEntry;
 
 /**
  *
@@ -40,18 +41,18 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = {"user", "channel"})
 @Entity
 @Table(name = "usermap")
-public class UserChannelHb implements Serializable {
+public class UserChannelEntryHibernate implements Serializable, GenericEntry<Long> {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Basic(optional = false)
 	@Column(name = "ID", nullable = false)
-	private Integer id;
+	private Long id;
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "USER_ID")
-	protected UserDAOHb user;
+	protected UserEntryHibernate user;
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "CHANNEL_ID")
-	protected ChannelDAOHb channel;
+	protected ChannelEntryHibernate channel;
 	@Column(name = "op")
 	protected boolean op;
 	@Column(name = "voice")
@@ -63,11 +64,11 @@ public class UserChannelHb implements Serializable {
 	@Column(name = "owner")
 	protected boolean owner;
 
-	public UserChannelHb() {
+	public UserChannelEntryHibernate() {
 		//Blank constructor for Hibernate
 	}
 
-	public UserChannelHb(ChannelDAOHb channel, UserDAOHb user) {
+	public UserChannelEntryHibernate(ChannelEntryHibernate channel, UserEntryHibernate user) {
 		this.channel = channel;
 		this.user = user;
 	}
