@@ -115,9 +115,9 @@ public class Controller {
 	 */
 	protected List<String> prefixes = Collections.synchronizedList(new ArrayList<String>());
 	/**
-	 * All registered plugin types
+	 * All registered plugin loaders
 	 */
-	private TreeMap<String, HookLoader> pluginLoaders = new TreeMap<String, HookLoader>();
+	private TreeMap<String, HookLoader> hookLoaders = new TreeMap<String, HookLoader>();
 	@Setter(AccessLevel.PUBLIC)
 	private String version = "";
 	@Setter(AccessLevel.PUBLIC)
@@ -192,7 +192,7 @@ public class Controller {
 		}
 
 		//Setup default Plugin Loaders
-		addPluginLoader(new JSHookLoader(), "js");
+		addHookLoader(new JSHookLoader(), "js");
 
 		//Load default hooks
 		try {
@@ -277,7 +277,7 @@ public class Controller {
 			String ext = extArr[1];
 
 			//Load with pluginType
-			loader = getPluginLoaders().get(ext);
+			loader = getHookLoaders().get(ext);
 			if (loader != null)
 				hook = loader.load(file.getAbsolutePath());
 			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
@@ -430,8 +430,8 @@ public class Controller {
 	 * @param ext     Exentsion to associate Command Type with
 	 * @param newType Class of Command Type
 	 */
-	public void addPluginLoader(HookLoader loader, String ext) {
-		addPluginLoader(loader, new String[]{ext});
+	public void addHookLoader(HookLoader loader, String ext) {
+		addHookLoader(loader, new String[]{ext});
 	}
 
 	/**
@@ -439,9 +439,9 @@ public class Controller {
 	 * @param exts     Extention to associate Command Type with
 	 * @param newType Class of Command Type
 	 */
-	public void addPluginLoader(HookLoader loader, String[] exts) {
+	public void addHookLoader(HookLoader loader, String[] exts) {
 		for (String curExt : exts)
-			getPluginLoaders().put(curExt, loader);
+			getHookLoaders().put(curExt, loader);
 	}
 
 	public boolean addPrefix(String prefix) {
