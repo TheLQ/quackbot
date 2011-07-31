@@ -128,15 +128,18 @@ public class DAOControllerHb implements DAOController {
 		//End the transaction
 		Queue<Object> localObjects = objectsToSave.get();
 		try {
-			if (isGood) {
-				if (localObjects != null && !localObjects.isEmpty())
-					for (Object curObject : localObjects) {
-						log.trace("Removing object:  " + curObject);
-						getSession().save(curObject);
-					}
-				getSession().getTransaction().commit();
-			} else
+			//If its not good, rollback the transaction
+			if (!isGood) {
 				rollbackTransaction();
+				return;
+			}
+			//Good, add any objects if they exist
+			if (localObjects != null && !localObjects.isEmpty())
+				for (Object curObject : localObjects) {
+					log.trace("Removing object:  " + curObject);
+					getSession().save(curObject);
+				}
+			getSession().getTransaction().commit();
 		} catch (RuntimeException e) {
 			log.error("Exception encountered: ", e);
 			rollbackTransaction();
