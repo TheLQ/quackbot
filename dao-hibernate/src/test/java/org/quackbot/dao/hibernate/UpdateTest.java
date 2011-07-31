@@ -75,7 +75,7 @@ public class UpdateTest extends GenericHbTest {
 
 		//Make sure the values were updated
 		controller.beginTransaction();
-		for (ServerDAO curServer : controller.getServers()) {
+		for (ServerDAO curServer : controller.getServers())
 			for (ChannelDAO curChannel : curServer.getChannels()) {
 				assertTrue(curChannel.getName().endsWith("-test"), "Name wasn't updated? (Real value: " + curChannel.getName());
 				assertEquals(curChannel.getCreateTimestamp(), (Long) createTimestamp, "Create timestamp wasn't updated");
@@ -85,7 +85,6 @@ public class UpdateTest extends GenericHbTest {
 				assertEquals(curChannel.getPassword(), "aPassword-test", "Password wasn't updated");
 				assertEquals(curChannel.getTopicSetter(), "SomeUser", "Topic setter wasn't updated");
 			}
-			controller.endTransaction(true);
-		}
+		controller.endTransaction(true);
 	}
 }
