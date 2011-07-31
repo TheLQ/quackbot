@@ -16,58 +16,52 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.dao.hibernate;
+package org.quackbot.dao.hibernate.model;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.quackbot.dao.AdminDAO;
-import org.quackbot.dao.ChannelDAO;
-import org.quackbot.dao.ServerDAO;
+import org.quackbot.dao.model.UserEntry;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
-@EqualsAndHashCode(of = "name")
-@ToString(exclude = {"channels", "servers"})
+@EqualsAndHashCode(of = "nick")
 @Entity
-@Table(name = "admins")
-public class AdminDAOHb implements AdminDAO, Serializable {
+@Table(name = "users")
+public class UserEntryHibernate implements Serializable, UserEntry<Long> {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
-	@Column(name = "ADMIN_ID", nullable = false)
-	private Integer adminId;
-	@Column(name = "name", length = 50, nullable = false)
-	private String name;
-	@ManyToMany(targetEntity = ChannelDAOHb.class, mappedBy = "admins")
-	private Set<ChannelDAO> channels = new HashSet();
-	@ManyToMany(targetEntity = ServerDAOHb.class, mappedBy = "admins")
-	private Set<ServerDAO> servers = new HashSet();
+	@Column(name = "USER_ID", nullable = false)
+	protected Long id;
+	@ManyToOne
+	@JoinColumn(name = "SERVER_ID")
+	protected ServerEntryHibernate server;
+	@Column(name = "nick", length = 100, nullable = false)
+	protected String nick;
+	@Column(name = "login", length = 100)
+	protected String login;
+	@Column(name = "hostmask", length = 100)
+	protected String hostmask;
+	@Column(name = "realname", length = 100)
+	protected String realname;
+	@Column(name = "hops", length = 100)
+	protected Integer hops;
+	@Column(name = "connectedServer", length = 100)
+	protected String connectedServer;
 
-	public AdminDAOHb() {
-	}
-
-	@Override
-	public boolean delete() {
-		for (ChannelDAO curChannel : channels)
-			curChannel.getAdmins().remove(this);
-		for (ServerDAO curServer : servers)
-			curServer.getAdmins().remove(this);
-		DAOControllerHb.getInstance().getSession().delete(this);
-		return true;
+	public UserEntryHibernate() {
 	}
 }

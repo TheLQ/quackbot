@@ -16,14 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.dao.hibernate;
+package org.quackbot.dao.hibernate.model;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -39,12 +37,10 @@ import javax.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.quackbot.dao.AdminDAO;
-import org.quackbot.dao.ChannelDAO;
-import org.quackbot.dao.ServerDAO;
-import org.quackbot.dao.UserDAO;
+import org.quackbot.dao.model.AdminEntry;
+import org.quackbot.dao.model.ChannelEntry;
+import org.quackbot.dao.model.ServerEntry;
+import org.quackbot.dao.model.UserEntry;
 
 /**
  *
@@ -55,8 +51,8 @@ import org.quackbot.dao.UserDAO;
 @ToString(exclude = {"admins", "userMaps"})
 @Entity
 @Table(name = "channels")
-public class ChannelDAOHb implements ChannelDAO, Serializable {
-	protected Integer channelID;
+public class ChannelEntryHibernate implements ChannelEntry<Long>, Serializable {
+	protected Long id;
 	protected String name;
 	protected String password;
 	protected String topic;
@@ -64,40 +60,40 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	protected String topicSetter;
 	protected Long topicTimestamp;
 	protected String mode;
-	private ServerDAO server;
-	private Set<AdminDAO> admins = new ListenerSet<AdminDAO>(new HashSet()) {
+	private ServerEntry server;
+	private Set<AdminEntry> admins = new ListenerSet<AdminEntry>(new HashSet()) {
 		@Override
-		public void onAdd(AdminDAO entry) {
-			entry.getChannels().add(ChannelDAOHb.this);
+		public void onAdd(AdminEntry entry) {
+			entry.getChannels().add(ChannelEntryHibernate.this);
 		}
 
 		@Override
 		public void onRemove(Object entry) {
-			if (!(entry instanceof AdminDAOHb))
+			if (!(entry instanceof AdminEntryHibernate))
 				throw new RuntimeException("Attempting to remove unknown object from channel admin list " + entry);
 			//Do nothing
 		}
 	};
-	private Set<UserChannelHb> userMaps = new HashSet();
+	private Set<UserChannelEntryHibernate> userMaps = new HashSet();
 
-	public ChannelDAOHb() {
+	public ChannelEntryHibernate() {
 	}
 
-	@ManyToMany(targetEntity = AdminDAOHb.class)
+	@ManyToMany(targetEntity = AdminEntryHibernate.class)
 	@JoinTable(name = "channel_admins", joinColumns = {
 		@JoinColumn(name = "CHANNEL_ID")}, inverseJoinColumns = {
 		@JoinColumn(name = "ADMIN_ID")})
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
-	public Set<AdminDAO> getAdmins() {
+	public Set<AdminEntry> getAdmins() {
 		return admins;
 	}
 
 	@Transient
 	@Override
-	public Set<UserDAO> getNormalUsers() {
-		return (Set<UserDAO>) (Object) new UserListenerSet() {
+	public Set<UserEntry> getNormalUsers() {
+		return (Set<UserEntry>) (Object) new UserListenerSet() {
 			@Override
-			public boolean isSet(UserChannelHb userMap) {
+			public boolean isSet(UserChannelEntryHibernate userMap) {
 				//Make sure nothing is set
 				return !userMap.isOp()
 						&& !userMap.isVoice()
@@ -107,7 +103,7 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 			}
 
 			@Override
-			public void configure(UserChannelHb userMap, boolean set) {
+			public void configure(UserChannelEntryHibernate userMap, boolean set) {
 				//No configuration nessesary
 			}
 		};
@@ -115,16 +111,16 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Transient
 	@Override
-	public Set<UserDAO> getUsers() {
-		return (Set<UserDAO>) (Object) new UserListenerSet() {
+	public Set<UserEntry> getUsers() {
+		return (Set<UserEntry>) (Object) new UserListenerSet() {
 			@Override
-			public boolean isSet(UserChannelHb userMap) {
+			public boolean isSet(UserChannelEntryHibernate userMap) {
 				//Get ALL users
 				return true;
 			}
 
 			@Override
-			public void configure(UserChannelHb userMap, boolean set) {
+			public void configure(UserChannelEntryHibernate userMap, boolean set) {
 				//No configuration nessesary
 			}
 		};
@@ -132,15 +128,15 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Transient
 	@Override
-	public Set<UserDAO> getOps() {
-		return (Set<UserDAO>) (Object) new UserListenerSet() {
+	public Set<UserEntry> getOps() {
+		return (Set<UserEntry>) (Object) new UserListenerSet() {
 			@Override
-			public boolean isSet(UserChannelHb userMap) {
+			public boolean isSet(UserChannelEntryHibernate userMap) {
 				return userMap.isOp();
 			}
 
 			@Override
-			public void configure(UserChannelHb userMap, boolean set) {
+			public void configure(UserChannelEntryHibernate userMap, boolean set) {
 				userMap.setOp(set);
 			}
 		};
@@ -148,15 +144,15 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Transient
 	@Override
-	public Set<UserDAO> getVoices() {
-		return (Set<UserDAO>) (Object) new UserListenerSet() {
+	public Set<UserEntry> getVoices() {
+		return (Set<UserEntry>) (Object) new UserListenerSet() {
 			@Override
-			public boolean isSet(UserChannelHb userMap) {
+			public boolean isSet(UserChannelEntryHibernate userMap) {
 				return userMap.isVoice();
 			}
 
 			@Override
-			public void configure(UserChannelHb userMap, boolean set) {
+			public void configure(UserChannelEntryHibernate userMap, boolean set) {
 				userMap.setVoice(set);
 			}
 		};
@@ -164,15 +160,15 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Transient
 	@Override
-	public Set<UserDAO> getOwners() {
-		return (Set<UserDAO>) (Object) new UserListenerSet() {
+	public Set<UserEntry> getOwners() {
+		return (Set<UserEntry>) (Object) new UserListenerSet() {
 			@Override
-			public boolean isSet(UserChannelHb userMap) {
+			public boolean isSet(UserChannelEntryHibernate userMap) {
 				return userMap.isOwner();
 			}
 
 			@Override
-			public void configure(UserChannelHb userMap, boolean set) {
+			public void configure(UserChannelEntryHibernate userMap, boolean set) {
 				userMap.setOwner(set);
 			}
 		};
@@ -180,15 +176,15 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Transient
 	@Override
-	public Set<UserDAO> getHalfOps() {
-		return (Set<UserDAO>) (Object) new UserListenerSet() {
+	public Set<UserEntry> getHalfOps() {
+		return (Set<UserEntry>) (Object) new UserListenerSet() {
 			@Override
-			public boolean isSet(UserChannelHb userMap) {
+			public boolean isSet(UserChannelEntryHibernate userMap) {
 				return userMap.isHalfOp();
 			}
 
 			@Override
-			public void configure(UserChannelHb userMap, boolean set) {
+			public void configure(UserChannelEntryHibernate userMap, boolean set) {
 				userMap.setHalfOp(set);
 			}
 		};
@@ -196,15 +192,15 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 
 	@Transient
 	@Override
-	public Set<UserDAO> getSuperOps() {
-		return (Set<UserDAO>) (Object) new UserListenerSet() {
+	public Set<UserEntry> getSuperOps() {
+		return (Set<UserEntry>) (Object) new UserListenerSet() {
 			@Override
-			public boolean isSet(UserChannelHb userMap) {
+			public boolean isSet(UserChannelEntryHibernate userMap) {
 				return userMap.isSuperOp();
 			}
 
 			@Override
-			public void configure(UserChannelHb userMap, boolean set) {
+			public void configure(UserChannelEntryHibernate userMap, boolean set) {
 				userMap.setSuperOp(set);
 			}
 		};
@@ -214,8 +210,8 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
 	@Column(name = "CHANNEL_ID", nullable = false)
-	public Integer getChannelID() {
-		return channelID;
+	public Long getId() {
+		return id;
 	}
 
 	@Column(name = "name", length = 100, nullable = false)
@@ -253,66 +249,46 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		return mode;
 	}
 
-	@ManyToOne(targetEntity = ServerDAOHb.class)
+	@ManyToOne(targetEntity = ServerEntryHibernate.class)
 	@JoinColumn(name = "SERVER_ID", nullable = false, updatable = false)
-	public ServerDAO getServer() {
+	public ServerEntry getServer() {
 		return server;
 	}
 
 	@OneToMany
 	@JoinColumn(name = "CHANNEL_ID")
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
-	public Set<UserChannelHb> getUserMaps() {
+	public Set<UserChannelEntryHibernate> getUserMaps() {
 		return userMaps;
 	}
 
-	@Override
-	public boolean delete() {
-		//Remove channel from server
-		server.getChannels().remove(this);
-
-		//Remove channel from admins
-		for (Iterator<AdminDAO> itr = admins.iterator(); itr.hasNext();) {
-			AdminDAO curAdmin = itr.next();
-			curAdmin.getChannels().remove(this);
-			itr.remove();
-		}
-
-		//Delete all usermaps for this channel
-		userMaps.clear();
-
-		//Finally, delete the channel
-		DAOControllerHb.getInstance().getSession().delete(this);
-		return true;
-	}
-
-	protected abstract class UserListenerSet extends ListenerSet<UserDAOHb> {
+	protected abstract class UserListenerSet extends ListenerSet<UserEntryHibernate> {
 		public UserListenerSet() {
 			super(new HashSet());
-			for (UserChannelHb userMap : userMaps)
+			for (UserChannelEntryHibernate userMap : userMaps)
 				if (isSet(userMap))
 					delegateSet.add(userMap.getUser());
 		}
 
 		/* Hook methods */
 		@Override
-		public void onAdd(UserDAOHb entry) {
+		public void onAdd(UserEntryHibernate entry) {
 			if (entry == null)
 				throw new NullPointerException("Adding null entry");
 
 			//Update the existing object if the user already exists
-			for (UserChannelHb userMap : userMaps)
+			for (UserChannelEntryHibernate userMap : userMaps)
 				if (userMap.getUser().equals(entry)) {
 					configure(userMap, true);
 					return;
 				}
 
 			//No existing map, create a new one
-			UserChannelHb userMap = new UserChannelHb(ChannelDAOHb.this, entry);
+			UserChannelEntryHibernate userMap = new UserChannelEntryHibernate(ChannelEntryHibernate.this, entry);
 			configure(userMap, true);
 			if (server == null)
 				throw new NullPointerException("Server in channel is null, can't pass to user");
-			entry.setServer((ServerDAOHb) server);
+			entry.setServer((ServerEntryHibernate) server);
 
 			userMaps.add(userMap);
 		}
@@ -321,10 +297,10 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 		public void onRemove(Object entry) {
 			if (entry == null)
 				throw new NullPointerException("Removing null entry");
-			if (!(entry instanceof UserDAOHb))
+			if (!(entry instanceof UserEntryHibernate))
 				throw new RuntimeException("Attempting to remove unknown object " + entry);
 			//Attempt to remove the existing object
-			for (UserChannelHb userMap : userMaps)
+			for (UserChannelEntryHibernate userMap : userMaps)
 				if (userMap.getUser().equals(entry)) {
 					configure(userMap, false);
 					userMap.getUser().setServer(null);
@@ -334,8 +310,8 @@ public class ChannelDAOHb implements ChannelDAO, Serializable {
 			throw new RuntimeException("Can't remove user " + entry + " as they don't exist in this set");
 		}
 
-		public abstract boolean isSet(UserChannelHb userMap);
+		public abstract boolean isSet(UserChannelEntryHibernate userMap);
 
-		public abstract void configure(UserChannelHb userMap, boolean set);
+		public abstract void configure(UserChannelEntryHibernate userMap, boolean set);
 	}
 }

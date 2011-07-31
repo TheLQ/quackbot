@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.dao.hibernate;
+package org.quackbot.dao.hibernate.model;
 
 import java.io.Serializable;
 import javax.persistence.Basic;
@@ -25,49 +25,29 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.quackbot.dao.UserDAO;
+import org.quackbot.dao.model.LogEntryType;
+import org.quackbot.dao.model.LogEntry;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
-@EqualsAndHashCode(of = "nick")
-@Entity
-@Table(name = "users")
-public class UserDAOHb implements Serializable, UserDAO {
+@Entity(name = "log")
+public class LogEntryHibernate implements LogEntry<Long>, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
-	@Column(name = "USER_ID", nullable = false)
-	protected Integer userId;
-	@ManyToOne
-	@JoinColumn(name = "SERVER_ID")
-	protected ServerDAOHb server;
-	@Column(name = "nick", length = 100, nullable = false)
-	protected String nick;
-	@Column(name = "login", length = 100)
-	protected String login;
-	@Column(name = "hostmask", length = 100)
-	protected String hostmask;
-	@Column(name = "realname", length = 100)
-	protected String realname;
-	@Column(name = "hops", length = 100)
-	protected Integer hops;
-	@Column(name = "connectedServer", length = 100)
-	protected String connectedServer;
-
-	public UserDAOHb() {
-	}
-	
-	@Override
-	public void delete() {
-		DAOControllerHb.getInstance().getSession().delete(this);
-	}
+	@Column(name = "LOG_ID", nullable = false)
+	protected Long id;
+	@Column(name = "timestamp", nullable = false)
+	protected Long timestamp;
+	@Column(name = "server", nullable = false)
+	protected String server;
+	protected String channel;
+	protected LogEntryType type;
+	protected String user;
+	protected String message;
+	protected String rawLine;
 }
