@@ -10,4 +10,6 @@ import org.quackbot.dao.model.UserEntry;
  */
 public interface UserDAO<T extends UserEntry<I>, I extends Serializable> extends GenericDAO<T, I> {
 	public UserEntry getByNick(ServerEntry server, String userNick);
+
+	public UserEntry create(String nick);
 }

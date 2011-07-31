@@ -10,4 +10,6 @@ import org.quackbot.dao.model.ServerEntry;
  */
 public interface ChannelDAO<T extends ChannelEntry<I>, I extends Serializable> extends GenericDAO<T, I> {
 	public ChannelEntry getByName(ServerEntry server, String channelName);
+	
+	public ChannelEntry create(String channelName);
 }

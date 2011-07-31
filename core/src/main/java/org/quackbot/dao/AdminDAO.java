@@ -9,4 +9,6 @@ import org.quackbot.dao.model.AdminEntry;
  */
 public interface AdminDAO<T extends AdminEntry<I>, I extends Serializable> extends GenericDAO<T, I> {
 	public AdminEntry getByName(String adminName);
+
+	public AdminEntry create(String adminName);
 }
