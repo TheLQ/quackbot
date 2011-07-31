@@ -89,20 +89,24 @@ public class Bot extends PircBotX {
 	}
 
 	public void connect() {
-		//Some debug
-		ServerDAO serverStore = getServerStore();
-		log.info("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
-		if (serverStore.getPassword() != null)
-			log.info("Using password " + serverStore.getPassword() + " to connect");
-
-		//Connect to server. Channels are handled by onConnect listener in CoreQuackbotHook
 		try {
+			controller.getStorage().beginTransaction();
+			//Some debug
+			ServerDAO serverStore = getServerStore();
+			log.info("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
 			if (serverStore.getPassword() != null)
-				connect(serverStore.getAddress(), serverStore.getPort(), serverStore.getPassword());
+				log.info("Using password " + serverStore.getPassword() + " to connect");
+
+			//Connect to server. Channels are handled by onConnect listener in CoreQuackbotHook
+			int port = (serverStore.getPort() != null) ? serverStore.getPort() : 6667;
+			if (serverStore.getPassword() != null)
+				connect(serverStore.getAddress(), port, serverStore.getPassword());
 			else
-				connect(serverStore.getAddress(), serverStore.getPort());
+				connect(serverStore.getAddress(), port);
+			controller.getStorage().endTransaction(true);
 		} catch (Exception e) {
 			log.error("Error in connecting", e);
+			controller.getStorage().endTransaction(false);
 		}
 	}
 
