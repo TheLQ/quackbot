@@ -117,12 +117,12 @@ public class Controller {
 	/**
 	 * All registered plugin loaders
 	 */
-	private TreeMap<String, HookLoader> hookLoaders = new TreeMap<String, HookLoader>();
+	protected TreeMap<String, HookLoader> hookLoaders = new TreeMap<String, HookLoader>();
 	@Setter(AccessLevel.PUBLIC)
-	private String version = "";
+	protected String version = "";
 	@Setter(AccessLevel.PUBLIC)
-	private String finger = "";
-	private final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
+	protected String finger = "";
+	protected final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
 	@Getter(AccessLevel.NONE)
 	protected boolean createGui;
 	@Setter(AccessLevel.PUBLIC)
