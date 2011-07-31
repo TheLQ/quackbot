@@ -32,7 +32,9 @@
 		<!--Print all executed SQL statements to the console. Disable or remove if you wish-->
 		<property name="show_sql">true</property>
 		
-		<!--Classes that do the mapping. DO NOT REMOVE OR EDIT-->
+		<!--Do NOT modify below this line unless you know what your doing-->
+		<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+		<property name="hibernate.current_session_context_class">thread</property>
 		<mapping class="org.quackbot.dao.hibernate.UserChannelHb"/>
 		<mapping class="org.quackbot.dao.hibernate.AdminDAOHb"/>
 		<mapping class="org.quackbot.dao.hibernate.ChannelDAOHb"/>
