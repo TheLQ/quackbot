@@ -33,10 +33,10 @@ import org.quackbot.hooks.Hook;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class HookLoadEvent extends QuackbotEvent {
-	private final Hook hook;
-	private final HookLoader pluginLoader;
-	private final File file;
-	private final Exception exception;
+	protected final Hook hook;
+	protected final HookLoader pluginLoader;
+	protected final File file;
+	protected final Exception exception;
 
 	public HookLoadEvent(Controller controller, Hook hook, HookLoader pluginLoader, File file, Exception exception) {
 		super(controller);

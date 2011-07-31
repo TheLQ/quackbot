@@ -74,7 +74,7 @@ public class HookManager {
 	 * ArrayList - All Hooks for that method
 	 *		BaseHook - Hook
 	 */
-	private final Set<Hook> hooks = Collections.synchronizedSet(new HashSet());
+	protected final Set<Hook> hooks = Collections.synchronizedSet(new HashSet());
 	protected final ExecutorService globalPool = Executors.newCachedThreadPool(new ThreadFactory() {
 		public int count = 0;
 		public ThreadGroup threadGroup = new ThreadGroup("mainPool");
