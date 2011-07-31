@@ -17,7 +17,7 @@
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.quackbot.dao;
+package org.quackbot.dao.model;
 
 /**
  * Types of allowed Log Entries.

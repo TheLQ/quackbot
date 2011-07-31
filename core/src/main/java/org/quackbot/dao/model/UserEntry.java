@@ -16,40 +16,38 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.dao;
+
+package org.quackbot.dao.model;
+
+import java.io.Serializable;
+import org.quackbot.dao.GenericDAO;
 
 /**
- * IRC logging
+ *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface LogEntryDAO {
-	public Integer getId();
+public interface UserEntry<K extends Serializable> extends GenericEntry<K> {	
+	public String getNick();
 
-	public Long getTimestamp();
-	
-	public void setTimestamp(Long timestamp);
+	public void setNick(String nick);
 
-	public String getServer();
+	public String getLogin();
 
-	public void setServer(String server);
+	public void setLogin(String login);
 
-	public String getChannel();
+	public String getHostmask();
 
-	public void setChannel(String channel);
+	public void setHostmask(String hostmask);
 
-	public LogEntryType getType();
+	public String getRealname();
 
-	public void setType(LogEntryType type);
+	public void setRealname(String realName);
 
-	public String getUser();
+	public Integer getHops();
 
-	public void setUser(String user);
+	public void setHops(Integer hops);
 
-	public String getMessage();
+	public String getConnectedServer();
 
-	public void setMessage(String message);
-
-	public String getRawLine();
-
-	public void setRawLine(String rawLine);
+	public void setConnectedServer(String connectedServer);
 }
