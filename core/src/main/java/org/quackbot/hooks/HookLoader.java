@@ -18,28 +18,22 @@
  */
 package org.quackbot.hooks;
 
-import java.io.File;
-import org.quackbot.hooks.Hook;
-
 /**
- * The core of any PluginLoader abstract class. All plugin types need to implement this
- * <p>
- * Many of the get* and is* methods should respond to private fields, just like a
- * JavaBean syntax. There only here to force you to use them.
- *
- *
+ * Generic hook loading interface. Allows hooks to be written in other languages
+ * and loaded at runtime.
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public interface HookLoader {
 	/**
-	 * Load method that is called when a file that matches the extension specified
-	 * is found in plugins directory. If this plugin requires manual adding (IE JavaPlugin)
-	 * then it must set the name to null so it can be ignored
+	 * Given the location of a file, load it as a {@link Hook} or as a 
+	 * {@link Command}. Note that Command is a much more 
+	 * specialized class and needs to be treated as such.
 	 * <p>
-	 * Implementations of this must completly setup the Command, parsing all avalible infomration.
-	 * The plugin must then be able to be activated by {@link #invoke(java.lang.String[], Quackbot.Bot, Quackbot.info.BotEvent)}
-	 * @param file         The file that contains the script
-	 * @throws Exception   Any exception encountered while parsing. The command will not be added
+	 * This is only called for files that match the extension given to 
+	 * {@link org.quackbot.Controller}
+	 * @param fileLocation The location of the file.
+	 * @throws Exception   Any exception encountered while parsing. The hook will
+	 *                     not be added and the exception will be logged
 	 */
 	public Hook load(String fileLocation) throws Exception;
 }
