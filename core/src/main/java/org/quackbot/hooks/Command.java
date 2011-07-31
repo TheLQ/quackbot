@@ -18,6 +18,8 @@
  */
 package org.quackbot.hooks;
 
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,20 +33,16 @@ import org.quackbot.events.CommandEvent;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@ToString
+@Data
 @EqualsAndHashCode(callSuper = true)
+@Setter(AccessLevel.NONE)
 public abstract class Command extends Hook {
-	@Getter
 	private String help = "";
-	@Getter
 	private boolean admin = false;
-	@Getter @Setter
+	@Setter
 	private boolean enabled = true;
-	@Getter
 	private int requiredParams = 0;
-	@Getter
 	private int optionalParams = 0;
-	@Getter
 	private boolean setup;
 
 	public Command() {
