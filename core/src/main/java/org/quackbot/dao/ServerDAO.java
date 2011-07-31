@@ -9,4 +9,6 @@ import org.quackbot.dao.model.ServerEntry;
  */
 public interface ServerDAO<T extends ServerEntry<I>, I extends Serializable> extends GenericDAO<T, I> {
 	public ServerEntry getByAddress(String serverAddress);
+
+	public ServerEntry create(String address);
 }
