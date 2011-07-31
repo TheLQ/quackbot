@@ -120,7 +120,7 @@ public class DAOControllerHb implements DAOController {
 
 	@Override
 	public void beginTransaction() {
-		sessionFactory.getCurrentSession().beginTransaction();
+		getSession().beginTransaction();
 	}
 
 	@Override
