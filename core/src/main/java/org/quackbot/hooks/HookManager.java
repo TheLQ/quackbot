@@ -180,12 +180,7 @@ public class HookManager {
 				}
 			}
 		};
-
-		//Dump into the correct thread pool
-		if (event.getBot() != null)
-			event.getBot().getThreadPool().execute(dispatcher);
-		else
-			globalPool.execute(dispatcher);
+		executeRunnable(event, dispatcher);
 	}
 
 	protected Future executeHook(final Hook hook, final Event<Bot> event) {
@@ -202,15 +197,17 @@ public class HookManager {
 				}
 			}
 		};
-
-		//Dispatch to appropiate thread pool
+		return executeRunnable(event, run);
+	}
+	
+	protected Future executeRunnable(Event<Bot> event, Runnable runnable) {
 		if (event.getBot() != null)
 			//Use bot's thread pool
-			return event.getBot().getThreadPool().submit(run);
+			return event.getBot().getThreadPool().submit(runnable);
 		else
 			//No bot, use global thread pool
-			return globalPool.submit(run);
-	}
+			return globalPool.submit(runnable);
+	} 
 
 	/**
 	 * Get all stored Commands, sifting out the plain Hooks
