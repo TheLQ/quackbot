@@ -64,6 +64,7 @@ import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Quackbot is an advanced IRC bot framework based off of PircBot.
@@ -222,17 +223,19 @@ public class Controller {
 
 		//Connect to all servers
 		try {
-			storage.beginTransaction();
-			Set<ServerDAO> servers = storage.getServers();
-			if (servers.isEmpty())
-				log.error("Server list is empty!");
-			for (ServerDAO curServer : servers)
-				initBot(curServer);
-			storage.endTransaction(true);
+			connectAllServers();
 		} catch (Exception e) {
 			log.error("Error encountered while attempting to join servers", e);
-			storage.endTransaction(false);
 		}
+	}
+
+	@Transactional(readOnly = true)
+	protected void connectAllServers() {
+		Set<ServerDAO> servers = storage.getServers();
+		if (servers.isEmpty())
+			log.error("Server list is empty!");
+		for (ServerDAO curServer : servers)
+			initBot(curServer);
 	}
 
 	/**
@@ -301,7 +304,7 @@ public class Controller {
 			public Thread newThread(Runnable rbl) {
 				return new Thread(threadGroup, rbl, genPrefix() + "-" + threadCounter++);
 			}
-			
+
 			protected String genPrefix() {
 				return "quackbot-" + curServer.getAddress() + "-" + curServer.getServerId();
 			}
@@ -355,7 +358,7 @@ public class Controller {
 			for (String curChan : channels)
 				server.getChannels().add(getStorage().newChannelDAO(curChan));
 			storage.endTransaction(true);
-			
+
 			//Split up into multiple transactions so things like id's automatically get created
 			storage.beginTransaction();
 			if (started)
