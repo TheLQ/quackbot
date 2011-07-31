@@ -162,6 +162,8 @@ public class DAOControllerHb implements DAOController {
 	}
 
 	protected void addObjectToSave(Object... objects) {
+		if (objects.length == 0)
+			return;
 		Queue<Object> localObjects = objectsToSave.get();
 		log.trace("Adding object: " + StringUtils.join(objects, "\n\rAdding object: "));
 		if (localObjects == null)
