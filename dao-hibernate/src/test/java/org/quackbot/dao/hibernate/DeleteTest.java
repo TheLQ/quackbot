@@ -24,6 +24,7 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.ObjectDeletedException;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -162,7 +163,7 @@ public class DeleteTest extends GenericHbTest {
 	/**
 	 * WARNING: THIS TEST IS BROKEN
 	 */
-	@Test(successPercentage = 0, expectedExceptions = ObjectDeletedException.class)
+	@Test(successPercentage = 0, expectedExceptions = ConstraintViolationException.class)
 	public void deleteServerTest() {
 		setupEnviornment();
 
