@@ -426,20 +426,11 @@ public class Controller {
 	}
 
 	/**
-	 * Register a custom plugin type with Quackbot, associating with the specified extention
-	 * @param ext     Exentsion to associate Command Type with
-	 * @param newType Class of Command Type
-	 */
-	public void addHookLoader(HookLoader loader, String ext) {
-		addHookLoader(loader, new String[]{ext});
-	}
-
-	/**
-	 * Register a custom plugin type with Quackbot, associating with the specified extentions
+	 * Register a plugin loader, associating with the specified extentions
 	 * @param exts     Extention to associate Command Type with
 	 * @param newType Class of Command Type
 	 */
-	public void addHookLoader(HookLoader loader, String[] exts) {
+	public void addHookLoader(HookLoader loader, String... exts) {
 		for (String curExt : exts)
 			getHookLoaders().put(curExt, loader);
 	}
