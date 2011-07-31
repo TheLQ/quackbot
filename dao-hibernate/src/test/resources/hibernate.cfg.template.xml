@@ -30,10 +30,13 @@
 		
 		<property name="show_sql">true</property>
 		
-		<property name="connection.autocommit">true</property> 
-		
-		<mapping class="org.quackbot.data.hibernate.AdminStoreHb"/>
-		<mapping class="org.quackbot.data.hibernate.ChannelStoreHb"/>
-		<mapping class="org.quackbot.data.hibernate.ServerStoreHb"/>
+		<!--Do NOT modify below this line. Tests might fail otherwise-->
+		<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+		<property name="hibernate.current_session_context_class">thread</property>
+		<mapping class="org.quackbot.dao.hibernate.UserChannelHb"/>
+		<mapping class="org.quackbot.dao.hibernate.AdminDAOHb"/>
+		<mapping class="org.quackbot.dao.hibernate.ChannelDAOHb"/>
+		<mapping class="org.quackbot.dao.hibernate.ServerDAOHb"/>
+		<mapping class="org.quackbot.dao.hibernate.UserDAOHb"/>
 	</session-factory>
 </hibernate-configuration>
