@@ -18,9 +18,7 @@
  */
 package org.quackbot.dao.model;
 
-import java.io.Serializable;
 import java.util.Set;
-import org.quackbot.dao.GenericDAO;
 
 /**
  * Bean that holds all known Channel information. This is meant to be integrated with
@@ -30,7 +28,7 @@ import org.quackbot.dao.GenericDAO;
  * If this needs to be changed in database, call {@link #updateDB()}
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface ChannelEntry<K extends Serializable> extends GenericEntry<K>  {
+public interface ChannelEntry extends GenericEntry  {
 	/*********** Admin Management ***********/
 	
 	/**

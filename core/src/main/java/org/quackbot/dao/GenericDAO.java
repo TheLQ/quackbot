@@ -1,14 +1,13 @@
 package org.quackbot.dao;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface GenericDAO<T, K extends Serializable> {
-	T findById(K id);
+public interface GenericDAO<T> {
+	T findById(Long id);
 
 	List<T> findAll();
 
