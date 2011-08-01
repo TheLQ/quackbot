@@ -7,5 +7,5 @@ import org.quackbot.dao.hibernate.model.LogEntryHibernate;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class LogEntryDAOHibernate extends GenericHbDAO<LogEntryHibernate> implements LogDAO<LogEntryHibernate, Long> {
+public class LogEntryDAOHibernate extends GenericHbDAO<LogEntryHibernate> implements LogDAO<LogEntryHibernate> {
 }

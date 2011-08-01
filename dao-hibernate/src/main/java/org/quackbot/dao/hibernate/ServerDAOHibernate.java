@@ -11,7 +11,7 @@ import org.quackbot.dao.model.ServerEntry;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class ServerDAOHibernate extends GenericHbDAO<ServerEntryHibernate> implements ServerDAO<ServerEntryHibernate, Long> {
+public class ServerDAOHibernate extends GenericHbDAO<ServerEntryHibernate> implements ServerDAO<ServerEntryHibernate> {
 	@Override
 	public ServerEntryHibernate delete(ServerEntryHibernate entity) {
 		for (ChannelEntry channel : entity.getChannels())
