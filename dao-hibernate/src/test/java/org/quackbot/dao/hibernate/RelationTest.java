@@ -18,14 +18,17 @@
  */
 package org.quackbot.dao.hibernate;
 
+import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
+import org.quackbot.dao.hibernate.model.ChannelEntryHibernate;
 import java.util.ArrayList;
-import org.quackbot.dao.UserDAO;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.criterion.Restrictions;
-import org.quackbot.dao.AdminDAO;
-import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.model.AdminEntry;
+import org.quackbot.dao.model.ChannelEntry;
+import org.quackbot.dao.model.UserEntry;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -34,53 +37,50 @@ import static org.testng.Assert.*;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class RelationTest extends GenericHbTest {
+	@Transactional
 	@Test(description = "Make sure when saving a server the assoicated channels get created")
 	public void ServerChannelTest() {
 		//Setup
-		controller.beginTransaction();
-		ServerDAOHb server = generateServer("some.host");
-		ChannelDAOHb channel = new ChannelDAOHb();
-		channel.setName("#channelName");
-		server.getChannels().add(channel);
-		controller.endTransaction(true);
+		ServerChannelTest0();
 
 		//Make sure they exist
-		controller.beginTransaction();
-		ServerDAOHb fetchedServer = (ServerDAOHb) controller.getSession().createQuery(" from ServerDAOHb").uniqueResult();
-		assertNotNull(fetchedServer, "Fetched server is null");
-		assertEquals((int) fetchedServer.getServerId(), 1, "Server ID is wrong");
+		List<ServerEntryHibernate> servers = serverDao.findAll();
+		assertEquals(servers.size(), 1, "Too many/not enough servers");
+		ServerEntryHibernate fetchedServer = servers.get(0);
+		assertEquals((long) fetchedServer.getId(), 1, "Server ID is wrong");
 		assertEquals(fetchedServer.getAddress(), "some.host", "Server host is wrong");
 
-		Set<ChannelDAO> channels = fetchedServer.getChannels();
+		Set<ChannelEntry> channels = fetchedServer.getChannels();
 		assertEquals(channels.size(), 1, "Channels size is wrong (no channel)");
-		ChannelDAO fetchedChannel = channels.iterator().next();
+		ChannelEntry fetchedChannel = channels.iterator().next();
 		assertNotNull(fetchedChannel, "Channel is null but is in the channel list");
-		assertEquals((int) fetchedChannel.getChannelID(), 1, "Channel ID is wrong");
+		assertEquals((long) fetchedChannel.getId(), 1, "Channel ID is wrong");
 		assertEquals(fetchedChannel.getName(), "#channelName", "Channel name doesn't match");
-		controller.endTransaction(true);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void ServerChannelTest0() {
+		ServerEntryHibernate server = serverDao.create("some.host");
+		server.getChannels().add(channelDao.create("#channelName"));
+		serverDao.save(server);
+	}
+
+	@Transactional
 	@Test(dependsOnMethods = "ServerChannelTest")
 	public void ChannelUserStatusTest() {
-		controller.beginTransaction();
-		ServerDAOHb server = generateServer("some.host");
-		ChannelDAOHb channel = generateChannel("#someChannel");
-		server.getChannels().add(channel);
-		channel.getUsers().add(generateUser("someNickNormal"));
-		channel.getOps().add(generateUser("someNickOp"));
-		channel.getVoices().add(generateUser("someNickVoice"));
-		controller.endTransaction(true);
+		ChannelUserStatusTest0();
 
 		//Make sure the statuses still work (use known working methods
-		controller.beginTransaction();
-		ChannelDAOHb chan = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb").uniqueResult();
+		List<ChannelEntryHibernate> channels = channelDao.findAll();
+		assertEquals(channels.size(), 1, "Too many/not enough channels");
+		ChannelEntryHibernate chan = channels.get(0);
 
 		//Verify there are 3 users
 		List<String> usersShouldExist = new ArrayList();
 		usersShouldExist.add("someNickNormal");
 		usersShouldExist.add("someNickOp");
 		usersShouldExist.add("someNickVoice");
-		for (UserDAO curUser : chan.getUsers()) {
+		for (UserEntry curUser : chan.getUsers()) {
 			String nick = curUser.getNick();
 			assertTrue(usersShouldExist.contains(nick), "Unknown user: " + nick);
 			usersShouldExist.remove(nick);
@@ -89,7 +89,7 @@ public class RelationTest extends GenericHbTest {
 
 		//Verify normal
 		assertEquals(chan.getNormalUsers().size(), 1, "Normal user list size is wrong");
-		UserDAO user = chan.getNormalUsers().iterator().next();
+		UserEntry user = chan.getNormalUsers().iterator().next();
 		assertEquals(user.getNick(), "someNickNormal", "Normal nick is wrong (wrong user?)");
 
 		//Verify op
@@ -107,51 +107,55 @@ public class RelationTest extends GenericHbTest {
 		assertEquals(chan.getHalfOps().size(), 0, "Extra half ops: " + StringUtils.join(chan.getHalfOps(), ", "));
 		assertEquals(chan.getOwners().size(), 0, "Extra owners: " + StringUtils.join(chan.getOwners(), ", "));
 	}
+	
+	@Transactional(propagation= Propagation.REQUIRES_NEW)
+	protected void ChannelUserStatusTest0() {
+		ServerEntryHibernate server = serverDao.create("some.host");
+		ChannelEntryHibernate channel = channelDao.create("#someChannel");
+		server.getChannels().add(channel);
+		channel.getUsers().add(userDao.create("someNickNormal"));
+		channel.getOps().add(userDao.create("someNickOp"));
+		channel.getVoices().add(userDao.create("someNickVoice"));
+	}
 
+	@Transactional
 	@Test(dependsOnMethods = "ChannelUserStatusTest")
 	public void UserSameTest() {
-		controller.beginTransaction();
 		generateEnviornment(1, null);
-		controller.endTransaction(true);
 
-		controller.beginTransaction();
 		//Load channelUser1 from #aChannel1
-		ChannelDAOHb channel = (ChannelDAOHb) controller.getSession().createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#aChannel1")).uniqueResult();
-		UserDAO aChannelUser = null;
-		for (UserDAO curUser : channel.getUsers())
+		ChannelEntry channel = channelDao.findByName(serverDao.findByAddress("irc.host1"), "#aChannel1");
+		UserEntry aChannelUser = null;
+		for (UserEntry curUser : channel.getUsers())
 			if (curUser.getNick().equals("channelUser1"))
 				aChannelUser = curUser;
 		assertNotNull(aChannelUser, "channelUser1 doesn't exist in channel #aChannel1");
 
 		//Load channelUser1 from #aChannel1
-		channel = (ChannelDAOHb) controller.getSession().createCriteria(ChannelDAOHb.class).add(Restrictions.eq("name", "#someChannel1")).uniqueResult();
-		UserDAO someChannelUser = null;
-		for (UserDAO curUser : channel.getUsers())
+		channel = channelDao.findByName(serverDao.findByAddress("irc.host1"), "#someChannel1");
+		UserEntry someChannelUser = null;
+		for (UserEntry curUser : channel.getUsers())
 			if (curUser.getNick().equals("channelUser1"))
 				someChannelUser = curUser;
 		assertNotNull(someChannelUser, "channelUser1 doesn't exist in channel #someChannel1");
 
 		//Make sure they are equal
 		assertEquals(aChannelUser, someChannelUser, "channelUser1's from #aChannel1 and #someChannel1 are not equal");
-		assertEquals(aChannelUser.getUserId(), someChannelUser.getUserId(), "channelUser1's from #aChannel1 and #someChannel1 ids don't match");
+		assertEquals(aChannelUser.getId(), someChannelUser.getId(), "channelUser1's from #aChannel1 and #someChannel1 ids don't match");
 	}
 
+	@Transactional
 	@Test(dependsOnMethods = "ServerChannelTest")
 	public void AdminServerTest() {
-		controller.beginTransaction();
-		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
-		generateEnviornment(1, globalAdmin);
-		generateEnviornment(2, globalAdmin);
-		controller.endTransaction(true);
+		setupEnviornment();
 
-		controller.beginTransaction();
 		//Verify server1 admins
-		ServerDAOHb fetchedServer1 = (ServerDAOHb) controller.getSession().createQuery("from ServerDAOHb WHERE SERVER_ID = 1").uniqueResult();
+		ServerEntryHibernate fetchedServer1 = serverDao.findById(1L);
 		List<String> adminsShouldExist = new ArrayList();
 		adminsShouldExist.add("globalAdmin");
 		adminsShouldExist.add("serverAdmin1");
-		AdminDAO fetchedGlobalAdmin1 = null;
-		for (AdminDAO curAdmin : fetchedServer1.getAdmins()) {
+		AdminEntry fetchedGlobalAdmin1 = null;
+		for (AdminEntry curAdmin : fetchedServer1.getAdmins()) {
 			String name = curAdmin.getName();
 			if (name.equals("globalAdmin"))
 				fetchedGlobalAdmin1 = curAdmin;
@@ -162,12 +166,12 @@ public class RelationTest extends GenericHbTest {
 		assertNotNull(fetchedGlobalAdmin1, "Global admin not found in server1");
 
 		//Verify server2 admins
-		ServerDAOHb fetchedServer2 = (ServerDAOHb) controller.getSession().createQuery("from ServerDAOHb WHERE SERVER_ID = 2").uniqueResult();
+		ServerEntryHibernate fetchedServer2 = serverDao.findById(2L);
 		adminsShouldExist = new ArrayList();
 		adminsShouldExist.add("globalAdmin");
 		adminsShouldExist.add("serverAdmin2");
-		AdminDAO fetchedGlobalAdmin2 = null;
-		for (AdminDAO curAdmin : fetchedServer2.getAdmins()) {
+		AdminEntry fetchedGlobalAdmin2 = null;
+		for (AdminEntry curAdmin : fetchedServer2.getAdmins()) {
 			String name = curAdmin.getName();
 			if (name.equals("globalAdmin"))
 				fetchedGlobalAdmin2 = curAdmin;
@@ -178,25 +182,22 @@ public class RelationTest extends GenericHbTest {
 		assertNotNull(fetchedGlobalAdmin2, "Global admin not found in server2");
 
 		//Make sure global admins match
-		assertEquals(fetchedGlobalAdmin1.getAdminId(), fetchedGlobalAdmin2.getAdminId(), "Global admins IDs do not match");
+		assertEquals(fetchedGlobalAdmin1.getId(), fetchedGlobalAdmin2.getId(), "Global admins IDs do not match");
 		assertEquals(fetchedGlobalAdmin1, fetchedGlobalAdmin2, "Global admins do not match in .equals()");
 	}
 
+	@Transactional
 	@Test(dependsOnMethods = "AdminServerTest")
 	public void AdminChannelTest() {
-		controller.beginTransaction();
-		generateEnviornment(1, null);
-		generateEnviornment(2, null);
-		controller.endTransaction(true);
+		setupEnviornment();
 
-		controller.beginTransaction();
 		//Verify #aChannel1 admins
-		ChannelDAOHb aChannel1 = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb WHERE name = '#aChannel1'").uniqueResult();
+		ChannelEntry aChannel1 = channelDao.findByName(serverDao.findById(1L), "#aChannel1");
 		List<String> adminsShouldExist = new ArrayList();
 		adminsShouldExist.add("channelAdmin1");
 		adminsShouldExist.add("aChannelAdmin1");
-		AdminDAO fetchedChannelAdmin = null;
-		for (AdminDAO curAdmin : aChannel1.getAdmins()) {
+		AdminEntry fetchedChannelAdmin = null;
+		for (AdminEntry curAdmin : aChannel1.getAdmins()) {
 			String name = curAdmin.getName();
 			if (name.equals("channelAdmin1"))
 				fetchedChannelAdmin = curAdmin;
@@ -207,12 +208,12 @@ public class RelationTest extends GenericHbTest {
 		assertNotNull(fetchedChannelAdmin, "Channel admin not found in #aChannel1");
 
 		//Verify #someChannel1 admins
-		ChannelDAOHb someChannel1 = (ChannelDAOHb) controller.getSession().createQuery("from ChannelDAOHb WHERE name = '#someChannel1'").uniqueResult();
+		ChannelEntryHibernate someChannel1 = channelDao.findByName(serverDao.findById(1L), "#someChannel1");
 		adminsShouldExist = new ArrayList();
 		adminsShouldExist.add("channelAdmin1");
 		adminsShouldExist.add("someChannelAdmin1");
-		AdminDAO fetchedChannelAdmin2 = null;
-		for (AdminDAO curAdmin : someChannel1.getAdmins()) {
+		AdminEntry fetchedChannelAdmin2 = null;
+		for (AdminEntry curAdmin : someChannel1.getAdmins()) {
 			String name = curAdmin.getName();
 			if (name.equals("channelAdmin1"))
 				fetchedChannelAdmin2 = curAdmin;
@@ -223,7 +224,7 @@ public class RelationTest extends GenericHbTest {
 		assertNotNull(fetchedChannelAdmin2, "Global admin not found in #someChannel1");
 
 		//Make sure global admins match
-		assertEquals(fetchedChannelAdmin.getAdminId(), fetchedChannelAdmin2.getAdminId(), "Global admins IDs do not match");
+		assertEquals(fetchedChannelAdmin.getId(), fetchedChannelAdmin2.getId(), "Global admins IDs do not match");
 		assertEquals(fetchedChannelAdmin, fetchedChannelAdmin2, "Global admins do not match in .equals()");
 	}
 }

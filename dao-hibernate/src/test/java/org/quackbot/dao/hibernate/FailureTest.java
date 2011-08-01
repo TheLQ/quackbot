@@ -19,6 +19,7 @@
 package org.quackbot.dao.hibernate;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 /**
@@ -26,27 +27,24 @@ import org.testng.annotations.Test;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class FailureTest extends GenericHbTest {
+	@Transactional
 	@Test(expectedExceptions = ConstraintViolationException.class, description = "Makes sure server is required on channel")
 	public void channelServerRequiredTest() {
 		//Generate a channel without a server
-		controller.beginTransaction();
-		ChannelDAOHb channel = generateChannel("#aChannel");
-		controller.endTransaction(true);
+		channelDao.save(channelDao.create("#aChannel"));
 	}
 
+	@Transactional
 	@Test(expectedExceptions = ConstraintViolationException.class, description = "Makes sure name is required on channel")
 	public void channelNameRequiredTest() {
 		//Generate a channel without a name
-		controller.beginTransaction();
-		ChannelDAOHb channel = generateChannel(null);
-		controller.endTransaction(true);
+		channelDao.save(channelDao.create(null));
 	}
 
+	@Transactional
 	@Test(expectedExceptions = ConstraintViolationException.class, description = "Makes sure address is required on server")
 	public void serverAddressRequiredTest() {
 		//Generate a server without a address
-		controller.beginTransaction();
-		ServerDAOHb server = generateServer(null);
-		controller.endTransaction(true);
+		serverDao.save(serverDao.create(null));
 	}
 }
