@@ -24,11 +24,14 @@ import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
 import org.quackbot.dao.model.AdminEntry;
 import org.quackbot.dao.model.ChannelEntry;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Transactional(propagation = Propagation.MANDATORY)
 @Repository
 public class ServerDAOHibernate extends GenericHbDAO<ServerEntryHibernate> implements ServerDAO<ServerEntryHibernate> {
 	@Override

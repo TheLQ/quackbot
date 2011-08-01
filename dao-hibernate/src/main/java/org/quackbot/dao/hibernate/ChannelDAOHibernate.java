@@ -25,18 +25,21 @@ import org.quackbot.dao.hibernate.model.ChannelEntryHibernate;
 import org.quackbot.dao.model.AdminEntry;
 import org.quackbot.dao.model.ServerEntry;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Transactional(propagation = Propagation.MANDATORY)
 @Repository
 public class ChannelDAOHibernate extends GenericHbDAO<ChannelEntryHibernate> implements ChannelDAO<ChannelEntryHibernate> {
 	@Override
 	public ChannelEntryHibernate delete(ChannelEntryHibernate entity) {
 		//Remove channel from server
 		entity.getServer().getChannels().remove(entity);
-		
+
 		//Remove channel from admins
 		for (Iterator<AdminEntry> itr = entity.getAdmins().iterator(); itr.hasNext();) {
 			AdminEntry curAdmin = itr.next();
@@ -54,11 +57,7 @@ public class ChannelDAOHibernate extends GenericHbDAO<ChannelEntryHibernate> imp
 
 	@Override
 	public ChannelEntryHibernate findByName(ServerEntry server, String channelName) {
-		return (ChannelEntryHibernate)getSession()
-				.createCriteria(ChannelEntryHibernate.class)
-				.add(Restrictions.eq("server", server))
-				.add(Restrictions.eq("name", channelName))
-				.uniqueResult();
+		return (ChannelEntryHibernate) getSession().createCriteria(ChannelEntryHibernate.class).add(Restrictions.eq("server", server)).add(Restrictions.eq("name", channelName)).uniqueResult();
 	}
 
 	@Override

@@ -23,19 +23,18 @@ import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.hibernate.model.UserEntryHibernate;
 import org.quackbot.dao.model.ServerEntry;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Transactional(propagation = Propagation.MANDATORY)
 @Repository
 public class UserDAOHibernate extends GenericHbDAO<UserEntryHibernate> implements UserDAO<UserEntryHibernate> {
 	public UserEntryHibernate findByNick(ServerEntry server, String userNick) {
-		return (UserEntryHibernate) getSession()
-				.createCriteria(UserEntryHibernate.class)
-				.add(Restrictions.eq("server", server))
-				.add(Restrictions.eq("nick", userNick))
-				.uniqueResult();
+		return (UserEntryHibernate) getSession().createCriteria(UserEntryHibernate.class).add(Restrictions.eq("server", server)).add(Restrictions.eq("nick", userNick)).uniqueResult();
 	}
 
 	public UserEntryHibernate create(String nick) {
