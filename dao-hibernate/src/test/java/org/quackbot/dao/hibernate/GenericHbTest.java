@@ -20,9 +20,11 @@ package org.quackbot.dao.hibernate;
 
 import lombok.AccessLevel;
 import lombok.Setter;
+import org.hibernate.cfg.Configuration;
 import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
 import org.quackbot.dao.hibernate.model.UserEntryHibernate;
 import org.quackbot.dao.hibernate.model.ChannelEntryHibernate;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.LogDAO;
@@ -74,6 +76,7 @@ public class GenericHbTest {
 		session.createDatabaseSchema();
 	}
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	protected ServerEntryHibernate generateEnviornment(long num, AdminEntryHibernate globalAdmin) {
 		ServerEntryHibernate server = serverDao.create("irc.host" + num);
 		server.setId(num);
