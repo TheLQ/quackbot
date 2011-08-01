@@ -147,7 +147,6 @@ public class Controller {
 	protected int defaultMessageDelay = 1750;
 	protected boolean started = false;
 	protected Thread shutdownHook;
-	protected boolean noAppender = true;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -165,16 +164,6 @@ public class Controller {
 			}
 		};
 		Runtime.getRuntime().addShutdownHook(shutdownHook);
-
-		//Get ahold of ControlAppender and set this as the Controller
-		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
-		for (Iterator<Appender<ILoggingEvent>> appenderItr = rootLog.iteratorForAppenders(); appenderItr.hasNext();) {
-			Appender<ILoggingEvent> curAppender = appenderItr.next();
-			if (curAppender instanceof ControlAppender) {
-				((ControlAppender) curAppender).setController(this);
-				noAppender = false;
-			}
-		}
 
 		//Setup default Plugin Loaders
 		addHookLoader(new JSHookLoader(), "js");
@@ -448,13 +437,7 @@ public class Controller {
 				log.error("Controller cannot be started from EDT. Please start from seperate thread");
 				return;
 			}
-			
 			gui = new GUI(this);
-
-			if (noAppender) {
-				gui.CerrorLog.setText("ERROR: ControlAppender hasn't been added as a logger! This GUI will not display any log messages");
-				gui.CerrorLog.setForeground(Color.red);
-			}
 		} catch (Exception e) {
 			log.error("Unkown error occured in GUI initialzation", e);
 		}
