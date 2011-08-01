@@ -155,7 +155,7 @@ public class Controller {
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
-	public Controller(boolean createGui) {
+	public Controller() {
 		//Add shutdown hook to kill all bots and connections
 		//TODO: Store somewhere else so it can be removed
 		shutdownHook = new Thread() {
