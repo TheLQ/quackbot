@@ -61,6 +61,7 @@ import org.quackbot.hooks.loaders.JSHookLoader;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -97,14 +98,19 @@ import org.springframework.transaction.annotation.Transactional;
 @EqualsAndHashCode(exclude = {"bots"})
 @Slf4j
 public class Controller {
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected AdminDAO adminDao;
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected ChannelDAO channelDao;
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected LogDAO logDao;
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected ServerDAO serverDao;
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected UserDAO userDao;
 	/**

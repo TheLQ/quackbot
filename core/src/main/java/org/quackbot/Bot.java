@@ -50,6 +50,7 @@ import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.LogDAO;
 import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.model.ServerEntry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -65,14 +66,19 @@ import org.springframework.transaction.annotation.Transactional;
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 public class Bot extends PircBotX {
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected AdminDAO adminDao;
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected ChannelDAO channelDao;
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected LogDAO logDao;
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected ServerDAO serverDao;
+	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected UserDAO userDao;
 	/**
