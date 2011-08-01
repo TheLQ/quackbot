@@ -35,7 +35,7 @@ import org.quackbot.dao.model.LogEntry;
  */
 @Data
 @Entity(name = "log")
-public class LogEntryHibernate implements LogEntry<Long>, Serializable {
+public class LogEntryHibernate implements LogEntry, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)

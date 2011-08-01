@@ -49,7 +49,7 @@ import org.quackbot.dao.model.ServerEntry;
 @ToString(exclude = {"channels", "admins"})
 @Entity
 @Table(name = "servers")
-public class ServerEntryHibernate implements ServerEntry<Long>, Serializable {
+public class ServerEntryHibernate implements ServerEntry, Serializable {
 	private Long serverId;
 	private String address;
 	private Integer port;

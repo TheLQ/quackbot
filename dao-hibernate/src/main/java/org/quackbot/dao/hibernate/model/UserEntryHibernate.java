@@ -40,7 +40,7 @@ import org.quackbot.dao.model.UserEntry;
 @EqualsAndHashCode(of = "nick")
 @Entity
 @Table(name = "users")
-public class UserEntryHibernate implements Serializable, UserEntry<Long> {
+public class UserEntryHibernate implements Serializable, UserEntry {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
