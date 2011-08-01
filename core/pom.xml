@@ -18,17 +18,21 @@
 	</properties>
 
 	<dependencies>
+		<!--Logback for a concrete logging implentation-->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>0.9.26</version>
 		</dependency>
+		<!--Redirect Spring's logging (commons-logging) to slf4j-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
 			<version>1.6.1</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Spring framework: Core that keeps things togeather.-->
+		<!--Exclude commons logging since were using slf4j-->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
