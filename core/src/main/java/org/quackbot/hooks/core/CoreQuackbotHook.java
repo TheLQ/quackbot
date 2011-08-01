@@ -83,7 +83,7 @@ public class CoreQuackbotHook extends Hook {
 			return;
 		}
 
-		int commandNumber = getController(event).addCommandNumber();
+		int commandNumber = getController().addCommandNumber();
 		String commandText = "";
 		String fromText = (chan != null) ? "channel " + chan.getName() : " a PM by " + user.getNick();
 		String debugSuffix = "execution of command #" + commandNumber + ",  from " + fromText + " using message " + message;
@@ -94,12 +94,12 @@ public class CoreQuackbotHook extends Hook {
 			String[] args = getArgs(message);
 
 			//Load command
-			Command command = getController(event).getHookManager().getCommand(commandText);
+			Command command = getController().getHookManager().getCommand(commandText);
 			//Is this a valid command?
 			if (command == null || !command.isEnabled())
 				throw new InvalidCMDException(commandText);
 			//Is this an admin function? If so, is the person an admin?
-			if (command.isAdmin() && !getController(event).isAdmin(getBot(event), user, chan))
+			if (command.isAdmin() && !getController().isAdmin(getBot(event), user, chan))
 				throw new AdminException();
 			//Does the required number of args exist?
 			int given = args.length;
