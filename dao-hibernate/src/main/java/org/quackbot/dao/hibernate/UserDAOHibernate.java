@@ -18,10 +18,27 @@
  */
 package org.quackbot.dao.hibernate;
 
+import org.hibernate.criterion.Restrictions;
+import org.quackbot.dao.UserDAO;
+import org.quackbot.dao.hibernate.model.UserEntryHibernate;
+import org.quackbot.dao.model.ServerEntry;
+
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class UserDAOHibernate {
-	
+public class UserDAOHibernate extends GenericHbDAO<UserEntryHibernate> implements UserDAO<UserEntryHibernate> {
+	public UserEntryHibernate findByNick(ServerEntry server, String userNick) {
+		return (UserEntryHibernate) getSession()
+				.createCriteria(UserEntryHibernate.class)
+				.add(Restrictions.eq("server", server))
+				.add(Restrictions.eq("nick", userNick))
+				.uniqueResult();
+	}
+
+	public UserEntryHibernate create(String nick) {
+		UserEntryHibernate user = new UserEntryHibernate();
+		user.setNick(nick);
+		return user;
+	}
 }
