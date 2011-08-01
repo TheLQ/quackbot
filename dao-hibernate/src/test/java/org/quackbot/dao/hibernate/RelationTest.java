@@ -114,11 +114,12 @@ public class RelationTest extends GenericHbTest {
 		channel.getUsers().add(userDao.create("someNickNormal"));
 		channel.getOps().add(userDao.create("someNickOp"));
 		channel.getVoices().add(userDao.create("someNickVoice"));
+		serverDao.save(server);
 	}
 
 	@Test(dependsOnMethods = "ChannelUserStatusTest")
 	public void UserSameTest() {
-		generateEnviornment(1, null);
+		serverDao.save(generateEnviornment(1, null));
 
 		//Load channelUser1 from #aChannel1
 		ChannelEntry channel = channelDao.findByName(serverDao.findByAddress("irc.host1"), "#aChannel1");
