@@ -160,7 +160,7 @@ public class Controller {
 			@Override
 			public void run() {
 				LoggerFactory.getLogger(this.getClass()).info("JVM shutting down, closing all IRC connections gracefully");
-				Controller.this.stopAll();
+				Controller.this.shutdown();
 			}
 		});
 
@@ -336,7 +336,7 @@ public class Controller {
 	/**
 	 * Makes all bots quit servers
 	 */
-	public void stopAll() {
+	public void shutdown() {
 		for (Bot curBot : bots) {
 			curBot.quitServer("Killed by control panel");
 			curBot.dispose();
@@ -486,4 +486,3 @@ public class Controller {
 			super.terminated();
 		}
 	}
-}
