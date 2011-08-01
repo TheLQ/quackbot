@@ -27,21 +27,18 @@ import org.testng.annotations.Test;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class FailureTest extends GenericHbTest {
-	@Transactional
 	@Test(expectedExceptions = ConstraintViolationException.class, description = "Makes sure server is required on channel")
 	public void channelServerRequiredTest() {
 		//Generate a channel without a server
 		channelDao.save(channelDao.create("#aChannel"));
 	}
 
-	@Transactional
 	@Test(expectedExceptions = ConstraintViolationException.class, description = "Makes sure name is required on channel")
 	public void channelNameRequiredTest() {
 		//Generate a channel without a name
 		channelDao.save(channelDao.create(null));
 	}
 
-	@Transactional
 	@Test(expectedExceptions = ConstraintViolationException.class, description = "Makes sure address is required on server")
 	public void serverAddressRequiredTest() {
 		//Generate a server without a address

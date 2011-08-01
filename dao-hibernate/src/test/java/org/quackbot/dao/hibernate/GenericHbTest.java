@@ -20,11 +20,9 @@ package org.quackbot.dao.hibernate;
 
 import lombok.AccessLevel;
 import lombok.Setter;
-import org.hibernate.cfg.Configuration;
 import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
 import org.quackbot.dao.hibernate.model.UserEntryHibernate;
 import org.quackbot.dao.hibernate.model.ChannelEntryHibernate;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.LogDAO;
@@ -34,13 +32,11 @@ import org.quackbot.dao.hibernate.model.AdminEntryHibernate;
 import org.quackbot.dao.hibernate.model.LogEntryHibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 /**
@@ -48,7 +44,7 @@ import org.testng.annotations.BeforeMethod;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @ContextConfiguration("classpath:spring-dao-hibernate-test.xml")
-public class GenericHbTest extends AbstractTestNGSpringContextTests {
+public class GenericHbTest extends AbstractTransactionalTestNGSpringContextTests {
 	@Autowired
 	protected AbstractApplicationContext context;
 	@Autowired

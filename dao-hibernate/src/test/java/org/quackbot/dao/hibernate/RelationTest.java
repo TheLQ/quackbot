@@ -37,7 +37,6 @@ import static org.testng.Assert.*;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class RelationTest extends GenericHbTest {
-	@Transactional
 	@Test(description = "Make sure when saving a server the assoicated channels get created")
 	public void ServerChannelTest() {
 		//Setup
@@ -65,7 +64,6 @@ public class RelationTest extends GenericHbTest {
 		serverDao.save(server);
 	}
 
-	@Transactional
 	@Test(dependsOnMethods = "ServerChannelTest")
 	public void ChannelUserStatusTest() {
 		ChannelUserStatusTest0();
@@ -107,8 +105,8 @@ public class RelationTest extends GenericHbTest {
 		assertEquals(chan.getHalfOps().size(), 0, "Extra half ops: " + StringUtils.join(chan.getHalfOps(), ", "));
 		assertEquals(chan.getOwners().size(), 0, "Extra owners: " + StringUtils.join(chan.getOwners(), ", "));
 	}
-	
-	@Transactional(propagation= Propagation.REQUIRES_NEW)
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	protected void ChannelUserStatusTest0() {
 		ServerEntryHibernate server = serverDao.create("some.host");
 		ChannelEntryHibernate channel = channelDao.create("#someChannel");
@@ -118,7 +116,6 @@ public class RelationTest extends GenericHbTest {
 		channel.getVoices().add(userDao.create("someNickVoice"));
 	}
 
-	@Transactional
 	@Test(dependsOnMethods = "ChannelUserStatusTest")
 	public void UserSameTest() {
 		generateEnviornment(1, null);
@@ -144,7 +141,6 @@ public class RelationTest extends GenericHbTest {
 		assertEquals(aChannelUser.getId(), someChannelUser.getId(), "channelUser1's from #aChannel1 and #someChannel1 ids don't match");
 	}
 
-	@Transactional
 	@Test(dependsOnMethods = "ServerChannelTest")
 	public void AdminServerTest() {
 		setupEnviornment();
@@ -186,7 +182,6 @@ public class RelationTest extends GenericHbTest {
 		assertEquals(fetchedGlobalAdmin1, fetchedGlobalAdmin2, "Global admins do not match in .equals()");
 	}
 
-	@Transactional
 	@Test(dependsOnMethods = "AdminServerTest")
 	public void AdminChannelTest() {
 		setupEnviornment();
