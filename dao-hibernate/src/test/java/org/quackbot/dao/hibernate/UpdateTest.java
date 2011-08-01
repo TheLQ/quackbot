@@ -31,7 +31,7 @@ public class UpdateTest extends GenericHbTest {
 	protected final String aString = "I'm some really long multiword string";
 
 	@Test
-	public void serverInfoUpdate() {
+	public void serverInfoUpdateTest() {
 		setupEnviornment();
 
 		//Change server addresses and other info in the enviornment
@@ -54,7 +54,7 @@ public class UpdateTest extends GenericHbTest {
 	}
 
 	@Test
-	public void channelInfoUpdate() {
+	public void channelInfoUpdateTest() {
 		setupEnviornment();
 
 		//Change server addresses and other info in the enviornment
