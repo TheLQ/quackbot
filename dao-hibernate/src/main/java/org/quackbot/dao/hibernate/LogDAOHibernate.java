@@ -20,10 +20,12 @@ package org.quackbot.dao.hibernate;
 
 import org.quackbot.dao.LogDAO;
 import org.quackbot.dao.hibernate.model.LogEntryHibernate;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Repository
 public class LogDAOHibernate extends GenericHbDAO<LogEntryHibernate> implements LogDAO<LogEntryHibernate> {
 }

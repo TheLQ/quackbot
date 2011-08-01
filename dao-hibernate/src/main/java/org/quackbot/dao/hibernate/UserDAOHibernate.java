@@ -22,11 +22,13 @@ import org.hibernate.criterion.Restrictions;
 import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.hibernate.model.UserEntryHibernate;
 import org.quackbot.dao.model.ServerEntry;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Repository
 public class UserDAOHibernate extends GenericHbDAO<UserEntryHibernate> implements UserDAO<UserEntryHibernate> {
 	public UserEntryHibernate findByNick(ServerEntry server, String userNick) {
 		return (UserEntryHibernate) getSession()

@@ -23,11 +23,13 @@ import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.hibernate.model.AdminEntryHibernate;
 import org.quackbot.dao.model.ChannelEntry;
 import org.quackbot.dao.model.ServerEntry;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Repository
 public class AdminDAOHibernate extends GenericHbDAO<AdminEntryHibernate> implements AdminDAO<AdminEntryHibernate> {
 	@Override
 	public AdminEntryHibernate delete(AdminEntryHibernate entity) {

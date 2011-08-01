@@ -23,11 +23,13 @@ import org.quackbot.dao.ServerDAO;
 import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
 import org.quackbot.dao.model.AdminEntry;
 import org.quackbot.dao.model.ChannelEntry;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Repository
 public class ServerDAOHibernate extends GenericHbDAO<ServerEntryHibernate> implements ServerDAO<ServerEntryHibernate> {
 	@Override
 	public ServerEntryHibernate delete(ServerEntryHibernate entity) {
