@@ -31,7 +31,6 @@ import org.quackbot.Bot;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
-import org.quackbot.dao.DAOController;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import org.testng.annotations.DataProvider;
@@ -45,7 +44,6 @@ import static org.mockito.Mockito.*;
  */
 @Slf4j
 public class CoreQuackbotHookTest {
-	protected DAOController store;
 	protected Controller controller;
 	protected Bot bot;
 	protected Channel channel;
@@ -55,14 +53,12 @@ public class CoreQuackbotHookTest {
 	protected String args3 = "hello0 hello1 hello2 hello3";
 
 	public CoreQuackbotHookTest() {
-		store = mock(DAOController.class);
-
 		//Configure controller with empty DAOController, no GUI, and basic prefix
-		controller = new Controller(store, false);
+		controller = new Controller();
 		controller.addPrefix("?");
 
 		//Create basic state
-		bot = new Bot(controller, -1, Executors.newCachedThreadPool());
+		bot = new Bot(controller, -1L, Executors.newCachedThreadPool());
 		channel = new Channel(bot, "#someChannel") {
 		};
 		user = new User(bot, "SomeUser") {
