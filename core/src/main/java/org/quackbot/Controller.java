@@ -145,6 +145,7 @@ public class Controller {
 	@Setter(AccessLevel.PUBLIC)
 	protected int defaultMessageDelay = 1750;
 	protected boolean started = false;
+	protected Thread shutdownHook;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -156,13 +157,14 @@ public class Controller {
 
 		//Add shutdown hook to kill all bots and connections
 		//TODO: Store somewhere else so it can be removed
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		shutdownHook = new Thread() {
 			@Override
 			public void run() {
 				LoggerFactory.getLogger(this.getClass()).info("JVM shutting down, closing all IRC connections gracefully");
 				Controller.this.shutdown();
 			}
-		});
+		};
+		Runtime.getRuntime().addShutdownHook(shutdownHook);
 
 		//Do we need to make a GUI?
 		//TODO: Somewhere else?
@@ -341,6 +343,8 @@ public class Controller {
 			curBot.quitServer("Killed by control panel");
 			curBot.dispose();
 		}
+		if (!shutdownHook.isAlive())
+			Runtime.getRuntime().removeShutdownHook(shutdownHook);
 		bots.clear();
 		log.info("Killed all bots");
 	}
@@ -486,3 +490,4 @@ public class Controller {
 			super.terminated();
 		}
 	}
+}
