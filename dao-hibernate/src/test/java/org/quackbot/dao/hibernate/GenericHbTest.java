@@ -76,56 +76,40 @@ public class GenericHbTest {
 		se.create(true, true);
 	}
 
-	protected ServerEntryHibernate generateServer(String address) {
-		return serverDao.create(address);
-	}
-
-	protected ChannelEntryHibernate generateChannel(String name) {
-		return channelDao.create(name);
-	}
-
-	protected UserEntryHibernate generateUser(String name) {
-		return userDao.create(name);
-	}
-
-	protected AdminEntryHibernate generateAdmin(String name) {
-		return adminDao.create(name);
-	}
-
 	protected ServerEntryHibernate generateEnviornment(long num, AdminEntryHibernate globalAdmin) {
-		ServerEntryHibernate server = generateServer("irc.host" + num);
+		ServerEntryHibernate server = serverDao.create("irc.host" + num);
 		server.setId(num);
 		if (globalAdmin != null)
 			server.getAdmins().add(globalAdmin);
-		server.getAdmins().add(generateAdmin("serverAdmin" + num));
+		server.getAdmins().add(adminDao.create("serverAdmin" + num));
 
-		AdminEntryHibernate channelAdmin = generateAdmin("channelAdmin" + num);
-		UserEntryHibernate channelUser = generateUser("channelUser" + num);
+		AdminEntryHibernate channelAdmin = adminDao.create("channelAdmin" + num);
+		UserEntryHibernate channelUser = userDao.create("channelUser" + num);
 
-		ChannelEntryHibernate channel = generateChannel("#aChannel" + num);
+		ChannelEntryHibernate channel = channelDao.create("#aChannel" + num);
 		server.getChannels().add(channel);
 		channel.getAdmins().add(channelAdmin);
-		channel.getAdmins().add(generateAdmin("aChannelAdmin" + num));
-		channel.getUsers().add(generateUser("aNormalUser" + num));
+		channel.getAdmins().add(adminDao.create("aChannelAdmin" + num));
+		channel.getUsers().add(userDao.create("aNormalUser" + num));
 		channel.getUsers().add(channelUser);
-		channel.getOps().add(generateUser("aOpUser" + num));
-		channel.getSuperOps().add(generateUser("aSuperOpUser" + num));
+		channel.getOps().add(userDao.create("aOpUser" + num));
+		channel.getSuperOps().add(userDao.create("aSuperOpUser" + num));
 
-		channel = generateChannel("#someChannel" + num);
+		channel = channelDao.create("#someChannel" + num);
 		server.getChannels().add(channel);
 		channel.getAdmins().add(channelAdmin);
-		channel.getAdmins().add(generateAdmin("someChannelAdmin" + num));
-		channel.getUsers().add(generateUser("someNormalUser" + num));
-		channel.getOps().add(generateUser("someOpUser" + num));
+		channel.getAdmins().add(adminDao.create("someChannelAdmin" + num));
+		channel.getUsers().add(userDao.create("someNormalUser" + num));
+		channel.getOps().add(userDao.create("someOpUser" + num));
 		channel.getOps().add(channelUser);
-		channel.getSuperOps().add(generateUser("someSuperOpUser" + num));
+		channel.getSuperOps().add(userDao.create("someSuperOpUser" + num));
 
 		return server;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	protected void setupEnviornment() {
-		AdminEntryHibernate globalAdmin = generateAdmin("globalAdmin");
+		AdminEntryHibernate globalAdmin = adminDao.create("globalAdmin");
 		serverDao.save(generateEnviornment(1, globalAdmin));
 		serverDao.save(generateEnviornment(2, globalAdmin));
 	}
