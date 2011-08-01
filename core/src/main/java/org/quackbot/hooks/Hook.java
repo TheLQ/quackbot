@@ -21,8 +21,10 @@ package org.quackbot.hooks;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.Bot;
@@ -33,6 +35,7 @@ import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.events.InitEvent;
 import org.quackbot.events.QuackbotEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The Hook interface is what all Hooks must implement to be added to the stack.
@@ -50,6 +53,9 @@ public abstract class Hook extends ListenerAdapter<Bot> {
 	protected final String name;
 	protected final String fileLocation;
 	protected final Listener listener;
+	@Autowired
+	@Setter(AccessLevel.PROTECTED)
+	protected Controller controller;
 
 	static {
 		//Add our custom event methods to the super class eventToMethod
@@ -109,15 +115,6 @@ public abstract class Hook extends ListenerAdapter<Bot> {
 
 	public Bot getBot(Event<Bot> event) {
 		return event.getBot();
-	}
-
-	public Controller getController(Event<Bot> event) {
-		if (event.getBot().getController() != null)
-			return event.getBot().getController();
-		else if (event instanceof QuackbotEvent)
-			return ((QuackbotEvent) event).getController();
-		else
-			throw new RuntimeException("Can't find controller (should exist) from " + event.getClass() + " event - " + event);
 	}
 
 	@Override
