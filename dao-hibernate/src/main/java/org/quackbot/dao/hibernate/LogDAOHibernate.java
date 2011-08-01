@@ -21,11 +21,14 @@ package org.quackbot.dao.hibernate;
 import org.quackbot.dao.LogDAO;
 import org.quackbot.dao.hibernate.model.LogEntryHibernate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Transactional(propagation = Propagation.MANDATORY)
 @Repository
 public class LogDAOHibernate extends GenericHbDAO<LogEntryHibernate> implements LogDAO<LogEntryHibernate> {
 }

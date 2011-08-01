@@ -27,11 +27,14 @@ import org.hibernate.criterion.Restrictions;
 import org.quackbot.dao.GenericDAO;
 import org.quackbot.dao.model.GenericEntry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Transactional(propagation = Propagation.MANDATORY)
 @Data
 public abstract class GenericHbDAO<T extends GenericEntry> implements GenericDAO<T> {
 	@Autowired
