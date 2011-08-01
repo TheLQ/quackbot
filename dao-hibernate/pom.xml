@@ -55,6 +55,13 @@
 			<artifactId>spring-orm</artifactId>
 			<version>3.0.5.RELEASE</version>
 		</dependency>
+		<!--Spring Test for proper unit testing-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>3.0.5.RELEASE</version>
+			<scope>test</scope>
+		</dependency>
 		<!--Test database: MySQL-->
 		<dependency>
 			<groupId>mysql</groupId>
