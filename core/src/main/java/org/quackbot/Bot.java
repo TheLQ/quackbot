@@ -20,8 +20,12 @@ package org.quackbot;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.Set;
+import org.pircbotx.exception.IrcException;
+import org.pircbotx.exception.NickAlreadyInUseException;
 import org.pircbotx.hooks.Listener;
 import org.quackbot.hooks.Hook;
 import org.quackbot.dao.ServerDAO;
@@ -30,8 +34,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.Channel;
 import org.pircbotx.InputThread;
@@ -40,6 +46,12 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
+import org.quackbot.dao.AdminDAO;
+import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.LogDAO;
+import org.quackbot.dao.UserDAO;
+import org.quackbot.dao.model.ServerEntry;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Bot instance that communicates with 1 server
@@ -54,11 +66,21 @@ import org.pircbotx.hooks.managers.ListenerManager;
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 public class Bot extends PircBotX {
+	@Setter(AccessLevel.PROTECTED)
+	protected AdminDAO adminDao;
+	@Setter(AccessLevel.PROTECTED)
+	protected ChannelDAO channelDao;
+	@Setter(AccessLevel.PROTECTED)
+	protected LogDAO logDao;
+	@Setter(AccessLevel.PROTECTED)
+	protected ServerDAO serverDao;
+	@Setter(AccessLevel.PROTECTED)
+	protected UserDAO userDao;
 	/**
 	 * Says weather bot is globally locked or not
 	 */
 	protected boolean botLocked = false;
-	protected final int serverId;
+	protected final Serializable serverId;
 	/**
 	 * Local threadpool
 	 */
@@ -74,7 +96,7 @@ public class Bot extends PircBotX {
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(Controller controller, int serverId, ExecutorService threadPool) {
+	public Bot(Controller controller, Serializable serverId, ExecutorService threadPool) {
 		this.serverId = serverId;
 		this.threadPool = threadPool;
 		this.controller = controller;
@@ -88,33 +110,27 @@ public class Bot extends PircBotX {
 		setListenerManager(new WrapperListenerManager());
 	}
 
-	public void connect() {
-		try {
-			controller.getStorage().beginTransaction();
-			//Some debug
-			ServerDAO serverStore = getServerStore();
-			log.info("Attempting to connect to " + serverStore.getAddress() + " on port " + serverStore.getPort());
-			if (serverStore.getPassword() != null)
-				log.info("Using password " + serverStore.getPassword() + " to connect");
+	@Transactional(readOnly = true)
+	public void connect() throws NickAlreadyInUseException, IOException, IrcException {
+		//Some bits of info
+		ServerEntry server = getServerEntry();
+		log.info("Attempting to connect to " + server.getAddress() + " on port " + server.getPort());
+		if (server.getPassword() != null)
+			log.info("Using password " + server.getPassword() + " to connect");
 
-			//Connect to server. Channels are handled by onConnect listener in CoreQuackbotHook
-			int port = (serverStore.getPort() != null) ? serverStore.getPort() : 6667;
-			if (serverStore.getPassword() != null)
-				connect(serverStore.getAddress(), port, serverStore.getPassword());
-			else
-				connect(serverStore.getAddress(), port);
-			controller.getStorage().endTransaction(true);
-		} catch (Exception e) {
-			log.error("Error in connecting", e);
-			controller.getStorage().endTransaction(false);
-		}
+		//Connect to server. Channels are handled by onConnect listener in CoreQuackbotHook
+		int port = (server.getPort() != null) ? server.getPort() : 6667;
+		if (server.getPassword() != null)
+			connect(server.getAddress(), port, server.getPassword());
+		else
+			connect(server.getAddress(), port);
 	}
 
 	@Override
 	protected InputThread createInputThread(Socket socket, BufferedReader breader) {
 		InputThread inputThread = new InputThread(this, socket, breader) {
 		};
-		inputThread.setName("quackbot-" + getServerStore().getAddress() + "-" + getServerStore().getServerId() + "-input");
+		inputThread.setName("quackbot-" + getServerEntry().getAddress() + "-" + getServerEntry().getId() + "-input");
 		return inputThread;
 	}
 
@@ -122,7 +138,7 @@ public class Bot extends PircBotX {
 	protected OutputThread createOutputThread(BufferedWriter bwriter) {
 		OutputThread outputThread = new OutputThread(this, bwriter) {
 		};
-		outputThread.setName("quackbot-" + getServerStore().getAddress() + "-" + getServerStore().getServerId() + "-output");
+		outputThread.setName("quackbot-" + getServerEntry().getAddress() + "-" + getServerEntry().getId() + "-output");
 		return outputThread;
 	}
 
@@ -204,24 +220,15 @@ public class Bot extends PircBotX {
 		return list;
 	}
 
-	public ServerDAO getServerStore() {
-		for (ServerDAO curServer : controller.getStorage().getServers())
-			if (curServer.getServerId().equals(serverId))
-				return curServer;
-		throw new RuntimeException("Can't find server store of current bot ( " + getServer() + " ) with server id " + serverId);
+	@Transactional
+	public ServerEntry getServerEntry() {
+		return (ServerEntry) serverDao.findById(serverId);
 	}
 
+	@Transactional
 	@Override
 	protected void handleLine(String line) {
-		controller.getStorage().beginTransaction();
-		try {
-			super.handleLine(line);
-			controller.getStorage().endTransaction(true);
-		} catch (Throwable t) {
-			controller.getStorage().endTransaction(false);
-			//Simply do the logging here, much easier than wrapping to throw up
-			logException(t);
-		}
+		super.handleLine(line);
 	}
 
 	public class WrapperListenerManager implements ListenerManager<Bot> {
