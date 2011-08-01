@@ -22,7 +22,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.Iterator;
 import org.quackbot.hooks.HookLoader;
-import java.util.Set;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
 import org.quackbot.dao.AdminDAO;
@@ -49,7 +48,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
-import org.quackbot.dao.DAOController;
+import org.quackbot.dao.LogDAO;
+import org.quackbot.dao.UserDAO;
+import org.quackbot.dao.model.AdminEntry;
+import org.quackbot.dao.model.ServerEntry;
 import org.quackbot.events.InitEvent;
 import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
@@ -61,7 +63,6 @@ import org.quackbot.hooks.core.HelpCommand;
 import org.quackbot.hooks.core.QuackbotLogHook;
 import org.quackbot.hooks.loaders.JSHookLoader;
 import org.quackbot.hooks.loaders.JavaHookLoader;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +101,16 @@ import org.springframework.transaction.annotation.Transactional;
 @EqualsAndHashCode(exclude = {"bots"})
 @Slf4j
 public class Controller {
-	protected final DAOController storage;
+	@Setter(AccessLevel.PROTECTED)
+	protected AdminDAO adminDao;
+	@Setter(AccessLevel.PROTECTED)
+	protected ChannelDAO channelDao;
+	@Setter(AccessLevel.PROTECTED)
+	protected LogDAO logDao;
+	@Setter(AccessLevel.PROTECTED)
+	protected ServerDAO serverDao;
+	@Setter(AccessLevel.PROTECTED)
+	protected UserDAO userDao;
 	/**
 	 * Set of all Bot instances
 	 */
@@ -141,27 +151,21 @@ public class Controller {
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
-	public Controller(DAOController storage, boolean createGui) {
-		this.storage = storage;
+	public Controller(boolean createGui) {
 		this.createGui = createGui;
 
 		//Add shutdown hook to kill all bots and connections
+		//TODO: Store somewhere else so it can be removed
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				Logger log = LoggerFactory.getLogger(this.getClass());
-				log.info("Closing all IRC and db connections gracefully");
-
+				LoggerFactory.getLogger(this.getClass()).info("JVM shutting down, closing all IRC connections gracefully");
 				Controller.this.stopAll();
-				try {
-					Controller.this.getStorage().close();
-				} catch (Exception e) {
-					e.printStackTrace(); //send to standard output because window is closing
-				}
 			}
 		});
 
 		//Do we need to make a GUI?
+		//TODO: Somewhere else?
 		if (createGui)
 			try {
 				//This can't run in EDT, end if it is
@@ -231,10 +235,10 @@ public class Controller {
 
 	@Transactional(readOnly = true)
 	protected void connectAllServers() {
-		Set<ServerDAO> servers = storage.getServers();
+		List<ServerEntry> servers = serverDao.findAll();
 		if (servers.isEmpty())
 			log.error("Server list is empty!");
-		for (ServerDAO curServer : servers)
+		for (ServerEntry curServer : servers)
 			initBot(curServer);
 	}
 
@@ -294,7 +298,8 @@ public class Controller {
 	 * Starts bot using server object
 	 * @param curServer
 	 */
-	public void initBot(final ServerDAO curServer) {
+	@Transactional
+	public void initBot(final ServerEntry curServer) {
 		//Build a thread pool for the bot
 		final BotThreadPool threadPool = new BotThreadPool(new ThreadFactory() {
 			int threadCounter = 0;
@@ -306,7 +311,7 @@ public class Controller {
 			}
 
 			protected String genPrefix() {
-				return "quackbot-" + curServer.getAddress() + "-" + curServer.getServerId();
+				return "quackbot-" + curServer.getAddress() + "-" + curServer.getId();
 			}
 		});
 
@@ -316,7 +321,7 @@ public class Controller {
 			public void run() {
 				try {
 					log.info("Initiating IRC connection to server " + curServer);
-					Bot bot = new Bot(Controller.this, curServer.getServerId(), threadPool);
+					Bot bot = new Bot(Controller.this, curServer.getId(), threadPool);
 					threadPool.setBot(bot);
 					bot.setVerbose(true);
 					bots.add(bot);
@@ -350,24 +355,16 @@ public class Controller {
 	 * @param port     Port number to be used (if null, the 6667 is used)
 	 * @param channels Vararg of channels to join
 	 */
+	@Transactional
 	public void addServer(String address, int port, String... channels) {
-		try {
-			storage.beginTransaction();
-			ServerDAO server = getStorage().newServerDAO(address);
-			server.setPort(port);
-			for (String curChan : channels)
-				server.getChannels().add(getStorage().newChannelDAO(curChan));
-			storage.endTransaction(true);
+		ServerEntry server = serverDao.create(address);
+		server.setPort(port);
+		for (String curChan : channels)
+			server.getChannels().add(channelDao.create(curChan));
+		serverDao.save(server);
 
-			//Split up into multiple transactions so things like id's automatically get created
-			storage.beginTransaction();
-			if (started)
-				initBot(server);
-			storage.endTransaction(true);
-		} catch (Throwable t) {
-			storage.endTransaction(false);
-			throw new RuntimeException("Can't add server " + address, t);
-		}
+		if (started)
+			initBot(server);
 	}
 
 	/**
@@ -376,17 +373,9 @@ public class Controller {
 	 * this will delete <u>all</u> of them. 
 	 * @param address  The address of the server to be deleted
 	 */
+	@Transactional
 	public void removeServer(String address) {
-		try {
-			storage.beginTransaction();
-			for (ServerDAO curServ : storage.getServers())
-				if (curServ.getAddress().equals(address))
-					curServ.delete();
-			storage.endTransaction(true);
-		} catch (Exception e) {
-			log.error("Can't remove server", e);
-			storage.endTransaction(false);
-		}
+		serverDao.delete(serverDao.findByAddress(address));
 	}
 
 	/**
@@ -406,25 +395,21 @@ public class Controller {
 	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
-		for (AdminDAO curAdmin : storage.getAllAdmins()) {
-			//Is this even the right user?
-			if (!curAdmin.getName().equalsIgnoreCase(user.getNick()))
-				continue;
+		AdminEntry admin = adminDao.findByName(user.getNick());
 
-			//Got our user; are they an admin on this server?
-			if (curAdmin.getServers().contains(bot.getServerStore()))
-				return true;
+		//Null means not found
+		if (admin == null)
+			return false;
 
-			//Are they an admin on the channel?
-			for (ChannelDAO curChan : curAdmin.getChannels())
-				if (curChan.getName().equalsIgnoreCase(chan.getName()))
-					return true;
+		//Are they a server admin?
+		if (admin.getServers().contains(bot.getServer()))
+			return true;
 
-			//They aren't an admin, end
-			break;
-		}
+		//Are they a channel admin?
+		if (admin.getChannels().contains(channelDao.findByName(bot.getServerEntry(), chan.getName())))
+			return true;
 
-		//Loop failed, they aren't an admin
+		//Getting here means they aren't an admin
 		return false;
 	}
 
