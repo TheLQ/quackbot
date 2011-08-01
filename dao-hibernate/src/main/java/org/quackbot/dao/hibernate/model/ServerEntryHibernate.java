@@ -93,7 +93,7 @@ public class ServerEntryHibernate implements ServerEntry, Serializable {
 		return admins;
 	}
 
-	@OneToMany(targetEntity = ChannelEntry.class, mappedBy = "server", orphanRemoval = true)
+	@OneToMany(targetEntity = ChannelEntryHibernate.class, mappedBy = "server", orphanRemoval = true)
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE})
 	public Set<ChannelEntry> getChannels() {
 		return channels;
