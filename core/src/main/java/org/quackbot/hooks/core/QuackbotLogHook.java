@@ -29,8 +29,8 @@ import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 import org.quackbot.Bot;
-import org.quackbot.dao.LogEntryDAO;
-import org.quackbot.dao.LogEntryType;
+import org.quackbot.dao.model.LogEntry;
+import org.quackbot.dao.model.LogEntryType;
 import org.quackbot.hooks.Hook;
 
 /**
@@ -74,7 +74,7 @@ public class QuackbotLogHook extends Hook {
 	}
 
 	protected void log(Event event, LogEntryType type, Channel chan, User user, String message) {
-		LogEntryDAO entry = getController(event).getStorage().newLogEntryDAO();
+		LogEntry entry = (LogEntry) getController(event).getLogDao().create();
 		entry.setType(type);
 		entry.setServer(event.getBot().getServer());
 		entry.setTimestamp(event.getTimestamp());
