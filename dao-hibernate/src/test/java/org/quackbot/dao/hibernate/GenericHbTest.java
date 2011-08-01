@@ -18,9 +18,24 @@
  */
 package org.quackbot.dao.hibernate;
 
+import lombok.AccessLevel;
+import lombok.Setter;
 import org.hibernate.cfg.Configuration;
+import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
+import org.quackbot.dao.hibernate.model.UserEntryHibernate;
+import org.quackbot.dao.hibernate.model.ChannelEntryHibernate;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
-import org.testng.annotations.AfterMethod;
+import org.quackbot.dao.AdminDAO;
+import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.LogDAO;
+import org.quackbot.dao.ServerDAO;
+import org.quackbot.dao.UserDAO;
+import org.quackbot.dao.hibernate.model.AdminEntryHibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
@@ -30,21 +45,28 @@ import org.testng.annotations.BeforeMethod;
  */
 public class GenericHbTest {
 	protected Configuration config;
-	protected DAOControllerHb controller;
+	@Autowired
+	@Setter(AccessLevel.PROTECTED)
+	protected AdminDAO adminDao;
+	@Autowired
+	@Setter(AccessLevel.PROTECTED)
+	protected ChannelDAO channelDao;
+	@Autowired
+	@Setter(AccessLevel.PROTECTED)
+	protected LogDAO logDao;
+	@Autowired
+	@Setter(AccessLevel.PROTECTED)
+	protected ServerDAO serverDao;
+	@Autowired
+	@Setter(AccessLevel.PROTECTED)
+	protected UserDAO userDao;
 
 	@BeforeClass
-	public void setupController() {
-		//Null any previously set instance
-		DAOControllerHb.instance = null;
-		//Configure these things once
-		controller = new DAOControllerHb() {
-			{
-				configuration.setNamingStrategy(new PrefixNamingStrategy("TEST_quackbot_"));
-				GenericHbTest.this.config = configuration;
-				//Rebuild session factory so new naming strategy is used
-				sessionFactory = configuration.buildSessionFactory();
-			}
-		};
+	public void setupSpring() {
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+		context.registerShutdownHook();
+		//Extract the config from the session factory
+		config = ((LocalSessionFactoryBean) context.getBean("&sessionFactory")).getConfiguration();
 	}
 
 	@BeforeMethod
@@ -53,41 +75,33 @@ public class GenericHbTest {
 		se.create(true, true);
 	}
 
-	@AfterMethod
-	public void cleanup() {
-		controller.beginTransaction();
-		controller.getSession().flush();
-		controller.getSession().clear();
-		controller.endTransaction(true);
+	protected ServerEntryHibernate generateServer(String address) {
+		return (ServerEntryHibernate) serverDao.create(address);
 	}
 
-	protected ServerDAOHb generateServer(String address) {
-		return (ServerDAOHb) controller.newServerDAO(address);
+	protected ChannelEntryHibernate generateChannel(String name) {
+		return (ChannelEntryHibernate) channelDao.create(name);
 	}
 
-	protected ChannelDAOHb generateChannel(String name) {
-		return (ChannelDAOHb) controller.newChannelDAO(name);
+	protected UserEntryHibernate generateUser(String name) {
+		return (UserEntryHibernate) userDao.create(name);
 	}
 
-	protected UserDAOHb generateUser(String name) {
-		return (UserDAOHb) controller.newUserDAO(name);
+	protected AdminEntryHibernate generateAdmin(String name) {
+		return (AdminEntryHibernate) adminDao.create(name);
 	}
 
-	protected AdminDAOHb generateAdmin(String name) {
-		return (AdminDAOHb) controller.newAdminDAO(name);
-	}
-
-	protected ServerDAOHb generateEnviornment(int num, AdminDAOHb globalAdmin) {
-		ServerDAOHb server = generateServer("irc.host" + num);
-		server.setServerId(num);
+	protected ServerEntryHibernate generateEnviornment(long num, AdminEntryHibernate globalAdmin) {
+		ServerEntryHibernate server = generateServer("irc.host" + num);
+		server.setId(num);
 		if (globalAdmin != null)
 			server.getAdmins().add(globalAdmin);
 		server.getAdmins().add(generateAdmin("serverAdmin" + num));
 
-		AdminDAOHb channelAdmin = generateAdmin("channelAdmin" + num);
-		UserDAOHb channelUser = generateUser("channelUser" + num);
+		AdminEntryHibernate channelAdmin = generateAdmin("channelAdmin" + num);
+		UserEntryHibernate channelUser = generateUser("channelUser" + num);
 
-		ChannelDAOHb channel = generateChannel("#aChannel" + num);
+		ChannelEntryHibernate channel = generateChannel("#aChannel" + num);
 		server.getChannels().add(channel);
 		channel.getAdmins().add(channelAdmin);
 		channel.getAdmins().add(generateAdmin("aChannelAdmin" + num));
@@ -108,11 +122,10 @@ public class GenericHbTest {
 		return server;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	protected void setupEnviornment() {
-		controller.beginTransaction();
-		AdminDAOHb globalAdmin = generateAdmin("globalAdmin");
+		AdminEntryHibernate globalAdmin = generateAdmin("globalAdmin");
 		generateEnviornment(1, globalAdmin);
 		generateEnviornment(2, globalAdmin);
-		controller.endTransaction(true);
 	}
 }
