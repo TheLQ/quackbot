@@ -135,6 +135,7 @@ public class Controller {
 	protected String finger = "";
 	protected final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
 	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	protected boolean createGui;
 	@Setter(AccessLevel.PUBLIC)
 	protected int defaultPort = 6667;
@@ -146,6 +147,7 @@ public class Controller {
 	protected int defaultMessageDelay = 1750;
 	protected boolean started = false;
 	protected Thread shutdownHook;
+	protected boolean noAppender = true;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -153,8 +155,6 @@ public class Controller {
 	 *                 implementation <b>must</b> be provided to get any outpu
 	 */
 	public Controller(boolean createGui) {
-		this.createGui = createGui;
-
 		//Add shutdown hook to kill all bots and connections
 		//TODO: Store somewhere else so it can be removed
 		shutdownHook = new Thread() {
@@ -166,36 +166,14 @@ public class Controller {
 		};
 		Runtime.getRuntime().addShutdownHook(shutdownHook);
 
-		//Do we need to make a GUI?
-		//TODO: Somewhere else?
-		if (createGui)
-			try {
-				//This can't run in EDT, end if it is
-				if (SwingUtilities.isEventDispatchThread()) {
-					log.error("Controller cannot be started from EDT. Please start from seperate thread");
-					return;
-				}
-
-				gui = new GUI(this);
-			} catch (Exception e) {
-				log.error("Unkown error occured in GUI initialzation", e);
-			}
-
 		//Get ahold of ControlAppender and set this as the Controller
 		ch.qos.logback.classic.Logger rootLog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("root");
-		boolean noAppender = true;
 		for (Iterator<Appender<ILoggingEvent>> appenderItr = rootLog.iteratorForAppenders(); appenderItr.hasNext();) {
 			Appender<ILoggingEvent> curAppender = appenderItr.next();
 			if (curAppender instanceof ControlAppender) {
 				((ControlAppender) curAppender).setController(this);
 				noAppender = false;
 			}
-		}
-
-		//Display a large error message if there a GUI but no appender
-		if (noAppender && createGui) {
-			gui.CerrorLog.setText("ERROR: ControlAppender hasn't been added as a logger! This GUI will not display any log messages");
-			gui.CerrorLog.setForeground(Color.red);
 		}
 
 		//Setup default Plugin Loaders
@@ -456,7 +434,30 @@ public class Controller {
 	}
 
 	public void createGui(boolean createGui) {
+		//Fail early if the value isn't being updated. Prevents GUI being created twice
+		if (this.createGui == createGui)
+			return;
 		this.createGui = createGui;
+		if (!createGui)
+			return;
+
+		//Need to create GUI
+		try {
+			//This can't run in EDT, end if it is
+			if (SwingUtilities.isEventDispatchThread()) {
+				log.error("Controller cannot be started from EDT. Please start from seperate thread");
+				return;
+			}
+			
+			gui = new GUI(this);
+
+			if (noAppender) {
+				gui.CerrorLog.setText("ERROR: ControlAppender hasn't been added as a logger! This GUI will not display any log messages");
+				gui.CerrorLog.setForeground(Color.red);
+			}
+		} catch (Exception e) {
+			log.error("Unkown error occured in GUI initialzation", e);
+		}
 	}
 
 	public boolean isGuiCreated() {
