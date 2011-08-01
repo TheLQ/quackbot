@@ -41,7 +41,7 @@ public class AdminHelpCommand extends Command {
 			List<String> cmdList = new ArrayList<String>();
 
 			//Add Java Plugins
-			for (Command curCmd : getController(event).getHookManager().getCommands())
+			for (Command curCmd : getController().getHookManager().getCommands())
 				if (curCmd.isEnabled() && curCmd.isAdmin())
 					cmdList.add(curCmd.getName());
 
@@ -50,7 +50,7 @@ public class AdminHelpCommand extends Command {
 		}
 		
 		//Command specified, get specific help for it
-		Command result = getController(event).getHookManager().getCommand(command);
+		Command result = getController().getHookManager().getCommand(command);
 		if (result == null)
 			throw new InvalidCMDException(command);
 		else if (!result.isEnabled())

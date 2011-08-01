@@ -74,7 +74,7 @@ public class QuackbotLogHook extends Hook {
 	}
 
 	protected void log(Event event, LogEntryType type, Channel chan, User user, String message) {
-		LogEntry entry = (LogEntry) getController(event).getLogDao().create();
+		LogEntry entry = (LogEntry) getController().getLogDao().create();
 		entry.setType(type);
 		entry.setServer(event.getBot().getServer());
 		entry.setTimestamp(event.getTimestamp());
