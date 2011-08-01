@@ -126,7 +126,7 @@ public class GenericHbTest {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	protected void setupEnviornment() {
 		AdminEntryHibernate globalAdmin = generateAdmin("globalAdmin");
-		generateEnviornment(1, globalAdmin);
-		generateEnviornment(2, globalAdmin);
+		serverDao.save(generateEnviornment(1, globalAdmin));
+		serverDao.save(generateEnviornment(2, globalAdmin));
 	}
 }
