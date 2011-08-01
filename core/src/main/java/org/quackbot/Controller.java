@@ -18,16 +18,12 @@
  */
 package org.quackbot;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import java.util.Iterator;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
-import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
