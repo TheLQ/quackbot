@@ -34,7 +34,6 @@ import static org.testng.Assert.*;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class DeleteTest extends GenericHbTest {
-	@Transactional
 	@Test
 	public void deleteAdminGlobalTest() {
 		setupEnviornment();
@@ -53,7 +52,6 @@ public class DeleteTest extends GenericHbTest {
 		assertEquals(server2.getAdmins().iterator().next().getName(), "serverAdmin2", "Remaining server2 admin name is wrong");
 	}
 
-	@Transactional
 	@Test
 	public void deleteAdminServerTest() {
 		setupEnviornment();
@@ -67,7 +65,6 @@ public class DeleteTest extends GenericHbTest {
 		assertEquals(server1.getAdmins().iterator().next().getName(), "globalAdmin", "Remaining server1 admin name is wrong");
 	}
 
-	@Transactional
 	@Test
 	public void deleteAdminChannelGlobalTest() {
 		setupEnviornment();
@@ -86,7 +83,6 @@ public class DeleteTest extends GenericHbTest {
 		assertEquals(someChannel.getAdmins().iterator().next().getName(), "someChannelAdmin1", "Remaining #someChannel1 admin name is wrong");
 	}
 
-	@Transactional
 	@Test
 	public void deleteAdminChannelTest() {
 		setupEnviornment();
@@ -103,7 +99,6 @@ public class DeleteTest extends GenericHbTest {
 	/**
 	 * WARNING: THIS TEST IS BROKEN
 	 */
-	@Transactional
 	@Test(successPercentage = 0, expectedExceptions = ObjectDeletedException.class)
 	public void deleteChannelTest() {
 		setupEnviornment();
@@ -145,7 +140,6 @@ public class DeleteTest extends GenericHbTest {
 	/**
 	 * WARNING: THIS TEST IS BROKEN
 	 */
-	@Transactional
 	@Test(successPercentage = 0, expectedExceptions = ConstraintViolationException.class)
 	public void deleteServerTest() {
 		setupEnviornment();

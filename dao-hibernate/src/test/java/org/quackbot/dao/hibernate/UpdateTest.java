@@ -32,7 +32,6 @@ import static org.testng.Assert.*;
 public class UpdateTest extends GenericHbTest {
 	protected final String aString = "I'm some really long multiword string";
 
-	@Transactional
 	@Test
 	public void serverInfoUpdateTest() {
 		setupEnviornment();
@@ -47,8 +46,8 @@ public class UpdateTest extends GenericHbTest {
 			assertEquals((int) curServer.getPort(), 9876, "Port wasn't updated");
 		}
 	}
-	
-	@Transactional(propagation= Propagation.REQUIRES_NEW)
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	protected void serverInfoUpdateTest0() {
 		for (ServerEntry curServer : serverDao.findAll()) {
 			curServer.setAddress(curServer.getAddress() + "-test");
@@ -57,7 +56,6 @@ public class UpdateTest extends GenericHbTest {
 		}
 	}
 
-	@Transactional
 	@Test
 	public void channelInfoUpdateTest() {
 		setupEnviornment();
@@ -80,8 +78,8 @@ public class UpdateTest extends GenericHbTest {
 				assertEquals(curChannel.getTopicSetter(), "SomeUser", "Topic setter wasn't updated");
 			}
 	}
-	
-	@Transactional(propagation= Propagation.REQUIRES_NEW)
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	protected void channelInfoUpdateTest0(long createTimestamp, long topicTimestamp) {
 		for (ServerEntry curServer : serverDao.findAll())
 			for (ChannelEntry curChannel : curServer.getChannels()) {
