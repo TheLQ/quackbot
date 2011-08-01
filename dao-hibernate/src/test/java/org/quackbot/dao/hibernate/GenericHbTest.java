@@ -31,6 +31,7 @@ import org.quackbot.dao.LogDAO;
 import org.quackbot.dao.ServerDAO;
 import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.hibernate.model.AdminEntryHibernate;
+import org.quackbot.dao.hibernate.model.LogEntryHibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
@@ -47,19 +48,19 @@ public class GenericHbTest {
 	protected Configuration config;
 	@Autowired
 	@Setter(AccessLevel.PROTECTED)
-	protected AdminDAO adminDao;
+	protected AdminDAO<AdminEntryHibernate> adminDao;
 	@Autowired
 	@Setter(AccessLevel.PROTECTED)
-	protected ChannelDAO channelDao;
+	protected ChannelDAO<ChannelEntryHibernate> channelDao;
 	@Autowired
 	@Setter(AccessLevel.PROTECTED)
-	protected LogDAO logDao;
+	protected LogDAO<LogEntryHibernate> logDao;
 	@Autowired
 	@Setter(AccessLevel.PROTECTED)
-	protected ServerDAO serverDao;
+	protected ServerDAO<ServerEntryHibernate> serverDao;
 	@Autowired
 	@Setter(AccessLevel.PROTECTED)
-	protected UserDAO userDao;
+	protected UserDAO<UserEntryHibernate> userDao;
 
 	@BeforeClass
 	public void setupSpring() {
@@ -76,19 +77,19 @@ public class GenericHbTest {
 	}
 
 	protected ServerEntryHibernate generateServer(String address) {
-		return (ServerEntryHibernate) serverDao.create(address);
+		return serverDao.create(address);
 	}
 
 	protected ChannelEntryHibernate generateChannel(String name) {
-		return (ChannelEntryHibernate) channelDao.create(name);
+		return channelDao.create(name);
 	}
 
 	protected UserEntryHibernate generateUser(String name) {
-		return (UserEntryHibernate) userDao.create(name);
+		return userDao.create(name);
 	}
 
 	protected AdminEntryHibernate generateAdmin(String name) {
-		return (AdminEntryHibernate) adminDao.create(name);
+		return adminDao.create(name);
 	}
 
 	protected ServerEntryHibernate generateEnviornment(long num, AdminEntryHibernate globalAdmin) {
