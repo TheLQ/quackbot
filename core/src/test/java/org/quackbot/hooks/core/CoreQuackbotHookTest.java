@@ -33,6 +33,7 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
+import org.quackbot.hooks.HookManager;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -53,9 +54,11 @@ public class CoreQuackbotHookTest {
 	protected String args3 = "hello0 hello1 hello2 hello3";
 
 	public CoreQuackbotHookTest() {
-		//Configure controller with empty DAOController, no GUI, and basic prefix
-		controller = new Controller();
-		controller.addPrefix("?");
+		controller = mock(Controller.class);
+		when(controller.getHookManager()).thenReturn(new HookManager(controller));
+		when(controller.addCommandNumber()).thenReturn(1);
+		when(controller.getPrefixes()).thenReturn(Arrays.asList(new String[]{"?"}));
+		when(controller.isAdmin(any(Bot.class), any(User.class), any(Channel.class))).thenReturn(true);
 
 		//Create basic state
 		bot = new Bot(controller, -1L, Executors.newCachedThreadPool());
@@ -65,7 +68,8 @@ public class CoreQuackbotHookTest {
 		};
 
 		//Create our listener hook, being sure to mock specific methods
-		hook = new CoreQuackbotHook();
+		hook = spy(new CoreQuackbotHook());
+		when(hook.getController()).thenReturn(controller);
 	}
 
 	@Test
