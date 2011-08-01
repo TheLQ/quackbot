@@ -12,7 +12,7 @@ import org.quackbot.dao.model.ServerEntry;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class ChannelDAOHibernate extends GenericHbDAO<ChannelEntryHibernate> implements ChannelDAO<ChannelEntryHibernate, Long> {
+public class ChannelDAOHibernate extends GenericHbDAO<ChannelEntryHibernate> implements ChannelDAO<ChannelEntryHibernate> {
 	@Override
 	public ChannelEntryHibernate delete(ChannelEntryHibernate entity) {
 		//Remove channel from server

@@ -41,7 +41,7 @@ import org.quackbot.dao.model.GenericEntry;
 @EqualsAndHashCode(of = {"user", "channel"})
 @Entity
 @Table(name = "usermap")
-public class UserChannelEntryHibernate implements Serializable, GenericEntry<Long> {
+public class UserChannelEntryHibernate implements Serializable, GenericEntry {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Basic(optional = false)

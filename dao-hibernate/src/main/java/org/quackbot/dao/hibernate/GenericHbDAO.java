@@ -14,7 +14,7 @@ import org.quackbot.dao.model.GenericEntry;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
-public abstract class GenericHbDAO<T extends GenericEntry> implements GenericDAO<T, Long> {
+public abstract class GenericHbDAO<T extends GenericEntry> implements GenericDAO<T> {
 	protected SessionFactory sessionFactory;
 	protected Class<T> persistentClass;
 

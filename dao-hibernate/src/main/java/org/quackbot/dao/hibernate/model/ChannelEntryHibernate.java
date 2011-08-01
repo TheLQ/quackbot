@@ -51,7 +51,7 @@ import org.quackbot.dao.model.UserEntry;
 @ToString(exclude = {"admins", "userMaps"})
 @Entity
 @Table(name = "channels")
-public class ChannelEntryHibernate implements ChannelEntry<Long>, Serializable {
+public class ChannelEntryHibernate implements ChannelEntry, Serializable {
 	protected Long id;
 	protected String name;
 	protected String password;

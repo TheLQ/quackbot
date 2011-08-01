@@ -29,7 +29,7 @@ import org.quackbot.dao.model.ServerEntry;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class AdminDAOHibernate extends GenericHbDAO<AdminEntryHibernate> implements AdminDAO<AdminEntryHibernate, Long> {
+public class AdminDAOHibernate extends GenericHbDAO<AdminEntryHibernate> implements AdminDAO<AdminEntryHibernate> {
 	@Override
 	public AdminEntryHibernate delete(AdminEntryHibernate entity) {
 		for (ChannelEntry curChannel : entity.getChannels())

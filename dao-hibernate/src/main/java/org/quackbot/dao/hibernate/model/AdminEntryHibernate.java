@@ -45,7 +45,7 @@ import org.quackbot.dao.model.ServerEntry;
 @ToString(exclude = {"channels", "servers"})
 @Entity
 @Table(name = "admins")
-public class AdminEntryHibernate implements AdminEntry<Long>, Serializable {
+public class AdminEntryHibernate implements AdminEntry, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Basic(optional = false)
