@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +47,9 @@ import org.testng.annotations.BeforeMethod;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public class GenericHbTest {
+@ContextConfiguration("classpath:spring-dao-hibernate-test.xml")
+public class GenericHbTest extends AbstractTestNGSpringContextTests {
+	@Autowired
 	protected AbstractApplicationContext context;
 	@Autowired
 	@Setter(AccessLevel.PROTECTED)
@@ -62,12 +66,6 @@ public class GenericHbTest {
 	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected UserDAO<UserEntryHibernate> userDao;
-
-	@BeforeClass
-	public void setupSpring() {
-		context = new ClassPathXmlApplicationContext("spring-dao-hibernate-test.xml");
-		context.registerShutdownHook();
-	}
 
 	@BeforeMethod
 	public void setupSchema() {
