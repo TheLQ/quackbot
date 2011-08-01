@@ -26,6 +26,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.quackbot.dao.GenericDAO;
 import org.quackbot.dao.model.GenericEntry;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -33,6 +34,7 @@ import org.quackbot.dao.model.GenericEntry;
  */
 @Data
 public abstract class GenericHbDAO<T extends GenericEntry> implements GenericDAO<T> {
+	@Autowired
 	protected SessionFactory sessionFactory;
 	protected Class<T> persistentClass;
 
@@ -61,7 +63,7 @@ public abstract class GenericHbDAO<T extends GenericEntry> implements GenericDAO
 		getSession().delete(entity);
 		return entity;
 	}
-	
+
 	@Override
 	public T create() {
 		try {
