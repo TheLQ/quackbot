@@ -30,9 +30,7 @@ import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
-import org.pircbotx.hooks.types.GenericMessageEvent;
-import org.quackbot.Bot;
-import org.quackbot.dao.ChannelDAO;
+import org.quackbot.dao.model.ChannelEntry;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
@@ -49,7 +47,7 @@ import org.quackbot.hooks.Hook;
 public class CoreQuackbotHook extends Hook {
 	@Override
 	public void onConnect(ConnectEvent event) {
-		for (ChannelDAO curChannel : getBot(event).getServerStore().getChannels()) {
+		for (ChannelEntry curChannel : getBot(event).getServerEntry().getChannels()) {
 			log.debug("Trying to join channel using " + curChannel);
 			event.getBot().joinChannel(curChannel.getName(), curChannel.getPassword());
 		}
