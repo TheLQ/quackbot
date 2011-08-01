@@ -18,7 +18,6 @@
  */
 package org.quackbot.dao.model;
 
-import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -29,7 +28,7 @@ import java.util.Set;
  * If this needs to be changed in database, call {@link #updateDB()}
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface AdminEntry<K extends Serializable> extends GenericEntry<K> {
+public interface AdminEntry extends GenericEntry {
 	/**
 	 * The username of the admin
 	 * @return the user

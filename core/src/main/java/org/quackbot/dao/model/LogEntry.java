@@ -24,7 +24,7 @@ import java.io.Serializable;
  * IRC logging
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface LogEntry<K extends Serializable> extends GenericEntry<K> {
+public interface LogEntry extends GenericEntry {
 	public Long getTimestamp();
 
 	public void setTimestamp(Long timestamp);

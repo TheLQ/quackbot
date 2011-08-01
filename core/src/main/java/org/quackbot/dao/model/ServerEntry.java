@@ -28,7 +28,7 @@ import org.quackbot.dao.GenericDAO;
  * This is usually configured by JPersist
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface ServerEntry<K extends Serializable> extends GenericEntry<K> {
+public interface ServerEntry extends GenericEntry {
 	/**
 	 * Gets admin by name
 	 * @param name Name of admin

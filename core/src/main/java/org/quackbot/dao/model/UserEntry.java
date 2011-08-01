@@ -26,7 +26,7 @@ import org.quackbot.dao.GenericDAO;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-public interface UserEntry<K extends Serializable> extends GenericEntry<K> {	
+public interface UserEntry extends GenericEntry {	
 	public String getNick();
 
 	public void setNick(String nick);
