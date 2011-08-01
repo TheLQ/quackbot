@@ -23,13 +23,14 @@ import org.hibernate.criterion.Restrictions;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.hibernate.model.ChannelEntryHibernate;
 import org.quackbot.dao.model.AdminEntry;
-import org.quackbot.dao.model.ChannelEntry;
 import org.quackbot.dao.model.ServerEntry;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Repository
 public class ChannelDAOHibernate extends GenericHbDAO<ChannelEntryHibernate> implements ChannelDAO<ChannelEntryHibernate> {
 	@Override
 	public ChannelEntryHibernate delete(ChannelEntryHibernate entity) {
