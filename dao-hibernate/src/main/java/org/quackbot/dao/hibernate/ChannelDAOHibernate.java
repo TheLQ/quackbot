@@ -34,8 +34,8 @@ public class ChannelDAOHibernate extends GenericHbDAO<ChannelEntryHibernate> imp
 	}
 
 	@Override
-	public ChannelEntry getByName(ServerEntry server, String channelName) {
-		return (ChannelEntry)getSession()
+	public ChannelEntryHibernate findByName(ServerEntry server, String channelName) {
+		return (ChannelEntryHibernate)getSession()
 				.createCriteria(ChannelEntryHibernate.class)
 				.add(Restrictions.eq("server", server))
 				.add(Restrictions.eq("name", channelName))
@@ -43,8 +43,8 @@ public class ChannelDAOHibernate extends GenericHbDAO<ChannelEntryHibernate> imp
 	}
 
 	@Override
-	public ChannelEntry create(String channelName) {
-		ChannelEntry entry = new ChannelEntryHibernate();
+	public ChannelEntryHibernate create(String channelName) {
+		ChannelEntryHibernate entry = new ChannelEntryHibernate();
 		entry.setName(channelName);
 		return entry;
 	}

@@ -5,7 +5,6 @@ import org.quackbot.dao.ServerDAO;
 import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
 import org.quackbot.dao.model.AdminEntry;
 import org.quackbot.dao.model.ChannelEntry;
-import org.quackbot.dao.model.ServerEntry;
 
 /**
  *
@@ -65,12 +64,14 @@ public class ServerDAOHibernate extends GenericHbDAO<ServerEntryHibernate> imple
 		return entity;
 	}
 
-	public ServerEntry getByAddress(String serverAddress) {
-		return (ServerEntry) getSession().createCriteria(ServerEntryHibernate.class).add(Restrictions.eq("address", serverAddress)).uniqueResult();
+	@Override
+	public ServerEntryHibernate findByAddress(String serverAddress) {
+		return (ServerEntryHibernate) getSession().createCriteria(ServerEntryHibernate.class).add(Restrictions.eq("address", serverAddress)).uniqueResult();
 	}
 
-	public ServerEntry create(String address) {
-		ServerEntry server = new ServerEntryHibernate();
+	@Override
+	public ServerEntryHibernate create(String address) {
+		ServerEntryHibernate server = new ServerEntryHibernate();
 		server.setAddress(address);
 		return server;
 	}

@@ -21,7 +21,6 @@ package org.quackbot.dao.hibernate;
 import org.hibernate.criterion.Restrictions;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.hibernate.model.AdminEntryHibernate;
-import org.quackbot.dao.model.AdminEntry;
 import org.quackbot.dao.model.ChannelEntry;
 import org.quackbot.dao.model.ServerEntry;
 
@@ -41,13 +40,13 @@ public class AdminDAOHibernate extends GenericHbDAO<AdminEntryHibernate> impleme
 	}
 
 	@Override
-	public AdminEntry getByName(String adminName) {
-		return (AdminEntry) getSession().createCriteria(AdminEntryHibernate.class).add(Restrictions.eq("name", adminName)).uniqueResult();
+	public AdminEntryHibernate findByName(String adminName) {
+		return (AdminEntryHibernate) getSession().createCriteria(AdminEntryHibernate.class).add(Restrictions.eq("name", adminName)).uniqueResult();
 	}
 
 	@Override
-	public AdminEntry create(String adminName) {
-		AdminEntry admin = new AdminEntryHibernate();
+	public AdminEntryHibernate create(String adminName) {
+		AdminEntryHibernate admin = new AdminEntryHibernate();
 		admin.setName(adminName);
 		return admin;
 	}
