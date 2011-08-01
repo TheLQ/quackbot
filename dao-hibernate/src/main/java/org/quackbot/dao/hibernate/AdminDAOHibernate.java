@@ -32,9 +32,9 @@ public class AdminDAOHibernate extends GenericHbDAO<AdminEntryHibernate> impleme
 	@Override
 	public AdminEntryHibernate delete(AdminEntryHibernate entity) {
 		for (ChannelEntry curChannel : entity.getChannels())
-			curChannel.getAdmins().remove(this);
+			curChannel.getAdmins().remove(entity);
 		for (ServerEntry curServer : entity.getServers())
-			curServer.getAdmins().remove(this);
+			curServer.getAdmins().remove(entity);
 		getSession().delete(entity);
 		return entity;
 	}
