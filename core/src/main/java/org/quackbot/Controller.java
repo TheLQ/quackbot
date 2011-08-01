@@ -402,7 +402,7 @@ public class Controller {
 			return false;
 
 		//Are they a server admin?
-		if (admin.getServers().contains(bot.getServer()))
+		if (admin.getServers().contains(bot.getServerEntry()))
 			return true;
 
 		//Are they a channel admin?
