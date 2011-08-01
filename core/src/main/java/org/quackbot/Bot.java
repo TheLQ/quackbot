@@ -21,7 +21,6 @@ package org.quackbot;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.Socket;
 import java.util.Set;
 import org.pircbotx.exception.IrcException;
@@ -80,7 +79,7 @@ public class Bot extends PircBotX {
 	 * Says weather bot is globally locked or not
 	 */
 	protected boolean botLocked = false;
-	protected final Serializable serverId;
+	protected final Long serverId;
 	/**
 	 * Local threadpool
 	 */
@@ -96,7 +95,7 @@ public class Bot extends PircBotX {
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(Controller controller, Serializable serverId, ExecutorService threadPool) {
+	public Bot(Controller controller, Long serverId, ExecutorService threadPool) {
 		this.serverId = serverId;
 		this.threadPool = threadPool;
 		this.controller = controller;
