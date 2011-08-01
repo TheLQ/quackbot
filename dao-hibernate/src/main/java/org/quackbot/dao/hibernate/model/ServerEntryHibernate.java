@@ -50,7 +50,7 @@ import org.quackbot.dao.model.ServerEntry;
 @Entity
 @Table(name = "servers")
 public class ServerEntryHibernate implements ServerEntry, Serializable {
-	private Long serverId;
+	private Long id;
 	private String address;
 	private Integer port;
 	private String password;
@@ -104,7 +104,7 @@ public class ServerEntryHibernate implements ServerEntry, Serializable {
 	@Basic(optional = false)
 	@Column(name = "SERVER_ID", nullable = false)
 	public Long getId() {
-		return serverId;
+		return id;
 	}
 
 	@Column(name = "address", length = 50, nullable = false)
