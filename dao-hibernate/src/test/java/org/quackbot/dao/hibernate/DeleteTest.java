@@ -140,7 +140,7 @@ public class DeleteTest extends GenericHbTest {
 	/**
 	 * WARNING: THIS TEST IS BROKEN
 	 */
-	@Test(successPercentage = 0, expectedExceptions = ConstraintViolationException.class)
+	@Test(successPercentage = 0, expectedExceptions = ObjectDeletedException.class)
 	public void deleteServerTest() {
 		setupEnviornment();
 
