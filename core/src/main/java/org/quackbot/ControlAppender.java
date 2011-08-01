@@ -22,7 +22,6 @@ import java.util.List;
 import org.quackbot.gui.GUI;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import java.awt.Color;
@@ -32,7 +31,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import java.io.PrintStream;
 import java.util.LinkedList;
@@ -44,6 +42,7 @@ import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Appender for everything thats not bot. All events from Bot are ignored
@@ -52,6 +51,7 @@ import org.slf4j.MDC;
  */
 public class ControlAppender extends AppenderBase<ILoggingEvent> {
 	@Setter
+	@Autowired
 	protected Controller controller;
 	@Getter
 	@Setter
