@@ -49,6 +49,12 @@
 			<artifactId>hibernate-validator</artifactId>
 			<version>4.2.0.Final</version>
 		</dependency>
+		<!--Spring ORM for integration of Spring and Hibernate-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>3.0.5.RELEASE</version>
+		</dependency>
 		<!--Test database: MySQL-->
 		<dependency>
 			<groupId>mysql</groupId>
