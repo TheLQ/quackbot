@@ -20,11 +20,9 @@ package org.quackbot.dao.hibernate;
 
 import lombok.AccessLevel;
 import lombok.Setter;
-import org.hibernate.cfg.Configuration;
 import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
 import org.quackbot.dao.hibernate.model.UserEntryHibernate;
 import org.quackbot.dao.hibernate.model.ChannelEntryHibernate;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.LogDAO;
@@ -33,6 +31,7 @@ import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.hibernate.model.AdminEntryHibernate;
 import org.quackbot.dao.hibernate.model.LogEntryHibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.Propagation;
@@ -45,7 +44,7 @@ import org.testng.annotations.BeforeMethod;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 public class GenericHbTest {
-	protected Configuration config;
+	protected AbstractApplicationContext context;
 	@Autowired
 	@Setter(AccessLevel.PROTECTED)
 	protected AdminDAO<AdminEntryHibernate> adminDao;
@@ -64,16 +63,15 @@ public class GenericHbTest {
 
 	@BeforeClass
 	public void setupSpring() {
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+		context = new ClassPathXmlApplicationContext("spring-dao-hibernate-test.xml");
 		context.registerShutdownHook();
-		//Extract the config from the session factory
-		config = ((LocalSessionFactoryBean) context.getBean("&sessionFactory")).getConfiguration();
 	}
 
 	@BeforeMethod
 	public void setupSchema() {
-		SchemaExport se = new SchemaExport(config);
-		se.create(true, true);
+		LocalSessionFactoryBean session = (LocalSessionFactoryBean) context.getBean("&sessionFactory");
+		session.dropDatabaseSchema();
+		session.createDatabaseSchema();
 	}
 
 	protected ServerEntryHibernate generateEnviornment(long num, AdminEntryHibernate globalAdmin) {
