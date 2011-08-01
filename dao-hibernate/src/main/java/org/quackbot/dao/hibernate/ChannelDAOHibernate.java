@@ -21,7 +21,7 @@ public class ChannelDAOHibernate extends GenericHbDAO<ChannelEntryHibernate> imp
 		//Remove channel from admins
 		for (Iterator<AdminEntry> itr = entity.getAdmins().iterator(); itr.hasNext();) {
 			AdminEntry curAdmin = itr.next();
-			curAdmin.getChannels().remove(this);
+			curAdmin.getChannels().remove(entity);
 			itr.remove();
 		}
 
