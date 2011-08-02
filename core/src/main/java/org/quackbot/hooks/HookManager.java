@@ -38,6 +38,7 @@ import org.quackbot.events.EndEvent;
 import org.quackbot.events.StartEvent;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * First, some definitions:
@@ -68,6 +69,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * mentioned map and various methods for executing tasks.
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Component
 @Slf4j
 public class HookManager {
 	/**
