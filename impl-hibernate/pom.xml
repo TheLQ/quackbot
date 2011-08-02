@@ -28,5 +28,11 @@
 			<artifactId>dao-hibernate</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<!--C3p0 for connection pooling in tests-->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-c3p0</artifactId>
+			<version>3.6.6.Final</version>
+		</dependency>
 	</dependencies>
 </project>
