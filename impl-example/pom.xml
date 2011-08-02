@@ -9,9 +9,9 @@
 	</parent>
 
 	<groupId>org.quackbot</groupId>
-	<artifactId>impl</artifactId>
+	<artifactId>impl-example</artifactId>
 	<packaging>jar</packaging>
-	<name>Quackbot-Impl</name>
+	<name>Quackbot-Impl-Example</name>
 	
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
