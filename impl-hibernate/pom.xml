@@ -42,4 +42,22 @@
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<!--Add the main class to the module jar-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>org.quackbot.impl.HibernateMain</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
