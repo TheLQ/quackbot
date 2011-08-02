@@ -247,14 +247,14 @@ public class Bot extends PircBotX {
 			Hook genHook = new Hook(listener) {
 			};
 			listenerTracker.put(listener, genHook);
-			return controller.getHookManager().addHook(genHook);
+			controller.getHookManager().addHook(genHook);
+			return true;
 		}
 
 		public boolean removeListener(Listener listener) {
 			if (listenerTracker.containsKey(listener))
-				if (controller.getHookManager().removeHook(listenerTracker.get(listener)))
-					return listenerTracker.remove(listener) != null;
-			return false;
+				controller.getHookManager().removeHook(listenerTracker.get(listener));
+			return true;
 		}
 
 		public boolean listenerExists(Listener listener) {

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -77,7 +78,8 @@ public class HookManager {
 	 * ArrayList - All Hooks for that method
 	 *		BaseHook - Hook
 	 */
-	protected final Set<Hook> hooks = Collections.synchronizedSet(new HashSet());
+	@Autowired
+	protected Map<String, Hook> hooks;
 	protected final ExecutorService globalPool = Executors.newCachedThreadPool(new ThreadFactory() {
 		public int count = 0;
 		public ThreadGroup threadGroup = new ThreadGroup("mainPool");
@@ -90,58 +92,45 @@ public class HookManager {
 	@Autowired
 	protected Controller controller;
 
-	public boolean addHook(Hook hook) throws InvalidHookException {
+	public void addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
 		Hook potentialHook = null;
 		if ((potentialHook = getHook(hook.getName())) != null)
 			//Whoa, this name has already been used before
 			throw new InvalidHookException("Hook " + hook.getClass() + " uses the same name as " + potentialHook.getClass());
-		return hooks.add(hook);
+		hooks.put(hook.getName(), hook);
 	}
 
-	public boolean addHookOnce(Hook hook) {
+	public void addHookOnce(Hook hook) {
 		log.debug("Adding hook " + hook.getName() + " once");
 		if (getHook(hook.getName()) == null)
-			return hooks.add(hook);
-		return false;
+			hooks.put(hook.getName(), hook);
 	}
 
-	public boolean removeHook(String hookName) {
+	public void removeHook(String hookName) {
 		log.debug("Removing hook " + hookName);
-		boolean removed = false;
 		synchronized (hooks) {
-			Iterator<Hook> i = hooks.iterator();
-			while (i.hasNext()) {
-				Hook curHook = i.next();
-				if (curHook.getName().equals(hookName)) {
-					i.remove();
-					removed = true;
-				}
-			}
+			hooks.remove(hookName);
 		}
-		return removed;
 	}
 
-	public boolean removeHook(Hook hook) {
+	public void removeHook(Hook hook) {
 		log.debug("Removing hook " + hook.getName());
-		return hooks.remove(hook);
+		hooks.remove(hook.getName());
 	}
 
 	public Set<Hook> getHooks() {
-		return Collections.unmodifiableSet(hooks);
+		return Collections.unmodifiableSet(new HashSet(hooks.values()));
 	}
 
 	public Hook getHook(String hookName) {
 		synchronized (hooks) {
-			for (Hook curHook : hooks)
-				if (curHook.getName().equalsIgnoreCase(hookName))
-					return curHook;
+			return hooks.get(hookName);
 		}
-		return null;
 	}
 
 	public boolean hookExists(Hook hook) {
-		return hooks.contains(hook);
+		return hooks.containsValue(hook);
 	}
 
 	public boolean hookExists(String hookName) {
@@ -156,11 +145,11 @@ public class HookManager {
 				synchronized (hooks) {
 					//First, execute onEvent for the StartEvent
 					StartEvent startEvent = new StartEvent(controller);
-					for (Hook curHook : hooks)
+					for (Hook curHook : hooks.values())
 						executeHook(curHook, startEvent);
 
 					//Execute all events, building up the futures to wait for execution
-					for (Hook curHook : hooks)
+					for (Hook curHook : hooks.values())
 						futures.add(executeHook(curHook, event));
 				}
 
@@ -175,7 +164,7 @@ public class HookManager {
 				//Dispatch an EndEvent
 				synchronized (hooks) {
 					EndEvent endEvent = new EndEvent(controller);
-					for (Hook curHook : hooks)
+					for (Hook curHook : hooks.values())
 						executeHook(curHook, endEvent);
 				}
 			}
@@ -211,11 +200,10 @@ public class HookManager {
 	 * @return An Unmodifiable set of Commands. An empty set means there are
 	 *         no commands.
 	 */
-	@Synchronized("hooks")
 	public Set<Command> getCommands() {
 		//Get all Commands from Hook list
 		Set<Command> commands = new HashSet<Command>();
-		for (Hook curHook : hooks)
+		for (Hook curHook : hooks.values())
 			if (curHook instanceof Command)
 				commands.add((Command) curHook);
 		return Collections.unmodifiableSet(commands);
@@ -226,11 +214,10 @@ public class HookManager {
 	 * @param command A command name
 	 * @return The command object, or null if it doesn't exist
 	 */
-	@Synchronized("hooks")
 	public Command getCommand(String command) {
-		for (Hook curHook : hooks)
-			if (curHook instanceof Command && curHook.getName().equalsIgnoreCase(command))
-				return (Command) curHook;
+		Hook hook = hooks.get(command);
+		if(hook instanceof Command)
+			return (Command) hook;
 		return null;
 	}
 }
