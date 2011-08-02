@@ -94,6 +94,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Component
 @Data
 @Setter(AccessLevel.NONE)
 @EqualsAndHashCode(exclude = {"bots"})
