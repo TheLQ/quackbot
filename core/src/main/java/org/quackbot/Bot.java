@@ -91,10 +91,6 @@ public class Bot extends PircBotX {
 	 * Local threadpool
 	 */
 	protected final ExecutorService threadPool;
-	/**
-	 * Stores variable local to this thread group
-	 */
-	@Autowired
 	protected Controller controller;
 	protected final Set<User> ignoredUsers = new HashSet();
 	protected final Set<Channel> ignoredChannels = new HashSet();
@@ -103,7 +99,7 @@ public class Bot extends PircBotX {
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(Long serverId, ExecutorService threadPool) {
+	public Bot(Controller controller, Long serverId, ExecutorService threadPool) {
 		this.serverId = serverId;
 		this.threadPool = threadPool;
 
