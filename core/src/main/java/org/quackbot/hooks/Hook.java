@@ -34,7 +34,6 @@ import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.events.InitEvent;
-import org.quackbot.events.QuackbotEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
