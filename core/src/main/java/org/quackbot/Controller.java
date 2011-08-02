@@ -122,7 +122,8 @@ public class Controller {
 	 */
 	protected int commandNumber = 0;
 	protected GUI gui;
-	protected HookManager hookManager = new HookManager(this);
+	@Autowired
+	protected HookManager hookManager;
 	/**
 	 * Global Prefixes.
 	 */
