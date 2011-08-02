@@ -43,7 +43,7 @@ import org.testng.annotations.BeforeMethod;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@ContextConfiguration({"classpath:spring-dao-hibernate.xml", "classpath:spring-dao-hibernate-test.xml"})
+@ContextConfiguration({"classpath:spring-dao-hibernate-test.xml"})
 public class GenericHbTest extends AbstractTransactionalTestNGSpringContextTests {
 	@Autowired
 	protected AbstractApplicationContext context;
