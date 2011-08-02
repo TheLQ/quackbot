@@ -291,7 +291,7 @@ public class Controller {
 			public void run() {
 				try {
 					log.info("Initiating IRC connection to server " + curServer);
-					Bot bot = new Bot(Controller.this, curServer.getId(), threadPool);
+					Bot bot = new Bot(curServer.getId(), threadPool);
 					threadPool.setBot(bot);
 					bot.setVerbose(true);
 					bots.add(bot);
