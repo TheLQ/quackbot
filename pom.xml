@@ -64,6 +64,7 @@
 		<module>impl</module>
 		<module>dao-hibernate</module>
 		<module>site-wicket</module>
+		<module>impl-hibernate</module>
 	</modules>
 	
 	<!--
