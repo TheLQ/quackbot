@@ -26,7 +26,11 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Main {
-	public static void main(String[] args) {
+	protected AbstractApplicationContext context;
+	protected String[] configs;
+	protected Properties properties;
+	
+	public void init() {
 		//First, make sure there's a quackbot.properties
 		InputStream propertyStream = Main.class.getClassLoader().getResourceAsStream("quackbot.properties");
 		if (propertyStream == null) {
@@ -35,7 +39,6 @@ public class Main {
 		}
 
 		//Try to load it
-		Properties properties;
 		try {
 			properties = new Properties();
 			properties.load(propertyStream);
@@ -46,7 +49,7 @@ public class Main {
 		}
 
 		//Use default config file or user specified ones if they exist
-		String[] configs = {"spring-impl.xml"};
+		configs = new String[]{"spring-impl.xml"};
 		String configsProperty = properties.getProperty("spring.configs");
 		if (StringUtils.isNotBlank(configsProperty)) {
 			configs = new String[0];
@@ -56,7 +59,11 @@ public class Main {
 		}
 		
 		//Load spring
-		AbstractApplicationContext context = new ClassPathXmlApplicationContext(configs);
+		context = new ClassPathXmlApplicationContext(configs);
 		context.registerShutdownHook();
+	}
+	
+	public static void main(String[] args) {
+		new Main().init();
 	}
 }
