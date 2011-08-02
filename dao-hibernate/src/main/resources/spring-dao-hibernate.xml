@@ -35,11 +35,6 @@
 				<value>classpath:quackbot.properties</value>
 			</list>
 		</property>
-		<property name="properties">  
-			<props>  
-				<prop key="hibernate.prefix">quackbot_</prop>  
-			</props>  
-		</property>  
 	</bean>
 
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
