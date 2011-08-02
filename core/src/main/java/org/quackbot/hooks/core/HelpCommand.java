@@ -26,12 +26,14 @@ import org.apache.commons.lang.StringUtils;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.events.CommandEvent;
+import org.springframework.stereotype.Component;
 
 /**
  * Core plugin that provides help for a command
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Component
 @HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
 public class HelpCommand extends Command {
 	public String onCommand(CommandEvent event, @Optional String command) throws Exception {

@@ -26,11 +26,13 @@ import org.quackbot.hooks.Command;
 import org.quackbot.hooks.java.AdminOnly;
 import org.quackbot.hooks.java.HelpDoc;
 import org.quackbot.hooks.java.Optional;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Component
 @AdminOnly
 @HelpDoc("The umbrilla command for any action on the bot")
 public class BotCommand extends Command {

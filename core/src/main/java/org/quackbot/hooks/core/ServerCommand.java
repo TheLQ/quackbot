@@ -19,7 +19,6 @@
 package org.quackbot.hooks.core;
 
 import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.quackbot.Bot;
 import org.quackbot.Controller;
@@ -28,11 +27,13 @@ import org.quackbot.hooks.Command;
 import org.quackbot.hooks.java.AdminOnly;
 import org.quackbot.hooks.java.HelpDoc;
 import org.quackbot.hooks.java.Optional;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Component
 @AdminOnly
 @HelpDoc("The umbrilla command for any action to a server")
 public class ServerCommand extends Command {
