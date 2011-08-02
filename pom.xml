@@ -61,7 +61,7 @@
 
 	<modules>
 		<module>core</module>
-		<module>impl</module>
+		<module>impl-example</module>
 		<module>dao-hibernate</module>
 		<module>site-wicket</module>
 		<module>impl-hibernate</module>
