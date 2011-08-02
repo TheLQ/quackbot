@@ -21,11 +21,7 @@ package org.quackbot.hooks;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import org.pircbotx.Channel;
-import org.pircbotx.User;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 
