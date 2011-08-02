@@ -37,6 +37,7 @@ import org.quackbot.err.InvalidHookException;
 import org.quackbot.events.EndEvent;
 import org.quackbot.events.StartEvent;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * First, some definitions:
@@ -84,11 +85,8 @@ public class HookManager {
 			return new Thread(threadGroup, "mainPool-" + (++count));
 		}
 	});
-	protected final Controller controller;
-	
-	public HookManager(Controller controller) {
-		this.controller = controller;
-	}
+	@Autowired
+	protected Controller controller;
 
 	public boolean addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
