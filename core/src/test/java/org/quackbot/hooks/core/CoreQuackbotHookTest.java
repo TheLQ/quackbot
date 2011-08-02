@@ -18,6 +18,7 @@
  */
 package org.quackbot.hooks.core;
 
+import java.util.Enumeration;
 import org.testng.annotations.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -37,7 +38,6 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
-import org.quackbot.hooks.HookManager;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -61,22 +61,18 @@ public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
 	
 	@BeforeClass
 	public void setupEnviornment() {
-		controller = mock(Controller.class);
-		when(controller.getHookManager()).thenReturn(new HookManager(controller));
-		when(controller.addCommandNumber()).thenReturn(1);
-		when(controller.getPrefixes()).thenReturn(Arrays.asList(new String[]{"?"}));
-		when(controller.isAdmin(any(Bot.class), any(User.class), any(Channel.class))).thenReturn(true);
+		log.trace("Context: " + applicationContext);
+		log.trace("Controller: " + applicationContext.getBean("controller"));
 
 		//Create basic state
-		bot = new Bot(controller, -1L, Executors.newCachedThreadPool());
+		bot = new Bot(-1L, Executors.newCachedThreadPool());
 		channel = new Channel(bot, "#someChannel") {
 		};
 		user = new User(bot, "SomeUser") {
 		};
 
 		//Create our listener hook, being sure to mock specific methods
-		hook = spy(new CoreQuackbotHook());
-		when(hook.getController()).thenReturn(controller);
+		hook = new CoreQuackbotHook();
 	}
 
 	@Test
