@@ -18,6 +18,9 @@
  */
 package org.quackbot.hooks.core;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import lombok.Getter;
@@ -44,7 +47,9 @@ import static org.mockito.Mockito.*;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Slf4j
-public class CoreQuackbotHookTest {
+@ContextConfiguration("classpath:spring-core.xml")
+public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
+	@Autowired
 	protected Controller controller;
 	protected Bot bot;
 	protected Channel channel;
