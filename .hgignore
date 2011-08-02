@@ -1,5 +1,6 @@
 glob:hibernate.cfg.xml
 glob:nb-configuration.xml
 glob:nbactions.xml
+glob:quackbot.properties
 regexp:^[^\/|\\]+?.target
 
