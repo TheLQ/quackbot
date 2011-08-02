@@ -34,5 +34,12 @@
 			<artifactId>hibernate-c3p0</artifactId>
 			<version>3.6.6.Final</version>
 		</dependency>
+		<!--Redirect c3p0's logging (jdk) to slf4j-->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.6.1</version>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 </project>
