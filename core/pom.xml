@@ -56,6 +56,13 @@
 			<artifactId>cglib</artifactId>
 			<version>2.2</version>
 		</dependency>
+		<!--Spring Test for proper unit testing-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>3.0.5.RELEASE</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	
 	<build>
