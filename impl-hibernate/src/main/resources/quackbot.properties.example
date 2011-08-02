@@ -1,0 +1,53 @@
+#
+# Copyright (C) 2011 Leon Blakey <lord.quackstar at gmail.com>
+#
+# This file is part of Quackbot.
+#
+# Quackbot is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Quackbot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+#################
+#This is an example quackbot.properties file that uses MySQL for storage.
+#Change the appropriate values for your environment 
+#
+#If your using MySQL they its easy:
+#  1) Change the IP address to the address of your database
+#  2) Change the database after the IP address to the database that you 
+#     want Quackbot to use
+#  3) Set the correct username and password
+#  4) Change the prefix of all tables quackbot will create and use if you wish
+#
+#If your not using MySQL, then it gets a little more complex. You will need to
+#find out how to configure your database in java on your own. You will also need
+#to find the appropriate Hibernate dialect for your database
+#
+# Other configuration properties
+#  - quackbot.gui - Whether to create a GUI. Values: true, false
+#  - spring.otherConfigs - Any *extra* configs that you want to add to Spring.
+#    Value is a list of files space separated 
+#  - spring.configs - Complete configs for Hibernate. It is up to you to setup
+#    Spring entirely for Quackbot. Because of this, this isn't recommended for
+#    most setups as its much more work than necessary. Only provided for convenience.
+#    Value is a list of files space separated.
+#################
+
+jdbc.driver=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://192.168.5.16/quackbot
+jdbc.username=root
+jdbc.password=password
+hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect
+hibernate.prefix=quackbot_
+quackbot.gui=true
+spring.otherConfigs=
+spring.configs=
