@@ -50,6 +50,12 @@
 			<artifactId>spring-tx</artifactId>
 			<version>3.0.5.RELEASE</version>
 		</dependency>
+		<!--Spring AOP dependency: Spring needs to be able to proxy classes without interfaces-->
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>2.2</version>
+		</dependency>
 	</dependencies>
 	
 	<build>
