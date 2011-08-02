@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.impl;
+package org.quackbot.impl;
 
-import Quackbot.impl.plugins.JavaTest;
+import org.quackbot.impl.plugins.JavaTest;
 import lombok.extern.slf4j.Slf4j;
 import org.quackbot.Controller;
 import org.quackbot.dao.hibernate.DAOControllerHb;
@@ -30,7 +30,7 @@ import org.quackbot.hooks.loaders.JavaHookLoader;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Slf4j
-public class Main {
+public class ExampleMain {
 	/**
 	 * Main method of Implementation
 	 * @param args Passed parameters (ignored)

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package Quackbot.impl.plugins;
+package org.quackbot.impl.plugins;
 
 import org.pircbotx.Channel;
 import org.pircbotx.User;
