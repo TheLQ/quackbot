@@ -62,6 +62,13 @@
 			<version>3.0.5.RELEASE</version>
 			<scope>test</scope>
 		</dependency>
+		<!--Redirect c3p0's logging (jdk) to slf4j-->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.6.1</version>
+			<scope>test</scope>
+		</dependency>
 		<!--Test database: MySQL-->
 		<dependency>
 			<groupId>mysql</groupId>
