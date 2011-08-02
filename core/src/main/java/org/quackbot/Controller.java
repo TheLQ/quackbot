@@ -62,6 +62,7 @@ import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -99,19 +100,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class Controller {
 	@Autowired
-	@Setter(AccessLevel.PROTECTED)
+	@Setter(AccessLevel.PUBLIC)
 	protected AdminDAO adminDao;
 	@Autowired
-	@Setter(AccessLevel.PROTECTED)
+	@Setter(AccessLevel.PUBLIC)
 	protected ChannelDAO channelDao;
 	@Autowired
-	@Setter(AccessLevel.PROTECTED)
+	@Setter(AccessLevel.PUBLIC)
 	protected LogDAO logDao;
 	@Autowired
-	@Setter(AccessLevel.PROTECTED)
+	@Setter(AccessLevel.PUBLIC)
 	protected ServerDAO serverDao;
 	@Autowired
-	@Setter(AccessLevel.PROTECTED)
+	@Setter(AccessLevel.PUBLIC)
 	protected UserDAO userDao;
 	/**
 	 * Set of all Bot instances
@@ -156,7 +157,6 @@ public class Controller {
 	 */
 	public Controller() {
 		//Add shutdown hook to kill all bots and connections
-		//TODO: Store somewhere else so it can be removed
 		shutdownHook = new Thread() {
 			@Override
 			public void run() {
