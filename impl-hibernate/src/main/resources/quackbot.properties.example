@@ -45,6 +45,8 @@ hibernate.prefix=quackbot_
 ###### Quackbot Configuration ########
 #Whether to enable the GUI. Values: true, false
 quackbot.gui=true
+#REQUIRED: Base package that your Java Hooks and Commands live in.
+quackbot.hookpackage=
 
 ###### Spring Configuration ####
 #Any extra Spring config files you want to add at the end of the Configuration chain
