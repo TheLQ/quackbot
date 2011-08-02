@@ -45,7 +45,7 @@
 	
 	<build>
 		<plugins>
-			<!--Add the main class to the module jar-->
+			<!--Build module jars-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -57,6 +57,58 @@
 						</manifest>
 					</archive>
 				</configuration>
+				<executions>
+					<!--Create a normal jar for use with other Maven modules and standalone-->
+					<execution>
+						<id>normal-jar</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+					<!--Create a jar that's going to be used in assemblies with no resources-->
+					<execution>
+						<id>assembly-jar-lib</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+						<configuration>
+							<finalName>quackbot-${project.version}-lib</finalName>
+							<includes>
+								<include>org/**</include>
+							</includes>
+							<archive>
+								<manifest>
+									<addClasspath>true</addClasspath>
+									<classpathPrefix>lib/</classpathPrefix>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!--Assemble various end-user zip files-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<finalName>quackbot-${project.version}</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
+					<descriptors>
+						<descriptor>src/assemble/zip-lib.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>build-zips</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
