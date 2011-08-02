@@ -62,10 +62,11 @@ public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
 	@BeforeClass
 	public void setupEnviornment() {
 		log.trace("Context: " + applicationContext);
-		log.trace("Controller: " + applicationContext.getBean("controller"));
+		log.trace("Controller from autowire: " + controller);
+		log.trace("Controller from spring: " + applicationContext.getBean("controller"));
 
 		//Create basic state
-		bot = new Bot(-1L, Executors.newCachedThreadPool());
+		bot = new Bot(controller, -1L, Executors.newCachedThreadPool());
 		channel = new Channel(bot, "#someChannel") {
 		};
 		user = new User(bot, "SomeUser") {
