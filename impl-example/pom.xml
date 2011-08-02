@@ -20,12 +20,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>dao-hibernate</artifactId>
+			<artifactId>impl-hibernate</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
