@@ -48,4 +48,5 @@
 	<!--Handle @Autowired-->
 	<context:annotation-config />
 	<context:component-scan base-package="org.quackbot"/>
+	<context:component-scan base-package="${quackbot.hookpackage}"/>
 </beans>
