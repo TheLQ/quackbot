@@ -25,6 +25,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.Data;
 import org.quackbot.dao.model.LogEntryType;
 import org.quackbot.dao.model.LogEntry;
@@ -34,7 +35,8 @@ import org.quackbot.dao.model.LogEntry;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
-@Entity(name = "log")
+@Entity
+@Table(name = "irc_log")
 public class LogEntryHibernate implements LogEntry, Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
