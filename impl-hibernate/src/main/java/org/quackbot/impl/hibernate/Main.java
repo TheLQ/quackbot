@@ -27,22 +27,18 @@ public class Main {
 			return;
 		}
 
-		//Get any non-default configuration files
-		String[] locations = {"spring-dao-hibernate.xml", "spring-impl.xml"};
-		locations = getLocations(locations, properties.getProperty("spring.configs"));
-		locations = getLocations(locations, properties.getProperty("spring.otherconfigs"));
+		//Use default config file or user specified ones if they exist
+		String[] configs = {"spring-impl.xml"};
+		String configsProperty = properties.getProperty("spring.configs");
+		if (StringUtils.isNotBlank(configsProperty)) {
+			configs = new String[0];
+			String[] rawConfigs = configsProperty.split(",");
+			for (String curConfig : rawConfigs)
+				ArrayUtils.add(configs, curConfig.trim());
+		}
 		
 		//Load spring
-		AbstractApplicationContext context = new ClassPathXmlApplicationContext(locations);
+		AbstractApplicationContext context = new ClassPathXmlApplicationContext(configs);
 		context.registerShutdownHook();
-	}
-	
-	protected static String[] getLocations(String[] locations, String property) {
-		if (StringUtils.isNotBlank(property)) {
-			String[] configs = property.split(",");
-			for (String curConfig : configs)
-				ArrayUtils.add(locations, curConfig.trim());
-		}
-		return locations;
 	}
 }
