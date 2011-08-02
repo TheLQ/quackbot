@@ -32,11 +32,13 @@ import org.quackbot.Bot;
 import org.quackbot.dao.model.LogEntry;
 import org.quackbot.dao.model.LogEntryType;
 import org.quackbot.hooks.Hook;
+import org.springframework.stereotype.Component;
 
 /**
  * Logs all relevant IRC events in the DAO
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Component
 public class QuackbotLogHook extends Hook {
 	@Override
 	public void onMode(ModeEvent<Bot> event) throws Exception {

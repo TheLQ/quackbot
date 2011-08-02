@@ -27,11 +27,13 @@ import org.apache.commons.lang.StringUtils;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.events.CommandEvent;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Component
 @HelpDoc("Provides list of Admin-only commands or help for specific command. Syntax: ?helpAdmin <OPTIONAL:command>")
 @AdminOnly
 public class AdminHelpCommand extends Command {

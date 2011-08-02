@@ -38,11 +38,13 @@ import org.quackbot.err.NumArgException;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Hook;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Component
 @Slf4j
 public class CoreQuackbotHook extends Hook {
 	@Override
