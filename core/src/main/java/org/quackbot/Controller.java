@@ -136,9 +136,7 @@ public class Controller {
 	@Setter(AccessLevel.PUBLIC)
 	protected String finger = "";
 	protected final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
-	@Getter(AccessLevel.NONE)
-	@Setter(AccessLevel.NONE)
-	protected boolean createGui;
+	protected boolean guiCreated;
 	@Setter(AccessLevel.PUBLIC)
 	protected int defaultPort = 6667;
 	@Setter(AccessLevel.PUBLIC)
@@ -424,12 +422,12 @@ public class Controller {
 		return output + suffix;
 	}
 
-	public void createGui(boolean createGui) {
+	public void setGuiCreated(boolean guiCreated) {
 		//Fail early if the value isn't being updated. Prevents GUI being created twice
-		if (this.createGui == createGui)
+		if (this.guiCreated == guiCreated)
 			return;
-		this.createGui = createGui;
-		if (!createGui)
+		this.guiCreated = guiCreated;
+		if (!guiCreated)
 			return;
 
 		//Need to create GUI
@@ -443,10 +441,6 @@ public class Controller {
 		} catch (Exception e) {
 			log.error("Unkown error occured in GUI initialzation", e);
 		}
-	}
-
-	public boolean isGuiCreated() {
-		return createGui;
 	}
 
 	protected class BotThreadPool extends ThreadPoolExecutor {
