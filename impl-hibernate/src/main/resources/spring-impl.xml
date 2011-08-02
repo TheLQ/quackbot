@@ -29,6 +29,10 @@
           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
 
+	<!--Import main configuration files-->
+	<import resource="classpath:spring-core.xml"/>
+	<import resource="classpath:spring-dao-hibernate.xml"/>
+
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<!-- Connection properties -->
 		<property name="driverClass" value="${jdbc.driver}" />
@@ -42,4 +46,7 @@
 		<property name="idleConnectionTestPeriod" value="3000" />
 		<property name="loginTimeout" value="300" />
 	</bean>
+	
+	<!--Import users configuration files-->
+	<import resource="${spring.otherConfigs}"/>
 </beans>
