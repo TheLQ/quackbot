@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.impl.hibernate;
+package org.quackbot.impl;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -25,14 +25,14 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class Main {
+public class HibernateMain {
 	protected AbstractApplicationContext context;
 	protected String[] configs;
 	protected Properties properties;
 	
 	public void init() {
 		//First, make sure there's a quackbot.properties
-		InputStream propertyStream = Main.class.getClassLoader().getResourceAsStream("quackbot.properties");
+		InputStream propertyStream = HibernateMain.class.getClassLoader().getResourceAsStream("quackbot.properties");
 		if (propertyStream == null) {
 			System.err.println("quackbot.properties not found in classpath!");
 			return;
@@ -64,6 +64,6 @@ public class Main {
 	}
 	
 	public static void main(String[] args) {
-		new Main().init();
+		new HibernateMain().init();
 	}
 }
