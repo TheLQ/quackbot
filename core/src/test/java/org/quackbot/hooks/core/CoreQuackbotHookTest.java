@@ -18,6 +18,7 @@
  */
 package org.quackbot.hooks.core;
 
+import org.testng.annotations.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -57,8 +58,9 @@ public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
 	protected CoreQuackbotHook hook;
 	protected String args4 = "hello0 hello1 hello2 hello3 hello4";
 	protected String args3 = "hello0 hello1 hello2 hello3";
-
-	public CoreQuackbotHookTest() {
+	
+	@BeforeClass
+	public void setupEnviornment() {
 		controller = mock(Controller.class);
 		when(controller.getHookManager()).thenReturn(new HookManager(controller));
 		when(controller.addCommandNumber()).thenReturn(1);
