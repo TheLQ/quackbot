@@ -101,6 +101,7 @@ public class Bot extends PircBotX {
 	public Bot(Controller controller, Long serverId, ExecutorService threadPool) {
 		this.serverId = serverId;
 		this.threadPool = threadPool;
+		this.controller = controller;
 
 		setName(controller.getDefaultName());
 		setLogin(controller.getDefaultLogin());
