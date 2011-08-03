@@ -43,6 +43,7 @@ import org.pircbotx.InputThread;
 import org.pircbotx.OutputThread;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
+import org.pircbotx.hooks.CoreHooks;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
 import org.quackbot.dao.AdminDAO;
@@ -242,6 +243,9 @@ public class Bot extends PircBotX {
 		}
 
 		public boolean addListener(Listener listener) {
+			//Handle PircBotX's CoreHook's specifically because its added every time the listener manager is set
+			if (controller.getHookManager().hookExists(CoreHooks.class.getCanonicalName()))
+				return false;
 			Hook genHook = new Hook(listener) {
 			};
 			listenerTracker.put(listener, genHook);
