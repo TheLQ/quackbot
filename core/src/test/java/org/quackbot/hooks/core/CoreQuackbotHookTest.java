@@ -38,6 +38,7 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -59,7 +60,7 @@ public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
 	protected String args4 = "hello0 hello1 hello2 hello3 hello4";
 	protected String args3 = "hello0 hello1 hello2 hello3";
 	
-	@BeforeClass
+	@BeforeMethod
 	public void setupEnviornment() {
 		log.trace("Context: " + applicationContext);
 		log.trace("Controller from autowire: " + controller);
