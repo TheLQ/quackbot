@@ -37,9 +37,6 @@
 
 	<bean id="controller" class="org.quackbot.Controller" >
 		<property name="guiCreated" value="${quackbot.gui}"/>
-		<property name="adminDao">
-      <null />
-    </property>
 	</bean>
 	
 	<!--Handle @Transactional-->
