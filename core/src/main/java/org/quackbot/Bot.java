@@ -50,7 +50,6 @@ import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.LogDAO;
 import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.model.ServerEntry;
-import org.quackbot.hooks.HookManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -235,8 +234,6 @@ public class Bot extends PircBotX {
 
 	@Data
 	public class WrapperListenerManager implements ListenerManager<Bot> {
-		@Autowired
-		protected HookManager hookManager;
 		protected HashMap<Listener, Hook> listenerTracker = new HashMap();
 
 		public void dispatchEvent(Event<Bot> event) {
@@ -247,13 +244,13 @@ public class Bot extends PircBotX {
 			Hook genHook = new Hook(listener) {
 			};
 			listenerTracker.put(listener, genHook);
-			hookManager.addHook(genHook);
+			controller.getHookManager().addHook(genHook);
 			return true;
 		}
 
 		public boolean removeListener(Listener listener) {
 			if (listenerTracker.containsKey(listener))
-				hookManager.removeHook(listenerTracker.get(listener));
+				controller.getHookManager().removeHook(listenerTracker.get(listener));
 			return true;
 		}
 
