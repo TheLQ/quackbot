@@ -108,7 +108,7 @@ public abstract class Hook extends ListenerAdapter<Bot> {
 	 */
 	public Hook(Listener listener) {
 		this.listener = listener;
-		this.name = listener.getClass().getSimpleName();
+		this.name = listener.getClass().getCanonicalName();
 		this.fileLocation = null;
 	}
 
