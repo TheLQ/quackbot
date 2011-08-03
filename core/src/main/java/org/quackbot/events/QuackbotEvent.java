@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.quackbot.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -31,15 +32,14 @@ import org.quackbot.Controller;
 @Data
 @EqualsAndHashCode(callSuper=true)
 public abstract class QuackbotEvent extends Event<Bot> {
-	protected final Controller controller;
+	@Autowired
+	protected Controller controller;
 
-	public QuackbotEvent(Controller controller) {
+	public QuackbotEvent() {
 		super(null);
-		this.controller = controller;
 	}
 
 	public QuackbotEvent(Bot bot) {
 		super(bot);
-		this.controller = bot.getController();
 	}
 }
