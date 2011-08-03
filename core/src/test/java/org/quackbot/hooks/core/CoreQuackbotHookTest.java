@@ -127,7 +127,7 @@ public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
 
 		//Feed into onMessage
 		log.trace("Sending message " + cmdMessage);
-		hook.execute(messageEvent, channel, null, cmdMessage);
+		hook.execute(messageEvent, channel, user, cmdMessage);
 
 		//Verify the results
 		assertEquals(response.toString(), "Success", "onCommandLong in test " + command.getName() + " doesn't return expected value");
