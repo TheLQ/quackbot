@@ -43,6 +43,7 @@ import org.pircbotx.InputThread;
 import org.pircbotx.OutputThread;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
+import org.pircbotx.hooks.CoreHooks;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.managers.ListenerManager;
 import org.quackbot.dao.AdminDAO;
@@ -50,7 +51,6 @@ import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.LogDAO;
 import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.model.ServerEntry;
-import org.quackbot.hooks.HookManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,6 +102,7 @@ public class Bot extends PircBotX {
 	public Bot(Controller controller, Long serverId, ExecutorService threadPool) {
 		this.serverId = serverId;
 		this.threadPool = threadPool;
+		this.controller = controller;
 
 		setName(controller.getDefaultName());
 		setLogin(controller.getDefaultLogin());
@@ -235,8 +236,6 @@ public class Bot extends PircBotX {
 
 	@Data
 	public class WrapperListenerManager implements ListenerManager<Bot> {
-		@Autowired
-		protected HookManager hookManager;
 		protected HashMap<Listener, Hook> listenerTracker = new HashMap();
 
 		public void dispatchEvent(Event<Bot> event) {
@@ -244,16 +243,19 @@ public class Bot extends PircBotX {
 		}
 
 		public boolean addListener(Listener listener) {
+			//Handle PircBotX's CoreHook's specifically because its added every time the listener manager is set
+			if (controller.getHookManager().hookExists(CoreHooks.class.getCanonicalName()))
+				return false;
 			Hook genHook = new Hook(listener) {
 			};
 			listenerTracker.put(listener, genHook);
-			hookManager.addHook(genHook);
+			controller.getHookManager().addHook(genHook);
 			return true;
 		}
 
 		public boolean removeListener(Listener listener) {
 			if (listenerTracker.containsKey(listener))
-				hookManager.removeHook(listenerTracker.get(listener));
+				controller.getHookManager().removeHook(listenerTracker.get(listener));
 			return true;
 		}
 

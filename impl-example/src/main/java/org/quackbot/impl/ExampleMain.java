@@ -21,7 +21,6 @@ package org.quackbot.impl;
 import org.quackbot.impl.plugins.JavaTest;
 import lombok.extern.slf4j.Slf4j;
 import org.quackbot.Controller;
-import org.quackbot.dao.hibernate.DAOControllerHb;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 
 /**
@@ -30,13 +29,13 @@ import org.quackbot.hooks.loaders.JavaHookLoader;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Slf4j
-public class ExampleMain {
+public class ExampleMain extends HibernateMain {
 	/**
 	 * Main method of Implementation
 	 * @param args Passed parameters (ignored)
 	 */
 	public static void main(String[] args) {		
-		Controller controller = new Controller(new DAOControllerHb(), true);
+		Controller controller = new Controller();
 		controller.setDefaultName("Quackbot");
 		controller.addPrefix("?");
 		try {

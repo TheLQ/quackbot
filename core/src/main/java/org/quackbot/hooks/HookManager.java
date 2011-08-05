@@ -97,7 +97,8 @@ public class HookManager {
 		Hook potentialHook = null;
 		if ((potentialHook = getHook(hook.getName())) != null)
 			//Whoa, this name has already been used before
-			throw new InvalidHookException("Hook " + hook.getClass() + " uses the same name as " + potentialHook.getClass());
+			throw new InvalidHookException("Hook " + hook.getName() + " (" + hook.getClass()
+					+ ") uses the same name as " + potentialHook.getName() + " (" + potentialHook.getClass() + ")");
 		hooks.put(hook.getName(), hook);
 	}
 
@@ -185,7 +186,7 @@ public class HookManager {
 		};
 		return executeRunnable(event, run);
 	}
-	
+
 	protected Future executeRunnable(Event<Bot> event, Runnable runnable) {
 		if (event.getBot() != null)
 			//Use bot's thread pool
@@ -193,7 +194,7 @@ public class HookManager {
 		else
 			//No bot, use global thread pool
 			return globalPool.submit(runnable);
-	} 
+	}
 
 	/**
 	 * Get all stored Commands, sifting out the plain Hooks
@@ -216,7 +217,7 @@ public class HookManager {
 	 */
 	public Command getCommand(String command) {
 		Hook hook = hooks.get(command);
-		if(hook instanceof Command)
+		if (hook instanceof Command)
 			return (Command) hook;
 		return null;
 	}
