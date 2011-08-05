@@ -20,7 +20,7 @@ package org.quackbot.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.stereotype.Component;
+import org.quackbot.Controller;
 
 /**
  * ListenerManager has started processing events
@@ -28,8 +28,11 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Component
 public class StartEvent extends QuackbotEvent {
+	public StartEvent(Controller controller) {
+		super(controller);
+	}
+	
 	@Override
 	public void respond(String response) {
 		throw new UnsupportedOperationException("Can't respond to a start event");

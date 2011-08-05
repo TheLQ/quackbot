@@ -38,6 +38,7 @@ import javax.swing.SwingUtilities;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -190,7 +191,7 @@ public class Controller {
 		started = true;
 
 		//Call list of commands
-		getHookManager().dispatchEvent(new InitEvent());
+		getHookManager().dispatchEvent(new InitEvent(this));
 
 		//Load current CMD classes
 		reloadPlugins();
@@ -217,12 +218,12 @@ public class Controller {
 	 * @param clean Clear list of commands?
 	 */
 	public void reloadPlugins() {
-		getHookManager().dispatchEvent(new HookLoadStartEvent());
+		getHookManager().dispatchEvent(new HookLoadStartEvent(this));
 
 		try {
 			//Load all permanent commands
 			reloadPlugins(new File("plugins"));
-			getHookManager().dispatchEvent(new HookLoadEndEvent());
+			getHookManager().dispatchEvent(new HookLoadEndEvent(this));
 		} catch (Exception e) {
 			log.error("Error in plugin loading!!!", e);
 		}
@@ -257,10 +258,10 @@ public class Controller {
 			loader = getHookLoaders().get(ext);
 			if (loader != null)
 				hook = loader.load(file.getAbsolutePath());
-			getHookManager().dispatchEvent(new HookLoadEvent( hook, loader, file, null));
+			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
 		} catch (Exception e) {
 			log.error("Could not load plugin " + extArr[0], e);
-			getHookManager().dispatchEvent(new HookLoadEvent( hook, loader, file, e));
+			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, e));
 		}
 	}
 

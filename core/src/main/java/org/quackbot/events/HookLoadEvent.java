@@ -21,9 +21,9 @@ package org.quackbot.events;
 import java.io.File;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.quackbot.Controller;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.hooks.Hook;
-import org.springframework.stereotype.Component;
 
 /**
  * Created when a plugin is loaded. Contains either the loaded plugin or the
@@ -32,20 +32,20 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Component
 public class HookLoadEvent extends QuackbotEvent {
 	protected final Hook hook;
 	protected final HookLoader pluginLoader;
 	protected final File file;
 	protected final Exception exception;
 
-	public HookLoadEvent(Hook hook, HookLoader pluginLoader, File file, Exception exception) {
+	public HookLoadEvent(Controller controller, Hook hook, HookLoader pluginLoader, File file, Exception exception) {
+		super(controller);
 		this.pluginLoader = pluginLoader;
 		this.file = file;
 		this.exception = exception;
 		this.hook = hook;
 	}
-
+	
 	/**
 	 * Does NOT respond to the server! This will throw an {@link UnsupportedOperationException} 
 	 * since there is no bot.

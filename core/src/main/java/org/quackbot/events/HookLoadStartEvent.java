@@ -20,7 +20,7 @@ package org.quackbot.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.stereotype.Component;
+import org.quackbot.Controller;
 
 /**
  *
@@ -28,8 +28,11 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Component
 public class HookLoadStartEvent extends QuackbotEvent {
+	public HookLoadStartEvent(Controller controller) {
+		super(controller);
+	}
+
 	/**
 	 * Does NOT respond to the server! This will throw an {@link UnsupportedOperationException} 
 	 * since there is no bot.

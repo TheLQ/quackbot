@@ -21,6 +21,7 @@ package org.quackbot.hooks;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
@@ -142,7 +144,7 @@ public class HookManager {
 				final List<Future> futures = new ArrayList<Future>(hooks.size());
 				synchronized (hooks) {
 					//First, execute onEvent for the StartEvent
-					StartEvent startEvent = new StartEvent();
+					StartEvent startEvent = new StartEvent(controller);
 					for (Hook curHook : hooks.values())
 						executeHook(curHook, startEvent);
 
@@ -161,7 +163,7 @@ public class HookManager {
 
 				//Dispatch an EndEvent
 				synchronized (hooks) {
-					EndEvent endEvent = new EndEvent();
+					EndEvent endEvent = new EndEvent(controller);
 					for (Hook curHook : hooks.values())
 						executeHook(curHook, endEvent);
 				}

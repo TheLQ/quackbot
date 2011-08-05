@@ -26,7 +26,6 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.quackbot.hooks.Command;
-import org.springframework.stereotype.Component;
 
 /**
  * Event that represents a command being sent.
@@ -34,7 +33,6 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Component
 public class CommandEvent extends QuackbotEvent {
 	protected final Command commandClass;
 	protected final Event parentEvent;

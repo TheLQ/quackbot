@@ -16,12 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.quackbot.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.Event;
+import org.quackbot.Controller;
 import org.quackbot.hooks.HookManager;
-import org.springframework.stereotype.Component;
 
 /**
  * Created very early just before the bot is fully initialized. Only created
@@ -36,8 +40,11 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Component
 public class InitEvent extends QuackbotEvent {
+	public InitEvent(Controller controller) {
+		super(controller);
+	}
+	
 	/**
 	 * Does NOT respond to the server! This will throw an {@link UnsupportedOperationException} 
 	 * since there is no bot.
