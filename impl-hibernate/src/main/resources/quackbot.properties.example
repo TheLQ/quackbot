@@ -1,0 +1,56 @@
+#
+# Copyright (C) 2011 Leon Blakey <lord.quackstar at gmail.com>
+#
+# This file is part of Quackbot.
+#
+# Quackbot is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Quackbot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+#################
+#This is an example quackbot.properties file that uses MySQL for storage.
+#Change the appropriate values for your environment 
+##################
+
+##### Database Configuration ######
+#Note: If your not using MySQL, you will need to find and add the databases JDBC
+#driver JAR to the classpath and change the jdbc.driver to the correctdriver class. 
+#You will also need to find the correct Hibernate dialect for your database. A
+#complete list is provided here: 
+#http://docs.jboss.org/hibernate/core/3.5/javadoc/org/hibernate/dialect/package-summary.html
+#Replace MySQLInnoDBDialect with the dialect for your database
+
+#The Java JDBC driver for your database.
+jdbc.driver=com.mysql.jdbc.Driver
+#The full JDBC url to your database. For MySQL its in jdbc:mysql://ADDRESS/DATABASE format
+jdbc.url=jdbc:mysql://192.168.5.16/quackbot
+#Username and password for the database
+jdbc.username=root
+jdbc.password=password
+#Hibernate's Dialect for the database.
+hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect
+#Prefix that all quackbot tables will have.
+hibernate.prefix=quackbot_
+
+###### Quackbot Configuration ########
+#Whether to enable the GUI. Values: true, false
+quackbot.gui=true
+#REQUIRED: Base package that your Java Hooks and Commands live in.
+quackbot.hookpackage=
+
+###### Spring Configuration ####
+#Any extra Spring config files you want to add at the end of the Configuration chain
+spring.otherConfigs=
+#Spring confgurations that you want to use *in place of* the provided spring configs
+#Not recommended unless you know what your doing
+spring.configs=

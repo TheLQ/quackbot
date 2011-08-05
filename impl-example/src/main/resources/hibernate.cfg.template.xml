@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2011 Leon Blakey <lord.quackstar at gmail.com>
+
+    This file is part of Quackbot.
+
+    Quackbot is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Quackbot is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration> 
+	<session-factory>
+		<!--Example configuration for MySQL-->
+		<property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="hibernate.connection.url">jdbc:mysql://YOUR_HOST:3306/YOUR_DB</property>
+		<property name="hibernate.connection.username">YOUR_USERNAME</property>
+		<property name="hibernate.connection.password">YOUR_PASSWORD</property>
+		
+		<!--Print all executed SQL statements to the console. Disable or remove if you wish-->
+		<property name="show_sql">true</property>
+		
+		<!--Do NOT modify below this line unless you know what your doing-->
+		<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+		<property name="hibernate.current_session_context_class">thread</property>
+		<mapping class="org.quackbot.dao.hibernate.UserChannelHb"/>
+		<mapping class="org.quackbot.dao.hibernate.AdminDAOHb"/>
+		<mapping class="org.quackbot.dao.hibernate.ChannelDAOHb"/>
+		<mapping class="org.quackbot.dao.hibernate.ServerDAOHb"/>
+		<mapping class="org.quackbot.dao.hibernate.UserDAOHb"/>
+	</session-factory>
+</hibernate-configuration>

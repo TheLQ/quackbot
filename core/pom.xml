@@ -1,0 +1,94 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org</groupId>
+		<artifactId>quackbot</artifactId>
+		<version>3.5-SNAPSHOT</version>
+	</parent>
+
+	<groupId>org.quackbot</groupId>
+	<artifactId>core</artifactId>
+	<packaging>jar</packaging>
+	<name>Quackbot-Core</name>
+	
+	<properties>
+		<main.basedir>${project.parent.basedir}</main.basedir>
+	</properties>
+
+	<dependencies>
+		<!--Logback for a concrete logging implentation-->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>0.9.26</version>
+		</dependency>
+		<!--Redirect Spring's logging (commons-logging) to slf4j-->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.6.1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!--Spring framework: Core that keeps things togeather.-->
+		<!--Exclude commons logging since were using slf4j-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>3.0.5.RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!--Spring transaction manegment-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>3.0.5.RELEASE</version>
+		</dependency>
+		<!--Spring AOP dependency: Spring needs to be able to proxy classes without interfaces-->
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>2.2</version>
+		</dependency>
+		<!--Spring Test for proper unit testing-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>3.0.5.RELEASE</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<resources>
+			<!--Treat scripts as resources, adding to the final JAR-->
+			<resource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/main/scripts</directory>
+			</resource>
+			<!--Keep the default resource directory as well-->
+			<resource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/main/resources</directory>
+			</resource>
+		</resources>
+		<testResources>
+			<!--Treat scripts as resources-->
+			<testResource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/test/scripts</directory>
+			</testResource>
+			<!--Keep the default resource directory as well-->
+			<testResource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/test/resources</directory>
+			</testResource>
+		</testResources>
+	</build>
+</project>
