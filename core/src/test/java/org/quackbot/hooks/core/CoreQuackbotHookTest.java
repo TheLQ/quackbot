@@ -18,8 +18,6 @@
  */
 package org.quackbot.hooks.core;
 
-import java.util.Enumeration;
-import org.testng.annotations.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -38,10 +36,10 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.quackbot.Controller;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -55,11 +53,12 @@ public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
 	protected Bot bot;
 	protected Channel channel;
 	protected User user;
+	@Autowired
 	protected CoreQuackbotHook hook;
 	protected String args4 = "hello0 hello1 hello2 hello3 hello4";
 	protected String args3 = "hello0 hello1 hello2 hello3";
 	
-	@BeforeClass
+	@BeforeMethod
 	public void setupEnviornment() {
 		log.trace("Context: " + applicationContext);
 		log.trace("Controller from autowire: " + controller);
@@ -71,9 +70,6 @@ public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
 		};
 		user = new User(bot, "SomeUser") {
 		};
-
-		//Create our listener hook, being sure to mock specific methods
-		hook = new CoreQuackbotHook();
 	}
 
 	@Test
@@ -126,7 +122,7 @@ public class CoreQuackbotHookTest extends AbstractTestNGSpringContextTests {
 
 		//Feed into onMessage
 		log.trace("Sending message " + cmdMessage);
-		hook.execute(messageEvent, channel, null, cmdMessage);
+		hook.execute(messageEvent, channel, user, cmdMessage);
 
 		//Verify the results
 		assertEquals(response.toString(), "Success", "onCommandLong in test " + command.getName() + " doesn't return expected value");
