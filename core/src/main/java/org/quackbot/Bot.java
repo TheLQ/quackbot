@@ -254,8 +254,10 @@ public class Bot extends PircBotX {
 		}
 
 		public boolean removeListener(Listener listener) {
-			if (listenerTracker.containsKey(listener))
+			if (listenerTracker.containsKey(listener)) {
 				controller.getHookManager().removeHook(listenerTracker.get(listener));
+				listenerTracker.remove(listener);
+			}
 			return true;
 		}
 
