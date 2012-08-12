@@ -310,7 +310,7 @@ public class Controller {
 	public void shutdown() {
 		for (Bot curBot : bots) {
 			curBot.quitServer("Killed by control panel");
-			curBot.dispose();
+			curBot.shutdown();
 		}
 		if (!shutdownHook.isAlive())
 			Runtime.getRuntime().removeShutdownHook(shutdownHook);
