@@ -268,5 +268,20 @@ public class Bot extends PircBotX {
 		public Set<Listener> getListeners() {
 			return listenerTracker.keySet();
 		}
+
+		@Override
+		public void setCurrentId(long currentId) {
+			controller.getHookManager().setCurrentId(currentId);
+		}
+
+		@Override
+		public long getCurrentId() {
+			return controller.getHookManager().getCurrentId();
+		}
+
+		@Override
+		public long incrementCurrentId() {
+			return controller.getHookManager().incrementCurrentId();
+		}
 	}
 }

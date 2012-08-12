@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.Event;
@@ -91,6 +92,7 @@ public class HookManager {
 	});
 	@Autowired
 	protected Controller controller;
+	protected AtomicLong currentId;
 
 	public void addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
@@ -220,5 +222,17 @@ public class HookManager {
 		if (hook instanceof Command)
 			return (Command) hook;
 		return null;
+	}
+	
+	public void setCurrentId(long currentId) {
+		this.currentId.set(currentId);
+	}
+
+	public long getCurrentId() {
+		return currentId.get();
+	}
+
+	public long incrementCurrentId() {
+		return currentId.getAndIncrement();
 	}
 }
