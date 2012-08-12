@@ -15,7 +15,7 @@
 	<name>Quackbot</name>
 	<url>http://quackbot.googlecode.com</url>
 	<description>Java based IRC bot framework/program designed to be a simple, easy to use, and easy 
-	to write for bot.
+		to write for bot.
 	</description>
 	<inceptionYear>2010</inceptionYear>
 	
@@ -66,6 +66,10 @@
 		<module>site-wicket</module>
 		<module>impl-hibernate</module>
 	</modules>
+	
+	<prerequisites>
+		<maven>2.2.1</maven>
+	</prerequisites>
 	
 	<!--
 		Dependancies and Plugins
