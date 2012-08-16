@@ -92,7 +92,7 @@ public class HookManager {
 	});
 	@Autowired
 	protected Controller controller;
-	protected AtomicLong currentId;
+	protected AtomicLong currentId = new AtomicLong();
 
 	public void addHook(Hook hook) throws InvalidHookException {
 		log.debug("Adding hook " + hook.getName());
