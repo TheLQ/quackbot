@@ -20,6 +20,9 @@ package org.quackbot.dao.hibernate;
 
 import lombok.AccessLevel;
 import lombok.Setter;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.quackbot.dao.hibernate.model.ServerEntryHibernate;
 import org.quackbot.dao.hibernate.model.UserEntryHibernate;
 import org.quackbot.dao.hibernate.model.ChannelEntryHibernate;
@@ -32,7 +35,7 @@ import org.quackbot.dao.hibernate.model.AdminEntryHibernate;
 import org.quackbot.dao.hibernate.model.LogEntryHibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.transaction.annotation.Propagation;
@@ -66,8 +69,9 @@ public class GenericHbTest extends AbstractTransactionalTestNGSpringContextTests
 	@BeforeMethod
 	public void setupSchema() {
 		LocalSessionFactoryBean session = (LocalSessionFactoryBean) context.getBean("&sessionFactory");
-		session.dropDatabaseSchema();
-		session.createDatabaseSchema();
+		SchemaExport export = new SchemaExport(session.getConfiguration());
+		export.drop(false, true);
+		export.create(false, true);
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
