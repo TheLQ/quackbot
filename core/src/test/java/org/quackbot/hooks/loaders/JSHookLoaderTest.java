@@ -31,6 +31,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 import static org.mockito.Mockito.*;
+import org.pircbotx.hooks.managers.GenericListenerManager;
+import org.pircbotx.hooks.managers.ListenerManager;
 
 /**
  *
@@ -40,15 +42,17 @@ import static org.mockito.Mockito.*;
 public class JSHookLoaderTest {
 	JSHookLoader loader = new JSHookLoader();
 	Bot bot;
+	protected ListenerManager manager = new GenericListenerManager();
 
 	public JSHookLoaderTest() {
 		bot = mock(Bot.class);
+		when(bot.getListenerManager()).thenReturn(manager);
 	}
 
 	@Test
 	public void messageEventTest() throws Exception {
 		JSHookLoader.JSHookWrapper hook = (JSHookLoader.JSHookWrapper) loader.load("JSPluginTest/SimpleHook.js");
-		MessageEvent event = new MessageEvent(null, null, null, "Some message");
+		MessageEvent event = new MessageEvent(bot, null, null, "Some message");
 		hook.onEvent(event);
 		assertEquals(hook.jsEngine.get("event"), event, "Event doesn't match given");
 	}
