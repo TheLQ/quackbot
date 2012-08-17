@@ -224,6 +224,17 @@
 		</dependency>
 	</dependencies>
 	
+	<!--
+		Distribution
+	-->
+	<distributionManagement>
+		<!--Site deploy repository-->
+		<site>
+			<id>code.google.com</id>
+			<url>scm:hg:https://code.google.com/p/quackbot.site/</url>
+		</site>
+	</distributionManagement>
+	
 	<profiles>
 		<!--Lombok tools.jar config-->
 		<profile>
