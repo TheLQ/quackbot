@@ -116,32 +116,22 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--Delombok sources for Javadoc-->
+			<!--Delombok sources for tools like javadoc-->
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.2.1</version>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok-maven-plugin</artifactId>
+				<version>0.11.2.0</version>
 				<executions>
 					<execution>
-						<id>delombok-source</id>
 						<phase>generate-sources</phase>
 						<goals>
-							<goal>exec</goal>
+							<goal>delombok</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
-					<executable>java</executable>
-					<classpathScope>compile</classpathScope>
-					<arguments>
-						<argument>-classpath</argument>
-						<classpath/>
-						<argument>lombok.core.Main</argument>
-						<argument>delombok</argument>
-						<argument>src/main/java</argument>
-						<argument>-d</argument>
-						<argument>target/src-delomboked</argument>
-					</arguments>
+					<addOutputDirectory>false</addOutputDirectory>
+					<sourceDirectory>src/main/java</sourceDirectory>
 				</configuration>
 			</plugin>
 			<!--Manual maven-jar-plugin, need to not package *.properties files-->
