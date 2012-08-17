@@ -18,8 +18,6 @@
  */
 package org.quackbot.site;
 
-import org.apache.wicket.PageParameters;
-
 /**
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
@@ -32,7 +30,7 @@ public class HomePage extends QuackbotPage {
 	 * @param parameters
 	 *            Page parameters
 	 */
-    public HomePage(final PageParameters parameters) {
-		super(parameters, "Home");
+    public HomePage() {
+		super("Home");
     }
 }
