@@ -154,7 +154,7 @@ public class Controller {
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
-	 *                 implementation <b>must</b> be provided to get any outpu
+	 *                 implementation <b>must</b> be provided to get any output
 	 */
 	public Controller() {
 		//Add shutdown hook to kill all bots and connections
