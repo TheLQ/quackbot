@@ -1,4 +1,4 @@
-/**
+	/**
  * Copyright (C) 2011 Leon Blakey <lord.quackstar at gmail.com>
  *
  * This file is part of Quackbot.
@@ -18,12 +18,13 @@
  */
 package org.quackbot.impl;
 
-import java.io.InputStream;
 import java.util.Properties;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 public class HibernateMain {
 	protected AbstractApplicationContext context;
@@ -32,16 +33,16 @@ public class HibernateMain {
 	
 	public void init() {
 		//First, make sure there's a quackbot.properties
-		InputStream propertyStream = HibernateMain.class.getClassLoader().getResourceAsStream("quackbot.properties");
-		if (propertyStream == null) {
+		Resource propertyResource = new PathMatchingResourcePatternResolver().getResource("classpath*:quackbot.properties");
+		if(!propertyResource.exists()){
 			System.err.println("quackbot.properties not found in classpath!");
 			return;
 		}
-
+		
 		//Try to load it
 		try {
 			properties = new Properties();
-			properties.load(propertyStream);
+			properties.load(propertyResource.getInputStream());
 		} catch (Exception e) {
 			System.err.println("Error when loading properties file");
 			e.printStackTrace();
