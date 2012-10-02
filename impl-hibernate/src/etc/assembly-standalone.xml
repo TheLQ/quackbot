@@ -1,0 +1,73 @@
+<!--
+
+    Copyright (C) 2011 Leon Blakey <lord.quackstar at gmail.com>
+
+    This file is part of Quackbot.
+
+    Quackbot is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Quackbot is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
+	<id>dir-with-resources</id>
+	<formats>
+		<format>jar</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<!--Include all dependencies-->
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<useProjectArtifact>true</useProjectArtifact>
+			<unpack>true</unpack>
+			<scope>runtime</scope>
+			<unpackOptions>
+				<includes>
+					<include>**/*.class</include>
+					<include>**/*.xml</include>
+					<include>META-INF/maven/org.thelq/**</include>
+				</includes>
+				<excludes>
+					<exclude>META-INF/**</exclude>
+				</excludes>
+			</unpackOptions>
+		</dependencySet>
+	</dependencySets>
+
+	<fileSets>
+		<!--Include JSPlugins-->
+		<fileSet>
+			<directory>${project.basedir}/src/main/scripts</directory>
+			<includes>
+				<include>*</include>
+				<include>*/*</include>
+			</includes>
+			<outputDirectory>plugins</outputDirectory>
+		</fileSet>
+		<!--Include Resources-->
+		<fileSet>
+			<directory>${project.basedir}/src/main/resources</directory>
+			<includes>
+				<include>*</include>
+				<include>*/*</include>
+			</includes>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>
