@@ -33,7 +33,7 @@ public class HibernateMain {
 	
 	public void init() {
 		//First, make sure there's a quackbot.properties
-		Resource propertyResource = new PathMatchingResourcePatternResolver().getResource("classpath*:quackbot.properties");
+		Resource propertyResource = new PathMatchingResourcePatternResolver().getResource("classpath:quackbot.properties");
 		if(!propertyResource.exists()){
 			System.err.println("quackbot.properties not found in classpath!");
 			return;
