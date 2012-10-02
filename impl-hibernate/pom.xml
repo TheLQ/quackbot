@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org</groupId>
@@ -44,69 +44,40 @@
 	</dependencies>
 	
 	<build>
+		<resources>
+			<resource>
+				<directory>src/etc</directory>
+			</resource>
+		</resources>
 		<plugins>
-			<!--Build module jars-->
+			<!--Make a deployable directory in the correct format-->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>org.quackbot.impl.HibernateMain</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-				<executions>
-					<!--Create a normal jar for use with other Maven modules and standalone-->
-					<execution>
-						<id>normal-jar</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<phase>package</phase>
-					</execution>
-					<!--Create a jar that's going to be used in assemblies with no resources-->
-					<execution>
-						<id>assembly-jar-lib</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<phase>package</phase>
-						<configuration>
-							<finalName>quackbot-${project.version}-lib</finalName>
-							<includes>
-								<include>org/**</include>
-							</includes>
-							<archive>
-								<manifest>
-									<addClasspath>true</addClasspath>
-									<classpathPrefix>lib/</classpathPrefix>
-								</manifest>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<!--Assemble various end-user zip files-->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.3</version>
-				<configuration>
-					<finalName>quackbot-${project.version}</finalName>
-					<appendAssemblyId>false</appendAssemblyId>
-					<descriptors>
-						<descriptor>src/assemble/zip-lib.xml</descriptor>
-					</descriptors>
-				</configuration>
 				<executions>
+					<!--Build mega-jar with dependencies-->
 					<execution>
-						<id>build-zips</id>
+						<id>make-jar2</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<finalName>${project.artifactId}-standalone</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<attach>false</attach>
+							<descriptors>
+								<descriptor>src/etc/assembly-standalone.xml</descriptor>
+							</descriptors>
+							<archive>
+								<manifest>
+									<mainClass>org.quackbot.impl.HibernateMain</mainClass>
+								</manifest>
+								<manifestEntries>
+									<Class-Path>. ${project.artifactId}-standalone.jar</Class-Path>
+								</manifestEntries>
+							</archive>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
