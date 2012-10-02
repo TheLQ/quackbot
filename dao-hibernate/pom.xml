@@ -28,13 +28,13 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>4.1.6.Final</version>
+			<version>4.1.7.Final</version>
 		</dependency>
 		<!--C3p0 for connection pooling in tests-->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-c3p0</artifactId>
-			<version>4.1.6.Final</version>
+			<version>4.1.7.Final</version>
 			<scope>test</scope>		
 		</dependency>
 		<!--Hibernate Validator, might discover something-->
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
-			<version>1.6.6</version>
+			<version>1.7.1</version>
 			<scope>test</scope>
 		</dependency>
 		<!--Test database: MySQL-->

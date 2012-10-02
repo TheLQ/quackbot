@@ -32,13 +32,13 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-c3p0</artifactId>
-			<version>4.1.6.Final</version>
+			<version>4.1.7.Final</version>
 		</dependency>
 		<!--Redirect c3p0's logging (jdk) to slf4j-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
-			<version>1.6.6</version>
+			<version>1.7.1</version>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
