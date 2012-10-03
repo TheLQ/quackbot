@@ -1,4 +1,4 @@
-	/**
+/**
  * Copyright (C) 2011 Leon Blakey <lord.quackstar at gmail.com>
  *
  * This file is part of Quackbot.
@@ -19,7 +19,6 @@
 package org.quackbot.impl;
 
 import java.util.Properties;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -30,40 +29,38 @@ public class HibernateMain {
 	protected AbstractApplicationContext context;
 	protected String[] configs;
 	protected Properties properties;
-	
-	public void init() {
+
+	public void init() throws Exception {
 		//First, make sure there's a quackbot.properties
 		Resource propertyResource = new PathMatchingResourcePatternResolver().getResource("classpath:quackbot.properties");
-		if(!propertyResource.exists()){
+		if (!propertyResource.exists()) {
 			System.err.println("quackbot.properties not found in classpath!");
 			return;
 		}
-		
+
 		//Try to load it
-		try {
-			properties = new Properties();
-			properties.load(propertyResource.getInputStream());
-		} catch (Exception e) {
-			System.err.println("Error when loading properties file");
-			e.printStackTrace();
-			return;
-		}
+		properties = new Properties();
+		properties.load(propertyResource.getInputStream());
 
 		//Use default config file or user specified ones if they exist
 		String configsProperty = properties.getProperty("spring.configs");
 		if (StringUtils.isNotBlank(configsProperty)) {
 			configs = configsProperty.split(",");
-			for(int i = 0; i < configs.length; i++)
+			for (int i = 0; i < configs.length; i++)
 				configs[i] = configs[i].trim();
 		} else
 			configs = new String[]{"classpath:spring-impl.xml"};
-		
+
 		//Load spring
 		context = new ClassPathXmlApplicationContext(configs);
 		context.registerShutdownHook();
 	}
-	
+
 	public static void main(String[] args) {
-		new HibernateMain().init();
+		try {
+			new HibernateMain().init();
+		} catch (Exception ex) {
+			throw new RuntimeException("Couldn't load bot", ex);
+		}
 	}
 }
