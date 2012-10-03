@@ -50,14 +50,13 @@ public class HibernateMain {
 		}
 
 		//Use default config file or user specified ones if they exist
-		configs = new String[]{"spring-impl.xml"};
 		String configsProperty = properties.getProperty("spring.configs");
 		if (StringUtils.isNotBlank(configsProperty)) {
-			configs = new String[0];
-			String[] rawConfigs = configsProperty.split(",");
-			for (String curConfig : rawConfigs)
-				ArrayUtils.add(configs, curConfig.trim());
-		}
+			configs = configsProperty.split(",");
+			for(int i = 0; i < configs.length; i++)
+				configs[i] = configs[i].trim();
+		} else
+			configs = new String[]{"classpath:spring-impl.xml"};
 		
 		//Load spring
 		context = new ClassPathXmlApplicationContext(configs);
