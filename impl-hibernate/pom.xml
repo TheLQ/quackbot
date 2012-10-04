@@ -48,35 +48,36 @@
 			<resource>
 				<directory>src/etc</directory>
 			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
 		</resources>
 		<plugins>
-			<!--Make a deployable directory in the correct format-->
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.3</version>
+			<plugin>              
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.5</version>
 				<executions>
-					<!--Build mega-jar with dependencies-->
 					<execution>
-						<id>make-jar2</id>
 						<phase>package</phase>
 						<goals>
-							<goal>single</goal>
+							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Main-Class>org.quackbot.impl.HibernateMain</Main-Class>
+										<Class-Path>.</Class-Path>
+									</manifestEntries>									
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.handlers</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.schemas</resource>
+								</transformer>
+							</transformers>
 							<finalName>${project.artifactId}-standalone</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
-							<attach>false</attach>
-							<descriptors>
-								<descriptor>src/etc/assembly-standalone.xml</descriptor>
-							</descriptors>
-							<archive>
-								<manifest>
-									<mainClass>org.quackbot.impl.HibernateMain</mainClass>
-								</manifest>
-								<manifestEntries>
-									<Class-Path>. ${project.artifactId}-standalone.jar</Class-Path>
-								</manifestEntries>
-							</archive>
 						</configuration>
 					</execution>
 				</executions>
