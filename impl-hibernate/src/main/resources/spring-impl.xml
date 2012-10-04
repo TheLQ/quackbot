@@ -44,7 +44,4 @@
 		<property name="idleConnectionTestPeriod" value="3000" />
 		<property name="loginTimeout" value="300" />
 	</bean>
-	
-	<!--Import users configuration files-->
-	<import resource="${spring.otherConfigs}"/>
 </beans>
