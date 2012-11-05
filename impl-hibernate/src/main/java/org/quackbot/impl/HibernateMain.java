@@ -19,18 +19,22 @@
 package org.quackbot.impl;
 
 import java.util.Properties;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 
 public class HibernateMain {
 	protected AbstractApplicationContext context;
 	protected String[] configs;
 	protected Properties properties;
 
-	public void init() throws Exception {
+	public void init(String[] args) throws Exception {
 		//First, make sure there's a quackbot.properties
 		Resource propertyResource = new PathMatchingResourcePatternResolver().getResource("classpath:quackbot.properties");
 		if (!propertyResource.exists()) {
@@ -54,11 +58,20 @@ public class HibernateMain {
 		//Load spring
 		context = new ClassPathXmlApplicationContext(configs);
 		context.registerShutdownHook();
+
+		//Handle first run
+		if (ArrayUtils.contains(args, "--firstrun")) {
+			LocalSessionFactoryBean session = (LocalSessionFactoryBean) context.getBean("&sessionFactory");
+			SchemaExport export = new SchemaExport(session.getConfiguration());
+			export.drop(false, true);
+			export.create(false, true);
+		}
+		LoggerFactory.getLogger(getClass()).info("Done initing");
 	}
 
 	public static void main(String[] args) {
 		try {
-			new HibernateMain().init();
+			new HibernateMain().init(args);
 		} catch (Exception ex) {
 			throw new RuntimeException("Couldn't load bot", ex);
 		}
