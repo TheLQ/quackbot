@@ -18,6 +18,7 @@
  */
 package org.quackbot.impl;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +36,18 @@ public class HibernateMain {
 	protected Properties properties;
 
 	public void init(String[] args) throws Exception {
+		//First, startup hibernate
+		initHibernate();
+		
+		//Is the user running this for the first time?
+		if (ArrayUtils.contains(args, "--firstrun"))
+			firstRun();
+		
+		//Done!
+		LoggerFactory.getLogger(getClass()).info("Done initing");
+	}
+
+	public void initHibernate() throws IOException {
 		//First, make sure there's a quackbot.properties
 		Resource propertyResource = new PathMatchingResourcePatternResolver().getResource("classpath:quackbot.properties");
 		if (!propertyResource.exists()) {
@@ -58,15 +71,13 @@ public class HibernateMain {
 		//Load spring
 		context = new ClassPathXmlApplicationContext(configs);
 		context.registerShutdownHook();
+	}
 
-		//Handle first run
-		if (ArrayUtils.contains(args, "--firstrun")) {
-			LocalSessionFactoryBean session = (LocalSessionFactoryBean) context.getBean("&sessionFactory");
-			SchemaExport export = new SchemaExport(session.getConfiguration());
-			export.drop(false, true);
-			export.create(false, true);
-		}
-		LoggerFactory.getLogger(getClass()).info("Done initing");
+	public void firstRun() {
+		LocalSessionFactoryBean session = (LocalSessionFactoryBean) context.getBean("&sessionFactory");
+		SchemaExport export = new SchemaExport(session.getConfiguration());
+		export.drop(false, true);
+		export.create(false, true);
 	}
 
 	public static void main(String[] args) {
