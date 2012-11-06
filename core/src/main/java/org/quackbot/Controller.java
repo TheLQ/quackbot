@@ -34,11 +34,11 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 import javax.swing.SwingUtilities;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -62,7 +62,6 @@ import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -94,7 +93,6 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@Component
 @Data
 @Setter(AccessLevel.NONE)
 @EqualsAndHashCode(exclude = {"bots"})
@@ -166,7 +164,10 @@ public class Controller {
 			}
 		};
 		Runtime.getRuntime().addShutdownHook(shutdownHook);
-
+	}
+	
+	@PostConstruct
+	public void initHookManager() {
 		//Setup default Plugin Loaders
 		addHookLoader(new JSHookLoader(), "js");
 
@@ -180,7 +181,7 @@ public class Controller {
 			log.error("Error when loading default plugins", e);
 		}
 	}
-
+	
 	/**
 	 * Executes Quackbot. Loads commands, starts service commands, connects to servers.
 	 * If this isn't called, then the bot does nothing
