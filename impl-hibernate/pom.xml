@@ -28,18 +28,10 @@
 			<artifactId>dao-hibernate</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--C3p0 for connection pooling in tests-->
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-c3p0</artifactId>
-			<version>4.1.8.Final</version>
-		</dependency>
-		<!--Redirect c3p0's logging (jdk) to slf4j-->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>log4j-over-slf4j</artifactId>
-			<version>1.7.2</version>
-			<scope>runtime</scope>
+			<groupId>com.jolbox</groupId>
+			<artifactId>bonecp-spring</artifactId>
+			<version>0.7.1.RELEASE</version>
 		</dependency>
 	</dependencies>
 	
