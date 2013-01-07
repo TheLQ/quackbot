@@ -238,6 +238,11 @@ public class Controller {
 		String[] extArr = null;
 		HookLoader loader = null;
 		Hook hook = null;
+		
+		//Ignore files or folders that start with a period
+		if(file.getName().startsWith("."))
+			return;
+		
 		//Load using appropiate type
 		try {
 			if (file.isDirectory()) {
@@ -245,9 +250,7 @@ public class Controller {
 				for (File child : childs)
 					reloadPlugins(child);
 				return;
-			} //Is this in the .svn directory?
-			else if (file.getAbsolutePath().indexOf(".svn") != -1)
-				return;
+			}
 
 			//Get extension of file
 			extArr = StringUtils.split(file.getName(), '.');
