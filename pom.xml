@@ -132,6 +132,8 @@
 				<configuration>
 					<addOutputDirectory>false</addOutputDirectory>
 					<sourceDirectory>src/main/java</sourceDirectory>
+					<!-- Netbeans assumes all errors go to generated sources, which is wrong for lombok-->
+					<outputDirectory>target/delombok</outputDirectory>
 				</configuration>
 			</plugin>
 			<!--Manual maven-jar-plugin, need to not package *.properties files-->
