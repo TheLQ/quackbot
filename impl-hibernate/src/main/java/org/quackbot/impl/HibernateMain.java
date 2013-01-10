@@ -19,7 +19,10 @@
 package org.quackbot.impl;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.Scanner;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
@@ -78,6 +81,56 @@ public class HibernateMain {
 		SchemaExport export = new SchemaExport(session.getConfiguration());
 		export.drop(false, true);
 		export.create(false, true);
+		
+		//Start prompting the user for info
+		System.out.println();
+		System.out.println("--------------------------");
+		System.out.println("- Quackbot Initial Setup -");
+		System.out.println("--------------------------");
+		System.out.println();
+		
+		
+		if(promptForInput("Do you wish to setup initial servers now? (Y/N)", false, "Y", "y", "N", "n").equalsIgnoreCase("N")) {
+			System.out.println("Skipping setup. Note: You will have to setup servers manually");
+			return;
+		}
+		
+		while(true) {
+			String server = promptForInput("What is the address of the server?", false);
+			String portString = promptForInput("What is the server port? [Default: 6667]", true);
+			String password = promptForInput("What is the server password? [Default: none]", true);
+			boolean ssl = promptForInput("Does the server use SSL? [Default: no] (Y/N)", false, "Y", "y", "N", "n").equalsIgnoreCase("Y");
+			
+			//Store
+			System.out.println("Storing server");
+			int port = Integer.parseInt(StringUtils.defaultIfBlank(portString, "6667"));
+			
+			//TODO
+		}
+	}
+	
+	protected static String promptForInput(String prompt, boolean blankOk, String... allowedValuesArray) {
+		Scanner in = new Scanner(System.in);
+		List<String> allowedValues = Arrays.asList(allowedValuesArray);
+		while(true) {
+			System.out.print(prompt + " ");
+			String inputString = in.nextLine();
+			
+			//If were given allowedValues make sure the input string is in there
+			if(!allowedValues.isEmpty() && !allowedValues.contains(inputString)) {
+				System.out.println("Unknown value " + inputString);
+				continue;
+			} else if(!blankOk && StringUtils.isBlank(inputString)) {
+				System.out.println("Answer cannot be blank");
+				continue;
+			} else
+				//Were good
+				return inputString;
+		}
+	}
+	
+	protected static boolean convertInputToBool(String input) {
+		return input.equalsIgnoreCase("Y");
 	}
 
 	public static void main(String[] args) {
