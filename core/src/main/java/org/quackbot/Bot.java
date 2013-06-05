@@ -26,7 +26,7 @@ import java.util.Set;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.exception.NickAlreadyInUseException;
 import org.pircbotx.hooks.Listener;
-import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.QListener;
 import org.quackbot.dao.ServerDAO;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -236,7 +236,7 @@ public class Bot extends PircBotX {
 
 	@Data
 	public class WrapperListenerManager implements ListenerManager<Bot> {
-		protected HashMap<Listener, Hook> listenerTracker = new HashMap();
+		protected HashMap<Listener, QListener> listenerTracker = new HashMap();
 
 		public void dispatchEvent(Event<Bot> event) {
 			controller.getHookManager().dispatchEvent(event);
@@ -246,7 +246,7 @@ public class Bot extends PircBotX {
 			//Handle PircBotX's CoreHook's specifically because its added every time the listener manager is set
 			if (controller.getHookManager().hookExists(CoreHooks.class.getCanonicalName()))
 				return false;
-			Hook genHook = new Hook(listener) {
+			QListener genHook = new QListener(listener) {
 			};
 			listenerTracker.put(listener, genHook);
 			controller.getHookManager().addHook(genHook);

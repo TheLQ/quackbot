@@ -23,7 +23,7 @@ import org.quackbot.Controller;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.hooks.HookManager;
-import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.QListener;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
@@ -113,13 +113,13 @@ public class InfoPlugins extends JScrollPane {
 		add(pluginTable);
 		
 		//Get notified of hook changes
-		controller.getHookManager().addHook(new Hook("QBGuiPluginPanel") {
+		controller.getHookManager().addHook(new QListener("QBGuiPluginPanel") {
 			@Override
 			public void onHookLoad(HookLoadEvent event) {
 				//TODO: Inform user about exception
 				if(event.getException() != null)
 					return;
-				Hook hook = event.getHook();
+				QListener hook = event.getHook();
 				if(hook instanceof Command) {
 					Command command = (Command)hook;
 					pluginTableModel.addRow(new Object[]{command.getName(),

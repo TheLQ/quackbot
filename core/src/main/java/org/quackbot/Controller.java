@@ -242,7 +242,7 @@ public class Controller {
 	protected void reloadPlugins(File file) {
 		String[] extArr = null;
 		HookLoader loader = null;
-		Hook hook = null;
+		QListener hook = null;
 		
 		//Ignore files or folders that start with a period
 		if(file.getName().startsWith("."))

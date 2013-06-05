@@ -35,5 +35,5 @@ public interface HookLoader {
 	 * @throws Exception   Any exception encountered while parsing. The hook will
 	 *                     not be added and the exception will be logged
 	 */
-	public Hook load(String fileLocation) throws Exception;
+	public QListener load(String fileLocation) throws Exception;
 }
