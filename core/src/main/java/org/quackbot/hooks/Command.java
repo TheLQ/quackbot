@@ -30,7 +30,7 @@ public interface Command {
 	public String getName();
 	public String getHelp();
 	public AdminLevel getMinimumAdminLevel();
-	public ImmutableList<Argument> getArguments();
+	public ImmutableList<? extends Argument> getArguments();
 	
 	public static interface Argument {
 		public String getName();
