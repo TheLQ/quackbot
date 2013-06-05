@@ -18,6 +18,8 @@
  */
 package org.quackbot;
 
+import static com.google.common.base.Preconditions.*;
+import com.google.common.collect.ImmutableList;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
@@ -39,9 +41,11 @@ import javax.swing.SwingUtilities;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import lombok.patcher.Hook;
+import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.dao.LogDAO;
@@ -52,7 +56,6 @@ import org.quackbot.events.InitEvent;
 import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
-import org.quackbot.hooks.Hook;
 import org.quackbot.hooks.core.AdminHelpCommand;
 import org.quackbot.hooks.core.CoreQuackbotHook;
 import org.quackbot.hooks.core.HelpCommand;
@@ -148,6 +151,8 @@ public class Controller {
 	protected int defaultMessageDelay = 1750;
 	protected boolean started = false;
 	protected Thread shutdownHook;
+	@Getter
+	protected ImmutableList<AdminLevel> adminLevels;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -369,6 +374,16 @@ public class Controller {
 	 */
 	public synchronized int addCommandNumber() {
 		return ++commandNumber;
+	}
+	
+	/**
+	 * 
+	 * @param levels 
+	 */
+	public void setAdminLevels(List<AdminLevel> adminLevels) {
+		checkArgument(adminLevels.contains(AdminLevel.ADMIN), "Must contain default AdminLevel.ADMIN");
+		checkArgument(adminLevels.contains(AdminLevel.ANONYMOUS), "Must contain default AdminLevel.ANONYMOUS");
+		this.adminLevels = ImmutableList.copyOf(adminLevels);
 	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
