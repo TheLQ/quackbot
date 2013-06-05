@@ -5,7 +5,11 @@ package org.quackbot;
  *
  * @author Leon
  */
-public class AdminLevel {
-	public static final AdminLevel ADMIN = new AdminLevel();
-	public static final AdminLevel ANONYMOUS = new AdminLevel();
+public interface AdminLevel {
+	/**
+	 * The name of this AdminLevel. Not prefixed with get to allow easy integration
+	 * with enums
+	 * @return 
+	 */
+	public String name();
 }
