@@ -21,6 +21,7 @@ package org.quackbot.hooks;
 import com.google.common.collect.ImmutableList;
 import lombok.Data;
 import org.quackbot.AdminLevel;
+import org.quackbot.events.CommandEvent;
 
 /**
  *
@@ -31,6 +32,7 @@ public interface Command {
 	public String getHelp();
 	public AdminLevel getMinimumAdminLevel();
 	public ImmutableList<? extends Argument> getArguments();
+	public void onCommand(CommandEvent event, ImmutableList<String> arguments);
 	
 	public static interface Argument {
 		public String getName();
