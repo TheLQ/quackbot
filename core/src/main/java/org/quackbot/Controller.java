@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.SynchronousQueue;
@@ -41,10 +42,8 @@ import javax.swing.SwingUtilities;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.patcher.Hook;
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
@@ -56,6 +55,7 @@ import org.quackbot.events.InitEvent;
 import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
+import org.quackbot.hooks.QListener;
 import org.quackbot.hooks.core.AdminHelpCommand;
 import org.quackbot.hooks.core.CoreQuackbotHook;
 import org.quackbot.hooks.core.HelpCommand;
@@ -151,8 +151,7 @@ public class Controller {
 	protected int defaultMessageDelay = 1750;
 	protected boolean started = false;
 	protected Thread shutdownHook;
-	@Getter
-	protected ImmutableList<AdminLevel> adminLevels;
+	protected final LinkedHashMap<String, AdminLevel> adminLevels = new LinkedHashMap();
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -380,10 +379,26 @@ public class Controller {
 	 * 
 	 * @param levels 
 	 */
-	public void setAdminLevels(List<AdminLevel> adminLevels) {
-		checkArgument(adminLevels.contains(AdminLevel.ADMIN), "Must contain default AdminLevel.ADMIN");
-		checkArgument(adminLevels.contains(AdminLevel.ANONYMOUS), "Must contain default AdminLevel.ANONYMOUS");
-		this.adminLevels = ImmutableList.copyOf(adminLevels);
+	public void setAdminLevels(List<AdminLevel> customAdminLevels) {
+		checkArgument(customAdminLevels.contains(StandardAdminLevels.ADMIN), "Must contain default StandardAdminLevels.ADMIN");
+		checkArgument(customAdminLevels.contains(StandardAdminLevels.ANONYMOUS), "Must contain default StandardAdminLevels.ANONYMOUS");
+		synchronized(this.adminLevels) {
+			adminLevels.clear();
+			for(AdminLevel curLevel : customAdminLevels)
+				adminLevels.put(curLevel.name(), curLevel);
+		}
+	}
+	
+	public AdminLevel getAdminLevel(String name) {
+		synchronized(this.adminLevels) {
+			return adminLevels.get(name);
+		}
+	}
+	
+	public ImmutableList<AdminLevel> getAdminLevels() {
+		synchronized(this.adminLevels) {
+			return ImmutableList.copyOf(this.adminLevels.values());
+		}
 	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
