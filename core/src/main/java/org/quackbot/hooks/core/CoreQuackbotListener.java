@@ -46,7 +46,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class CoreQuackbotHook extends QListener {
+public class CoreQuackbotListener extends QListener {
 	@Override
 	public void onConnect(ConnectEvent event) {
 		for (ChannelEntry curChannel : getBot(event).getServerEntry().getChannels()) {
