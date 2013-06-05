@@ -20,6 +20,7 @@ package org.quackbot.hooks;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import java.util.Comparator;
@@ -84,6 +85,14 @@ public class HookManager extends ThreadedListenerManager<Bot> {
 	 */
 	public Command getCommand(String command) {
 		return commands.get(command);
+	}
+	
+	public void addCommand(Command command) {
+		commands.put(command.getName(), command);
+	}
+	
+	public void removeCommand(Command command) {
+		commands.inverse().remove(command);
 	}
 
 	public static class CommandComparator implements Comparator<Command> {
