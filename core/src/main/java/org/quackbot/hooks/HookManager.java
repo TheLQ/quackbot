@@ -18,29 +18,14 @@
  */
 package org.quackbot.hooks;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
-import lombok.Synchronized;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Iterables;
+import java.util.Comparator;
 import lombok.extern.slf4j.Slf4j;
-import org.pircbotx.hooks.Event;
+import org.pircbotx.hooks.managers.ThreadedListenerManager;
 import org.quackbot.Bot;
-import org.quackbot.Controller;
-import org.quackbot.err.InvalidHookException;
-import org.quackbot.events.EndEvent;
-import org.quackbot.events.StartEvent;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * First, some definitions:
@@ -71,145 +56,25 @@ import org.springframework.stereotype.Component;
  * mentioned map and various methods for executing tasks.
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@Component
 @Slf4j
-public class HookManager {
+public class HookManager extends ThreadedListenerManager<Bot> {
+	public static final CommandComparator COMMAND_COMPARATOR = new CommandComparator();
+	protected BiMap<String, Command> commands = HashBiMap.create();
+
 	/**
-	 * String - Name of Hook Method
-	 * ArrayList - All Hooks for that method
-	 *		BaseHook - Hook
+	 * All listeners that are QListeners
+	 * @return An <b>immutable copy</b> of the current registered QListeners
 	 */
-	@Autowired
-	protected Map<String, Hook> hooks;
-	protected final ExecutorService globalPool = Executors.newCachedThreadPool(new ThreadFactory() {
-		public int count = 0;
-		public ThreadGroup threadGroup = new ThreadGroup("mainPool");
-
-		@Override
-		public Thread newThread(Runnable r) {
-			return new Thread(threadGroup, "mainPool-" + (++count));
-		}
-	});
-	@Autowired
-	protected Controller controller;
-	protected AtomicLong currentId = new AtomicLong();
-
-	public void addHook(Hook hook) throws InvalidHookException {
-		log.debug("Adding hook " + hook.getName());
-		Hook potentialHook = null;
-		if ((potentialHook = getHook(hook.getName())) != null)
-			//Whoa, this name has already been used before
-			throw new InvalidHookException("Hook " + hook.getName() + " (" + hook.getClass()
-					+ ") uses the same name as " + potentialHook.getName() + " (" + potentialHook.getClass() + ")");
-		hooks.put(hook.getName(), hook);
-	}
-
-	public void addHookOnce(Hook hook) {
-		log.debug("Adding hook " + hook.getName() + " once");
-		if (getHook(hook.getName()) == null)
-			hooks.put(hook.getName(), hook);
-	}
-
-	public void removeHook(String hookName) {
-		log.debug("Removing hook " + hookName);
-		synchronized (hooks) {
-			hooks.remove(hookName);
-		}
-	}
-
-	public void removeHook(Hook hook) {
-		log.debug("Removing hook " + hook.getName());
-		hooks.remove(hook.getName());
-	}
-
-	public Set<Hook> getHooks() {
-		return Collections.unmodifiableSet(new HashSet(hooks.values()));
-	}
-
-	public Hook getHook(String hookName) {
-		synchronized (hooks) {
-			return hooks.get(hookName);
-		}
-	}
-
-	public boolean hookExists(Hook hook) {
-		return hooks.containsValue(hook);
-	}
-
-	public boolean hookExists(String hookName) {
-		//If we get a hook back, then it exists
-		return getHook(hookName) != null;
-	}
-
-	public void dispatchEvent(final Event<Bot> event) {
-		Runnable dispatcher = new Runnable() {
-			public void run() {
-				final List<Future> futures = new ArrayList<Future>(hooks.size());
-				synchronized (hooks) {
-					//First, execute onEvent for the StartEvent
-					StartEvent startEvent = new StartEvent(controller);
-					for (Hook curHook : hooks.values())
-						executeHook(curHook, startEvent);
-
-					//Execute all events, building up the futures to wait for execution
-					for (Hook curHook : hooks.values())
-						futures.add(executeHook(curHook, event));
-				}
-
-				//Wait for all futures to complete
-				try {
-					for (Future curFuture : futures)
-						curFuture.get();
-				} catch (Exception ex) {
-					LoggerFactory.getLogger(this.getClass()).error("Exception encountered when waiting for Listener's to finish so an EndEvent could be dispatched", ex);
-				}
-
-				//Dispatch an EndEvent
-				synchronized (hooks) {
-					EndEvent endEvent = new EndEvent(controller);
-					for (Hook curHook : hooks.values())
-						executeHook(curHook, endEvent);
-				}
-			}
-		};
-		executeRunnable(event, dispatcher);
-	}
-
-	protected Future executeHook(final Hook hook, final Event<Bot> event) {
-		//Make a runnable that can be passed to any thread pool
-		Runnable run = new Runnable() {
-			public void run() {
-				try {
-					hook.onEvent(event);
-				} catch (Throwable ex) {
-					LoggerFactory.getLogger(this.getClass()).error("Exception encountered when executing Listener", ex);
-				}
-			}
-		};
-		return executeRunnable(event, run);
-	}
-
-	protected Future executeRunnable(Event<Bot> event, Runnable runnable) {
-		if (event.getBot() != null)
-			//Use bot's thread pool
-			return event.getBot().getThreadPool().submit(runnable);
-		else
-			//No bot, use global thread pool
-			return globalPool.submit(runnable);
+	public ImmutableSortedSet<QListener> getQListeners() {
+		return ImmutableSortedSet.copyOf(Iterables.filter(listeners, QListener.class));
 	}
 
 	/**
-	 * Get all stored Commands, sifting out the plain Hooks
-	 * @return An Unmodifiable set of Commands. An empty set means there are
-	 *         no commands.
+	 * All registered commands
+	 * @return An <b>immutable copy</b> of the current registered commands
 	 */
-	public Set<Command> getCommands() {
-		//Get all Commands from Hook list
-		Set<Command> commands = new HashSet<Command>();
-		for (Hook curHook : hooks.values())
-			if (curHook instanceof Command)
-				commands.add((Command) curHook);
-		return Collections.unmodifiableSet(commands);
+	public ImmutableSortedSet<Command> getCommands() {
+		return ImmutableSortedSet.copyOf(COMMAND_COMPARATOR, commands.values());
 	}
 
 	/**
@@ -218,21 +83,12 @@ public class HookManager {
 	 * @return The command object, or null if it doesn't exist
 	 */
 	public Command getCommand(String command) {
-		Hook hook = hooks.get(command);
-		if (hook instanceof Command)
-			return (Command) hook;
-		return null;
-	}
-	
-	public void setCurrentId(long currentId) {
-		this.currentId.set(currentId);
+		return commands.get(command);
 	}
 
-	public long getCurrentId() {
-		return currentId.get();
-	}
-
-	public long incrementCurrentId() {
-		return currentId.getAndIncrement();
+	public static class CommandComparator implements Comparator<Command> {
+		public int compare(Command o1, Command o2) {
+			return o1.getName().compareToIgnoreCase(o2.getName());
+		}
 	}
 }
