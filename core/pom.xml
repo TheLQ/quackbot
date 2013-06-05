@@ -23,58 +23,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.0.9</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<!--Redirect Spring's logging (commons-logging) to slf4j-->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.7.2</version>
-			<scope>runtime</scope>
-		</dependency>
-		<!--Spring framework: Core that keeps things togeather.-->
-		<!--Exclude commons logging since were using slf4j-->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>3.2.0.RELEASE</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<!--Spring transaction manegment-->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-tx</artifactId>
-			<version>3.2.0.RELEASE</version>
-		</dependency>
-		<!--Spring AOP dependency: Spring needs to be able to proxy classes without interfaces-->
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>2.2.2</version>
-		</dependency>
-		<!--Spring Test for proper unit testing-->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>3.2.0.RELEASE</version>
-			<scope>test</scope>
-		</dependency>
-		<!--Required by spring injector-->
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>14.0-rc1</version>
+			<version>1.0.13</version>
 		</dependency>
 	</dependencies>
 	
