@@ -39,7 +39,7 @@ import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
-import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.QListener;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 @Slf4j
 public class JSHookLoader implements HookLoader {
 	@Override
-	public Hook load(String fileLocation) throws Exception {
+	public QListener load(String fileLocation) throws Exception {
 		if (fileLocation.endsWith("JS_Template.js") || fileLocation.endsWith("QuackUtils.js"))
 			//Ignore this
 			return null;
@@ -128,7 +128,7 @@ public class JSHookLoader implements HookLoader {
 		}
 	}
 
-	public class JSHookWrapper extends Hook {
+	public class JSHookWrapper extends QListener {
 		protected ScriptEngine jsEngine;
 		protected Map<String, String> sourceMap;
 

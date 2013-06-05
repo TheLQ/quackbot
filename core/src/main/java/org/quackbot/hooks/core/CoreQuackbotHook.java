@@ -37,7 +37,7 @@ import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
-import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.QListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,7 +46,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class CoreQuackbotHook extends Hook {
+public class CoreQuackbotHook extends QListener {
 	@Override
 	public void onConnect(ConnectEvent event) {
 		for (ChannelEntry curChannel : getBot(event).getServerEntry().getChannels()) {

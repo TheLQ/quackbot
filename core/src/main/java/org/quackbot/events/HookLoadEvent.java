@@ -23,7 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.quackbot.Controller;
 import org.quackbot.hooks.HookLoader;
-import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.QListener;
 
 /**
  * Created when a plugin is loaded. Contains either the loaded plugin or the
@@ -33,12 +33,12 @@ import org.quackbot.hooks.Hook;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class HookLoadEvent extends QuackbotEvent {
-	protected final Hook hook;
+	protected final QListener hook;
 	protected final HookLoader pluginLoader;
 	protected final File file;
 	protected final Exception exception;
 
-	public HookLoadEvent(Controller controller, Hook hook, HookLoader pluginLoader, File file, Exception exception) {
+	public HookLoadEvent(Controller controller, QListener hook, HookLoader pluginLoader, File file, Exception exception) {
 		super(controller);
 		this.pluginLoader = pluginLoader;
 		this.file = file;

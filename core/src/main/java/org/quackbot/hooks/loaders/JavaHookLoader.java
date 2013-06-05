@@ -30,7 +30,7 @@ import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
-import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.QListener;
 
 /**
  * This is the global JavaBean/Utility for all Java written commands
@@ -40,7 +40,7 @@ import org.quackbot.hooks.Hook;
 @Slf4j
 public class JavaHookLoader implements HookLoader {
 	@Override
-	public Hook load(String fileLocation) throws Exception {
+	public QListener load(String fileLocation) throws Exception {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + fileLocation);
 	}
 

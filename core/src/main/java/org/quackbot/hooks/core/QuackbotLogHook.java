@@ -31,7 +31,7 @@ import org.pircbotx.hooks.events.QuitEvent;
 import org.quackbot.Bot;
 import org.quackbot.dao.model.LogEntry;
 import org.quackbot.dao.model.LogEntryType;
-import org.quackbot.hooks.Hook;
+import org.quackbot.hooks.QListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Component
-public class QuackbotLogHook extends Hook {
+public class QuackbotLogHook extends QListener {
 	@Override
 	public void onMode(ModeEvent<Bot> event) throws Exception {
 		log(event, LogEntryType.CHANNEL_MODE, event.getChannel(), event.getUser(), event.getMode());
