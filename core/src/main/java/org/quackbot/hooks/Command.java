@@ -32,7 +32,7 @@ public interface Command {
 	public String getHelp();
 	public AdminLevel getMinimumAdminLevel();
 	public ImmutableList<? extends Argument> getArguments();
-	public void onCommand(CommandEvent event, ImmutableList<String> arguments);
+	public void onCommand(CommandEvent event, ImmutableList<String> arguments) throws Exception;
 	
 	public static interface Argument {
 		public String getName();
