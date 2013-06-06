@@ -79,7 +79,7 @@ public class JavaHookLoader implements HookLoader {
 		return addedCommands.build();
 	}
 	
-	public static ImmutableList<Command> loadCommands(Controller controller, Listener listenerWithCommands) throws Exception {
+	public static ImmutableList<Command> loadListener(Controller controller, Listener listenerWithCommands) throws Exception {
 		controller.getHookManager().addListener(listenerWithCommands);
 		return loadCommands(controller, listenerWithCommands);
 	}
