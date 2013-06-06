@@ -14,5 +14,5 @@ public @interface JavaArgument {
 
 	public String argumentHelp() default "";
 
-	public boolean isRequired() default true;
+	public boolean required() default true;
 }
