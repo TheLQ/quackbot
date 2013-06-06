@@ -8,8 +8,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.quackbot.AdminLevel;
-import org.quackbot.StandardAdminLevels;
+import org.quackbot.AdminLevels;
 
 /**
  *
@@ -20,6 +19,6 @@ import org.quackbot.StandardAdminLevels;
 public @interface JavaCommand {
 	public String name();
 	public String help();
-	public String minimumLevel();
+	public String minimumLevel() default AdminLevels.ANONYMOUS;
 	public JavaArgument[] arguments();
 }
