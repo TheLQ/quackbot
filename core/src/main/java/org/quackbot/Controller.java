@@ -399,6 +399,12 @@ public class Controller {
 			return ImmutableList.copyOf(adminLevels);
 		}
 	}
+	
+	public boolean isValidAdminLevel(String adminLevel) {
+		synchronized(adminLevels) {
+			return adminLevels.contains(adminLevel);
+		}
+	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
 		AdminEntry admin = adminDao.findByName(user.getNick());
