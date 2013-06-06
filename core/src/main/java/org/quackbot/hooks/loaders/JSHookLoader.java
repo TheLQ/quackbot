@@ -36,7 +36,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pircbotx.hooks.Event;
 import org.quackbot.err.QuackbotException;
-import org.quackbot.events.CommandEvent;
+import org.quackbot.hooks.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.hooks.QListener;

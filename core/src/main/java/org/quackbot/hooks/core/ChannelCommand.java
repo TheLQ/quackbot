@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.quackbot.Bot;
-import org.quackbot.events.CommandEvent;
+import org.quackbot.hooks.events.CommandEvent;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.java.AdminOnly;
 import org.quackbot.hooks.java.HelpDoc;

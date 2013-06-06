@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.events;
+package org.quackbot.hooks.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,8 +28,8 @@ import org.quackbot.Controller;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HookLoadEndEvent extends QuackbotEvent {
-	public HookLoadEndEvent(Controller controller) {
+public class HookLoadStartEvent extends QuackbotEvent {
+	public HookLoadStartEvent(Controller controller) {
 		super(controller);
 	}
 

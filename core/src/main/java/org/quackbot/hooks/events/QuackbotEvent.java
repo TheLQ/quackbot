@@ -16,10 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.events;
+package org.quackbot.hooks.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.pircbotx.hooks.Event;
+import org.quackbot.Bot;
 import org.quackbot.Controller;
 
 /**
@@ -27,14 +29,17 @@ import org.quackbot.Controller;
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class EndEvent extends QuackbotEvent {
-	public EndEvent(Controller controller) {
-		super(controller);
+@EqualsAndHashCode(callSuper=true)
+public abstract class QuackbotEvent extends Event<Bot> {
+	protected final Controller controller;
+
+	public QuackbotEvent(Controller controller) {
+		super(null);
+		this.controller = controller;
 	}
-	
-	@Override
-	public void respond(String response) {
-		throw new UnsupportedOperationException("Can't respond to a start event");
+
+	public QuackbotEvent(Bot bot) {
+		super(bot);
+		this.controller = bot.getController();
 	}
 }

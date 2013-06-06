@@ -29,7 +29,7 @@ import org.pircbotx.hooks.Listener;
 import org.quackbot.Controller;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
-import org.quackbot.events.CommandEvent;
+import org.quackbot.hooks.events.CommandEvent;
 import org.quackbot.hooks.CommandManager;
 import org.quackbot.hooks.QListener;
 import org.quackbot.hooks.java.JavaArgument;

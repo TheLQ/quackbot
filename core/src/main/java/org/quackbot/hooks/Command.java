@@ -21,7 +21,7 @@ package org.quackbot.hooks;
 import com.google.common.collect.ImmutableList;
 import lombok.Data;
 import org.quackbot.AdminLevels;
-import org.quackbot.events.CommandEvent;
+import org.quackbot.hooks.events.CommandEvent;
 
 /**
  *

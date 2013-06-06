@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.events;
+package org.quackbot.hooks.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,18 +28,13 @@ import org.quackbot.Controller;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HookLoadStartEvent extends QuackbotEvent {
-	public HookLoadStartEvent(Controller controller) {
+public class EndEvent extends QuackbotEvent {
+	public EndEvent(Controller controller) {
 		super(controller);
 	}
-
-	/**
-	 * Does NOT respond to the server! This will throw an {@link UnsupportedOperationException} 
-	 * since there is no bot.
-	 * @param response The response to send 
-	 */
+	
 	@Override
 	public void respond(String response) {
-		throw new UnsupportedOperationException("Attempting to respond to a HookLoad");
+		throw new UnsupportedOperationException("Can't respond to a start event");
 	}
 }

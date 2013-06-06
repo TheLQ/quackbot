@@ -20,8 +20,8 @@ package org.quackbot.gui;
 
 import org.quackbot.hooks.Command;
 import org.quackbot.Controller;
-import org.quackbot.events.HookLoadEvent;
-import org.quackbot.events.HookLoadStartEvent;
+import org.quackbot.hooks.events.HookLoadEvent;
+import org.quackbot.hooks.events.HookLoadStartEvent;
 import org.quackbot.hooks.HookManager;
 import org.quackbot.hooks.QListener;
 import java.awt.Point;
