@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.pircbotx.hooks.Listener;
 import org.quackbot.AdminLevel;
 import org.quackbot.Controller;
 import org.quackbot.hooks.Command;
@@ -46,7 +47,6 @@ public class JavaHookLoader implements HookLoader {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + fileLocation);
 	}
 
-	@JavaArgument("name")
 	public static ImmutableList<Command> loadCommands(Controller controller, Object command) throws Exception {
 		checkNotNull(controller, "Must specify controller");
 		checkNotNull(command, "Must specify command object");
@@ -77,6 +77,11 @@ public class JavaHookLoader implements HookLoader {
 			addedCommands.add(methodCommand);
 		}
 		return addedCommands.build();
+	}
+	
+	public static ImmutableList<Command> loadCommands(Controller controller, Listener listenerWithCommands) throws Exception {
+		controller.getHookManager().addListener(listenerWithCommands);
+		return loadCommands(controller, listenerWithCommands);
 	}
 
 	@Data
