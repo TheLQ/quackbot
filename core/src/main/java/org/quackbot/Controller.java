@@ -51,6 +51,7 @@ import org.quackbot.events.InitEvent;
 import org.quackbot.events.HookLoadEndEvent;
 import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
+import org.quackbot.hooks.CommandManager;
 import org.quackbot.hooks.QListener;
 import org.quackbot.hooks.core.AdminHelpCommand;
 import org.quackbot.hooks.core.CoreQuackbotListener;
@@ -113,6 +114,7 @@ public class Controller {
 	protected int commandNumber = 0;
 	protected GUI gui;
 	protected final HookManager hookManager = new HookManager();
+	protected final CommandManager commandManager;
 	/**
 	 * All registered plugin loaders
 	 */
@@ -130,6 +132,7 @@ public class Controller {
 		this.logDao = qconfiguration.getDaoFactory().createLogDAO();
 		this.serverDao = qconfiguration.getDaoFactory().createServerDAO();
 		this.userDao = qconfiguration.getDaoFactory().createUserDAO();
+		this.commandManager = new CommandManager(qconfiguration);
 		
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(shutdownHook = new Thread() {
@@ -345,30 +348,6 @@ public class Controller {
 		return ++commandNumber;
 	}
 	
-	/**
-	 * 
-	 * @param levels 
-	 */
-	public void setAdminLevels(List<String> customAdminLevels) {
-		checkArgument(customAdminLevels.contains(AdminLevels.ADMIN), "Must contain default StandardAdminLevels.ADMIN");
-		checkArgument(customAdminLevels.contains(AdminLevels.ANONYMOUS), "Must contain default StandardAdminLevels.ANONYMOUS");
-		synchronized(adminLevels) {
-			adminLevels.clear();
-			adminLevels.addAll(customAdminLevels);
-		}
-	}
-	
-	public ImmutableList<String> getAdminLevels() {
-		synchronized(adminLevels) {
-			return ImmutableList.copyOf(adminLevels);
-		}
-	}
-	
-	public boolean isValidAdminLevel(String adminLevel) {
-		synchronized(adminLevels) {
-			return adminLevels.contains(adminLevel);
-		}
-	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
 		AdminEntry admin = adminDao.findByName(user.getNick());

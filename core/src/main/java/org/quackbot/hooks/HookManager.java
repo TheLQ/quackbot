@@ -18,13 +18,8 @@
  */
 package org.quackbot.hooks;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
-import java.util.Comparator;
-import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.managers.ThreadedListenerManager;
 import org.quackbot.Bot;
 
@@ -57,47 +52,12 @@ import org.quackbot.Bot;
  * mentioned map and various methods for executing tasks.
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@Slf4j
 public class HookManager extends ThreadedListenerManager<Bot> {
-	public static final CommandComparator COMMAND_COMPARATOR = new CommandComparator();
-	protected BiMap<String, Command> commands = HashBiMap.create();
-
 	/**
 	 * All listeners that are QListeners
 	 * @return An <b>immutable copy</b> of the current registered QListeners
 	 */
 	public ImmutableSortedSet<QListener> getQListeners() {
 		return ImmutableSortedSet.copyOf(Iterables.filter(listeners, QListener.class));
-	}
-
-	/**
-	 * All registered commands
-	 * @return An <b>immutable copy</b> of the current registered commands
-	 */
-	public ImmutableSortedSet<Command> getCommands() {
-		return ImmutableSortedSet.copyOf(COMMAND_COMPARATOR, commands.values());
-	}
-
-	/**
-	 * Gets a command by name
-	 * @param command A command name
-	 * @return The command object, or null if it doesn't exist
-	 */
-	public Command getCommand(String command) {
-		return commands.get(command);
-	}
-	
-	public void addCommand(Command command) {
-		commands.put(command.getName(), command);
-	}
-	
-	public void removeCommand(Command command) {
-		commands.inverse().remove(command);
-	}
-
-	public static class CommandComparator implements Comparator<Command> {
-		public int compare(Command o1, Command o2) {
-			return o1.getName().compareToIgnoreCase(o2.getName());
-		}
 	}
 }
