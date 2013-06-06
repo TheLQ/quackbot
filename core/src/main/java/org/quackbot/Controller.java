@@ -18,8 +18,10 @@
  */
 package org.quackbot;
 
+import com.google.common.base.Function;
 import static com.google.common.base.Preconditions.*;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
@@ -151,7 +153,7 @@ public class Controller {
 	protected int defaultMessageDelay = 1750;
 	protected boolean started = false;
 	protected Thread shutdownHook;
-	protected final LinkedHashMap<String, AdminLevel> adminLevels = new LinkedHashMap();
+	protected final List<AdminLevel> adminLevels = new ArrayList();
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -382,22 +384,25 @@ public class Controller {
 	public void setAdminLevels(List<AdminLevel> customAdminLevels) {
 		checkArgument(customAdminLevels.contains(StandardAdminLevels.ADMIN), "Must contain default StandardAdminLevels.ADMIN");
 		checkArgument(customAdminLevels.contains(StandardAdminLevels.ANONYMOUS), "Must contain default StandardAdminLevels.ANONYMOUS");
-		synchronized(this.adminLevels) {
+		synchronized(adminLevels) {
 			adminLevels.clear();
 			for(AdminLevel curLevel : customAdminLevels)
-				adminLevels.put(curLevel.name(), curLevel);
+				adminLevels.add(curLevel);
 		}
 	}
 	
-	public AdminLevel getAdminLevel(String name) {
-		synchronized(this.adminLevels) {
-			return adminLevels.get(name);
+	public AdminLevel getAdminLevel(final String name) {
+		synchronized(adminLevels) {
+			for(AdminLevel curLevel : adminLevels)
+				if(curLevel.name().equalsIgnoreCase(name))
+					return curLevel;
 		}
+		return null;
 	}
 	
 	public ImmutableList<AdminLevel> getAdminLevels() {
-		synchronized(this.adminLevels) {
-			return ImmutableList.copyOf(this.adminLevels.values());
+		synchronized(adminLevels) {
+			return ImmutableList.copyOf(adminLevels);
 		}
 	}
 
