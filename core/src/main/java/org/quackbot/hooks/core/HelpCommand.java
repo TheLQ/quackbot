@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.quackbot.AdminLevels;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.InvalidCMDException;
-import org.quackbot.events.CommandEvent;
+import org.quackbot.hooks.events.CommandEvent;
 import org.quackbot.hooks.CommandManager;
 import org.quackbot.hooks.java.JavaArgument;
 import org.quackbot.hooks.java.JavaCommand;

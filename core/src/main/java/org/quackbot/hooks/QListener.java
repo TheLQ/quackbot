@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.pircbotx.hooks.ListenerAdapter;
-import org.quackbot.events.InitEvent;
+import org.quackbot.hooks.events.InitEvent;
 
 /**
  * The Hook interface is what all Hooks must implement to be added to the stack.

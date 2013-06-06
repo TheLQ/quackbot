@@ -17,44 +17,41 @@
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.quackbot.events;
+package org.quackbot.hooks.events;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.pircbotx.Channel;
-import org.pircbotx.User;
+import lombok.RequiredArgsConstructor;
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
-import org.quackbot.Bot;
-import org.quackbot.hooks.Command;
+import org.quackbot.Controller;
+import org.quackbot.hooks.HookManager;
 
 /**
- * Event that represents a command being sent.
+ * Created very early just before the bot is fully initialized. Only created
+ * once
+ * <p>
+ * <b>Note 1:</b> This event is created before the plugin system is initialized. This
+ * means that anyone wanting to use this event must write it in Java and add it
+ * to the {@link HookManager} before starting Quackbot. 
+ * <p>
+ * <b>Note 2:</b> {@link #getBot() } will return null since there is no bot yet
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CommandEvent extends QuackbotEvent {
-	protected final Command commandClass;
-	protected final Event parentEvent;
-	protected final Channel channel;
-	protected final User user;
-	protected final String command;
-	protected final String[] args;
-	protected final String originalLine;
-
-	public CommandEvent(Command commandClass, Event<Bot> parentEvent, Channel channel, User user, String origionalLine, String command, String[] args) {
-		super(parentEvent.getBot());
-		this.commandClass = commandClass;
-		this.parentEvent = parentEvent;
-		this.channel = channel;
-		this.user = user;
-		this.originalLine = origionalLine;
-		this.command = command;
-		this.args = args;
+public class InitEvent extends QuackbotEvent {
+	public InitEvent(Controller controller) {
+		super(controller);
 	}
-
+	
+	/**
+	 * Does NOT respond to the server! This will throw an {@link UnsupportedOperationException} 
+	 * since there is no bot.
+	 * @param response The response to send 
+	 */
 	@Override
 	public void respond(String response) {
-		parentEvent.respond(response);
+		throw new UnsupportedOperationException("Attempting to respond to an Init");
 	}
 }

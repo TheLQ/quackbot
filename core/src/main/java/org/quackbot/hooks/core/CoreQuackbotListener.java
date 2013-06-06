@@ -36,7 +36,7 @@ import org.quackbot.err.AdminException;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.err.NumArgException;
 import org.quackbot.err.QuackbotException;
-import org.quackbot.events.CommandEvent;
+import org.quackbot.hooks.events.CommandEvent;
 import org.quackbot.hooks.QListener;
 import org.springframework.stereotype.Component;
 

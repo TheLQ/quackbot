@@ -47,10 +47,10 @@ import org.quackbot.dao.LogDAO;
 import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.model.AdminEntry;
 import org.quackbot.dao.model.ServerEntry;
-import org.quackbot.events.InitEvent;
-import org.quackbot.events.HookLoadEndEvent;
-import org.quackbot.events.HookLoadEvent;
-import org.quackbot.events.HookLoadStartEvent;
+import org.quackbot.hooks.events.InitEvent;
+import org.quackbot.hooks.events.HookLoadEndEvent;
+import org.quackbot.hooks.events.HookLoadEvent;
+import org.quackbot.hooks.events.HookLoadStartEvent;
 import org.quackbot.hooks.CommandManager;
 import org.quackbot.hooks.QListener;
 import org.quackbot.hooks.core.AdminHelpCommand;
@@ -152,7 +152,7 @@ public class Controller {
 		try {
 			hookManager.addListener(new CoreQuackbotListener());
 			hookManager.addListener(new QuackbotLogHook());
-			JavaHookLoader.loadListener(this, new HelpCommand());
+			JavaHookLoader.loadCommands(commandManager, new HelpCommand());
 			JavaHookLoader.loadListener(this, new AdminHelpCommand());
 		} catch (Exception e) {
 			log.error("Error when loading default plugins", e);

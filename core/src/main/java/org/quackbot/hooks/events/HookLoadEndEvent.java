@@ -16,36 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with Quackbot.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.quackbot.events;
+package org.quackbot.hooks.events;
 
-import java.io.File;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.quackbot.Controller;
-import org.quackbot.hooks.HookLoader;
-import org.quackbot.hooks.QListener;
 
 /**
- * Created when a plugin is loaded. Contains either the loaded plugin or the
- * exception that occured when loading it
+ *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HookLoadEvent extends QuackbotEvent {
-	protected final QListener hook;
-	protected final HookLoader pluginLoader;
-	protected final File file;
-	protected final Exception exception;
-
-	public HookLoadEvent(Controller controller, QListener hook, HookLoader pluginLoader, File file, Exception exception) {
+public class HookLoadEndEvent extends QuackbotEvent {
+	public HookLoadEndEvent(Controller controller) {
 		super(controller);
-		this.pluginLoader = pluginLoader;
-		this.file = file;
-		this.exception = exception;
-		this.hook = hook;
 	}
-	
+
 	/**
 	 * Does NOT respond to the server! This will throw an {@link UnsupportedOperationException} 
 	 * since there is no bot.
