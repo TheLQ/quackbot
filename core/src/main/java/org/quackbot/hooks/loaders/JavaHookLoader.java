@@ -26,11 +26,11 @@ import java.util.List;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.Listener;
-import org.quackbot.AdminLevels;
 import org.quackbot.Controller;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.events.CommandEvent;
+import org.quackbot.hooks.CommandManager;
 import org.quackbot.hooks.QListener;
 import org.quackbot.hooks.java.JavaArgument;
 import org.quackbot.hooks.java.JavaCommand;
@@ -47,8 +47,8 @@ public class JavaHookLoader implements HookLoader {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + fileLocation);
 	}
 
-	public static ImmutableList<Command> loadCommands(Controller controller, Object command) throws Exception {
-		checkNotNull(controller, "Must specify controller");
+	public static ImmutableList<Command> loadCommands(CommandManager commandManager, Object command) throws Exception {
+		checkNotNull(commandManager, "Must specify command manager");
 		checkNotNull(command, "Must specify command object");
 
 		//Find any command annotations
@@ -65,7 +65,7 @@ public class JavaHookLoader implements HookLoader {
 
 			//Build and add command to hookManager
 			String minimumLevel =  commandAnnotation.minimumLevel();
-			if(controller.isValidAdminLevel(minimumLevel))
+			if(commandManager.isValidAdminLevel(minimumLevel))
 				throw new RuntimeException("Unknown level " + minimumLevel);
 			JavaMethodCommand methodCommand = new JavaMethodCommand(commandAnnotation.name(),
 					commandAnnotation.help(),
@@ -73,7 +73,7 @@ public class JavaHookLoader implements HookLoader {
 					arguments.build(), 
 					command, 
 					curMethod);
-			controller.getHookManager().addCommand(methodCommand);
+			commandManager.addCommand(methodCommand);
 			addedCommands.add(methodCommand);
 		}
 		return addedCommands.build();
@@ -81,7 +81,7 @@ public class JavaHookLoader implements HookLoader {
 	
 	public static ImmutableList<Command> loadListener(Controller controller, Listener listenerWithCommands) throws Exception {
 		controller.getHookManager().addListener(listenerWithCommands);
-		return loadCommands(controller, listenerWithCommands);
+		return loadCommands(controller.getCommandManager(), listenerWithCommands);
 	}
 
 	@Data
