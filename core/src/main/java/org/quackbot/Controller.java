@@ -18,11 +18,8 @@
  */
 package org.quackbot;
 
-import com.google.common.base.Function;
 import static com.google.common.base.Preconditions.*;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
@@ -30,22 +27,18 @@ import org.quackbot.dao.AdminDAO;
 import org.quackbot.dao.ChannelDAO;
 import org.quackbot.dao.ServerDAO;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.swing.SwingUtilities;
-import lombok.AccessLevel;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.Channel;
@@ -67,7 +60,6 @@ import org.quackbot.hooks.loaders.JSHookLoader;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -99,25 +91,22 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@Data
-@Setter(AccessLevel.NONE)
+@ToString
 @EqualsAndHashCode(exclude = {"bots"})
 @Slf4j
+@Getter
 public class Controller {
-	@Setter(AccessLevel.PUBLIC)
-	protected AdminDAO adminDao;
-	@Setter(AccessLevel.PUBLIC)
-	protected ChannelDAO channelDao;
-	@Setter(AccessLevel.PUBLIC)
-	protected LogDAO logDao;
-	@Setter(AccessLevel.PUBLIC)
-	protected ServerDAO serverDao;
-	@Setter(AccessLevel.PUBLIC)
-	protected UserDAO userDao;
+	protected final QConfiguration qconfiguration;
+	protected final AdminDAO adminDao;
+	protected final ChannelDAO channelDao;
+	protected final LogDAO logDao;
+	protected final ServerDAO serverDao;
+	protected final UserDAO userDao;
 	/**
 	 * Set of all Bot instances
 	 */
-	protected HashSet<Bot> bots = new HashSet<Bot>();
+	protected final LinkedHashMap<Integer, Bot> bots = new LinkedHashMap();
+	protected final Thread shutdownHook;
 	/**
 	 * Number of Commands executed, used by logging
 	 */
@@ -128,26 +117,30 @@ public class Controller {
 	 * All registered plugin loaders
 	 */
 	protected boolean started = false;
-	protected Thread shutdownHook;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
 	 * @param makeGui  Show the GUI or not. WARNING: If there is no GUI, a slf4j Logging
 	 *                 implementation <b>must</b> be provided to get any output
 	 */
-	public Controller() {
+	public Controller(QConfiguration qconfiguration) {
+		this.qconfiguration = qconfiguration;
+		this.adminDao = qconfiguration.getDaoFactory().createAdminDAO();
+		this.channelDao = qconfiguration.getDaoFactory().createChannelDAO();
+		this.logDao = qconfiguration.getDaoFactory().createLogDAO();
+		this.serverDao = qconfiguration.getDaoFactory().createServerDAO();
+		this.userDao = qconfiguration.getDaoFactory().createUserDAO();
+		
 		//Add shutdown hook to kill all bots and connections
-		shutdownHook = new Thread() {
+		Runtime.getRuntime().addShutdownHook(shutdownHook = new Thread() {
 			@Override
 			public void run() {
 				LoggerFactory.getLogger(this.getClass()).info("JVM shutting down, closing all IRC connections gracefully");
 				Controller.this.shutdown();
 			}
-		};
-		Runtime.getRuntime().addShutdownHook(shutdownHook);
+		});
 	}
 	
-	@PostConstruct
 	public void initHookManager() {
 		//Setup default Plugin Loaders
 		addHookLoader(new JSHookLoader(), "js");
