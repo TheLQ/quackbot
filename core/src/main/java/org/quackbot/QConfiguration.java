@@ -57,5 +57,11 @@ public class QConfiguration {
 		public Builder() {
 			hookLoaderClasses.put("js", new JSHookLoader());
 		}
+		
+		public void setAdminLevels(List<String> adminLevels) {
+			checkArgument(adminLevels.contains(AdminLevels.ADMIN), "Passed admin levels must contain AdminLevels.ADMIN");
+			checkArgument(adminLevels.contains(AdminLevels.ANONYMOUS), "Passed admin levels must contain AdminLevels.ANONYMOUS");
+			this.adminLevels = adminLevels;
+		}
 	}
 }
