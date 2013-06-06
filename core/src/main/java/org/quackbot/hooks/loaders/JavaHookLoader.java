@@ -26,7 +26,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.hooks.Listener;
-import org.quackbot.AdminLevel;
+import org.quackbot.AdminLevels;
 import org.quackbot.Controller;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
@@ -64,9 +64,9 @@ public class JavaHookLoader implements HookLoader {
 				arguments.add(new JavaMethodArgument(curArgument.name(), curArgument.getArgumentHelp(), curArgument.isRequired()));
 
 			//Build and add command to hookManager
-			AdminLevel minimumLevel =  controller.getAdminLevel(commandAnnotation.minimumLevel());
-			if(minimumLevel == null)
-				throw new RuntimeException("Unknown level " + commandAnnotation.minimumLevel());
+			String minimumLevel =  commandAnnotation.minimumLevel();
+			if(controller.isValidAdminLevel(minimumLevel))
+				throw new RuntimeException("Unknown level " + minimumLevel);
 			JavaMethodCommand methodCommand = new JavaMethodCommand(commandAnnotation.name(),
 					commandAnnotation.help(),
 					minimumLevel,
@@ -88,7 +88,7 @@ public class JavaHookLoader implements HookLoader {
 	public static class JavaMethodCommand implements Command {
 		protected final String name;
 		protected final String help;
-		protected final AdminLevel minimumAdminLevel;
+		protected final String minimumAdminLevel;
 		protected final ImmutableList<JavaMethodArgument> arguments;
 		protected final Object commandObject;
 		protected final Method commandMethod;
