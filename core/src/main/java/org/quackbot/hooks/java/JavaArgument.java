@@ -12,7 +12,7 @@ package org.quackbot.hooks.java;
 public @interface JavaArgument {
 	public String name();
 
-	public String getArgumentHelp() default "";
+	public String argumentHelp() default "";
 
 	public boolean isRequired() default true;
 }
