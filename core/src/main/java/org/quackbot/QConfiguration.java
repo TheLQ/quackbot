@@ -29,6 +29,7 @@ public class QConfiguration {
 	protected final ImmutableList<String> userLevels;
 	protected final ImmutableList<String> globalPrefixes;
 	protected final ImmutableBiMap<String, HookLoader> hookLoaderClasses;
+	protected final DAOFactory daoFactory;
 
 	public QConfiguration(Builder builder) {
 		checkNotNull(builder, "Must specify builder");
@@ -36,6 +37,7 @@ public class QConfiguration {
 		userLevels = ImmutableList.copyOf(builder.getUserLevels());
 		globalPrefixes = ImmutableList.copyOf(builder.getGlobalPrefixes());
 		hookLoaderClasses = ImmutableBiMap.copyOf(builder.getHookLoaderClasses());
+		daoFactory = builder.getDaoFactory();
 	}
 
 	@Data
