@@ -93,6 +93,7 @@ public class JavaHookLoader implements HookLoader {
 		protected final Object commandObject;
 		protected final Method commandMethod;
 
+		@Override
 		public void onCommand(CommandEvent event, ImmutableList<String> argumentsString) throws Exception {
 			//Attempt basic conversion of fields
 			List<Object> argumentsObject = new ArrayList();
@@ -105,7 +106,9 @@ public class JavaHookLoader implements HookLoader {
 					argumentsObject.add(argumentsString.get(i));
 				else
 					throw new RuntimeException("Unknown argument class " + methodParameters[i]);
-			commandMethod.invoke(commandObject, argumentsObject.toArray());
+			Object result = commandMethod.invoke(commandObject, argumentsObject.toArray());
+			if(result != null)
+				event.respond(result.toString());
 		}
 	}
 
