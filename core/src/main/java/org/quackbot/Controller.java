@@ -18,8 +18,7 @@
  */
 package org.quackbot;
 
-import static com.google.common.base.Preconditions.*;
-import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Service;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
@@ -33,7 +32,6 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
 import javax.swing.SwingUtilities;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -118,7 +116,7 @@ public class Controller {
 	/**
 	 * All registered plugin loaders
 	 */
-	protected boolean started = false;
+	protected Service.State state = Service.State.NEW;
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -164,9 +162,9 @@ public class Controller {
 	 * If this isn't called, then the bot does nothing
 	 */
 	public void start() {
-		if (started)
+		if (state != Service.State.NEW)
 			throw new RuntimeException("Can't run start more than once");
-		started = true;
+		state = Service.State.STARTING;
 
 		//Call list of commands
 		getHookManager().dispatchEvent(new InitEvent(this));
@@ -182,7 +180,6 @@ public class Controller {
 		}
 	}
 
-	@Transactional(readOnly = true)
 	protected void connectAllServers() {
 		List<ServerEntry> servers = serverDao.findAll();
 		if (servers.isEmpty())
@@ -293,10 +290,12 @@ public class Controller {
 			curBot.quitServer("Killed by control panel");
 			curBot.shutdown();
 		}
+		state = Service.State.STOPPING;
 		if (!shutdownHook.isAlive())
 			Runtime.getRuntime().removeShutdownHook(shutdownHook);
 		bots.clear();
 		log.info("Killed all bots");
+		state = Service.State.TERMINATED;
 	}
 
 	public void addServer(String address, String... channels) {
