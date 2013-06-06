@@ -34,7 +34,7 @@ public class QConfiguration {
 	public QConfiguration(Builder builder) {
 		checkNotNull(builder, "Must specify builder");
 		templateConfiguration = builder.getTemplateConfiguration();
-		adminLevels = ImmutableList.copyOf(builder.getUserLevels());
+		adminLevels = ImmutableList.copyOf(builder.getAdminLevels());
 		globalPrefixes = ImmutableList.copyOf(builder.getGlobalPrefixes());
 		hookLoaderClasses = ImmutableBiMap.copyOf(builder.getHookLoaderClasses());
 		daoFactory = builder.getDaoFactory();
