@@ -22,6 +22,7 @@ import com.google.common.base.Function;
 import static com.google.common.base.Preconditions.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.gui.GUI;
 import org.quackbot.hooks.HookManager;
@@ -153,7 +154,10 @@ public class Controller {
 	protected int defaultMessageDelay = 1750;
 	protected boolean started = false;
 	protected Thread shutdownHook;
-	protected final List<AdminLevel> adminLevels = new ArrayList();
+	protected final List<String> adminLevels = Lists.newArrayList(AdminLevels.ADMIN,
+			AdminLevels.MODERATOR_SERVER,
+			AdminLevels.MODERATOR_CHANNEL,
+			AdminLevels.ANONYMOUS);
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -381,26 +385,16 @@ public class Controller {
 	 * 
 	 * @param levels 
 	 */
-	public void setAdminLevels(List<AdminLevel> customAdminLevels) {
-		checkArgument(customAdminLevels.contains(StandardAdminLevels.ADMIN), "Must contain default StandardAdminLevels.ADMIN");
-		checkArgument(customAdminLevels.contains(StandardAdminLevels.ANONYMOUS), "Must contain default StandardAdminLevels.ANONYMOUS");
+	public void setAdminLevels(List<String> customAdminLevels) {
+		checkArgument(customAdminLevels.contains(AdminLevels.ADMIN), "Must contain default StandardAdminLevels.ADMIN");
+		checkArgument(customAdminLevels.contains(AdminLevels.ANONYMOUS), "Must contain default StandardAdminLevels.ANONYMOUS");
 		synchronized(adminLevels) {
 			adminLevels.clear();
-			for(AdminLevel curLevel : customAdminLevels)
-				adminLevels.add(curLevel);
+			adminLevels.addAll(customAdminLevels);
 		}
 	}
 	
-	public AdminLevel getAdminLevel(final String name) {
-		synchronized(adminLevels) {
-			for(AdminLevel curLevel : adminLevels)
-				if(curLevel.name().equalsIgnoreCase(name))
-					return curLevel;
-		}
-		return null;
-	}
-	
-	public ImmutableList<AdminLevel> getAdminLevels() {
+	public ImmutableList<String> getAdminLevels() {
 		synchronized(adminLevels) {
 			return ImmutableList.copyOf(adminLevels);
 		}
