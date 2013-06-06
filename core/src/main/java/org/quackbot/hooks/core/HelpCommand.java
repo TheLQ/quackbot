@@ -18,48 +18,63 @@
  */
 package org.quackbot.hooks.core;
 
-import org.quackbot.hooks.java.HelpDoc;
-import org.quackbot.hooks.java.Optional;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Iterables;
+import org.apache.commons.lang3.StringUtils;
+import org.quackbot.AdminLevels;
 import org.quackbot.hooks.Command;
 import org.quackbot.err.InvalidCMDException;
 import org.quackbot.events.CommandEvent;
-import org.springframework.stereotype.Component;
+import org.quackbot.hooks.CommandManager;
+import org.quackbot.hooks.java.JavaArgument;
+import org.quackbot.hooks.java.JavaCommand;
 
 /**
  * Core plugin that provides help for a command
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@Component
-@HelpDoc("Provides list of commands or help for specific command. Syntax: ?help <OPTIONAL:command>")
-public class HelpCommand extends Command {
-	public String onCommand(CommandEvent event, @Optional String command) throws Exception {
+public class HelpCommand {
+	protected static final Joiner JOINER_COMMA = Joiner.on(", ");
+
+	@JavaCommand(name = "help",
+			minimumLevel = AdminLevels.ADMIN,
+			help = "Provides list of commands or help for specific command",
+			arguments =
+			@JavaArgument(name = "command", argumentHelp = "", required = false))
+	public String onHelpCommand(CommandEvent event, String command) throws Exception {
 		//Does user want command list
+		CommandManager commandManager = event.getBot().getController().getCommandManager();
 		if (command == null) {
-			List<String> cmdList = new ArrayList<String>();
-
 			//Add Java Plugins
-			for (Command curCmd : getController().getHookManager().getCommands())
-				if (curCmd.isEnabled() && !curCmd.isAdmin())
-					cmdList.add(curCmd.getName());
-
+			StringBuilder commandsResponse = new StringBuilder();
+			for (String curLevel : commandManager.getUserAdminLevels(event.getUser())) {
+				ImmutableSortedSet<Command> commandsForLevel = commandManager.getCommandsForAdminLevel(curLevel);
+				if (commandsForLevel.isEmpty())
+					continue;
+				commandsResponse.append(" ").append(curLevel).append(": ");
+				JOINER_COMMA.appendTo(commandsResponse, Iterables.transform(commandsForLevel, new Function<Command, String>() {
+					public String apply(Command curCommand) {
+						return curCommand.getName();
+					}
+				}));
+			}
 			//Send to user
-			return "Possible commands: " + StringUtils.join(cmdList.toArray(), ", ");
+			return "Possible commands: " + commandsResponse.toString().trim();
+		} else {
+			//Command specified, get specific help
+			Command requestedCommand = commandManager.getCommand(command);
+			if (requestedCommand == null)
+				throw new InvalidCMDException(command);
+			//else if (!result.isEnabled()) //TODO: Support disabled commands
+			//	throw new InvalidCMDException(command, "disabled");
+			else if (!commandManager.getUserAdminLevels(event.getUser()).contains(requestedCommand.getMinimumAdminLevel()))
+				throw new InvalidCMDException(command, "admin only");
+			else if (StringUtils.isBlank(requestedCommand.getHelp()))
+				return "No help avalible";
+			return requestedCommand.getHelp();
 		}
-	
-		//Command specified, get specific help
-		Command result = getController().getHookManager().getCommand(command);
-		if (result == null)
-			throw new InvalidCMDException(command);
-		else if (!result.isEnabled())
-			throw new InvalidCMDException(command, "disabled");
-		else if (result.isAdmin())
-			throw new InvalidCMDException(command, "admin only");
-		else if (StringUtils.isBlank(result.getHelp()))
-			return "No help avalible";
-		return result.getHelp();
 	}
 }
