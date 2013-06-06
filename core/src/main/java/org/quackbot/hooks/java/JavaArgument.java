@@ -10,7 +10,7 @@ package org.quackbot.hooks.java;
  * @author Leon
  */
 public @interface JavaArgument {
-	public String value();
+	public String name();
 
 	public String getArgumentHelp() default "";
 
