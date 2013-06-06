@@ -11,10 +11,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Comparator;
+import java.util.Map;
 import org.pircbotx.User;
+import org.quackbot.AdminLevels;
 import org.quackbot.QConfiguration;
 
 /**
@@ -74,6 +75,11 @@ public class CommandManager {
 	
 	public boolean addActiveAdmin(String level, User user) {
 		checkArgument(isValidAdminLevel(level), "Invalid admin level: %s", level);
+		
+		//Replace existing user level with this one
+		String existingUserLevel = getUserAdminLevel(user);
+		if(!existingUserLevel.equals(AdminLevels.ANONYMOUS))
+			removeActiveAdmin(existingUserLevel, user);
 		return activeAdmins.put(level, user);
 	}
 	
@@ -81,6 +87,25 @@ public class CommandManager {
 		return activeAdmins.remove(level, user);
 	}
 	
+	public String getUserAdminLevel(User user) {
+		for(Map.Entry<String, User> curEntry : activeAdmins.entries())
+			if(curEntry.getValue() == user)
+				return curEntry.getKey();
+		//Not found, user isn't an admin
+		return AdminLevels.ANONYMOUS;
+	}
+	
+	public ImmutableList<String> getUserAdminLevels(User user) {
+		String userLevel = getUserAdminLevel(user);
+		ImmutableList.Builder<String> levelsBuilder = ImmutableList.builder();
+		//Add each level till we reach the users
+		for(String curLevel : adminLevels) {
+			levelsBuilder.add(curLevel);
+			if(curLevel.equals(userLevel))
+				return levelsBuilder.build();
+		}
+		throw new RuntimeException("Could not finish building admin levels");
+	}
 
 	public static class CommandComparator implements Comparator<Command> {
 		public int compare(Command o1, Command o2) {
