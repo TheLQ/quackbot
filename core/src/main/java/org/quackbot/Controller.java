@@ -60,7 +60,7 @@ import org.quackbot.events.HookLoadEvent;
 import org.quackbot.events.HookLoadStartEvent;
 import org.quackbot.hooks.QListener;
 import org.quackbot.hooks.core.AdminHelpCommand;
-import org.quackbot.hooks.core.CoreQuackbotHook;
+import org.quackbot.hooks.core.CoreQuackbotListener;
 import org.quackbot.hooks.core.HelpCommand;
 import org.quackbot.hooks.core.QuackbotLogHook;
 import org.quackbot.hooks.loaders.JSHookLoader;
@@ -104,19 +104,14 @@ import org.springframework.transaction.annotation.Transactional;
 @EqualsAndHashCode(exclude = {"bots"})
 @Slf4j
 public class Controller {
-	@Autowired
 	@Setter(AccessLevel.PUBLIC)
 	protected AdminDAO adminDao;
-	@Autowired
 	@Setter(AccessLevel.PUBLIC)
 	protected ChannelDAO channelDao;
-	@Autowired
 	@Setter(AccessLevel.PUBLIC)
 	protected LogDAO logDao;
-	@Autowired
 	@Setter(AccessLevel.PUBLIC)
 	protected ServerDAO serverDao;
-	@Autowired
 	@Setter(AccessLevel.PUBLIC)
 	protected UserDAO userDao;
 	/**
@@ -128,36 +123,12 @@ public class Controller {
 	 */
 	protected int commandNumber = 0;
 	protected GUI gui;
-	@Autowired
-	protected HookManager hookManager;
-	/**
-	 * Global Prefixes.
-	 */
-	protected List<String> prefixes = Collections.synchronizedList(new ArrayList<String>());
+	protected final HookManager hookManager = new HookManager();
 	/**
 	 * All registered plugin loaders
 	 */
-	protected TreeMap<String, HookLoader> hookLoaders = new TreeMap<String, HookLoader>();
-	@Setter(AccessLevel.PUBLIC)
-	protected String version = "";
-	@Setter(AccessLevel.PUBLIC)
-	protected String finger = "";
-	protected final String suffix = "Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/";
-	protected boolean guiCreated;
-	@Setter(AccessLevel.PUBLIC)
-	protected int defaultPort = 6667;
-	@Setter(AccessLevel.PUBLIC)
-	protected String defaultName = "QuackbotUser";
-	@Setter(AccessLevel.PUBLIC)
-	protected String defaultLogin = "QB";
-	@Setter(AccessLevel.PUBLIC)
-	protected int defaultMessageDelay = 1750;
 	protected boolean started = false;
 	protected Thread shutdownHook;
-	protected final List<String> adminLevels = Lists.newArrayList(AdminLevels.ADMIN,
-			AdminLevels.MODERATOR_SERVER,
-			AdminLevels.MODERATOR_CHANNEL,
-			AdminLevels.ANONYMOUS);
 
 	/**
 	 * Init for Quackbot. Sets instance, adds shutdown hook, and starts GUI if requested
@@ -183,10 +154,10 @@ public class Controller {
 
 		//Load default hooks
 		try {
-			hookManager.addHook(new CoreQuackbotHook());
-			hookManager.addHook(new QuackbotLogHook());
-			hookManager.addHook(JavaHookLoader.load(new HelpCommand()));
-			hookManager.addHook(JavaHookLoader.load(new AdminHelpCommand()));
+			hookManager.addListener(new CoreQuackbotListener());
+			hookManager.addListener(new QuackbotLogHook());
+			JavaHookLoader.loadListener(this, new HelpCommand());
+			JavaHookLoader.loadListener(this, new AdminHelpCommand());
 		} catch (Exception e) {
 			log.error("Error when loading default plugins", e);
 		}
