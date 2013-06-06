@@ -26,7 +26,7 @@ import org.quackbot.hooks.loaders.JSHookLoader;
 @Data
 public class QConfiguration {
 	protected final Configuration templateConfiguration;
-	protected final ImmutableList<String> userLevels;
+	protected final ImmutableList<String> adminLevels;
 	protected final ImmutableList<String> globalPrefixes;
 	protected final ImmutableBiMap<String, HookLoader> hookLoaderClasses;
 	protected final DAOFactory daoFactory;
@@ -34,7 +34,7 @@ public class QConfiguration {
 	public QConfiguration(Builder builder) {
 		checkNotNull(builder, "Must specify builder");
 		templateConfiguration = builder.getTemplateConfiguration();
-		userLevels = ImmutableList.copyOf(builder.getUserLevels());
+		adminLevels = ImmutableList.copyOf(builder.getUserLevels());
 		globalPrefixes = ImmutableList.copyOf(builder.getGlobalPrefixes());
 		hookLoaderClasses = ImmutableBiMap.copyOf(builder.getHookLoaderClasses());
 		daoFactory = builder.getDaoFactory();
@@ -47,7 +47,7 @@ public class QConfiguration {
 				.setLogin("Quackbot")
 				.setVersion("Quackbot Java IRC Framework 3.3 http://quackbot.googlecode.com/")
 				.buildConfiguration();
-		protected List<String> userLevels = Lists.newArrayList(AdminLevels.ADMIN,
+		protected List<String> adminLevels = Lists.newArrayList(AdminLevels.ADMIN,
 				AdminLevels.MODERATOR,
 				AdminLevels.ANONYMOUS);
 		protected List<String> globalPrefixes = new ArrayList();
