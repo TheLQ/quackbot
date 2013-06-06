@@ -18,7 +18,7 @@ import org.quackbot.AdminLevels;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JavaCommand {
 	public String name();
-	public String help();
+	public String help() default "";
 	public String minimumLevel() default AdminLevels.ANONYMOUS;
-	public JavaArgument[] arguments();
+	public JavaArgument[] arguments() default {};
 }
