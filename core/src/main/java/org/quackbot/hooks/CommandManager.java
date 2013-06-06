@@ -11,6 +11,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Comparator;
 import org.pircbotx.User;
@@ -22,7 +23,8 @@ import org.quackbot.QConfiguration;
  */
 public class CommandManager {
 	public static final CommandComparator COMMAND_COMPARATOR = new CommandComparator();
-	protected final BiMap<String, Command> commands = HashBiMap.create();
+	protected final BiMap<String, Command> commandsByName = HashBiMap.create();
+	protected final Multimap<String, Command> commandsByAdminLevel = HashMultimap.create();
 	protected final ImmutableList<String> adminLevels;
 	protected final Multimap<String, User> activeAdmins = HashMultimap.create();
 
@@ -35,7 +37,12 @@ public class CommandManager {
 	 * @return An <b>immutable copy</b> of the current registered commands
 	 */
 	public ImmutableSortedSet<Command> getCommands() {
-		return ImmutableSortedSet.copyOf(COMMAND_COMPARATOR, commands.values());
+		return ImmutableSortedSet.copyOf(COMMAND_COMPARATOR, commandsByName.values());
+	}
+	
+	public ImmutableSortedSet<Command> getCommandsForAdminLevel(String adminLevel) {
+		checkArgument(isValidAdminLevel(adminLevel), "Invalid admin level: %s", adminLevel);
+		return ImmutableSortedSet.copyOf(COMMAND_COMPARATOR, commandsByAdminLevel.get(adminLevel));
 	}
 
 	/**
@@ -44,15 +51,17 @@ public class CommandManager {
 	 * @return The command object, or null if it doesn't exist
 	 */
 	public Command getCommand(String command) {
-		return commands.get(command);
+		return commandsByName.get(command);
 	}
 
 	public void addCommand(Command command) {
-		commands.put(command.getName(), command);
+		commandsByName.put(command.getName(), command);
+		commandsByAdminLevel.put(command.getMinimumAdminLevel(), command);
 	}
 
 	public void removeCommand(Command command) {
-		commands.inverse().remove(command);
+		commandsByName.inverse().remove(command);
+		commandsByAdminLevel.remove(command.getMinimumAdminLevel(), command);
 	}
 	
 	public boolean isValidAdminLevel(String adminLevel) {
