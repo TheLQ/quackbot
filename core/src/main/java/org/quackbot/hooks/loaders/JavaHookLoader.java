@@ -18,19 +18,21 @@
  */
 package org.quackbot.hooks.loaders;
 
-import org.quackbot.hooks.java.HelpDoc;
-import org.quackbot.hooks.java.AdminOnly;
-import org.quackbot.hooks.java.Disabled;
-import org.quackbot.hooks.java.Optional;
-import org.quackbot.hooks.java.Parameters;
-import java.lang.annotation.Annotation;
+import static com.google.common.base.Preconditions.*;
+import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.quackbot.AdminLevel;
+import org.quackbot.Controller;
 import org.quackbot.hooks.Command;
 import org.quackbot.hooks.HookLoader;
-import org.quackbot.err.QuackbotException;
 import org.quackbot.events.CommandEvent;
 import org.quackbot.hooks.QListener;
+import org.quackbot.hooks.java.JavaArgument;
+import org.quackbot.hooks.java.JavaCommand;
 
 /**
  * This is the global JavaBean/Utility for all Java written commands
@@ -44,109 +46,68 @@ public class JavaHookLoader implements HookLoader {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + fileLocation);
 	}
 
-	public static Command load(Command cmd) throws Exception {
-		if (cmd == null)
-			return null;
-		Class<? extends Command> clazz = cmd.getClass();
-		String name = clazz.getSimpleName();
-		log.info("New Java Plugin " + name);
+	@JavaArgument("name")
+	public static ImmutableList<Command> loadCommands(Controller controller, Object command) throws Exception {
+		checkNotNull(controller, "Must specify controller");
+		checkNotNull(command, "Must specify command object");
 
-		//Command info creation
-		boolean admin = clazz.isAnnotationPresent(AdminOnly.class);
-		boolean enabled = !clazz.isAnnotationPresent(Disabled.class);
-		String help = (clazz.getAnnotation(HelpDoc.class) != null) ? clazz.getAnnotation(HelpDoc.class).value() : null;
-
-		//Get required and optional parameters
-		int requiredCount = 0;
-		int optionalCount = 0;
-		Method previousMethod = null;
-		for (Method curMethod : clazz.getDeclaredMethods()) {
-			int totalParams = 0;
-			Class<?>[] parameters = curMethod.getParameterTypes();
-
-			//Ignore if this isn't an onCommand method
-			if (!curMethod.getName().equalsIgnoreCase("onCommand"))
+		//Find any command annotations
+		ImmutableList.Builder<Command> addedCommands = ImmutableList.builder();
+		for (Method curMethod : command.getClass().getMethods()) {
+			JavaCommand commandAnnotation = curMethod.getAnnotation(JavaCommand.class);
+			if (commandAnnotation == null)
 				continue;
 
-			//Make sure there aren't multiple onCommand methods
-			if (previousMethod != null)
-				throw new QuackbotException("Can't have multiple onCommand methods in class " + clazz);
-			else
-				previousMethod = curMethod;
+			//Parse arguments first
+			ImmutableList.Builder<JavaMethodArgument> arguments = ImmutableList.builder();
+			for (JavaArgument curArgument : commandAnnotation.arguments())
+				arguments.add(new JavaMethodArgument(curArgument.value(), curArgument.getArgumentHelp(), curArgument.isRequired()));
 
-			//Ignore if there are 0 parameters
-			if (parameters.length == 0) {
-				log.debug("Ignoring " + curMethod.toGenericString() + "  - No parameters");
-				continue;
-			}
-
-			//Ignore if the first parameter isn't a CommandEvent
-			if (parameters[0] != CommandEvent.class) {
-				log.debug("Ignoring " + curMethod.toGenericString() + "  - First parameter isn't a command event");
-				continue;
-			}
-
-			//Ignore if CommandEvent is the only parameter, this is handled by CoreQuackbotHook
-			if (parameters.length == 1) {
-				log.debug("Ignoring " + curMethod.toGenericString() + "  - Only parameter is CommandEvent");
-				continue;
-			}
-
-			//Throw exception if there is more than one array
-			int numArrays = 0;
-			for (Class curClass : parameters)
-				if (curClass.isArray())
-					numArrays++;
-			if (numArrays > 1)
-				throw new QuackbotException("Method " + curMethod.toGenericString() + " has more than one array as a parameter.");
-
-			//Account for CommandEvent when calculating parameters
-			totalParams = parameters.length - 1;
-
-			Parameters paramAnnotation = clazz.getAnnotation(Parameters.class);
-
-			//Build parameter counts based off of @Optional first
-			requiredCount = totalParams;
-			for (Annotation[] annotations : curMethod.getParameterAnnotations())
-				for (Annotation annotation : annotations)
-					if (annotation instanceof Optional) {
-						if (paramAnnotation != null)
-							throw new QuackbotException("Java Hook " + name + " cannot have both optional annotation(s) and Parameter Annotation");
-						optionalCount++;
-						requiredCount--;
-					}
-
-			//End here if @Optional exists and therefor changed the required parameter count
-			if (requiredCount != totalParams)
-				continue;
-
-			//No @Optional, see if the last element is an array. Array = unlimited
-			if (parameters[parameters.length - 1].isArray()) {
-				optionalCount = -1;
-				continue;
-			}
-
-			//No @Optional, use totalParams as required count if there's no @Parameter annotation
-			if (paramAnnotation == null)
-				continue;
-
-			//There is @Parameter, make sure there's enough required parameters
-			if (totalParams < paramAnnotation.value())
-				throw new QuackbotException("Method " + curMethod.toGenericString() + " has less parameters "
-						+ "(" + totalParams + ") then the @Parameter annotation says it should (" + paramAnnotation.value() + ")");
-
-			//Make sure there isn't too many or not enough parameters with optional params
-			if (paramAnnotation.optional() != -1 && (paramAnnotation.value() + paramAnnotation.optional() != totalParams))
-				throw new QuackbotException("Method " + curMethod.toGenericString() + " has too many or two few parameters "
-						+ "(" + totalParams + ") then the @Parameter annotation says it should (" + (paramAnnotation.value() + paramAnnotation.optional()) + " total)");
-
-			//Values have been verified, now they can be used
-			requiredCount = paramAnnotation.value();
-			optionalCount = paramAnnotation.optional();
+			//Build and add command to hookManager
+			AdminLevel minimumLevel =  controller.getAdminLevel(commandAnnotation.minimumLevel());
+			if(minimumLevel == null)
+				throw new RuntimeException("Unknown level " + commandAnnotation.minimumLevel());
+			JavaMethodCommand methodCommand = new JavaMethodCommand(commandAnnotation.name(),
+					commandAnnotation.help(),
+					minimumLevel,
+					arguments.build(), 
+					command, 
+					curMethod);
+			controller.getHookManager().addCommand(methodCommand);
+			addedCommands.add(methodCommand);
 		}
-		//Setup and send to the HookManager
-		cmd.setup(help, admin, enabled, requiredCount, optionalCount);
+		return addedCommands.build();
+	}
 
-		return cmd;
+	@Data
+	public static class JavaMethodCommand implements Command {
+		protected final String name;
+		protected final String help;
+		protected final AdminLevel minimumAdminLevel;
+		protected final ImmutableList<JavaMethodArgument> arguments;
+		protected final Object commandObject;
+		protected final Method commandMethod;
+
+		public void onCommand(CommandEvent event, ImmutableList<String> argumentsString) throws Exception {
+			//Attempt basic conversion of fields
+			List<Object> argumentsObject = new ArrayList();
+			Class<?>[] methodParameters = commandMethod.getParameterTypes();
+
+			if (argumentsString.size() > methodParameters.length)
+				throw new RuntimeException("More arguments given than there are parameters");
+			for (int i = 0, size = methodParameters.length; i < size; i++)
+				if (methodParameters[i] == String.class)
+					argumentsObject.add(argumentsString.get(i));
+				else
+					throw new RuntimeException("Unknown argument class " + methodParameters[i]);
+			commandMethod.invoke(commandObject, argumentsObject.toArray());
+		}
+	}
+
+	@Data
+	public static class JavaMethodArgument implements Command.Argument {
+		protected final String name;
+		protected final String argumentHelp;
+		protected final boolean required;
 	}
 }
