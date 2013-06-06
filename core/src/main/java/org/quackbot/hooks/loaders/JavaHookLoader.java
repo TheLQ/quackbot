@@ -61,7 +61,7 @@ public class JavaHookLoader implements HookLoader {
 			//Parse arguments first
 			ImmutableList.Builder<JavaMethodArgument> arguments = ImmutableList.builder();
 			for (JavaArgument curArgument : commandAnnotation.arguments())
-				arguments.add(new JavaMethodArgument(curArgument.value(), curArgument.getArgumentHelp(), curArgument.isRequired()));
+				arguments.add(new JavaMethodArgument(curArgument.name(), curArgument.getArgumentHelp(), curArgument.isRequired()));
 
 			//Build and add command to hookManager
 			AdminLevel minimumLevel =  controller.getAdminLevel(commandAnnotation.minimumLevel());
