@@ -18,9 +18,8 @@
  */
 package org.quackbot.dao.model;
 
-import java.io.Serializable;
 import java.util.Set;
-import org.quackbot.dao.GenericDAO;
+import org.pircbotx.Configuration;
 
 /**
  * This is the Server bean mapped to the Database by JPersist. Used by {@link Quackbot.Bot}
@@ -43,40 +42,5 @@ public interface ServerEntry extends GenericEntry {
 	 */
 	public Set<ChannelEntry> getChannels();
 
-	/******************************* Server Info *************************/
-	/**
-	 * Value mapped to column in DB or manually provided
-	 * @return the address
-	 */
-	public String getAddress();
-
-	/**
-	 * Value mapped to column in DB or manually provided
-	 * @param address the address to set
-	 */
-	public void setAddress(String address);
-
-	/**
-	 * Value mapped to column in DB or manually provided
-	 * @return the password
-	 */
-	public String getPassword();
-
-	/**
-	 * Value mapped to column in DB or manually provided
-	 * @param password the password to set
-	 */
-	public void setPassword(String password);
-
-	/**
-	 * Value mapped to column in DB or manually provided
-	 * @return the port
-	 */
-	public Integer getPort();
-
-	/**
-	 * Value mapped to column in DB or manually provided
-	 * @param port the port to set
-	 */
-	public void setPort(Integer port);
+	public Configuration getConfiguration();
 }
