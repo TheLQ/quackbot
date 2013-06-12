@@ -20,7 +20,7 @@
 
 -->
 <configuration> 
-	<appender name="ControlAppender" class="org.quackbot.ControlAppender">v
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%d{MM/dd/yyy hh:mm:ss a}  %-5p %c - %m%n</pattern>
 		</encoder>
@@ -28,6 +28,6 @@
 
   <!--By default, log everything with ControlAppender-->
 	<root level="ALL">
-		<appender-ref ref="ControlAppender" />
+		<appender-ref ref="stdout" />
 	</root>
 </configuration>
