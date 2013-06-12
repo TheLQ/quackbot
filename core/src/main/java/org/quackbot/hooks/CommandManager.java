@@ -20,6 +20,8 @@ import org.pircbotx.User;
 import org.quackbot.AdminLevels;
 import org.quackbot.Controller;
 import org.quackbot.QConfiguration;
+import org.quackbot.hooks.events.CommandAddedEvent;
+import org.quackbot.hooks.events.CommandEnabledEvent;
 
 /**
  *
@@ -63,20 +65,28 @@ public class CommandManager {
 		commandsByName.put(command.getName(), command);
 		commandsByAdminLevel.put(command.getMinimumAdminLevel(), command);
 		commandsByEnabled.add(command);
+		controller.getHookManager().dispatchEvent(new CommandAddedEvent(controller, command, true));
 	}
 
 	public void removeCommand(Command command) {
 		commandsByName.inverse().remove(command);
 		commandsByAdminLevel.remove(command.getMinimumAdminLevel(), command);
 		commandsByEnabled.remove(command);
+		controller.getHookManager().dispatchEvent(new CommandAddedEvent(controller, command, false));
 	}
 
 	public void enableCommand(Command command) {
-		commandsByEnabled.add(command);
+		boolean enabled = commandsByEnabled.contains(command);
+		if (!enabled)
+			commandsByEnabled.add(command);
+		controller.getHookManager().dispatchEvent(new CommandEnabledEvent(controller, command, enabled, true));
 	}
 
 	public void disableCommand(Command command) {
-		commandsByEnabled.remove(command);
+		boolean enabled = commandsByEnabled.contains(command);
+		if (!enabled)
+			commandsByEnabled.remove(command);
+		controller.getHookManager().dispatchEvent(new CommandEnabledEvent(controller, command, enabled, false));
 	}
 
 	public ImmutableSortedSet<Command> getEnabledCommands() {

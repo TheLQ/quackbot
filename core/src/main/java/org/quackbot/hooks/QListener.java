@@ -23,6 +23,8 @@ import lombok.EqualsAndHashCode;
 import org.pircbotx.hooks.Event;
 import org.quackbot.Bot;
 import org.pircbotx.hooks.ListenerAdapter;
+import org.quackbot.hooks.events.CommandAddedEvent;
+import org.quackbot.hooks.events.CommandEnabledEvent;
 import org.quackbot.hooks.events.InitEvent;
 
 /**
@@ -43,16 +45,23 @@ public abstract class QListener extends ListenerAdapter<Bot> {
 		super.onEvent(event);
 		if (event instanceof InitEvent)
 			onInit((InitEvent) event);
+		else if (event instanceof CommandEnabledEvent)
+			onCommandEnabledEvent((CommandEnabledEvent) event);
+		else if (event instanceof CommandAddedEvent)
+			onCommandAddedEvent((CommandAddedEvent) event);
 	}
 
 	//public void onHookLoadEnd(HookLoadEndEvent event) {
 	//}
-
 	//public void onHookLoadStart(HookLoadStartEvent event) {
 	//}
-
 	//public void onHookLoad(HookLoadEvent event) {
 	//}
+	public void onCommandEnabledEvent(CommandEnabledEvent event) {
+	}
+
+	public void onCommandAddedEvent(CommandAddedEvent event) {
+	}
 
 	public void onInit(InitEvent event) {
 	}
