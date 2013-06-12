@@ -95,10 +95,6 @@ public class Controller {
 	 */
 	protected final LinkedHashMap<Integer, Bot> bots = new LinkedHashMap<Integer, Bot>();
 	protected final Thread shutdownHook;
-	/**
-	 * Number of Commands executed, used by logging
-	 */
-	protected int commandNumber = 0;
 	protected GUI gui;
 	protected final HookManager hookManager = new HookManager();
 	protected final CommandManager commandManager;
@@ -260,13 +256,6 @@ public class Controller {
 	public void sendGlobalMessage(String msg) {
 		for (Bot curBot : botManager.getBots())
 			curBot.sendAnnounceMessage(msg);
-	}
-
-	/**
-	 * Increments command number and returns new int
-	 */
-	public synchronized int addCommandNumber() {
-		return ++commandNumber;
 	}
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
