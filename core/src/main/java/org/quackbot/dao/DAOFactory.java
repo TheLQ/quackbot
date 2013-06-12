@@ -13,5 +13,4 @@ public interface DAOFactory {
 	public ChannelDAO createChannelDAO();
 	public LogDAO createLogDAO();
 	public ServerDAO createServerDAO();
-	public UserDAO createUserDAO();
 }
