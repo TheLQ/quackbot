@@ -129,6 +129,16 @@ public class Controller {
 		this.serverDao = qconfiguration.getDaoFactory().createServerDAO();
 		this.commandManager = new CommandManager(qconfiguration);
 
+		//Add core hooks
+		try {
+			hookManager.addListener(new CoreQuackbotListener());
+			hookManager.addListener(new QuackbotLogHook());
+			JavaHookLoader.loadCommands(commandManager, new HelpCommand());
+			JavaHookLoader.loadListener(this, new AdminHelpCommand());
+		} catch (Exception e) {
+			log.error("Could not load core hooks");
+		}
+
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(shutdownHook = new Thread() {
 			@Override
@@ -141,21 +151,6 @@ public class Controller {
 				}
 			}
 		});
-	}
-
-	public void initHookManager() {
-		//Setup default Plugin Loaders
-		addHookLoader(new JSHookLoader(), "js");
-
-		//Load default hooks
-		try {
-			hookManager.addListener(new CoreQuackbotListener());
-			hookManager.addListener(new QuackbotLogHook());
-			JavaHookLoader.loadCommands(commandManager, new HelpCommand());
-			JavaHookLoader.loadListener(this, new AdminHelpCommand());
-		} catch (Exception e) {
-			log.error("Error when loading default plugins", e);
-		}
 	}
 
 	/**
