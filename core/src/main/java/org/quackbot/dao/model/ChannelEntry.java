@@ -18,7 +18,9 @@
  */
 package org.quackbot.dao.model;
 
+import com.google.common.collect.ImmutableSortedSet;
 import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * Bean that holds all known Channel information. This is meant to be integrated with
@@ -75,38 +77,4 @@ public interface ChannelEntry extends GenericEntry  {
 	 * @param password the password to set
 	 */
 	public void setPassword(String password);
-	
-	public String getTopic();
-	
-	public void setTopic(String topic);
-	
-	public Long getCreateTimestamp();
-	
-	public void setCreateTimestamp(Long createTimestamp);
-	
-	public String getTopicSetter();
-	
-	public void setTopicSetter(String topicSetter);
-	
-	public Long getTopicTimestamp();
-	
-	public void setTopicTimestamp(Long topicTimestamp);
-	
-	public String getMode();
-	
-	public void setMode(String mode);
-	
-	Set<UserEntry> getHalfOps();
-
-	Set<UserEntry> getNormalUsers();
-
-	Set<UserEntry> getOps();
-
-	Set<UserEntry> getOwners();
-
-	Set<UserEntry> getSuperOps();
-
-	Set<UserEntry> getUsers();
-
-	Set<UserEntry> getVoices();
 }
