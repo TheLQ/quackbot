@@ -31,6 +31,7 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Synchronized;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -96,6 +97,7 @@ public class Controller {
 	protected final LinkedHashMap<Integer, Bot> bots = new LinkedHashMap<Integer, Bot>();
 	protected final Thread shutdownHook;
 	protected GUI gui;
+	protected final Object guiCreateLock = new Object();
 	protected final HookManager hookManager = new HookManager();
 	protected final CommandManager commandManager;
 	protected final QMultiBotManager botManager = new QMultiBotManager();
@@ -277,24 +279,23 @@ public class Controller {
 		return false;
 	}
 
-	public void setGuiCreated(boolean guiCreated) {
-		//Fail early if the value isn't being updated. Prevents GUI being created twice
-		if (this.guiCreated == guiCreated)
-			return;
-		this.guiCreated = guiCreated;
-		if (!guiCreated)
+	@Synchronized("guiCreateLock")
+	public GUI getGui() {
+		return gui;
+	}
+
+	@Synchronized("guiCreateLock")
+	public void setGuiEnabled(boolean enabled) {
+		//TODO: Destroy GUI
+		//Don't create the gui twice
+		if ((gui != null) == enabled)
 			return;
 
 		//Need to create GUI
-		try {
-			//This can't run in EDT, end if it is
-			if (SwingUtilities.isEventDispatchThread()) {
-				log.error("Controller cannot be started from EDT. Please start from seperate thread");
-				return;
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				gui = new GUI(Controller.this);
 			}
-			gui = new GUI(this);
-		} catch (Exception e) {
-			log.error("Unkown error occured in GUI initialzation", e);
-		}
+		});
 	}
 }
