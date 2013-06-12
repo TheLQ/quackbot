@@ -47,7 +47,7 @@ public class JavaHookLoader implements HookLoader {
 		throw new UnsupportedOperationException("Java plugins cannot be loaded. Attempted to load " + fileLocation);
 	}
 
-	public static ImmutableList<Command> loadCommands(CommandManager commandManager, Object command) throws Exception {
+	public static ImmutableList<Command> loadCommands(CommandManager commandManager, Object command) {
 		checkNotNull(commandManager, "Must specify command manager");
 		checkNotNull(command, "Must specify command object");
 
@@ -79,7 +79,7 @@ public class JavaHookLoader implements HookLoader {
 		return addedCommands.build();
 	}
 	
-	public static ImmutableList<Command> loadListener(Controller controller, Listener listenerWithCommands) throws Exception {
+	public static ImmutableList<Command> loadListener(Controller controller, Listener listenerWithCommands) {
 		controller.getHookManager().addListener(listenerWithCommands);
 		return loadCommands(controller.getCommandManager(), listenerWithCommands);
 	}
