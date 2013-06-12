@@ -321,32 +321,4 @@ public class Controller {
 			log.error("Unkown error occured in GUI initialzation", e);
 		}
 	}
-
-	protected class BotThreadPool extends ThreadPoolExecutor {
-		@Setter
-		protected Bot bot;
-
-		public BotThreadPool(ThreadFactory threadFactory) {
-			super(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
-		}
-
-		@Override
-		protected void beforeExecute(Thread t, Runnable r) {
-			super.beforeExecute(t, r);
-			if (bot != null && MDC.get("quackbot_server_address") == null)
-				MDC.put("quackbot_server_address", bot.getServer());
-		}
-
-		@Override
-		protected void afterExecute(Runnable r, Throwable t) {
-			super.afterExecute(r, t);
-			if (bot != null && MDC.get("quackbot_server_address") != null)
-				MDC.remove("quackbot_server_address");
-		}
-
-		@Override
-		protected void terminated() {
-			super.terminated();
-		}
-	}
 }
