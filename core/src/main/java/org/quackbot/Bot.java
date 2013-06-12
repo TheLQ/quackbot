@@ -19,6 +19,8 @@
 package org.quackbot;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Sets;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -101,12 +103,12 @@ public class Bot extends PircBotX {
 	}
 
 	/**
-	 * Send message to ALL joined channels
+	 * Send message to ALL joined channels minus ignored ones
 	 * @param msg   Message to send
 	 */
 	public void sendAnnounceMessage(String msg) {
 		Preconditions.checkNotNull(msg, "Msg must not be null");
-		for (Channel channel : getUserChannelDao().getAllChannels())
+		for (Channel channel : Sets.difference(getUserChannelDao().getAllChannels(), ignoredChannels))
 			channel.send().message(msg);
 	}
 
