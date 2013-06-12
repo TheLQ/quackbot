@@ -14,12 +14,12 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Multimap;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.pircbotx.User;
 import org.quackbot.AdminLevels;
 import org.quackbot.Controller;
-import org.quackbot.QConfiguration;
 import org.quackbot.hooks.events.CommandAddedEvent;
 import org.quackbot.hooks.events.CommandEnabledEvent;
 
@@ -62,6 +62,14 @@ public class CommandManager {
 	}
 
 	public void addCommand(Command command) {
+		//Verify that VarargArgument is at end if its used
+		Iterator<? extends Command.Argument> argumentItr = command.getArguments().iterator();
+		while(argumentItr.hasNext()) {
+			Command.Argument curArgument = argumentItr.next();
+			if(curArgument instanceof Command.VarargArgument && argumentItr.hasNext())
+				throw new RuntimeException("VarargArgument must be last argument");
+		}
+		
 		commandsByName.put(command.getName(), command);
 		commandsByAdminLevel.put(command.getMinimumAdminLevel(), command);
 		commandsByEnabled.add(command);
