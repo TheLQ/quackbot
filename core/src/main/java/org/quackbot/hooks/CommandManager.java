@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import org.pircbotx.User;
 import org.quackbot.AdminLevels;
+import org.quackbot.Controller;
 import org.quackbot.QConfiguration;
 
 /**
@@ -26,14 +27,14 @@ import org.quackbot.QConfiguration;
  */
 public class CommandManager {
 	public static final CommandComparator COMMAND_COMPARATOR = new CommandComparator();
+	protected final Controller controller;
 	protected final BiMap<String, Command> commandsByName = HashBiMap.create();
 	protected final Multimap<String, Command> commandsByAdminLevel = HashMultimap.create();
 	protected final Set<Command> commandsByEnabled = new HashSet<Command>();
-	protected final ImmutableList<String> adminLevels;
 	protected final Multimap<String, User> activeAdmins = HashMultimap.create();
 
-	public CommandManager(QConfiguration qconfiguration) {
-		this.adminLevels = qconfiguration.getAdminLevels();
+	public CommandManager(Controller controller) {
+		this.controller = controller;
 	}
 
 	/**
@@ -43,7 +44,7 @@ public class CommandManager {
 	public ImmutableSortedSet<Command> getCommands() {
 		return ImmutableSortedSet.copyOf(COMMAND_COMPARATOR, commandsByName.values());
 	}
-	
+
 	public ImmutableSortedSet<Command> getCommandsForAdminLevel(String adminLevel) {
 		checkArgument(isValidAdminLevel(adminLevel), "Invalid admin level: %s", adminLevel);
 		return ImmutableSortedSet.copyOf(COMMAND_COMPARATOR, commandsByAdminLevel.get(adminLevel));
@@ -69,56 +70,56 @@ public class CommandManager {
 		commandsByAdminLevel.remove(command.getMinimumAdminLevel(), command);
 		commandsByEnabled.remove(command);
 	}
-	
+
 	public void enableCommand(Command command) {
 		commandsByEnabled.add(command);
 	}
-	
+
 	public void disableCommand(Command command) {
 		commandsByEnabled.remove(command);
 	}
-	
+
 	public ImmutableSortedSet<Command> getEnabledCommands() {
 		return ImmutableSortedSet.copyOf(commandsByEnabled);
 	}
-	
+
 	public boolean isValidAdminLevel(String adminLevel) {
-		return adminLevels.contains(adminLevel);
+		return controller.getQconfiguration().getAdminLevels().contains(adminLevel);
 	}
-	
+
 	public ImmutableMultimap<String, User> getActiveAdmins() {
 		return ImmutableMultimap.copyOf(activeAdmins);
 	}
-	
+
 	public boolean addActiveAdmin(String level, User user) {
 		checkArgument(isValidAdminLevel(level), "Invalid admin level: %s", level);
-		
+
 		//Replace existing user level with this one
 		String existingUserLevel = getUserAdminLevel(user);
-		if(!existingUserLevel.equals(AdminLevels.ANONYMOUS))
+		if (!existingUserLevel.equals(AdminLevels.ANONYMOUS))
 			removeActiveAdmin(existingUserLevel, user);
 		return activeAdmins.put(level, user);
 	}
-	
+
 	public boolean removeActiveAdmin(String level, User user) {
 		return activeAdmins.remove(level, user);
 	}
-	
+
 	public String getUserAdminLevel(User user) {
-		for(Map.Entry<String, User> curEntry : activeAdmins.entries())
-			if(curEntry.getValue() == user)
+		for (Map.Entry<String, User> curEntry : activeAdmins.entries())
+			if (curEntry.getValue() == user)
 				return curEntry.getKey();
 		//Not found, user isn't an admin
 		return AdminLevels.ANONYMOUS;
 	}
-	
+
 	public ImmutableList<String> getUserAdminLevels(User user) {
 		String userLevel = getUserAdminLevel(user);
 		ImmutableList.Builder<String> levelsBuilder = ImmutableList.builder();
 		//Add each level till we reach the users
-		for(String curLevel : adminLevels) {
+		for (String curLevel : controller.getQconfiguration().getAdminLevels()) {
 			levelsBuilder.add(curLevel);
-			if(curLevel.equals(userLevel))
+			if (curLevel.equals(userLevel))
 				return levelsBuilder.build();
 		}
 		throw new RuntimeException("Could not finish building admin levels");
