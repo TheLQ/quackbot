@@ -33,7 +33,7 @@ public interface ServerEntry extends GenericEntry {
 	 * @param name Name of admin
 	 * @return     Admin object
 	 */
-	public Set<AdminEntry> getAdmins();
+	public Set<AdminEntry> getServerAdmins();
 
 	/**
 	 * Gets channel object by name
