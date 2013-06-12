@@ -35,7 +35,7 @@ import org.quackbot.hooks.Command;
 @EqualsAndHashCode(callSuper = true)
 public class CommandEvent extends QEvent {
 	protected final Command commandClass;
-	protected final Event parentEvent;
+	protected final Event<Bot> parentEvent;
 	protected final Channel channel;
 	protected final User user;
 	protected final String command;
