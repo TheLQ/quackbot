@@ -33,7 +33,7 @@ import org.quackbot.hooks.Command;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CommandEvent extends QuackbotEvent {
+public class CommandEvent extends QEvent {
 	protected final Command commandClass;
 	protected final Event parentEvent;
 	protected final Channel channel;

@@ -28,7 +28,7 @@ import org.quackbot.Controller;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HookLoadStartEvent extends QuackbotEvent {
+public class HookLoadStartEvent extends QEvent {
 	public HookLoadStartEvent(Controller controller) {
 		super(controller);
 	}
