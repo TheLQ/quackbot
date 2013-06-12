@@ -52,6 +52,7 @@ public class GUI extends JFrame implements ActionListener {
 	 * GUI log pane's
 	 */
 	public JTextPane BerrorLog, CerrorLog;
+	public final GUIConsoleAppender consoleAppender;
 	public JScrollPane BerrorScroll, CerrorScroll;
 	public Controller controller;
 
@@ -60,20 +61,21 @@ public class GUI extends JFrame implements ActionListener {
 	 */
 	public GUI(Controller controller) {
 		this.controller = controller;
+		this.consoleAppender = new GUIConsoleAppender(controller, this);
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT-5"));
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Quackbot GUI Control Panel");
 		setMinimumSize(new Dimension(1000, 700));
 
-		//Configure TextPanes
+		//Configure logging
 		BerrorLog = new JTextPaneNW();
 		BerrorLog.setEditable(false);
 		BerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
 		CerrorLog = new JTextPaneNW();
 		CerrorLog.setEditable(false);
 		CerrorLog.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+		
 		//Configuration of body
 		JPanel msgPanel = new JPanel(new BorderLayout());
 		BerrorScroll = new JScrollPane(BerrorLog);
@@ -114,6 +116,8 @@ public class GUI extends JFrame implements ActionListener {
 		setVisible(true); //make JFrame visible
 
 		mainSplit.setDividerLocation(0.50);
+		
+		consoleAppender.init();
 	}
 
 	/**

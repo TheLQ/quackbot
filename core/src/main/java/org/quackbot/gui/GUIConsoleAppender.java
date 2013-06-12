@@ -19,6 +19,7 @@
 package org.quackbot.gui;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.PatternLayout;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
@@ -28,11 +29,16 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import java.util.LinkedList;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.quackbot.Controller;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 /**
@@ -40,16 +46,59 @@ import org.slf4j.MDC;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
+@Slf4j
 public class GUIConsoleAppender extends AppenderBase<ILoggingEvent> {
 	protected final Controller controller;
+	protected final GUI gui;
 	protected final PatternLayout messageLayout;
 	protected final SimpleDateFormat dateFormatter = new SimpleDateFormat("hh:mm:ss a");
+	protected final LinkedList<ILoggingEvent> initMessageQueue = new LinkedList<ILoggingEvent>();
+	protected boolean inited = false;
 
-	public GUIConsoleAppender(Controller controller) {
+	public GUIConsoleAppender(Controller controller, GUI gui) {
+		Preconditions.checkNotNull(controller, "Controller cannot be null");
+		Preconditions.checkNotNull(gui, "GUI cannot be null");
 		this.controller = controller;
+		this.gui = gui;
+		
+		//Grab the context from root logger
+		Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		setContext(rootLogger.getLoggerContext());
+		
+		//Setup message layout
 		messageLayout = new PatternLayout();
 		messageLayout.setContext(getContext());
 		messageLayout.setPattern("%message%n");
+		messageLayout.start();
+		
+		//Start
+		start();
+		rootLogger.addAppender(this);
+		log.debug("Added GUILogAppender, waiting for init");
+	}
+
+	public void init() {
+		//Init styles
+		for (JTextPane curPane : ImmutableList.of(gui.BerrorLog, gui.CerrorLog)) {
+			StyledDocument doc = curPane.getStyledDocument();
+			doc.addStyle("Normal", null);
+			StyleConstants.setForeground(doc.addStyle("Class", null), Color.blue);
+			StyleConstants.setForeground(doc.addStyle("Error", null), Color.red);
+			//BotSend gets a better shade of orange than Color.organ gives
+			StyleConstants.setForeground(doc.addStyle("BotSend", null), new Color(255, 127, 0));
+			//BotRecv gets a better shade of green than Color.green gives
+			StyleConstants.setForeground(doc.addStyle("BotRecv", null), new Color(0, 159, 107));
+			StyleConstants.setBold(doc.addStyle("Server", null), true);
+			StyleConstants.setItalic(doc.addStyle("Thread", null), true);
+			StyleConstants.setItalic(doc.addStyle("Level", null), true);
+		}
+
+		log.debug("Inited GUILogAppender, processing any saved messages");
+		synchronized (initMessageQueue) {
+			inited = true;
+			while (!initMessageQueue.isEmpty())
+				append(initMessageQueue.poll());
+		}
 	}
 
 	/**
@@ -59,11 +108,13 @@ public class GUIConsoleAppender extends AppenderBase<ILoggingEvent> {
 	 */
 	@Override
 	public void append(final ILoggingEvent event) {
-
-		final GUI gui = controller.getGui();
-		if (gui == null)
-			//Can't log anything
-			return;
+		if (!inited)
+			synchronized (initMessageQueue) {
+				if (!inited) {
+					initMessageQueue.add(event);
+					return;
+				}
+			}
 
 		//Grab bot info off of MDC
 		final String botId = MDC.get("pircbotx.id");
@@ -77,21 +128,8 @@ public class GUIConsoleAppender extends AppenderBase<ILoggingEvent> {
 					JTextPane textPane = (StringUtils.isBlank(botId)) ? gui.CerrorLog : gui.BerrorLog;
 					JScrollPane scrollPane = (StringUtils.isBlank(botId)) ? gui.CerrorScroll : gui.BerrorScroll;
 
-					//Get styled doc and configure if nessesary
+					//Configure stle
 					StyledDocument doc = textPane.getStyledDocument();
-					if (doc.getStyle("Normal") == null) {
-						doc.addStyle("Normal", null);
-						StyleConstants.setForeground(doc.addStyle("Class", null), Color.blue);
-						StyleConstants.setForeground(doc.addStyle("Error", null), Color.red);
-						//BotSend gets a better shade of orange than Color.organ gives
-						StyleConstants.setForeground(doc.addStyle("BotSend", null), new Color(255, 127, 0));
-						//BotRecv gets a better shade of green than Color.green gives
-						StyleConstants.setForeground(doc.addStyle("BotRecv", null), new Color(0, 159, 107));
-						StyleConstants.setBold(doc.addStyle("Server", null), true);
-						StyleConstants.setItalic(doc.addStyle("Thread", null), true);
-						StyleConstants.setItalic(doc.addStyle("Level", null), true);
-					}
-
 					Style msgStyle = event.getLevel().isGreaterOrEqual(Level.WARN) ? doc.getStyle("Error") : doc.getStyle("Normal");
 
 					doc.insertString(doc.getLength(), "\n", doc.getStyle("Normal"));
