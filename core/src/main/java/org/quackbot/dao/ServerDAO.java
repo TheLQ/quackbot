@@ -18,6 +18,7 @@
  */
 package org.quackbot.dao;
 
+import org.pircbotx.Configuration;
 import org.quackbot.dao.model.ServerEntry;
 
 /**
@@ -27,5 +28,5 @@ import org.quackbot.dao.model.ServerEntry;
 public interface ServerDAO<T extends ServerEntry> extends GenericDAO<T> {
 	public T findByAddress(String serverAddress);
 
-	public T create(String address);
+	public T create(Configuration configuration);
 }
