@@ -30,15 +30,15 @@ import org.quackbot.Controller;
  */
 @Data
 @EqualsAndHashCode(callSuper=true)
-public abstract class QuackbotEvent extends Event<Bot> {
+public abstract class QEvent extends Event<Bot> {
 	protected final Controller controller;
 
-	public QuackbotEvent(Controller controller) {
+	public QEvent(Controller controller) {
 		super(null);
 		this.controller = controller;
 	}
 
-	public QuackbotEvent(Bot bot) {
+	public QEvent(Bot bot) {
 		super(bot);
 		this.controller = bot.getController();
 	}

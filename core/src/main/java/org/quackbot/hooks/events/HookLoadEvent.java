@@ -32,7 +32,7 @@ import org.quackbot.hooks.QListener;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HookLoadEvent extends QuackbotEvent {
+public class HookLoadEvent extends QEvent {
 	protected final QListener hook;
 	protected final HookLoader pluginLoader;
 	protected final File file;
