@@ -28,7 +28,7 @@ public class QConfiguration {
 	protected final Configuration templateConfiguration;
 	protected final ImmutableList<String> adminLevels;
 	protected final ImmutableList<String> globalPrefixes;
-	protected final ImmutableBiMap<String, HookLoader> hookLoaderClasses;
+	protected final ImmutableBiMap<String, HookLoader> hookLoaders;
 	protected final DAOFactory daoFactory;
 
 	public QConfiguration(Builder builder) {
@@ -36,7 +36,7 @@ public class QConfiguration {
 		templateConfiguration = builder.getTemplateConfiguration();
 		adminLevels = ImmutableList.copyOf(builder.getAdminLevels());
 		globalPrefixes = ImmutableList.copyOf(builder.getGlobalPrefixes());
-		hookLoaderClasses = ImmutableBiMap.copyOf(builder.getHookLoaderClasses());
+		hookLoaders = ImmutableBiMap.copyOf(builder.getHookLoaders());
 		daoFactory = builder.getDaoFactory();
 	}
 
@@ -51,11 +51,11 @@ public class QConfiguration {
 				AdminLevels.MODERATOR,
 				AdminLevels.ANONYMOUS);
 		protected List<String> globalPrefixes = new ArrayList<String>();
-		protected BiMap<String, HookLoader> hookLoaderClasses = HashBiMap.create();
+		protected BiMap<String, HookLoader> hookLoaders = HashBiMap.create();
 		protected DAOFactory daoFactory;
 
 		public Builder() {
-			hookLoaderClasses.put("js", new JSHookLoader());
+			hookLoaders.put("js", new JSHookLoader());
 		}
 		
 		public void setAdminLevels(List<String> adminLevels) {
