@@ -34,7 +34,7 @@ public abstract class QEvent extends Event<Bot> {
 	protected final Controller controller;
 
 	public QEvent(Controller controller) {
-		super(null);
+		super(controller.getHookManager());
 		this.controller = controller;
 	}
 
