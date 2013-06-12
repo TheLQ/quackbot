@@ -18,7 +18,6 @@
  */
 package org.quackbot;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Service;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.gui.GUI;
@@ -41,12 +40,8 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.Channel;
-import org.pircbotx.Configuration;
-import org.pircbotx.MultiBotManager;
-import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.quackbot.dao.LogDAO;
-import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.model.AdminEntry;
 import org.quackbot.dao.model.ServerEntry;
 import org.quackbot.hooks.events.InitEvent;
@@ -63,7 +58,6 @@ import org.quackbot.hooks.loaders.JSHookLoader;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Quackbot is an advanced IRC bot framework based off of PircBot.
@@ -104,7 +98,6 @@ public class Controller {
 	protected final ChannelDAO channelDao;
 	protected final LogDAO logDao;
 	protected final ServerDAO serverDao;
-	protected final UserDAO userDao;
 	/**
 	 * Set of all Bot instances
 	 */
@@ -134,7 +127,6 @@ public class Controller {
 		this.channelDao = qconfiguration.getDaoFactory().createChannelDAO();
 		this.logDao = qconfiguration.getDaoFactory().createLogDAO();
 		this.serverDao = qconfiguration.getDaoFactory().createServerDAO();
-		this.userDao = qconfiguration.getDaoFactory().createUserDAO();
 		this.commandManager = new CommandManager(qconfiguration);
 		
 		//Add shutdown hook to kill all bots and connections
@@ -319,34 +311,6 @@ public class Controller {
 	public void addHookLoader(HookLoader loader, String... exts) {
 		for (String curExt : exts)
 			getHookLoaders().put(curExt, loader);
-	}
-
-	public boolean addPrefix(String prefix) {
-		return prefixes.add(prefix);
-	}
-
-	public boolean removePrefix(String prefix) {
-		return prefixes.add(prefix);
-	}
-
-	/**
-	 * @return the version
-	 */
-	public String getVersion() {
-		String output = "";
-		if (StringUtils.isNotBlank(version))
-			output = version + " - ";
-		return output + suffix;
-	}
-
-	/**
-	 * @return the finger
-	 */
-	public String getFinger() {
-		String output = "";
-		if (StringUtils.isNotBlank(finger))
-			output = finger + " - ";
-		return output + suffix;
 	}
 
 	public void setGuiCreated(boolean guiCreated) {
