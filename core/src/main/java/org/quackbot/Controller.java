@@ -18,6 +18,7 @@
  */
 package org.quackbot;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Service;
 import org.quackbot.hooks.HookLoader;
 import org.quackbot.gui.GUI;
@@ -40,6 +41,9 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.Channel;
+import org.pircbotx.Configuration;
+import org.pircbotx.MultiBotManager;
+import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.quackbot.dao.LogDAO;
 import org.quackbot.dao.UserDAO;
@@ -104,7 +108,7 @@ public class Controller {
 	/**
 	 * Set of all Bot instances
 	 */
-	protected final LinkedHashMap<Integer, Bot> bots = new LinkedHashMap();
+	protected final LinkedHashMap<Integer, Bot> bots = new LinkedHashMap<Integer, Bot>();
 	protected final Thread shutdownHook;
 	/**
 	 * Number of Commands executed, used by logging
@@ -113,6 +117,7 @@ public class Controller {
 	protected GUI gui;
 	protected final HookManager hookManager = new HookManager();
 	protected final CommandManager commandManager;
+	protected final QMultiBotManager botManager = new QMultiBotManager();
 	/**
 	 * All registered plugin loaders
 	 */
@@ -172,20 +177,12 @@ public class Controller {
 		//Load current CMD classes
 		reloadPlugins();
 
-		//Connect to all servers
-		try {
-			connectAllServers();
-		} catch (Exception e) {
-			log.error("Error encountered while attempting to join servers", e);
-		}
-	}
-
-	protected void connectAllServers() {
 		List<ServerEntry> servers = serverDao.findAll();
 		if (servers.isEmpty())
-			log.error("Server list is empty!");
+			throw new RuntimeException("Server list is empty!");
 		for (ServerEntry curServer : servers)
-			initBot(curServer);
+			botManager.addBot(curServer);
+		botManager.start();
 	}
 
 	/**
@@ -244,52 +241,10 @@ public class Controller {
 	}
 
 	/**
-	 * Starts bot using server object
-	 * @param curServer
-	 */
-	@Transactional
-	public void initBot(final ServerEntry curServer) {
-		//Build a thread pool for the bot
-		final BotThreadPool threadPool = new BotThreadPool(new ThreadFactory() {
-			int threadCounter = 0;
-			ThreadGroup threadGroup = new ThreadGroup(genPrefix());
-
-			@Override
-			public Thread newThread(Runnable rbl) {
-				return new Thread(threadGroup, rbl, genPrefix() + "-" + threadCounter++);
-			}
-
-			protected String genPrefix() {
-				return "quackbot-" + curServer.getAddress() + "-" + curServer.getId();
-			}
-		});
-
-		//Execute bot in its thread Pool
-		threadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					log.info("Initiating IRC connection to server " + curServer);
-					Bot bot = new Bot(Controller.this, curServer.getId(), threadPool);
-					threadPool.setBot(bot);
-					bot.setVerbose(true);
-					bots.add(bot);
-					bot.connect();
-				} catch (Exception ex) {
-					log.error("Can't make bot connect to server", ex);
-				}
-			}
-		});
-	}
-
-	/**
 	 * Makes all bots quit servers
 	 */
-	public void shutdown() {
-		for (Bot curBot : bots) {
-			curBot.quitServer("Killed by control panel");
-			curBot.shutdown();
-		}
+	public void shutdown() throws InterruptedException {
+		botManager.stopAndWait();
 		state = Service.State.STOPPING;
 		if (!shutdownHook.isAlive())
 			Runtime.getRuntime().removeShutdownHook(shutdownHook);
@@ -298,26 +253,15 @@ public class Controller {
 		state = Service.State.TERMINATED;
 	}
 
-	public void addServer(String address, String... channels) {
-		addServer(address, getDefaultPort(), channels);
-	}
-
 	/**
 	 * Creates a new server, adds to database, and connects
 	 * @param address  Address of server
 	 * @param port     Port number to be used (if null, the 6667 is used)
 	 * @param channels Vararg of channels to join
 	 */
-	@Transactional
-	public void addServer(String address, int port, String... channels) {
-		ServerEntry server = serverDao.create(address);
-		server.setPort(port);
-		for (String curChan : channels)
-			server.getChannels().add(channelDao.create(curChan));
-		serverDao.save(server);
-
-		if (started)
-			initBot(server);
+	public void addServer(ServerEntry serverEntry) {
+		serverDao.save(serverEntry);
+		botManager.addBot(serverEntry);
 	}
 
 	/**
@@ -326,9 +270,9 @@ public class Controller {
 	 * this will delete <u>all</u> of them. 
 	 * @param address  The address of the server to be deleted
 	 */
-	@Transactional
-	public void removeServer(String address) {
-		serverDao.delete(serverDao.findByAddress(address));
+	public void removeServer(ServerEntry serverEntry) {
+		serverDao.delete(serverEntry);
+		botManager.removeBot(serverEntry);
 	}
 
 	/**
@@ -336,7 +280,7 @@ public class Controller {
 	 * @param msg   Message to send
 	 */
 	public void sendGlobalMessage(String msg) {
-		for (Bot curBot : bots)
+		for (Bot curBot : botManager.getBots())
 			curBot.sendAllMessage(msg);
 	}
 
