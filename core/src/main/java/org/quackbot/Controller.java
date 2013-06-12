@@ -221,7 +221,7 @@ public class Controller {
 			String ext = extArr[1];
 
 			//Load with pluginType
-			loader = getHookLoaders().get(ext);
+			loader = qconfiguration.getHookLoaders().get(ext);
 			if (loader != null)
 				hook = loader.load(file.getAbsolutePath());
 			getHookManager().dispatchEvent(new HookLoadEvent(this, hook, loader, file, null));
@@ -299,16 +299,6 @@ public class Controller {
 
 		//Getting here means they aren't an admin
 		return false;
-	}
-
-	/**
-	 * Register a plugin loader, associating with the specified extentions
-	 * @param exts     Extention to associate Command Type with
-	 * @param newType Class of Command Type
-	 */
-	public void addHookLoader(HookLoader loader, String... exts) {
-		for (String curExt : exts)
-			getHookLoaders().put(curExt, loader);
 	}
 
 	public void setGuiCreated(boolean guiCreated) {
