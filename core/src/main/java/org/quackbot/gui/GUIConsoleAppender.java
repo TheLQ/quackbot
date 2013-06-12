@@ -40,7 +40,6 @@ import org.slf4j.MDC;
  *
  * @author Leon Blakey <lord.quackstar at gmail.com>
  */
-@RequiredArgsConstructor
 public class GUIConsoleAppender extends AppenderBase<ILoggingEvent> {
 	protected final Controller controller;
 	protected final PatternLayout messageLayout;
