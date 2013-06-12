@@ -50,7 +50,7 @@ public class QConfiguration {
 		protected List<String> adminLevels = Lists.newArrayList(AdminLevels.ADMIN,
 				AdminLevels.MODERATOR,
 				AdminLevels.ANONYMOUS);
-		protected List<String> globalPrefixes = new ArrayList();
+		protected List<String> globalPrefixes = new ArrayList<String>();
 		protected BiMap<String, HookLoader> hookLoaderClasses = HashBiMap.create();
 		protected DAOFactory daoFactory;
 
