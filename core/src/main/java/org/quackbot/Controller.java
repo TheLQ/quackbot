@@ -28,14 +28,9 @@ import org.quackbot.dao.ServerDAO;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import javax.swing.SwingUtilities;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -50,14 +45,11 @@ import org.quackbot.hooks.events.HookLoadEvent;
 import org.quackbot.hooks.events.HookLoadStartEvent;
 import org.quackbot.hooks.CommandManager;
 import org.quackbot.hooks.QListener;
-import org.quackbot.hooks.core.AdminHelpCommand;
 import org.quackbot.hooks.core.CoreQuackbotListener;
 import org.quackbot.hooks.core.HelpCommand;
 import org.quackbot.hooks.core.QuackbotLogHook;
-import org.quackbot.hooks.loaders.JSHookLoader;
 import org.quackbot.hooks.loaders.JavaHookLoader;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 /**
  * Quackbot is an advanced IRC bot framework based off of PircBot.
@@ -134,7 +126,6 @@ public class Controller {
 			hookManager.addListener(new CoreQuackbotListener());
 			hookManager.addListener(new QuackbotLogHook());
 			JavaHookLoader.loadCommands(commandManager, new HelpCommand());
-			JavaHookLoader.loadListener(this, new AdminHelpCommand());
 		} catch (Exception e) {
 			log.error("Could not load core hooks");
 		}
