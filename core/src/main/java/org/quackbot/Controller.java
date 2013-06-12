@@ -128,17 +128,21 @@ public class Controller {
 		this.logDao = qconfiguration.getDaoFactory().createLogDAO();
 		this.serverDao = qconfiguration.getDaoFactory().createServerDAO();
 		this.commandManager = new CommandManager(qconfiguration);
-		
+
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(shutdownHook = new Thread() {
 			@Override
 			public void run() {
 				LoggerFactory.getLogger(this.getClass()).info("JVM shutting down, closing all IRC connections gracefully");
-				Controller.this.shutdown();
+				try {
+					Controller.this.shutdown();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
-	
+
 	public void initHookManager() {
 		//Setup default Plugin Loaders
 		addHookLoader(new JSHookLoader(), "js");
@@ -153,7 +157,7 @@ public class Controller {
 			log.error("Error when loading default plugins", e);
 		}
 	}
-	
+
 	/**
 	 * Executes Quackbot. Loads commands, starts service commands, connects to servers.
 	 * If this isn't called, then the bot does nothing
@@ -201,11 +205,11 @@ public class Controller {
 		String[] extArr = null;
 		HookLoader loader = null;
 		QListener hook = null;
-		
+
 		//Ignore files or folders that start with a period
-		if(file.getName().startsWith("."))
+		if (file.getName().startsWith("."))
 			return;
-		
+
 		//Load using appropiate type
 		try {
 			if (file.isDirectory()) {
@@ -282,7 +286,6 @@ public class Controller {
 	public synchronized int addCommandNumber() {
 		return ++commandNumber;
 	}
-	
 
 	public boolean isAdmin(Bot bot, User user, Channel chan) {
 		AdminEntry admin = adminDao.findByName(user.getNick());
