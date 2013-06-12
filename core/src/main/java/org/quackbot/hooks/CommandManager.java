@@ -13,7 +13,9 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Multimap;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.pircbotx.User;
 import org.quackbot.AdminLevels;
 import org.quackbot.QConfiguration;
@@ -26,6 +28,7 @@ public class CommandManager {
 	public static final CommandComparator COMMAND_COMPARATOR = new CommandComparator();
 	protected final BiMap<String, Command> commandsByName = HashBiMap.create();
 	protected final Multimap<String, Command> commandsByAdminLevel = HashMultimap.create();
+	protected final Set<Command> commandsByEnabled = new HashSet<Command>();
 	protected final ImmutableList<String> adminLevels;
 	protected final Multimap<String, User> activeAdmins = HashMultimap.create();
 
@@ -58,11 +61,25 @@ public class CommandManager {
 	public void addCommand(Command command) {
 		commandsByName.put(command.getName(), command);
 		commandsByAdminLevel.put(command.getMinimumAdminLevel(), command);
+		commandsByEnabled.add(command);
 	}
 
 	public void removeCommand(Command command) {
 		commandsByName.inverse().remove(command);
 		commandsByAdminLevel.remove(command.getMinimumAdminLevel(), command);
+		commandsByEnabled.remove(command);
+	}
+	
+	public void enableCommand(Command command) {
+		commandsByEnabled.add(command);
+	}
+	
+	public void disableCommand(Command command) {
+		commandsByEnabled.remove(command);
+	}
+	
+	public ImmutableSortedSet<Command> getEnabledCommands() {
+		return ImmutableSortedSet.copyOf(commandsByEnabled);
 	}
 	
 	public boolean isValidAdminLevel(String adminLevel) {
