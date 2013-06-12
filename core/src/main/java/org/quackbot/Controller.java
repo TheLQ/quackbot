@@ -273,7 +273,7 @@ public class Controller {
 	 */
 	public void sendGlobalMessage(String msg) {
 		for (Bot curBot : botManager.getBots())
-			curBot.sendAllMessage(msg);
+			curBot.sendAnnounceMessage(msg);
 	}
 
 	/**
