@@ -43,4 +43,6 @@ public interface ServerEntry extends GenericEntry {
 	public Set<ChannelEntry> getChannels();
 
 	public Configuration getConfiguration();
+
+	public void setConfiguration(Configuration configuration);
 }
