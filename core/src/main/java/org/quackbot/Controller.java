@@ -117,7 +117,7 @@ public class Controller {
 		this.channelDao = qconfiguration.getDaoFactory().createChannelDAO();
 		this.logDao = qconfiguration.getDaoFactory().createLogDAO();
 		this.serverDao = qconfiguration.getDaoFactory().createServerDAO();
-		this.commandManager = new CommandManager(qconfiguration);
+		this.commandManager = new CommandManager(this);
 
 		//Add core hooks
 		hookManager.addListener(new CoreQuackbotListener());
