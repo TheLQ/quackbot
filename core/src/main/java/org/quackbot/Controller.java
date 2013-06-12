@@ -122,13 +122,9 @@ public class Controller {
 		this.commandManager = new CommandManager(qconfiguration);
 
 		//Add core hooks
-		try {
-			hookManager.addListener(new CoreQuackbotListener());
-			hookManager.addListener(new QuackbotLogHook());
-			JavaHookLoader.loadCommands(commandManager, new HelpCommand());
-		} catch (Exception e) {
-			log.error("Could not load core hooks", e);
-		}
+		hookManager.addListener(new CoreQuackbotListener());
+		hookManager.addListener(new QuackbotLogHook());
+		JavaHookLoader.loadCommands(commandManager, new HelpCommand());
 
 		//Add shutdown hook to kill all bots and connections
 		Runtime.getRuntime().addShutdownHook(shutdownHook = new Thread() {
