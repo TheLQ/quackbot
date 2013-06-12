@@ -18,41 +18,19 @@
  */
 package org.quackbot;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.net.Socket;
+import com.google.common.base.Preconditions;
 import java.util.Set;
-import org.pircbotx.exception.IrcException;
-import org.pircbotx.exception.NickAlreadyInUseException;
-import org.pircbotx.hooks.Listener;
-import org.quackbot.hooks.QListener;
-import org.quackbot.dao.ServerDAO;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.pircbotx.Channel;
-import org.pircbotx.InputThread;
-import org.pircbotx.OutputThread;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
-import org.pircbotx.hooks.CoreHooks;
-import org.pircbotx.hooks.Event;
-import org.pircbotx.hooks.managers.ListenerManager;
-import org.quackbot.dao.AdminDAO;
-import org.quackbot.dao.ChannelDAO;
-import org.quackbot.dao.LogDAO;
-import org.quackbot.dao.UserDAO;
 import org.quackbot.dao.model.ServerEntry;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Bot instance that communicates with 1 server
@@ -67,82 +45,24 @@ import org.springframework.transaction.annotation.Transactional;
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 public class Bot extends PircBotX {
-	@Autowired
-	@Setter(AccessLevel.PROTECTED)
-	protected AdminDAO adminDao;
-	@Autowired
-	@Setter(AccessLevel.PROTECTED)
-	protected ChannelDAO channelDao;
-	@Autowired
-	@Setter(AccessLevel.PROTECTED)
-	protected LogDAO logDao;
-	@Autowired
-	@Setter(AccessLevel.PROTECTED)
-	protected ServerDAO serverDao;
-	@Autowired
-	@Setter(AccessLevel.PROTECTED)
-	protected UserDAO userDao;
+	protected final Controller controller;
+	@Getter
+	protected final ServerEntry serverEntry;
 	/**
 	 * Says weather bot is globally locked or not
 	 */
 	protected boolean botLocked = false;
-	protected final Long serverId;
-	/**
-	 * Local threadpool
-	 */
-	protected final ExecutorService threadPool;
-	protected Controller controller;
-	protected final Set<User> ignoredUsers = new HashSet();
-	protected final Set<Channel> ignoredChannels = new HashSet();
+	protected final Set<User> ignoredUsers = new HashSet<User>();
+	protected final Set<Channel> ignoredChannels = new HashSet<Channel>();
 
 	/**
 	 * Init bot by setting all information
 	 * @param serverDB   The persistent server object from database
 	 */
-	public Bot(Controller controller, Long serverId, ExecutorService threadPool) {
-		this.serverId = serverId;
-		this.threadPool = threadPool;
+	public Bot(Controller controller, ServerEntry serverEntry) {
+		super(serverEntry.getConfiguration());
 		this.controller = controller;
-
-		setName(controller.getDefaultName());
-		setLogin(controller.getDefaultLogin());
-		setAutoNickChange(true);
-		setFinger(controller.getFinger());
-		setVersion(controller.getVersion());
-		setMessageDelay(controller.getDefaultMessageDelay());
-		setListenerManager(new WrapperListenerManager());
-	}
-
-	@Transactional(readOnly = true)
-	public void connect() throws NickAlreadyInUseException, IOException, IrcException {
-		//Some bits of info
-		ServerEntry server = getServerEntry();
-		log.info("Attempting to connect to " + server.getAddress() + " on port " + server.getPort());
-		if (server.getPassword() != null)
-			log.info("Using password " + server.getPassword() + " to connect");
-
-		//Connect to server. Channels are handled by onConnect listener in CoreQuackbotHook
-		int port = (server.getPort() != null) ? server.getPort() : 6667;
-		if (server.getPassword() != null)
-			connect(server.getAddress(), port, server.getPassword());
-		else
-			connect(server.getAddress(), port);
-	}
-
-	@Override
-	protected InputThread createInputThread(Socket socket, BufferedReader breader) {
-		InputThread inputThread = new InputThread(this, socket, breader) {
-		};
-		inputThread.setName("quackbot-" + getServerEntry().getAddress() + "-" + getServerEntry().getId() + "-input");
-		return inputThread;
-	}
-
-	@Override
-	protected OutputThread createOutputThread(BufferedWriter bwriter) {
-		OutputThread outputThread = new OutputThread(this, bwriter) {
-		};
-		outputThread.setName("quackbot-" + getServerEntry().getAddress() + "-" + getServerEntry().getId() + "-output");
-		return outputThread;
+		this.serverEntry = serverEntry;
 	}
 
 	/**
@@ -181,107 +101,20 @@ public class Bot extends PircBotX {
 	}
 
 	/**
-	 * DO NOT USE THIS! Only for redirecting internal logging by PircBotX to slf4j
-	 * @param line The line to add to the log.
-	 */
-	@Override
-	public void log(String line) {
-		if (line.startsWith("###"))
-			log.error(line);
-		else if (line.startsWith("***"))
-			log.info(line);
-		else
-			//This means <<<, >>>, +++, and unknown lines
-			log.debug(line);
-	}
-
-	@Override
-	public void shutdown() {
-		super.shutdown();
-		threadPool.shutdown();
-	}
-
-	/**
 	 * Send message to ALL joined channels
 	 * @param msg   Message to send
 	 */
-	public void sendAllMessage(String msg) {
-		if (msg != null)
-			for (String curChan : getChannelsNames())
-				sendMessage(curChan, msg);
-	}
-
-	public boolean isBot(String name) {
-		return getName().equals(name);
+	public void sendAnnounceMessage(String msg) {
+		Preconditions.checkNotNull(msg, "Msg must not be null");
+		for (Channel channel : getUserChannelDao().getAllChannels())
+			channel.send().message(msg);
 	}
 
 	public List<String> getPrefixes() {
 		//Merge the global list and the Bot specific list
-		ArrayList<String> list = new ArrayList<String>(controller.getPrefixes());
+		ArrayList<String> list = new ArrayList<String>(controller.getQconfiguration().getGlobalPrefixes());
 		list.add(getNick() + ":");
 		list.add(getNick());
 		return list;
-	}
-
-	@Transactional
-	public ServerEntry getServerEntry() {
-		return (ServerEntry) serverDao.findById(serverId);
-	}
-
-	@Transactional
-	@Override
-	protected void handleLine(String line) {
-		super.handleLine(line);
-	}
-
-	@Data
-	public class WrapperListenerManager implements ListenerManager<Bot> {
-		protected HashMap<Listener, QListener> listenerTracker = new HashMap();
-
-		public void dispatchEvent(Event<Bot> event) {
-			controller.getHookManager().dispatchEvent(event);
-		}
-
-		public boolean addListener(Listener listener) {
-			//Handle PircBotX's CoreHook's specifically because its added every time the listener manager is set
-			if (controller.getHookManager().hookExists(CoreHooks.class.getCanonicalName()))
-				return false;
-			QListener genHook = new QListener(listener) {
-			};
-			listenerTracker.put(listener, genHook);
-			controller.getHookManager().addHook(genHook);
-			return true;
-		}
-
-		public boolean removeListener(Listener listener) {
-			if (listenerTracker.containsKey(listener)) {
-				controller.getHookManager().removeHook(listenerTracker.get(listener));
-				listenerTracker.remove(listener);
-			}
-			return true;
-		}
-
-		public boolean listenerExists(Listener listener) {
-			return listenerTracker.containsKey(listener);
-		}
-
-		public Set<Listener> getListeners() {
-			return listenerTracker.keySet();
-		}
-
-		@Override
-		public void setCurrentId(long currentId) {
-			controller.getHookManager().setCurrentId(currentId);
-		}
-
-		@Override
-		public long getCurrentId() {
-			return controller.getHookManager().getCurrentId();
-		}
-
-		@Override
-		public long incrementCurrentId() {
-			return controller.getHookManager().incrementCurrentId();
-		}
 	}
 }
